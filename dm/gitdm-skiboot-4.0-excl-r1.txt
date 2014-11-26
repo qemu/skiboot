@@ -1,0 +1,95 @@
+Processed 313 csets from 20 developers
+1 employers found
+A total of 19351 lines added, 8007 removed (delta 11344)
+
+Developers with the most changesets
+Benjamin Herrenschmidt      83 (26.5%)
+Stewart Smith               68 (21.7%)
+Alistair Popple             23 (7.3%)
+Joel Stanley                16 (5.1%)
+Ananth N Mavinakayanahalli   15 (4.8%)
+Vasant Hegde                14 (4.5%)
+Anshuman Khandual           14 (4.5%)
+Gavin Shan                  13 (4.2%)
+Deepthi Dharwar             13 (4.2%)
+Ryan Grimm                  12 (3.8%)
+Neelesh Gupta                7 (2.2%)
+Jeremy Kerr                  6 (1.9%)
+Aruna Balakrishnaiah         6 (1.9%)
+Mamatha Inamdar              5 (1.6%)
+Mahesh Salgaonkar            5 (1.6%)
+Vaidyanathan Srinivasan      4 (1.3%)
+Shreyas B. Prabhu            3 (1.0%)
+Mike Qiu                     3 (1.0%)
+Preeti U Murthy              2 (0.6%)
+millerjo@us.ibm.com          1 (0.3%)
+
+Developers with the most changed lines
+Benjamin Herrenschmidt    5923 (26.7%)
+Alistair Popple           2947 (13.3%)
+Anshuman Khandual         2889 (13.0%)
+Neelesh Gupta             1724 (7.8%)
+Stewart Smith             1046 (4.7%)
+Gavin Shan                 984 (4.4%)
+Deepthi Dharwar            519 (2.3%)
+Mahesh Salgaonkar          481 (2.2%)
+Mike Qiu                   463 (2.1%)
+Aruna Balakrishnaiah       409 (1.8%)
+Vasant Hegde               365 (1.6%)
+Joel Stanley               342 (1.5%)
+Mamatha Inamdar            292 (1.3%)
+Ryan Grimm                 242 (1.1%)
+Ananth N Mavinakayanahalli  190 (0.9%)
+Jeremy Kerr                154 (0.7%)
+Shreyas B. Prabhu          138 (0.6%)
+Vaidyanathan Srinivasan    129 (0.6%)
+millerjo@us.ibm.com         74 (0.3%)
+Preeti U Murthy             69 (0.3%)
+
+Developers with the most lines removed
+Preeti U Murthy             29 (0.4%)
+
+Developers with the most signoffs (total 178)
+Benjamin Herrenschmidt     154 (86.5%)
+Stewart Smith               14 (7.9%)
+Jeremy Kerr                  4 (2.2%)
+Preeti U Murthy              1 (0.6%)
+Shreyas B. Prabhu            1 (0.6%)
+Vaidyanathan Srinivasan      1 (0.6%)
+Mamatha Inamdar              1 (0.6%)
+Vasant Hegde                 1 (0.6%)
+Alistair Popple              1 (0.6%)
+
+Developers with the most reviews (total 14)
+Vasant Hegde                 7 (50.0%)
+Gavin Shan                   3 (21.4%)
+Deepthi Dharwar              2 (14.3%)
+Stewart Smith                1 (7.1%)
+Joel Stanley                 1 (7.1%)
+
+Developers with the most test credits (total 1)
+Neelesh Gupta                1 (100.0%)
+
+Developers who gave the most tested-by credits (total 1)
+Benjamin Herrenschmidt       1 (100.0%)
+
+Developers with the most report credits (total 3)
+Vasant Hegde                 1 (33.3%)
+Murali N. Iyer               1 (33.3%)
+Rolf Brudeseth               1 (33.3%)
+
+Developers who gave the most report credits (total 3)
+Gavin Shan                   2 (66.7%)
+Anshuman Khandual            1 (33.3%)
+
+Top changeset contributors by employer
+IBM                        313 (100.0%)
+
+Top lines changed by employer
+IBM                       22187 (100.0%)
+
+Employers with the most signoffs (total 178)
+IBM                        178 (100.0%)
+
+Employers with the most hackers (total 20)
+IBM                         20 (100.0%)

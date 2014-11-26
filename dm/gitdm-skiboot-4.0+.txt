@@ -1,0 +1,57 @@
+Processed 22 csets from 10 developers
+1 employers found
+A total of 643 lines added, 571 removed (delta 72)
+
+Developers with the most changesets
+Benjamin Herrenschmidt       8 (36.4%)
+Stewart Smith                3 (13.6%)
+Vasant Hegde                 2 (9.1%)
+Shilpasri G Bhat             2 (9.1%)
+Mahesh Salgaonkar            2 (9.1%)
+Shreyas B. Prabhu            1 (4.5%)
+Joel Stanley                 1 (4.5%)
+Cédric Le Goater            1 (4.5%)
+Vaidyanathan Srinivasan      1 (4.5%)
+Dan Streetman                1 (4.5%)
+
+Developers with the most changed lines
+Benjamin Herrenschmidt     540 (55.3%)
+Mahesh Salgaonkar          307 (31.4%)
+Shilpasri G Bhat            39 (4.0%)
+Vaidyanathan Srinivasan     24 (2.5%)
+Joel Stanley                21 (2.1%)
+Shreyas B. Prabhu            9 (0.9%)
+Stewart Smith                2 (0.2%)
+Vasant Hegde                 2 (0.2%)
+Cédric Le Goater            2 (0.2%)
+Dan Streetman                2 (0.2%)
+
+Developers with the most lines removed
+Mahesh Salgaonkar          305 (53.4%)
+
+Developers with the most signoffs (total 13)
+Stewart Smith                7 (53.8%)
+Benjamin Herrenschmidt       4 (30.8%)
+Vaidyanathan Srinivasan      2 (15.4%)
+
+Developers with the most reviews (total 0)
+
+Developers with the most test credits (total 0)
+
+Developers who gave the most tested-by credits (total 0)
+
+Developers with the most report credits (total 0)
+
+Developers who gave the most report credits (total 0)
+
+Top changeset contributors by employer
+IBM                         22 (100.0%)
+
+Top lines changed by employer
+IBM                        977 (100.0%)
+
+Employers with the most signoffs (total 13)
+IBM                         13 (100.0%)
+
+Employers with the most hackers (total 10)
+IBM                         10 (100.0%)
