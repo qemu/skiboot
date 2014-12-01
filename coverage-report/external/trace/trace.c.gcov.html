@@ -31,13 +31,13 @@
             <td class="headerValue">skiboot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">37</td>
-            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntry">39</td>
+            <td class="headerCovTableEntry">39</td>
             <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2014-11-24</td>
+            <td class="headerValue">2014-12-01</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">2</td>
@@ -86,94 +86,101 @@
 <span class="lineNum">      15 </span>                :            :  */
 <span class="lineNum">      16 </span>                :            : /* This example code shows how to read from the trace buffer. */
 <span class="lineNum">      17 </span>                :            : #include &lt;external/trace/trace.h&gt;
-<span class="lineNum">      18 </span>                :            : #include &lt;trace_types.h&gt;
-<a name="19"><span class="lineNum">      19 </span>                :            : #include &lt;errno.h&gt;</a>
-<span class="lineNum">      20 </span>                :            : 
-<span class="lineNum">      21 </span>                :<span class="lineCov">   23703075 : bool trace_empty(const struct tracebuf *tb)</span>
-<span class="lineNum">      22 </span>                :            : {
-<span class="lineNum">      23 </span>                :            :         const struct trace_repeat *rep;
-<span class="lineNum">      24 </span>                :            : 
-<span class="lineNum">      25 </span>        [<span class="branchCov" title="Branch 0 was taken 67726 times"> + </span><span class="branchCov" title="Branch 1 was taken 23635349 times"> + </span>]:<span class="lineCov">   23703075 :         if (tb-&gt;rpos == tb-&gt;end)</span>
-<span class="lineNum">      26 </span>                :<span class="lineCov">      67726 :                 return true;</span>
-<span class="lineNum">      27 </span>                :            : 
-<span class="lineNum">      28 </span>                :            :         /*
-<span class="lineNum">      29 </span>                :            :          * If we have a single element only, and it's a repeat buffer
-<span class="lineNum">      30 </span>                :            :          * we've already seen every repeat for (yet which may be
-<span class="lineNum">      31 </span>                :            :          * incremented in future), we're also empty.
-<span class="lineNum">      32 </span>                :            :          */
-<span class="lineNum">      33 </span>                :<span class="lineCov">   23635349 :         rep = (void *)tb-&gt;buf + (tb-&gt;rpos &amp; tb-&gt;mask);</span>
-<span class="lineNum">      34 </span>        [<span class="branchCov" title="Branch 0 was taken 2625529 times"> + </span><span class="branchCov" title="Branch 1 was taken 21009820 times"> + </span>]:<span class="lineCov">   23635349 :         if (tb-&gt;end != tb-&gt;rpos + sizeof(*rep))</span>
-<span class="lineNum">      35 </span>                :<span class="lineCov">    2625529 :                 return false;</span>
-<span class="lineNum">      36 </span>                :            : 
-<span class="lineNum">      37 </span>        [<span class="branchCov" title="Branch 0 was taken 35 times"> + </span><span class="branchCov" title="Branch 1 was taken 21009785 times"> + </span>]:<span class="lineCov">   21009820 :         if (rep-&gt;type != TRACE_REPEAT)</span>
-<span class="lineNum">      38 </span>                :<span class="lineCov">         35 :                 return false;</span>
-<span class="lineNum">      39 </span>                :            : 
-<span class="lineNum">      40 </span>        [<span class="branchCov" title="Branch 0 was taken 10511239 times"> + </span><span class="branchCov" title="Branch 1 was taken 10498546 times"> + </span>]:<span class="lineCov">   21009785 :         if (rep-&gt;num != tb-&gt;last_repeat)</span>
-<span class="lineNum">      41 </span>                :<span class="lineCov">   10511239 :                 return false;</span>
-<span class="lineNum">      42 </span>                :            : 
-<span class="lineNum">      43 </span>                :<span class="lineCov">   23703075 :         return true;</span>
-<span class="lineNum">      44 </span>                :            : }
-<a name="45"><span class="lineNum">      45 </span>                :            : </a>
-<span class="lineNum">      46 </span>                :            : /* You can't read in parallel, so some locking required in caller. */
-<span class="lineNum">      47 </span>                :<span class="lineCov">   23703035 : bool trace_get(union trace *t, struct tracebuf *tb)</span>
-<span class="lineNum">      48 </span>                :            : {
-<span class="lineNum">      49 </span>                :            :         u64 start;
-<span class="lineNum">      50 </span>        [<span class="branchCov" title="Branch 0 was taken 1912175 times"> + </span><span class="branchCov" title="Branch 1 was taken 21790860 times"> + </span>]:<span class="lineCov">   23703035 :         size_t len = sizeof(*t) &lt; tb-&gt;max_size ? sizeof(*t) : tb-&gt;max_size;</span>
-<span class="lineNum">      51 </span>                :            : 
-<span class="lineNum">      52 </span>        [<span class="branchCov" title="Branch 1 was taken 10566232 times"> + </span><span class="branchCov" title="Branch 2 was taken 13136803 times"> + </span>]:<span class="lineCov">   23703035 :         if (trace_empty(tb))</span>
-<span class="lineNum">      53 </span>                :<span class="lineCov">   10566232 :                 return false;</span>
-<span class="lineNum">      54 </span>                :            : 
-<span class="lineNum">      55 </span>                :            : again:
-<span class="lineNum">      56 </span>                :            :         /*
-<span class="lineNum">      57 </span>                :            :          * The actual buffer is slightly larger than tbsize, so this
-<span class="lineNum">      58 </span>                :            :          * memcpy is always valid.
-<span class="lineNum">      59 </span>                :            :          */
-<span class="lineNum">      60 </span>                :<span class="lineCov">   13855050 :         memcpy(t, tb-&gt;buf + (tb-&gt;rpos &amp; tb-&gt;mask), len);</span>
-<span class="lineNum">      61 </span>                :            : 
-<span class="lineNum">      62 </span>                :<span class="lineCov">   13855050 :         rmb(); /* read barrier, so we read tb-&gt;start after copying record. */</span>
-<span class="lineNum">      63 </span>                :            : 
-<span class="lineNum">      64 </span>                :<span class="lineCov">   13855050 :         start = tb-&gt;start;</span>
-<span class="lineNum">      65 </span>                :            : 
-<span class="lineNum">      66 </span>                :            :         /* Now, was that overwritten? */
-<span class="lineNum">      67 </span>        [<span class="branchCov" title="Branch 0 was taken 43 times"> + </span><span class="branchCov" title="Branch 1 was taken 13855007 times"> + </span>]:<span class="lineCov">   13855050 :         if (tb-&gt;rpos &lt; start) {</span>
-<span class="lineNum">      68 </span>                :            :                 /* Create overflow record. */
-<span class="lineNum">      69 </span>                :<span class="lineCov">         43 :                 t-&gt;overflow.unused64 = 0;</span>
-<span class="lineNum">      70 </span>                :<span class="lineCov">         43 :                 t-&gt;overflow.type = TRACE_OVERFLOW;</span>
-<span class="lineNum">      71 </span>                :<span class="lineCov">         43 :                 t-&gt;overflow.len_div_8 = sizeof(t-&gt;overflow) / 8;</span>
-<span class="lineNum">      72 </span>                :<span class="lineCov">         43 :                 t-&gt;overflow.bytes_missed = start - tb-&gt;rpos;</span>
-<span class="lineNum">      73 </span>                :<span class="lineCov">         43 :                 tb-&gt;rpos += t-&gt;overflow.bytes_missed;</span>
-<span class="lineNum">      74 </span>                :<span class="lineCov">         43 :                 return true;</span>
-<span class="lineNum">      75 </span>                :            :         }
-<span class="lineNum">      76 </span>                :            : 
-<span class="lineNum">      77 </span>                :            :         /* Repeat entries need special handling */
-<span class="lineNum">      78 </span>        [<span class="branchCov" title="Branch 0 was taken 11921948 times"> + </span><span class="branchCov" title="Branch 1 was taken 1933059 times"> + </span>]:<span class="lineCov">   13855007 :         if (t-&gt;hdr.type == TRACE_REPEAT) {</span>
-<span class="lineNum">      79 </span>                :<span class="lineCov">   11921948 :                 u32 num = t-&gt;repeat.num;</span>
-<span class="lineNum">      80 </span>                :            : 
-<span class="lineNum">      81 </span>                :            :                 /* In case we've read some already... */
-<span class="lineNum">      82 </span>                :<span class="lineCov">   11921948 :                 t-&gt;repeat.num -= tb-&gt;last_repeat;</span>
-<span class="lineNum">      83 </span>                :            : 
-<span class="lineNum">      84 </span>                :            :                 /* Record how many repeats we saw this time. */
-<span class="lineNum">      85 </span>                :<span class="lineCov">   11921948 :                 tb-&gt;last_repeat = num;</span>
+<span class="lineNum">      18 </span>                :            : #include &quot;../ccan/endian/endian.h&quot;
+<span class="lineNum">      19 </span>                :            : #include &quot;../ccan/short_types/short_types.h&quot;
+<span class="lineNum">      20 </span>                :            : #include &lt;trace_types.h&gt;
+<a name="21"><span class="lineNum">      21 </span>                :            : #include &lt;errno.h&gt;</a>
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :<span class="lineCov">   11884612 : bool trace_empty(const struct tracebuf *tb)</span>
+<span class="lineNum">      24 </span>                :            : {
+<span class="lineNum">      25 </span>                :            :         const struct trace_repeat *rep;
+<span class="lineNum">      26 </span>                :            : 
+<span class="lineNum">      27 </span>        [<span class="branchCov" title="Branch 0 was taken 132 times"> + </span><span class="branchCov" title="Branch 1 was taken 11884480 times"> + </span>]:<span class="lineCov">   11884612 :         if (tb-&gt;rpos == tb-&gt;end)</span>
+<span class="lineNum">      28 </span>                :<span class="lineCov">        132 :                 return true;</span>
+<span class="lineNum">      29 </span>                :            : 
+<span class="lineNum">      30 </span>                :            :         /*
+<span class="lineNum">      31 </span>                :            :          * If we have a single element only, and it's a repeat buffer
+<span class="lineNum">      32 </span>                :            :          * we've already seen every repeat for (yet which may be
+<span class="lineNum">      33 </span>                :            :          * incremented in future), we're also empty.
+<span class="lineNum">      34 </span>                :            :          */
+<span class="lineNum">      35 </span>                :<span class="lineCov">   11884480 :         rep = (void *)tb-&gt;buf + be64_to_cpu(tb-&gt;rpos &amp; tb-&gt;mask);</span>
+<span class="lineNum">      36 </span>        [<span class="branchCov" title="Branch 2 was taken 1398811 times"> + </span><span class="branchCov" title="Branch 3 was taken 10485669 times"> + </span>]:<span class="lineCov">   11884480 :         if (be64_to_cpu(tb-&gt;end) != be64_to_cpu(tb-&gt;rpos) + sizeof(*rep))</span>
+<span class="lineNum">      37 </span>                :<span class="lineCov">    1398811 :                 return false;</span>
+<span class="lineNum">      38 </span>                :            : 
+<span class="lineNum">      39 </span>        [<span class="branchCov" title="Branch 0 was taken 20 times"> + </span><span class="branchCov" title="Branch 1 was taken 10485649 times"> + </span>]:<span class="lineCov">   10485669 :         if (rep-&gt;type != TRACE_REPEAT)</span>
+<span class="lineNum">      40 </span>                :<span class="lineCov">         20 :                 return false;</span>
+<span class="lineNum">      41 </span>                :            : 
+<span class="lineNum">      42 </span>        [<span class="branchCov" title="Branch 2 was taken 5242847 times"> + </span><span class="branchCov" title="Branch 3 was taken 5242802 times"> + </span>]:<span class="lineCov">   10485649 :         if (be16_to_cpu(rep-&gt;num) != be32_to_cpu(tb-&gt;last_repeat))</span>
+<span class="lineNum">      43 </span>                :<span class="lineCov">    5242847 :                 return false;</span>
+<span class="lineNum">      44 </span>                :            : 
+<span class="lineNum">      45 </span>                :<span class="lineCov">   11884612 :         return true;</span>
+<span class="lineNum">      46 </span>                :            : }
+<a name="47"><span class="lineNum">      47 </span>                :            : </a>
+<span class="lineNum">      48 </span>                :            : /* You can't read in parallel, so some locking required in caller. */
+<span class="lineNum">      49 </span>                :<span class="lineCov">   11884592 : bool trace_get(union trace *t, struct tracebuf *tb)</span>
+<span class="lineNum">      50 </span>                :            : {
+<span class="lineNum">      51 </span>                :            :         u64 start, rpos;
+<span class="lineNum">      52 </span>                :            :         size_t len;
+<span class="lineNum">      53 </span>                :            : 
+<span class="lineNum">      54 </span>        [<span class="branchCov" title="Branch 1 was taken 989162 times"> + </span><span class="branchCov" title="Branch 2 was taken 10895430 times"> + </span>]:<span class="lineCov">   12873754 :         len = sizeof(*t) &lt; be32_to_cpu(tb-&gt;max_size) ? sizeof(*t) :</span>
+<span class="lineNum">      55 </span>                :<span class="lineCov">     989162 :                 be32_to_cpu(tb-&gt;max_size);</span>
+<span class="lineNum">      56 </span>                :            : 
+<span class="lineNum">      57 </span>        [<span class="branchCov" title="Branch 1 was taken 5242914 times"> + </span><span class="branchCov" title="Branch 2 was taken 6641678 times"> + </span>]:<span class="lineCov">   11884592 :         if (trace_empty(tb))</span>
+<span class="lineNum">      58 </span>                :<span class="lineCov">    5242914 :                 return false;</span>
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :            : again:
+<span class="lineNum">      61 </span>                :            :         /*
+<span class="lineNum">      62 </span>                :            :          * The actual buffer is slightly larger than tbsize, so this
+<span class="lineNum">      63 </span>                :            :          * memcpy is always valid.
+<span class="lineNum">      64 </span>                :            :          */
+<span class="lineNum">      65 </span>                :<span class="lineCov">    7015715 :         memcpy(t, tb-&gt;buf + be64_to_cpu(tb-&gt;rpos &amp; tb-&gt;mask), len);</span>
+<span class="lineNum">      66 </span>                :            : 
+<span class="lineNum">      67 </span>                :<span class="lineCov">    7015715 :         rmb(); /* read barrier, so we read tb-&gt;start after copying record. */</span>
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :<span class="lineCov">    7015715 :         start = be64_to_cpu(tb-&gt;start);</span>
+<span class="lineNum">      70 </span>                :<span class="lineCov">    7015715 :         rpos = be64_to_cpu(tb-&gt;rpos);</span>
+<span class="lineNum">      71 </span>                :            : 
+<span class="lineNum">      72 </span>                :            :         /* Now, was that overwritten? */
+<span class="lineNum">      73 </span>        [<span class="branchCov" title="Branch 0 was taken 26 times"> + </span><span class="branchCov" title="Branch 1 was taken 7015689 times"> + </span>]:<span class="lineCov">    7015715 :         if (rpos &lt; start) {</span>
+<span class="lineNum">      74 </span>                :            :                 /* Create overflow record. */
+<span class="lineNum">      75 </span>                :<span class="lineCov">         26 :                 t-&gt;overflow.unused64 = 0;</span>
+<span class="lineNum">      76 </span>                :<span class="lineCov">         26 :                 t-&gt;overflow.type = TRACE_OVERFLOW;</span>
+<span class="lineNum">      77 </span>                :<span class="lineCov">         26 :                 t-&gt;overflow.len_div_8 = sizeof(t-&gt;overflow) / 8;</span>
+<span class="lineNum">      78 </span>                :<span class="lineCov">         26 :                 t-&gt;overflow.bytes_missed = cpu_to_be64(start - rpos);</span>
+<span class="lineNum">      79 </span>                :<span class="lineCov">         26 :                 tb-&gt;rpos = cpu_to_be64(start);</span>
+<span class="lineNum">      80 </span>                :<span class="lineCov">         26 :                 return true;</span>
+<span class="lineNum">      81 </span>                :            :         }
+<span class="lineNum">      82 </span>                :            : 
+<span class="lineNum">      83 </span>                :            :         /* Repeat entries need special handling */
+<span class="lineNum">      84 </span>        [<span class="branchCov" title="Branch 0 was taken 5990824 times"> + </span><span class="branchCov" title="Branch 1 was taken 1024865 times"> + </span>]:<span class="lineCov">    7015689 :         if (t-&gt;hdr.type == TRACE_REPEAT) {</span>
+<span class="lineNum">      85 </span>                :<span class="lineCov">    5990824 :                 u32 num = be16_to_cpu(t-&gt;repeat.num);</span>
 <span class="lineNum">      86 </span>                :            : 
-<span class="lineNum">      87 </span>                :            :                 /* Don't report an empty repeat buffer. */
-<span class="lineNum">      88 </span>        [<span class="branchCov" title="Branch 0 was taken 718247 times"> + </span><span class="branchCov" title="Branch 1 was taken 11203701 times"> + </span>]:<span class="lineCov">   11921948 :                 if (t-&gt;repeat.num == 0) {</span>
-<span class="lineNum">      89 </span>                :            :                         /*
-<span class="lineNum">      90 </span>                :            :                          * This can't be the last buffer, otherwise
-<span class="lineNum">      91 </span>                :            :                          * trace_empty would have returned true.
-<span class="lineNum">      92 </span>                :            :                          */
-<span class="lineNum">      93 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 718247 times"> + </span>]:<span class="lineCov">     718247 :                         assert(tb-&gt;end &gt; tb-&gt;rpos + t-&gt;hdr.len_div_8 * 8);</span>
-<span class="lineNum">      94 </span>                :            :                         /* Skip to next entry. */
-<span class="lineNum">      95 </span>                :<span class="lineCov">     718247 :                         tb-&gt;rpos += t-&gt;hdr.len_div_8 * 8;</span>
-<span class="lineNum">      96 </span>                :<span class="lineCov">     718247 :                         tb-&gt;last_repeat = 0;</span>
-<span class="lineNum">      97 </span>                :<span class="lineCov">     718247 :                         goto again;</span>
-<span class="lineNum">      98 </span>                :            :                 }
-<span class="lineNum">      99 </span>                :            :         } else {
-<span class="lineNum">     100 </span>                :<span class="lineCov">    1933059 :                 tb-&gt;last_repeat = 0;</span>
-<span class="lineNum">     101 </span>                :<span class="lineCov">    1933059 :                 tb-&gt;rpos += t-&gt;hdr.len_div_8 * 8;</span>
-<span class="lineNum">     102 </span>                :            :         }
-<span class="lineNum">     103 </span>                :            : 
-<span class="lineNum">     104 </span>                :<span class="lineCov">   23703035 :         return true;</span>
-<span class="lineNum">     105 </span>                :            : }
+<span class="lineNum">      87 </span>                :            :                 /* In case we've read some already... */
+<span class="lineNum">      88 </span>                :<span class="lineCov">    5990824 :                 t-&gt;repeat.num = cpu_to_be16(num - be32_to_cpu(tb-&gt;last_repeat));</span>
+<span class="lineNum">      89 </span>                :            : 
+<span class="lineNum">      90 </span>                :            :                 /* Record how many repeats we saw this time. */
+<span class="lineNum">      91 </span>                :<span class="lineCov">    5990824 :                 tb-&gt;last_repeat = cpu_to_be32(num);</span>
+<span class="lineNum">      92 </span>                :            : 
+<span class="lineNum">      93 </span>                :            :                 /* Don't report an empty repeat buffer. */
+<span class="lineNum">      94 </span>        [<span class="branchCov" title="Branch 0 was taken 374037 times"> + </span><span class="branchCov" title="Branch 1 was taken 5616787 times"> + </span>]:<span class="lineCov">    5990824 :                 if (t-&gt;repeat.num == 0) {</span>
+<span class="lineNum">      95 </span>                :            :                         /*
+<span class="lineNum">      96 </span>                :            :                          * This can't be the last buffer, otherwise
+<span class="lineNum">      97 </span>                :            :                          * trace_empty would have returned true.
+<span class="lineNum">      98 </span>                :            :                          */
+<span class="lineNum">      99 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 374037 times"> + </span>]:<span class="lineCov">     374037 :                         assert(be64_to_cpu(tb-&gt;end) &gt;</span>
+<span class="lineNum">     100 </span>                :            :                                rpos + t-&gt;hdr.len_div_8 * 8);
+<span class="lineNum">     101 </span>                :            :                         /* Skip to next entry. */
+<span class="lineNum">     102 </span>                :<span class="lineCov">     374037 :                         tb-&gt;rpos = cpu_to_be64(rpos + t-&gt;hdr.len_div_8 * 8);</span>
+<span class="lineNum">     103 </span>                :<span class="lineCov">     374037 :                         tb-&gt;last_repeat = 0;</span>
+<span class="lineNum">     104 </span>                :<span class="lineCov">     374037 :                         goto again;</span>
+<span class="lineNum">     105 </span>                :            :                 }
+<span class="lineNum">     106 </span>                :            :         } else {
+<span class="lineNum">     107 </span>                :<span class="lineCov">    1024865 :                 tb-&gt;last_repeat = 0;</span>
+<span class="lineNum">     108 </span>                :<span class="lineCov">    1024865 :                 tb-&gt;rpos = cpu_to_be64(rpos + t-&gt;hdr.len_div_8 * 8);</span>
+<span class="lineNum">     109 </span>                :            :         }
+<span class="lineNum">     110 </span>                :            : 
+<span class="lineNum">     111 </span>                :<span class="lineCov">   11884592 :         return true;</span>
+<span class="lineNum">     112 </span>                :            : }
 </pre>
       </td>
     </tr>
