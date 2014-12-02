@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2014-12-01</td>
+            <td class="headerValue">2014-12-02</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">3</td>
@@ -108,47 +108,47 @@
 <span class="lineNum">      37 </span>                :            : 
 <a name="38"><span class="lineNum">      38 </span>                :            : struct dt_node *dt_root = NULL;</a>
 <span class="lineNum">      39 </span>                :            : char dt_prop[] = &quot;DUMMY DT PROP&quot;;
-<span class="lineNum">      40 </span>                :<span class="lineCov">          4 : const void *dt_prop_get(const struct dt_node *node __unused, const char *prop __unused)</span>
+<span class="lineNum">      40 </span>                :<span class="lineCov">         12 : const void *dt_prop_get(const struct dt_node *node __unused, const char *prop __unused)</span>
 <span class="lineNum">      41 </span>                :            : {
-<span class="lineNum">      42 </span>                :<span class="lineCov">          4 :         return dt_prop;</span>
+<span class="lineNum">      42 </span>                :<span class="lineCov">         12 :         return dt_prop;</span>
 <a name="43"><span class="lineNum">      43 </span>                :            : }</a>
 <span class="lineNum">      44 </span>                :            : 
-<span class="lineNum">      45 </span>                :<span class="lineCov">          2 : int fsp_rtc_get_cached_tod(uint32_t *year_month_day,</span>
+<span class="lineNum">      45 </span>                :<span class="lineCov">          6 : int fsp_rtc_get_cached_tod(uint32_t *year_month_day,</span>
 <span class="lineNum">      46 </span>                :            :                            uint64_t *hour_minute_second_millisecond)
 <span class="lineNum">      47 </span>                :            : {
-<span class="lineNum">      48 </span>                :<span class="lineCov">          2 :         *year_month_day = 0;</span>
-<span class="lineNum">      49 </span>                :<span class="lineCov">          2 :         *hour_minute_second_millisecond = 0;</span>
+<span class="lineNum">      48 </span>                :<span class="lineCov">          6 :         *year_month_day = 0;</span>
+<span class="lineNum">      49 </span>                :<span class="lineCov">          6 :         *hour_minute_second_millisecond = 0;</span>
 <span class="lineNum">      50 </span>                :            : 
-<span class="lineNum">      51 </span>                :<span class="lineCov">          2 :         return 0;</span>
+<span class="lineNum">      51 </span>                :<span class="lineCov">          6 :         return 0;</span>
 <a name="52"><span class="lineNum">      52 </span>                :            : }</a>
 <span class="lineNum">      53 </span>                :            : 
-<span class="lineNum">      54 </span>                :<span class="lineCov">          1 : int main(void)</span>
+<span class="lineNum">      54 </span>                :<span class="lineCov">          3 : int main(void)</span>
 <span class="lineNum">      55 </span>                :            : {
 <span class="lineNum">      56 </span>                :            :         char *pel_buf;
 <span class="lineNum">      57 </span>                :            :         size_t size;
 <span class="lineNum">      58 </span>                :            :         struct errorlog *elog;
-<span class="lineNum">      59 </span>                :<span class="lineCov">          1 :         struct opal_err_info *opal_err_info = &amp;err_TEST_ERROR;</span>
+<span class="lineNum">      59 </span>                :<span class="lineCov">          3 :         struct opal_err_info *opal_err_info = &amp;err_TEST_ERROR;</span>
 <span class="lineNum">      60 </span>                :            : 
-<span class="lineNum">      61 </span>                :<span class="lineCov">          1 :         elog = malloc(sizeof(struct errorlog));</span>
-<span class="lineNum">      62 </span>                :<span class="lineCov">          1 :         pel_buf = malloc(PEL_MIN_SIZE + 4);</span>
-<span class="lineNum">      63 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         assert(elog);</span>
-<span class="lineNum">      64 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         assert(pel_buf);</span>
+<span class="lineNum">      61 </span>                :<span class="lineCov">          3 :         elog = malloc(sizeof(struct errorlog));</span>
+<span class="lineNum">      62 </span>                :<span class="lineCov">          3 :         pel_buf = malloc(PEL_MIN_SIZE + 4);</span>
+<span class="lineNum">      63 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         assert(elog);</span>
+<span class="lineNum">      64 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         assert(pel_buf);</span>
 <span class="lineNum">      65 </span>                :            : 
-<span class="lineNum">      66 </span>                :<span class="lineCov">          1 :         memset(elog, 0, sizeof(struct errorlog));</span>
+<span class="lineNum">      66 </span>                :<span class="lineCov">          3 :         memset(elog, 0, sizeof(struct errorlog));</span>
 <span class="lineNum">      67 </span>                :            : 
-<span class="lineNum">      68 </span>                :<span class="lineCov">          1 :         elog-&gt;error_event_type = opal_err_info-&gt;err_type;</span>
-<span class="lineNum">      69 </span>                :<span class="lineCov">          1 :         elog-&gt;component_id = opal_err_info-&gt;cmp_id;</span>
-<span class="lineNum">      70 </span>                :<span class="lineCov">          1 :         elog-&gt;subsystem_id = opal_err_info-&gt;subsystem;</span>
-<span class="lineNum">      71 </span>                :<span class="lineCov">          1 :         elog-&gt;event_severity = opal_err_info-&gt;sev;</span>
-<span class="lineNum">      72 </span>                :<span class="lineCov">          1 :         elog-&gt;event_subtype = opal_err_info-&gt;event_subtype;</span>
-<span class="lineNum">      73 </span>                :<span class="lineCov">          1 :         elog-&gt;reason_code = opal_err_info-&gt;reason_code;</span>
-<span class="lineNum">      74 </span>                :<span class="lineCov">          1 :         elog-&gt;elog_origin = ORG_SAPPHIRE;</span>
+<span class="lineNum">      68 </span>                :<span class="lineCov">          3 :         elog-&gt;error_event_type = opal_err_info-&gt;err_type;</span>
+<span class="lineNum">      69 </span>                :<span class="lineCov">          3 :         elog-&gt;component_id = opal_err_info-&gt;cmp_id;</span>
+<span class="lineNum">      70 </span>                :<span class="lineCov">          3 :         elog-&gt;subsystem_id = opal_err_info-&gt;subsystem;</span>
+<span class="lineNum">      71 </span>                :<span class="lineCov">          3 :         elog-&gt;event_severity = opal_err_info-&gt;sev;</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">          3 :         elog-&gt;event_subtype = opal_err_info-&gt;event_subtype;</span>
+<span class="lineNum">      73 </span>                :<span class="lineCov">          3 :         elog-&gt;reason_code = opal_err_info-&gt;reason_code;</span>
+<span class="lineNum">      74 </span>                :<span class="lineCov">          3 :         elog-&gt;elog_origin = ORG_SAPPHIRE;</span>
 <span class="lineNum">      75 </span>                :            : 
-<span class="lineNum">      76 </span>                :<span class="lineCov">          1 :         size = pel_size(elog);</span>
-<span class="lineNum">      77 </span>                :<span class="lineCov">          1 :         printf(&quot;PEL Size: %ld\n&quot;, size);</span>
-<span class="lineNum">      78 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         assert(size == create_pel_log(elog, pel_buf, size));</span>
+<span class="lineNum">      76 </span>                :<span class="lineCov">          3 :         size = pel_size(elog);</span>
+<span class="lineNum">      77 </span>                :<span class="lineCov">          3 :         printf(&quot;PEL Size: %ld\n&quot;, size);</span>
+<span class="lineNum">      78 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         assert(size == create_pel_log(elog, pel_buf, size));</span>
 <span class="lineNum">      79 </span>                :            : 
-<span class="lineNum">      80 </span>                :<span class="lineCov">          1 :         return 0;</span>
+<span class="lineNum">      80 </span>                :<span class="lineCov">          3 :         return 0;</span>
 <span class="lineNum">      81 </span>                :            : }
 </pre>
       </td>
