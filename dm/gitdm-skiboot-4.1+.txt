@@ -1,0 +1,36 @@
+Processed 1 csets from 1 developers
+1 employers found
+A total of 6 lines added, 2 removed (delta 4)
+
+Developers with the most changesets
+Ananth N Mavinakayanahalli    1 (100.0%)
+
+Developers with the most changed lines
+Ananth N Mavinakayanahalli    6 (100.0%)
+
+Developers with the most lines removed
+
+Developers with the most signoffs (total 1)
+Stewart Smith                1 (100.0%)
+
+Developers with the most reviews (total 0)
+
+Developers with the most test credits (total 0)
+
+Developers who gave the most tested-by credits (total 0)
+
+Developers with the most report credits (total 0)
+
+Developers who gave the most report credits (total 0)
+
+Top changeset contributors by employer
+IBM                          1 (100.0%)
+
+Top lines changed by employer
+IBM                          6 (100.0%)
+
+Employers with the most signoffs (total 1)
+IBM                          1 (100.0%)
+
+Employers with the most hackers (total 1)
+IBM                          1 (100.0%)

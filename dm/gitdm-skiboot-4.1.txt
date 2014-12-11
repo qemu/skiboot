@@ -1,0 +1,73 @@
+Processed 84 csets from 17 developers
+1 employers found
+A total of 3271 lines added, 1314 removed (delta 1957)
+
+Developers with the most changesets
+Stewart Smith               24 (28.6%)
+Benjamin Herrenschmidt      17 (20.2%)
+Alistair Popple              8 (9.5%)
+Vasant Hegde                 6 (7.1%)
+Ananth N Mavinakayanahalli    5 (6.0%)
+Neelesh Gupta                4 (4.8%)
+Mahesh Salgaonkar            4 (4.8%)
+Cédric Le Goater            3 (3.6%)
+Wei Yang                     3 (3.6%)
+Anshuman Khandual            2 (2.4%)
+Shilpasri G Bhat             2 (2.4%)
+Ryan Grimm                   1 (1.2%)
+Anton Blanchard              1 (1.2%)
+Shreyas B. Prabhu            1 (1.2%)
+Joel Stanley                 1 (1.2%)
+Vaidyanathan Srinivasan      1 (1.2%)
+Dan Streetman                1 (1.2%)
+
+Developers with the most changed lines
+Benjamin Herrenschmidt    1290 (35.1%)
+Alistair Popple            963 (26.2%)
+Stewart Smith              344 (9.4%)
+Mahesh Salgaonkar          308 (8.4%)
+Ananth N Mavinakayanahalli  198 (5.4%)
+Neelesh Gupta              186 (5.1%)
+Vasant Hegde               122 (3.3%)
+Shilpasri G Bhat            39 (1.1%)
+Vaidyanathan Srinivasan     24 (0.7%)
+Joel Stanley                21 (0.6%)
+Wei Yang                    20 (0.5%)
+Anshuman Khandual           15 (0.4%)
+Cédric Le Goater           12 (0.3%)
+Shreyas B. Prabhu            9 (0.2%)
+Ryan Grimm                   3 (0.1%)
+Anton Blanchard              2 (0.1%)
+Dan Streetman                2 (0.1%)
+
+Developers with the most lines removed
+Mahesh Salgaonkar          287 (21.8%)
+
+Developers with the most signoffs (total 54)
+Stewart Smith               44 (81.5%)
+Vasant Hegde                 4 (7.4%)
+Benjamin Herrenschmidt       4 (7.4%)
+Vaidyanathan Srinivasan      2 (3.7%)
+
+Developers with the most reviews (total 2)
+Vasant Hegde                 2 (100.0%)
+
+Developers with the most test credits (total 0)
+
+Developers who gave the most tested-by credits (total 0)
+
+Developers with the most report credits (total 0)
+
+Developers who gave the most report credits (total 0)
+
+Top changeset contributors by employer
+IBM                         84 (100.0%)
+
+Top lines changed by employer
+IBM                       3673 (100.0%)
+
+Employers with the most signoffs (total 54)
+IBM                         54 (100.0%)
+
+Employers with the most hackers (total 17)
+IBM                         17 (100.0%)
