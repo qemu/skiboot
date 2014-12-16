@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2014-12-02</td>
+            <td class="headerValue">2014-12-17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">2</td>
@@ -88,29 +88,29 @@
 <span class="lineNum">      17 </span>                :<span class="lineNoCov">          0 :         return NULL;</span>
 <a name="18"><span class="lineNum">      18 </span>                :            : }</a>
 <span class="lineNum">      19 </span>                :            : 
-<span class="lineNum">      20 </span>                :<span class="lineCov">          6 : struct list_node *list_check_node(const struct list_node *node,</span>
+<span class="lineNum">      20 </span>                :<span class="lineCov">          2 : struct list_node *list_check_node(const struct list_node *node,</span>
 <span class="lineNum">      21 </span>                :            :                                   const char *abortstr)
 <span class="lineNum">      22 </span>                :            : {
 <span class="lineNum">      23 </span>                :            :         const struct list_node *p, *n;
-<span class="lineNum">      24 </span>                :<span class="lineCov">          6 :         int count = 0;</span>
+<span class="lineNum">      24 </span>                :<span class="lineCov">          2 :         int count = 0;</span>
 <span class="lineNum">      25 </span>                :            : 
-<span class="lineNum">      26 </span>        [<span class="branchCov" title="Branch 0 was taken 9 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">         15 :         for (p = node, n = node-&gt;next; n != node; p = n, n = n-&gt;next) {</span>
-<span class="lineNum">      27 </span>                :<span class="lineCov">          9 :                 count++;</span>
-<span class="lineNum">      28 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 9 times"> + </span>]:<span class="lineCov">          9 :                 if (n-&gt;prev != p)</span>
+<span class="lineNum">      26 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          5 :         for (p = node, n = node-&gt;next; n != node; p = n, n = n-&gt;next) {</span>
+<span class="lineNum">      27 </span>                :<span class="lineCov">          3 :                 count++;</span>
+<span class="lineNum">      28 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :                 if (n-&gt;prev != p)</span>
 <span class="lineNum">      29 </span>                :<span class="lineNoCov">          0 :                         return corrupt(abortstr, node, n, count);</span>
 <span class="lineNum">      30 </span>                :            :         }
 <span class="lineNum">      31 </span>                :            :         /* Check prev on head node. */
-<span class="lineNum">      32 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (node-&gt;prev != p)</span>
+<span class="lineNum">      32 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (node-&gt;prev != p)</span>
 <span class="lineNum">      33 </span>                :<span class="lineNoCov">          0 :                 return corrupt(abortstr, node, node, 0);</span>
 <span class="lineNum">      34 </span>                :            : 
-<span class="lineNum">      35 </span>                :<span class="lineCov">          6 :         return (struct list_node *)node;</span>
+<span class="lineNum">      35 </span>                :<span class="lineCov">          2 :         return (struct list_node *)node;</span>
 <a name="36"><span class="lineNum">      36 </span>                :            : }</a>
 <span class="lineNum">      37 </span>                :            : 
-<span class="lineNum">      38 </span>                :<span class="lineCov">          6 : struct list_head *list_check(const struct list_head *h, const char *abortstr)</span>
+<span class="lineNum">      38 </span>                :<span class="lineCov">          2 : struct list_head *list_check(const struct list_head *h, const char *abortstr)</span>
 <span class="lineNum">      39 </span>                :            : {
-<span class="lineNum">      40 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (!list_check_node(&amp;h-&gt;n, abortstr))</span>
+<span class="lineNum">      40 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!list_check_node(&amp;h-&gt;n, abortstr))</span>
 <span class="lineNum">      41 </span>                :<span class="lineNoCov">          0 :                 return NULL;</span>
-<span class="lineNum">      42 </span>                :<span class="lineCov">          6 :         return (struct list_head *)h;</span>
+<span class="lineNum">      42 </span>                :<span class="lineCov">          2 :         return (struct list_head *)h;</span>
 <span class="lineNum">      43 </span>                :            : }
 </pre>
       </td>

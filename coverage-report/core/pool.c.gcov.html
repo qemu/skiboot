@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2014-12-02</td>
+            <td class="headerValue">2014-12-17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">3</td>
@@ -104,50 +104,50 @@
 <span class="lineNum">      33 </span>                :            : #include &lt;stdlib.h&gt;
 <a name="34"><span class="lineNum">      34 </span>                :            : #include &lt;ccan/list/list.h&gt;</a>
 <span class="lineNum">      35 </span>                :            : 
-<span class="lineNum">      36 </span>                :<span class="lineCov">         39 : void* pool_get(struct pool *pool, enum pool_priority priority)</span>
+<span class="lineNum">      36 </span>                :<span class="lineCov">         13 : void* pool_get(struct pool *pool, enum pool_priority priority)</span>
 <span class="lineNum">      37 </span>                :            : {
 <span class="lineNum">      38 </span>                :            :         void *obj;
 <span class="lineNum">      39 </span>                :            : 
-<span class="lineNum">      40 </span>[<span class="branchCov" title="Branch 0 was taken 39 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 12 times"> + </span><span class="branchCov" title="Branch 3 was taken 27 times"> + </span>]:<span class="lineCov">         39 :         if (!pool-&gt;free_count ||</span>
-<span class="lineNum">      41 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 9 times"> + </span>]:<span class="lineCov">         12 :             ((pool-&gt;free_count &lt;= pool-&gt;reserved) &amp;&amp; priority == POOL_NORMAL))</span>
-<span class="lineNum">      42 </span>                :<span class="lineCov">          3 :                 return NULL;</span>
+<span class="lineNum">      40 </span>[<span class="branchCov" title="Branch 0 was taken 13 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 4 times"> + </span><span class="branchCov" title="Branch 3 was taken 9 times"> + </span>]:<span class="lineCov">         13 :         if (!pool-&gt;free_count ||</span>
+<span class="lineNum">      41 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          4 :             ((pool-&gt;free_count &lt;= pool-&gt;reserved) &amp;&amp; priority == POOL_NORMAL))</span>
+<span class="lineNum">      42 </span>                :<span class="lineCov">          1 :                 return NULL;</span>
 <span class="lineNum">      43 </span>                :            : 
-<span class="lineNum">      44 </span>                :<span class="lineCov">         36 :         pool-&gt;free_count--;</span>
-<span class="lineNum">      45 </span>                :<span class="lineCov">         36 :         obj = (void *) list_pop_(&amp;pool-&gt;free_list, 0);</span>
-<span class="lineNum">      46 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 36 times"> + </span>]:<span class="lineCov">         36 :         assert(obj);</span>
-<span class="lineNum">      47 </span>                :<span class="lineCov">         36 :         memset(obj, 0, pool-&gt;obj_size);</span>
-<span class="lineNum">      48 </span>                :<span class="lineCov">         39 :         return obj;</span>
+<span class="lineNum">      44 </span>                :<span class="lineCov">         12 :         pool-&gt;free_count--;</span>
+<span class="lineNum">      45 </span>                :<span class="lineCov">         12 :         obj = (void *) list_pop_(&amp;pool-&gt;free_list, 0);</span>
+<span class="lineNum">      46 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         12 :         assert(obj);</span>
+<span class="lineNum">      47 </span>                :<span class="lineCov">         12 :         memset(obj, 0, pool-&gt;obj_size);</span>
+<span class="lineNum">      48 </span>                :<span class="lineCov">         13 :         return obj;</span>
 <a name="49"><span class="lineNum">      49 </span>                :            : }</a>
 <span class="lineNum">      50 </span>                :            : 
-<span class="lineNum">      51 </span>                :<span class="lineCov">          6 : void pool_free_object(struct pool *pool, void *obj)</span>
+<span class="lineNum">      51 </span>                :<span class="lineCov">          2 : void pool_free_object(struct pool *pool, void *obj)</span>
 <span class="lineNum">      52 </span>                :            : {
-<span class="lineNum">      53 </span>                :<span class="lineCov">          6 :         pool-&gt;free_count++;</span>
-<span class="lineNum">      54 </span>                :<span class="lineCov">          6 :         list_add_tail(&amp;pool-&gt;free_list,</span>
+<span class="lineNum">      53 </span>                :<span class="lineCov">          2 :         pool-&gt;free_count++;</span>
+<span class="lineNum">      54 </span>                :<span class="lineCov">          2 :         list_add_tail(&amp;pool-&gt;free_list,</span>
 <span class="lineNum">      55 </span>                :            :                       (struct list_node *) (obj));
-<a name="56"><span class="lineNum">      56 </span>                :<span class="lineCov">          6 : }</span></a>
+<a name="56"><span class="lineNum">      56 </span>                :<span class="lineCov">          2 : }</span></a>
 <span class="lineNum">      57 </span>                :            : 
-<span class="lineNum">      58 </span>                :<span class="lineCov">          3 : int pool_init(struct pool *pool, size_t obj_size, int count, int reserved)</span>
+<span class="lineNum">      58 </span>                :<span class="lineCov">          1 : int pool_init(struct pool *pool, size_t obj_size, int count, int reserved)</span>
 <span class="lineNum">      59 </span>                :            : {
 <span class="lineNum">      60 </span>                :            :         int i;
 <span class="lineNum">      61 </span>                :            : 
-<span class="lineNum">      62 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          3 :         if (obj_size &lt; sizeof(struct list_node))</span>
-<span class="lineNum">      63 </span>                :<span class="lineCov">          3 :                 obj_size = sizeof(struct list_node);</span>
+<span class="lineNum">      62 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (obj_size &lt; sizeof(struct list_node))</span>
+<span class="lineNum">      63 </span>                :<span class="lineCov">          1 :                 obj_size = sizeof(struct list_node);</span>
 <span class="lineNum">      64 </span>                :            : 
-<span class="lineNum">      65 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         assert(count &gt;= reserved);</span>
-<span class="lineNum">      66 </span>                :<span class="lineCov">          3 :         pool-&gt;buf = malloc(obj_size*count);</span>
-<span class="lineNum">      67 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         if (!pool-&gt;buf)</span>
+<span class="lineNum">      65 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         assert(count &gt;= reserved);</span>
+<span class="lineNum">      66 </span>                :<span class="lineCov">          1 :         pool-&gt;buf = malloc(obj_size*count);</span>
+<span class="lineNum">      67 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!pool-&gt;buf)</span>
 <span class="lineNum">      68 </span>                :<span class="lineNoCov">          0 :                 return -1;</span>
 <span class="lineNum">      69 </span>                :            : 
-<span class="lineNum">      70 </span>                :<span class="lineCov">          3 :         pool-&gt;obj_size = obj_size;</span>
-<span class="lineNum">      71 </span>                :<span class="lineCov">          3 :         pool-&gt;free_count = count;</span>
-<span class="lineNum">      72 </span>                :<span class="lineCov">          3 :         pool-&gt;reserved = reserved;</span>
-<span class="lineNum">      73 </span>                :<span class="lineCov">          3 :         list_head_init(&amp;pool-&gt;free_list);</span>
+<span class="lineNum">      70 </span>                :<span class="lineCov">          1 :         pool-&gt;obj_size = obj_size;</span>
+<span class="lineNum">      71 </span>                :<span class="lineCov">          1 :         pool-&gt;free_count = count;</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">          1 :         pool-&gt;reserved = reserved;</span>
+<span class="lineNum">      73 </span>                :<span class="lineCov">          1 :         list_head_init(&amp;pool-&gt;free_list);</span>
 <span class="lineNum">      74 </span>                :            : 
-<span class="lineNum">      75 </span>        [<span class="branchCov" title="Branch 0 was taken 30 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">         33 :         for(i = 0; i &lt; count; i++)</span>
-<span class="lineNum">      76 </span>                :<span class="lineCov">         30 :                 list_add_tail(&amp;pool-&gt;free_list,</span>
-<span class="lineNum">      77 </span>                :<span class="lineCov">         60 :                               (struct list_node *) (pool-&gt;buf + obj_size*i));</span>
+<span class="lineNum">      75 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         11 :         for(i = 0; i &lt; count; i++)</span>
+<span class="lineNum">      76 </span>                :<span class="lineCov">         10 :                 list_add_tail(&amp;pool-&gt;free_list,</span>
+<span class="lineNum">      77 </span>                :<span class="lineCov">         20 :                               (struct list_node *) (pool-&gt;buf + obj_size*i));</span>
 <span class="lineNum">      78 </span>                :            : 
-<span class="lineNum">      79 </span>                :<span class="lineCov">          3 :         return 0;</span>
+<span class="lineNum">      79 </span>                :<span class="lineCov">          1 :         return 0;</span>
 <span class="lineNum">      80 </span>                :            : }
 </pre>
       </td>

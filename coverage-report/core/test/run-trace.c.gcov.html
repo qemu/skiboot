@@ -31,13 +31,13 @@
             <td class="headerValue">skiboot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">185</td>
+            <td class="headerCovTableEntry">183</td>
             <td class="headerCovTableEntry">186</td>
-            <td class="headerCovTableEntryHi">99.5 %</td>
+            <td class="headerCovTableEntryHi">98.4 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2014-12-02</td>
+            <td class="headerValue">2014-12-17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">11</td>
@@ -49,9 +49,9 @@
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">129</td>
+            <td class="headerCovTableEntry">127</td>
             <td class="headerCovTableEntry">200</td>
-            <td class="headerCovTableEntryLo">64.5 %</td>
+            <td class="headerCovTableEntryLo">63.5 %</td>
           </tr>
           <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -104,10 +104,10 @@
 <span class="lineNum">      33 </span>                :            : 
 <a name="34"><span class="lineNum">      34 </span>                :            : #if defined(__i386__) || defined(__x86_64__)</a>
 <span class="lineNum">      35 </span>                :            : /* This is more than a lwsync, but it'll work */
-<span class="lineNum">      36 </span>                :<span class="lineCov">   94583293 : static void full_barrier(void)</span>
+<span class="lineNum">      36 </span>                :<span class="lineCov">   31233530 : static void full_barrier(void)</span>
 <span class="lineNum">      37 </span>                :            : {
-<span class="lineNum">      38 </span>                :<span class="lineCov">   94583293 :         asm volatile(&quot;mfence&quot; : : : &quot;memory&quot;);</span>
-<span class="lineNum">      39 </span>                :<span class="lineCov">   94583293 : }</span>
+<span class="lineNum">      38 </span>                :<span class="lineCov">   31233530 :         asm volatile(&quot;mfence&quot; : : : &quot;memory&quot;);</span>
+<span class="lineNum">      39 </span>                :<span class="lineCov">   31233530 : }</span>
 <span class="lineNum">      40 </span>                :            : #define lwsync full_barrier
 <span class="lineNum">      41 </span>                :            : #elif defined(__powerpc__) || defined(__powerpc64__)
 <span class="lineNum">      42 </span>                :            : static inline void lwsync(void)
@@ -134,14 +134,14 @@
 <span class="lineNum">      63 </span>                :            : 
 <a name="64"><span class="lineNum">      64 </span>                :            : static struct cpu_thread fake_cpus[CPUS];</a>
 <span class="lineNum">      65 </span>                :            : 
-<span class="lineNum">      66 </span>                :<span class="lineCov">        225 : static inline struct cpu_thread *next_cpu(struct cpu_thread *cpu)</span>
+<span class="lineNum">      66 </span>                :<span class="lineCov">         75 : static inline struct cpu_thread *next_cpu(struct cpu_thread *cpu)</span>
 <span class="lineNum">      67 </span>                :            : {
-<span class="lineNum">      68 </span>        [<span class="branchCov" title="Branch 0 was taken 45 times"> + </span><span class="branchCov" title="Branch 1 was taken 180 times"> + </span>]:<span class="lineCov">        225 :         if (cpu == NULL)</span>
-<span class="lineNum">      69 </span>                :<span class="lineCov">         45 :                 return &amp;fake_cpus[0];</span>
-<span class="lineNum">      70 </span>                :<span class="lineCov">        180 :         cpu++;</span>
-<span class="lineNum">      71 </span>        [<span class="branchCov" title="Branch 0 was taken 45 times"> + </span><span class="branchCov" title="Branch 1 was taken 135 times"> + </span>]:<span class="lineCov">        180 :         if (cpu == &amp;fake_cpus[CPUS])</span>
-<span class="lineNum">      72 </span>                :<span class="lineCov">         45 :                 return NULL;</span>
-<span class="lineNum">      73 </span>                :<span class="lineCov">        225 :         return cpu;</span>
+<span class="lineNum">      68 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchCov" title="Branch 1 was taken 60 times"> + </span>]:<span class="lineCov">         75 :         if (cpu == NULL)</span>
+<span class="lineNum">      69 </span>                :<span class="lineCov">         15 :                 return &amp;fake_cpus[0];</span>
+<span class="lineNum">      70 </span>                :<span class="lineCov">         60 :         cpu++;</span>
+<span class="lineNum">      71 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchCov" title="Branch 1 was taken 45 times"> + </span>]:<span class="lineCov">         60 :         if (cpu == &amp;fake_cpus[CPUS])</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">         15 :                 return NULL;</span>
+<span class="lineNum">      73 </span>                :<span class="lineCov">         75 :         return cpu;</span>
 <span class="lineNum">      74 </span>                :            : }
 <span class="lineNum">      75 </span>                :            : 
 <span class="lineNum">      76 </span>                :            : #define first_cpu() next_cpu(NULL)
@@ -150,20 +150,20 @@
 <span class="lineNum">      79 </span>                :            :         for (cpu = first_cpu(); cpu; cpu = next_cpu(cpu))
 <a name="80"><span class="lineNum">      80 </span>                :            : </a>
 <span class="lineNum">      81 </span>                :            : static unsigned long timestamp;
-<span class="lineNum">      82 </span>                :<span class="lineCov">   46006374 : static unsigned long mftb(void)</span>
+<span class="lineNum">      82 </span>                :<span class="lineCov">   15335458 : static unsigned long mftb(void)</span>
 <span class="lineNum">      83 </span>                :            : {
-<span class="lineNum">      84 </span>                :<span class="lineCov">   46006374 :         return timestamp;</span>
+<span class="lineNum">      84 </span>                :<span class="lineCov">   15335458 :         return timestamp;</span>
 <a name="85"><span class="lineNum">      85 </span>                :            : }</a>
 <span class="lineNum">      86 </span>                :            : 
-<span class="lineNum">      87 </span>                :<span class="lineCov">         30 : static void *local_alloc(unsigned int chip_id,</span>
+<span class="lineNum">      87 </span>                :<span class="lineCov">         10 : static void *local_alloc(unsigned int chip_id,</span>
 <span class="lineNum">      88 </span>                :            :                          size_t size, size_t align)
 <span class="lineNum">      89 </span>                :            : {
 <span class="lineNum">      90 </span>                :            :         void *p;
 <span class="lineNum">      91 </span>                :            : 
 <span class="lineNum">      92 </span>                :            :         (void)chip_id;
-<span class="lineNum">      93 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 30 times"> + </span>]:<span class="lineCov">         30 :         if (posix_memalign(&amp;p, align, size))</span>
+<span class="lineNum">      93 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 10 times"> + </span>]:<span class="lineCov">         10 :         if (posix_memalign(&amp;p, align, size))</span>
 <span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 :                 p = NULL;</span>
-<span class="lineNum">      95 </span>                :<span class="lineCov">         30 :         return p;</span>
+<span class="lineNum">      95 </span>                :<span class="lineCov">         10 :         return p;</span>
 <span class="lineNum">      96 </span>                :            : }
 <span class="lineNum">      97 </span>                :            : 
 <span class="lineNum">      98 </span>                :            : struct dt_node;
@@ -182,140 +182,140 @@
 <span class="lineNum">     111 </span>                :            :         .trace_mask = -1
 <a name="112"><span class="lineNum">     112 </span>                :            : };</a>
 <span class="lineNum">     113 </span>                :            : 
-<span class="lineNum">     114 </span>                :<span class="lineCov">   46006374 : void lock(struct lock *l)</span>
+<span class="lineNum">     114 </span>                :<span class="lineCov">   15335458 : void lock(struct lock *l)</span>
 <span class="lineNum">     115 </span>                :            : {
-<span class="lineNum">     116 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 46006374 times"> + </span>]:<span class="lineCov">   46006374 :         assert(!l-&gt;lock_val);</span>
-<span class="lineNum">     117 </span>                :<span class="lineCov">   46006374 :         l-&gt;lock_val = 1;</span>
-<a name="118"><span class="lineNum">     118 </span>                :<span class="lineCov">   46006374 : }</span></a>
+<span class="lineNum">     116 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15335458 times"> + </span>]:<span class="lineCov">   15335458 :         assert(!l-&gt;lock_val);</span>
+<span class="lineNum">     117 </span>                :<span class="lineCov">   15335458 :         l-&gt;lock_val = 1;</span>
+<a name="118"><span class="lineNum">     118 </span>                :<span class="lineCov">   15335458 : }</span></a>
 <span class="lineNum">     119 </span>                :            : 
-<span class="lineNum">     120 </span>                :<span class="lineCov">   46006374 : void unlock(struct lock *l)</span>
+<span class="lineNum">     120 </span>                :<span class="lineCov">   15335458 : void unlock(struct lock *l)</span>
 <span class="lineNum">     121 </span>                :            : {
-<span class="lineNum">     122 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 46006374 times"> + </span>]:<span class="lineCov">   46006374 :         assert(l-&gt;lock_val);</span>
-<span class="lineNum">     123 </span>                :<span class="lineCov">   46006374 :         l-&gt;lock_val = 0;</span>
-<span class="lineNum">     124 </span>                :<span class="lineCov">   46006374 : }</span>
+<span class="lineNum">     122 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15335458 times"> + </span>]:<span class="lineCov">   15335458 :         assert(l-&gt;lock_val);</span>
+<span class="lineNum">     123 </span>                :<span class="lineCov">   15335458 :         l-&gt;lock_val = 0;</span>
+<span class="lineNum">     124 </span>                :<span class="lineCov">   15335458 : }</span>
 <a name="125"><span class="lineNum">     125 </span>                :            : </a>
 <span class="lineNum">     126 </span>                :            : struct cpu_thread *my_fake_cpu;
-<span class="lineNum">     127 </span>                :<span class="lineCov">   92012748 : static struct cpu_thread *this_cpu(void)</span>
+<span class="lineNum">     127 </span>                :<span class="lineCov">   30670916 : static struct cpu_thread *this_cpu(void)</span>
 <span class="lineNum">     128 </span>                :            : {
-<span class="lineNum">     129 </span>                :<span class="lineCov">   92012748 :         return my_fake_cpu;</span>
+<span class="lineNum">     129 </span>                :<span class="lineCov">   30670916 :         return my_fake_cpu;</span>
 <span class="lineNum">     130 </span>                :            : }
 <span class="lineNum">     131 </span>                :            : 
 <span class="lineNum">     132 </span>                :            : #include &lt;sys/mman.h&gt;
 <a name="133"><span class="lineNum">     133 </span>                :            : #define PER_CHILD_TRACES (1024*1024)</a>
 <span class="lineNum">     134 </span>                :            : 
-<span class="lineNum">     135 </span>                :<span class="lineCov">         12 : static void write_trace_entries(int id)</span>
+<span class="lineNum">     135 </span>                :<span class="lineCov">          4 : static void write_trace_entries(int id)</span>
 <span class="lineNum">     136 </span>                :            : {
 <span class="lineNum">     137 </span>                :            :         void exit(int);
 <span class="lineNum">     138 </span>                :            :         unsigned int i;
 <span class="lineNum">     139 </span>                :            :         union trace trace;
 <span class="lineNum">     140 </span>                :            : 
-<span class="lineNum">     141 </span>                :<span class="lineCov">         12 :         timestamp = id;</span>
-<span class="lineNum">     142 </span>        [<span class="branchCov" title="Branch 0 was taken 12582912 times"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">   12582924 :         for (i = 0; i &lt; PER_CHILD_TRACES; i++) {</span>
-<span class="lineNum">     143 </span>                :<span class="lineCov">   12582912 :                 timestamp = i * CPUS + id;</span>
+<span class="lineNum">     141 </span>                :<span class="lineCov">          4 :         timestamp = id;</span>
+<span class="lineNum">     142 </span>        [<span class="branchCov" title="Branch 0 was taken 4194304 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">    4194308 :         for (i = 0; i &lt; PER_CHILD_TRACES; i++) {</span>
+<span class="lineNum">     143 </span>                :<span class="lineCov">    4194304 :                 timestamp = i * CPUS + id;</span>
 <span class="lineNum">     144 </span>                :            :                 assert(sizeof(trace.hdr) % 8 == 0);
 <span class="lineNum">     145 </span>                :            :                 /* First child never repeats, second repeats once, etc. */
-<span class="lineNum">     146 </span>                :<span class="lineCov">   12582912 :                 trace_add(&amp;trace, 3 + ((i / (id + 1)) % 0x40),</span>
+<span class="lineNum">     146 </span>                :<span class="lineCov">    4194304 :                 trace_add(&amp;trace, 3 + ((i / (id + 1)) % 0x40),</span>
 <span class="lineNum">     147 </span>                :            :                           sizeof(trace.hdr));
 <span class="lineNum">     148 </span>                :            :         }
 <span class="lineNum">     149 </span>                :            : 
 <span class="lineNum">     150 </span>                :            :         /* Final entry has special type, so parent knows it's over. */
-<span class="lineNum">     151 </span>                :<span class="lineCov">         12 :         trace_add(&amp;trace, 0x70, sizeof(trace.hdr));</span>
-<span class="lineNum">     152 </span>                :<span class="lineCov">         12 :         exit(0);</span>
+<span class="lineNum">     151 </span>                :<span class="lineCov">          4 :         trace_add(&amp;trace, 0x70, sizeof(trace.hdr));</span>
+<span class="lineNum">     152 </span>                :<span class="lineCov">          4 :         exit(0);</span>
 <a name="153"><span class="lineNum">     153 </span>                :            : }</a>
 <span class="lineNum">     154 </span>                :            : 
-<span class="lineNum">     155 </span>                :<span class="lineCov">    3603010 : static bool all_done(const bool done[])</span>
+<span class="lineNum">     155 </span>                :<span class="lineCov">     973691 : static bool all_done(const bool done[])</span>
 <span class="lineNum">     156 </span>                :            : {
 <span class="lineNum">     157 </span>                :            :         unsigned int i;
 <span class="lineNum">     158 </span>                :            : 
-<span class="lineNum">     159 </span>        [<span class="branchCov" title="Branch 0 was taken 4976745 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">    4976748 :         for (i = 0; i &lt; CPUS; i++)</span>
-<span class="lineNum">     160 </span>        [<span class="branchCov" title="Branch 0 was taken 3603007 times"> + </span><span class="branchCov" title="Branch 1 was taken 1373738 times"> + </span>]:<span class="lineCov">    4976745 :                 if (!done[i])</span>
-<span class="lineNum">     161 </span>                :<span class="lineCov">    3603007 :                         return false;</span>
-<span class="lineNum">     162 </span>                :<span class="lineCov">    3603010 :         return true;</span>
+<span class="lineNum">     159 </span>        [<span class="branchCov" title="Branch 0 was taken 1039230 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">    1039231 :         for (i = 0; i &lt; CPUS; i++)</span>
+<span class="lineNum">     160 </span>        [<span class="branchCov" title="Branch 0 was taken 973690 times"> + </span><span class="branchCov" title="Branch 1 was taken 65540 times"> + </span>]:<span class="lineCov">    1039230 :                 if (!done[i])</span>
+<span class="lineNum">     161 </span>                :<span class="lineCov">     973690 :                         return false;</span>
+<span class="lineNum">     162 </span>                :<span class="lineCov">     973691 :         return true;</span>
 <a name="163"><span class="lineNum">     163 </span>                :            : }</a>
 <span class="lineNum">     164 </span>                :            : 
-<span class="lineNum">     165 </span>                :<span class="lineCov">         15 : static void test_parallel(void)</span>
+<span class="lineNum">     165 </span>                :<span class="lineCov">          5 : static void test_parallel(void)</span>
 <span class="lineNum">     166 </span>                :            : {
 <span class="lineNum">     167 </span>                :            :         void *p;
-<span class="lineNum">     168 </span>                :<span class="lineCov">         15 :         unsigned int i, counts[CPUS] = { 0 }, overflows[CPUS] = { 0 };</span>
-<span class="lineNum">     169 </span>                :<span class="lineCov">         15 :         unsigned int repeats[CPUS] = { 0 }, num_overflows[CPUS] = { 0 };</span>
-<span class="lineNum">     170 </span>                :<span class="lineCov">         15 :         bool done[CPUS] = { false };</span>
-<span class="lineNum">     171 </span>                :<span class="lineCov">         15 :         size_t len = sizeof(struct trace_info) + TBUF_SZ + sizeof(union trace);</span>
-<span class="lineNum">     172 </span>                :<span class="lineCov">         15 :         int last = 0;</span>
+<span class="lineNum">     168 </span>                :<span class="lineCov">          5 :         unsigned int i, counts[CPUS] = { 0 }, overflows[CPUS] = { 0 };</span>
+<span class="lineNum">     169 </span>                :<span class="lineCov">          5 :         unsigned int repeats[CPUS] = { 0 }, num_overflows[CPUS] = { 0 };</span>
+<span class="lineNum">     170 </span>                :<span class="lineCov">          5 :         bool done[CPUS] = { false };</span>
+<span class="lineNum">     171 </span>                :<span class="lineCov">          5 :         size_t len = sizeof(struct trace_info) + TBUF_SZ + sizeof(union trace);</span>
+<span class="lineNum">     172 </span>                :<span class="lineCov">          5 :         int last = 0;</span>
 <span class="lineNum">     173 </span>                :            : 
 <span class="lineNum">     174 </span>                :            :         /* Use a shared mmap to test actual parallel buffers. */
-<span class="lineNum">     175 </span>                :<span class="lineCov">         15 :         i = (CPUS*len + getpagesize()-1)&amp;~(getpagesize()-1);</span>
-<span class="lineNum">     176 </span>                :<span class="lineCov">         15 :         p = mmap(NULL, i, PROT_READ|PROT_WRITE,</span>
+<span class="lineNum">     175 </span>                :<span class="lineCov">          5 :         i = (CPUS*len + getpagesize()-1)&amp;~(getpagesize()-1);</span>
+<span class="lineNum">     176 </span>                :<span class="lineCov">          5 :         p = mmap(NULL, i, PROT_READ|PROT_WRITE,</span>
 <span class="lineNum">     177 </span>                :            :                  MAP_ANONYMOUS|MAP_SHARED, -1, 0);
 <span class="lineNum">     178 </span>                :            : 
-<span class="lineNum">     179 </span>        [<span class="branchCov" title="Branch 0 was taken 60 times"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         75 :         for (i = 0; i &lt; CPUS; i++) {</span>
-<span class="lineNum">     180 </span>                :<span class="lineCov">         60 :                 fake_cpus[i].trace = p + i * len;</span>
-<span class="lineNum">     181 </span>                :<span class="lineCov">         60 :                 fake_cpus[i].trace-&gt;tb.mask = cpu_to_be64(TBUF_SZ - 1);</span>
-<span class="lineNum">     182 </span>                :<span class="lineCov">         60 :                 fake_cpus[i].trace-&gt;tb.max_size = cpu_to_be32(sizeof(union trace));</span>
-<span class="lineNum">     183 </span>                :<span class="lineCov">         60 :                 fake_cpus[i].is_secondary = false;</span>
+<span class="lineNum">     179 </span>        [<span class="branchCov" title="Branch 0 was taken 20 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">         25 :         for (i = 0; i &lt; CPUS; i++) {</span>
+<span class="lineNum">     180 </span>                :<span class="lineCov">         20 :                 fake_cpus[i].trace = p + i * len;</span>
+<span class="lineNum">     181 </span>                :<span class="lineCov">         20 :                 fake_cpus[i].trace-&gt;tb.mask = cpu_to_be64(TBUF_SZ - 1);</span>
+<span class="lineNum">     182 </span>                :<span class="lineCov">         20 :                 fake_cpus[i].trace-&gt;tb.max_size = cpu_to_be32(sizeof(union trace));</span>
+<span class="lineNum">     183 </span>                :<span class="lineCov">         20 :                 fake_cpus[i].is_secondary = false;</span>
 <span class="lineNum">     184 </span>                :            :         }
 <span class="lineNum">     185 </span>                :            : 
-<span class="lineNum">     186 </span>        [<span class="branchCov" title="Branch 0 was taken 42 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">         45 :         for (i = 0; i &lt; CPUS; i++) {</span>
-<span class="lineNum">     187 </span>        [<span class="branchCov" title="Branch 1 was taken 12 times"> + </span><span class="branchCov" title="Branch 2 was taken 30 times"> + </span>]:<span class="lineCov">         42 :                 if (!fork()) {</span>
+<span class="lineNum">     186 </span>        [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         15 :         for (i = 0; i &lt; CPUS; i++) {</span>
+<span class="lineNum">     187 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchCov" title="Branch 2 was taken 10 times"> + </span>]:<span class="lineCov">         14 :                 if (!fork()) {</span>
 <span class="lineNum">     188 </span>                :            :                         /* Child. */
-<span class="lineNum">     189 </span>                :<span class="lineCov">         12 :                         my_fake_cpu = &amp;fake_cpus[i];</span>
-<span class="lineNum">     190 </span>                :<span class="lineCov">         12 :                         write_trace_entries(i);</span>
+<span class="lineNum">     189 </span>                :<span class="lineCov">          4 :                         my_fake_cpu = &amp;fake_cpus[i];</span>
+<span class="lineNum">     190 </span>                :<span class="lineCov">          4 :                         write_trace_entries(i);</span>
 <span class="lineNum">     191 </span>                :            :                 }
 <span class="lineNum">     192 </span>                :            :         }
 <span class="lineNum">     193 </span>                :            : 
-<span class="lineNum">     194 </span>        [<span class="branchCov" title="Branch 1 was taken 3603007 times"> + </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span>]:<span class="lineCov">    3603010 :         while (!all_done(done)) {</span>
+<span class="lineNum">     194 </span>        [<span class="branchCov" title="Branch 1 was taken 973690 times"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">     973691 :         while (!all_done(done)) {</span>
 <span class="lineNum">     195 </span>                :            :                 union trace t;
 <span class="lineNum">     196 </span>                :            : 
-<span class="lineNum">     197 </span>        [<span class="branchCov" title="Branch 0 was taken 3836671 times"> + </span><span class="branchCov" title="Branch 1 was taken 77875 times"> + </span>]:<span class="lineCov">    3914546 :                 for (i = 0; i &lt; CPUS; i++) {</span>
-<span class="lineNum">     198 </span>        [<span class="branchCov" title="Branch 1 was taken 3525132 times"> + </span><span class="branchCov" title="Branch 2 was taken 311539 times"> + </span>]:<span class="lineCov">    3836671 :                         if (trace_get(&amp;t, &amp;fake_cpus[(i+last) % CPUS].trace-&gt;tb))</span>
-<span class="lineNum">     199 </span>                :<span class="lineCov">    3525132 :                                 break;</span>
+<span class="lineNum">     197 </span>        [<span class="branchCov" title="Branch 0 was taken 973699 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">     973699 :                 for (i = 0; i &lt; CPUS; i++) {</span>
+<span class="lineNum">     198 </span>        [<span class="branchCov" title="Branch 1 was taken 973690 times"> + </span><span class="branchCov" title="Branch 2 was taken 9 times"> + </span>]:<span class="lineCov">     973699 :                         if (trace_get(&amp;t, &amp;fake_cpus[(i+last) % CPUS].trace-&gt;tb))</span>
+<span class="lineNum">     199 </span>                :<span class="lineCov">     973690 :                                 break;</span>
 <span class="lineNum">     200 </span>                :            :                 }
 <span class="lineNum">     201 </span>                :            : 
-<span class="lineNum">     202 </span>        [<span class="branchCov" title="Branch 0 was taken 77875 times"> + </span><span class="branchCov" title="Branch 1 was taken 3525132 times"> + </span>]:<span class="lineCov">    3603007 :                 if (i == CPUS) {</span>
-<span class="lineNum">     203 </span>                :<span class="lineCov">      77875 :                         sched_yield();</span>
-<span class="lineNum">     204 </span>                :<span class="lineCov">      77875 :                         continue;</span>
+<span class="lineNum">     202 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 973690 times"> + </span>]:<span class="lineCov">     973690 :                 if (i == CPUS) {</span>
+<span class="lineNum">     203 </span>                :<span class="lineNoCov">          0 :                         sched_yield();</span>
+<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
 <span class="lineNum">     205 </span>                :            :                 }
-<span class="lineNum">     206 </span>                :<span class="lineCov">    3525132 :                 i = (i + last) % CPUS;</span>
-<span class="lineNum">     207 </span>                :<span class="lineCov">    3525132 :                 last = i;</span>
+<span class="lineNum">     206 </span>                :<span class="lineCov">     973690 :                 i = (i + last) % CPUS;</span>
+<span class="lineNum">     207 </span>                :<span class="lineCov">     973690 :                 last = i;</span>
 <span class="lineNum">     208 </span>                :            : 
-<span class="lineNum">     209 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 3525132 times"> + </span>]:<span class="lineCov">    3525132 :                 assert(be16_to_cpu(t.hdr.cpu) &lt; CPUS);</span>
-<span class="lineNum">     210 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 3525132 times"> + </span>]:<span class="lineCov">    3525132 :                 assert(!done[be16_to_cpu(t.hdr.cpu)]);</span>
+<span class="lineNum">     209 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 973690 times"> + </span>]:<span class="lineCov">     973690 :                 assert(be16_to_cpu(t.hdr.cpu) &lt; CPUS);</span>
+<span class="lineNum">     210 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 973690 times"> + </span>]:<span class="lineCov">     973690 :                 assert(!done[be16_to_cpu(t.hdr.cpu)]);</span>
 <span class="lineNum">     211 </span>                :            : 
-<span class="lineNum">     212 </span>        [<span class="branchCov" title="Branch 0 was taken 45 times"> + </span><span class="branchCov" title="Branch 1 was taken 3525087 times"> + </span>]:<span class="lineCov">    3525132 :                 if (t.hdr.type == TRACE_OVERFLOW) {</span>
+<span class="lineNum">     212 </span>        [<span class="branchCov" title="Branch 0 was taken 18 times"> + </span><span class="branchCov" title="Branch 1 was taken 973672 times"> + </span>]:<span class="lineCov">     973690 :                 if (t.hdr.type == TRACE_OVERFLOW) {</span>
 <span class="lineNum">     213 </span>                :            :                         /* Conveniently, each record is 16 bytes here. */
-<span class="lineNum">     214 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 45 times"> + </span>]:<span class="lineCov">         45 :                         assert(be64_to_cpu(t.overflow.bytes_missed) % 16 == 0);</span>
-<span class="lineNum">     215 </span>                :<span class="lineCov">         45 :                         overflows[i] += be64_to_cpu(t.overflow.bytes_missed) / 16;</span>
-<span class="lineNum">     216 </span>                :<span class="lineCov">         45 :                         num_overflows[i]++;</span>
-<span class="lineNum">     217 </span>                :<span class="lineCov">         45 :                         continue;</span>
+<span class="lineNum">     214 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 18 times"> + </span>]:<span class="lineCov">         18 :                         assert(be64_to_cpu(t.overflow.bytes_missed) % 16 == 0);</span>
+<span class="lineNum">     215 </span>                :<span class="lineCov">         18 :                         overflows[i] += be64_to_cpu(t.overflow.bytes_missed) / 16;</span>
+<span class="lineNum">     216 </span>                :<span class="lineCov">         18 :                         num_overflows[i]++;</span>
+<span class="lineNum">     217 </span>                :<span class="lineCov">         18 :                         continue;</span>
 <span class="lineNum">     218 </span>                :            :                 }
 <span class="lineNum">     219 </span>                :            : 
-<span class="lineNum">     220 </span>        [<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 3525087 times"> + </span>]:<span class="lineCov">    3525087 :                 assert(be64_to_cpu(t.hdr.timestamp) % CPUS == be16_to_cpu(t.hdr.cpu));</span>
-<span class="lineNum">     221 </span>        [<span class="branchCov" title="Branch 0 was taken 1461131 times"> + </span><span class="branchCov" title="Branch 1 was taken 2063956 times"> + </span>]:<span class="lineCov">    3525087 :                 if (t.hdr.type == TRACE_REPEAT) {</span>
-<span class="lineNum">     222 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1461131 times"> + </span>]:<span class="lineCov">    1461131 :                         assert(t.hdr.len_div_8 * 8 == sizeof(t.repeat));</span>
-<span class="lineNum">     223 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1461131 times"> + </span>]:<span class="lineCov">    1461131 :                         assert(be16_to_cpu(t.repeat.num) != 0);</span>
-<span class="lineNum">     224 </span>        [<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1461131 times"> + </span>]:<span class="lineCov">    1461131 :                         assert(be16_to_cpu(t.repeat.num) &lt;= be16_to_cpu(t.hdr.cpu));</span>
-<span class="lineNum">     225 </span>                :<span class="lineCov">    1461131 :                         repeats[be16_to_cpu(t.hdr.cpu)] += be16_to_cpu(t.repeat.num);</span>
-<span class="lineNum">     226 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 2063944 times"> + </span>]:<span class="lineCov">    2063956 :                 } else if (t.hdr.type == 0x70) {</span>
-<span class="lineNum">     227 </span>                :<span class="lineCov">         12 :                         done[be16_to_cpu(t.hdr.cpu)] = true;</span>
+<span class="lineNum">     220 </span>        [<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 973672 times"> + </span>]:<span class="lineCov">     973672 :                 assert(be64_to_cpu(t.hdr.timestamp) % CPUS == be16_to_cpu(t.hdr.cpu));</span>
+<span class="lineNum">     221 </span>        [<span class="branchCov" title="Branch 0 was taken 380514 times"> + </span><span class="branchCov" title="Branch 1 was taken 593158 times"> + </span>]:<span class="lineCov">     973672 :                 if (t.hdr.type == TRACE_REPEAT) {</span>
+<span class="lineNum">     222 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 380514 times"> + </span>]:<span class="lineCov">     380514 :                         assert(t.hdr.len_div_8 * 8 == sizeof(t.repeat));</span>
+<span class="lineNum">     223 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 380514 times"> + </span>]:<span class="lineCov">     380514 :                         assert(be16_to_cpu(t.repeat.num) != 0);</span>
+<span class="lineNum">     224 </span>        [<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 380514 times"> + </span>]:<span class="lineCov">     380514 :                         assert(be16_to_cpu(t.repeat.num) &lt;= be16_to_cpu(t.hdr.cpu));</span>
+<span class="lineNum">     225 </span>                :<span class="lineCov">     380514 :                         repeats[be16_to_cpu(t.hdr.cpu)] += be16_to_cpu(t.repeat.num);</span>
+<span class="lineNum">     226 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 593154 times"> + </span>]:<span class="lineCov">     593158 :                 } else if (t.hdr.type == 0x70) {</span>
+<span class="lineNum">     227 </span>                :<span class="lineCov">          4 :                         done[be16_to_cpu(t.hdr.cpu)] = true;</span>
 <span class="lineNum">     228 </span>                :            :                 } else {
-<span class="lineNum">     229 </span>                :<span class="lineCov">    3603007 :                         counts[be16_to_cpu(t.hdr.cpu)]++;</span>
+<span class="lineNum">     229 </span>                :<span class="lineCov">     973690 :                         counts[be16_to_cpu(t.hdr.cpu)]++;</span>
 <span class="lineNum">     230 </span>                :            :                 }
 <span class="lineNum">     231 </span>                :            :         }
 <span class="lineNum">     232 </span>                :            : 
 <span class="lineNum">     233 </span>                :            :         /* Gather children. */
-<span class="lineNum">     234 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">         15 :         for (i = 0; i &lt; CPUS; i++) {</span>
+<span class="lineNum">     234 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          5 :         for (i = 0; i &lt; CPUS; i++) {</span>
 <span class="lineNum">     235 </span>                :            :                 int status;
-<span class="lineNum">     236 </span>                :<span class="lineCov">         12 :                 wait(&amp;status);</span>
+<span class="lineNum">     236 </span>                :<span class="lineCov">          4 :                 wait(&amp;status);</span>
 <span class="lineNum">     237 </span>                :            :         }
 <span class="lineNum">     238 </span>                :            : 
-<span class="lineNum">     239 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">         15 :         for (i = 0; i &lt; CPUS; i++) {</span>
-<span class="lineNum">     240 </span>                :<span class="lineCov">         12 :                 printf(&quot;Child %i: %u produced, %u overflows, %llu total\n&quot;, i,</span>
+<span class="lineNum">     239 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          5 :         for (i = 0; i &lt; CPUS; i++) {</span>
+<span class="lineNum">     240 </span>                :<span class="lineCov">          4 :                 printf(&quot;Child %i: %u produced, %u overflows, %llu total\n&quot;, i,</span>
 <span class="lineNum">     241 </span>                :            :                        counts[i], overflows[i],
-<span class="lineNum">     242 </span>                :<span class="lineCov">         12 :                        (long long)be64_to_cpu(fake_cpus[i].trace-&gt;tb.end));</span>
-<span class="lineNum">     243 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         12 :                 assert(counts[i] + repeats[i] &lt;= PER_CHILD_TRACES);</span>
+<span class="lineNum">     242 </span>                :<span class="lineCov">          4 :                        (long long)be64_to_cpu(fake_cpus[i].trace-&gt;tb.end));</span>
+<span class="lineNum">     243 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :                 assert(counts[i] + repeats[i] &lt;= PER_CHILD_TRACES);</span>
 <span class="lineNum">     244 </span>                :            :         }
 <span class="lineNum">     245 </span>                :            :         /* Child 0 never repeats. */
-<span class="lineNum">     246 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         assert(repeats[0] == 0);</span>
-<span class="lineNum">     247 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         assert(counts[0] + overflows[0] == PER_CHILD_TRACES);</span>
+<span class="lineNum">     246 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         assert(repeats[0] == 0);</span>
+<span class="lineNum">     247 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         assert(counts[0] + overflows[0] == PER_CHILD_TRACES);</span>
 <span class="lineNum">     248 </span>                :            : 
 <span class="lineNum">     249 </span>                :            :         /*
 <span class="lineNum">     250 </span>                :            :          * FIXME: Other children have some fuzz, since overflows may
@@ -323,141 +323,141 @@
 <span class="lineNum">     252 </span>                :            :          * overflows may include more repeat records than normal
 <span class="lineNum">     253 </span>                :            :          * records (they alternate).
 <span class="lineNum">     254 </span>                :            :          */
-<a name="255"><span class="lineNum">     255 </span>                :<span class="lineCov">          3 : }</span></a>
+<a name="255"><span class="lineNum">     255 </span>                :<span class="lineCov">          1 : }</span></a>
 <span class="lineNum">     256 </span>                :            : 
-<span class="lineNum">     257 </span>                :<span class="lineCov">         15 : int main(void)</span>
+<span class="lineNum">     257 </span>                :<span class="lineCov">          5 : int main(void)</span>
 <span class="lineNum">     258 </span>                :            : {
 <span class="lineNum">     259 </span>                :            :         union trace minimal;
 <span class="lineNum">     260 </span>                :            :         union trace large;
 <span class="lineNum">     261 </span>                :            :         union trace trace;
 <span class="lineNum">     262 </span>                :            :         unsigned int i, j;
 <span class="lineNum">     263 </span>                :            : 
-<span class="lineNum">     264 </span>                :<span class="lineCov">         15 :         opal_node = dt_new_root(&quot;opal&quot;);</span>
-<span class="lineNum">     265 </span>        [<span class="branchCov" title="Branch 0 was taken 60 times"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         75 :         for (i = 0; i &lt; CPUS; i++) {</span>
-<span class="lineNum">     266 </span>                :<span class="lineCov">         60 :                 fake_cpus[i].server_no = i;</span>
-<span class="lineNum">     267 </span>                :<span class="lineCov">         60 :                 fake_cpus[i].is_secondary = (i &amp; 0x1);</span>
-<span class="lineNum">     268 </span>                :<span class="lineCov">         60 :                 fake_cpus[i].primary = &amp;fake_cpus[i &amp; ~0x1];</span>
+<span class="lineNum">     264 </span>                :<span class="lineCov">          5 :         opal_node = dt_new_root(&quot;opal&quot;);</span>
+<span class="lineNum">     265 </span>        [<span class="branchCov" title="Branch 0 was taken 20 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">         25 :         for (i = 0; i &lt; CPUS; i++) {</span>
+<span class="lineNum">     266 </span>                :<span class="lineCov">         20 :                 fake_cpus[i].server_no = i;</span>
+<span class="lineNum">     267 </span>                :<span class="lineCov">         20 :                 fake_cpus[i].is_secondary = (i &amp; 0x1);</span>
+<span class="lineNum">     268 </span>                :<span class="lineCov">         20 :                 fake_cpus[i].primary = &amp;fake_cpus[i &amp; ~0x1];</span>
 <span class="lineNum">     269 </span>                :            :         }
-<span class="lineNum">     270 </span>                :<span class="lineCov">         15 :         init_trace_buffers();</span>
-<span class="lineNum">     271 </span>                :<span class="lineCov">         15 :         my_fake_cpu = &amp;fake_cpus[0];</span>
+<span class="lineNum">     270 </span>                :<span class="lineCov">          5 :         init_trace_buffers();</span>
+<span class="lineNum">     271 </span>                :<span class="lineCov">          5 :         my_fake_cpu = &amp;fake_cpus[0];</span>
 <span class="lineNum">     272 </span>                :            : 
-<span class="lineNum">     273 </span>        [<span class="branchCov" title="Branch 0 was taken 60 times"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         75 :         for (i = 0; i &lt; CPUS; i++) {</span>
-<span class="lineNum">     274 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 60 times"> + </span>]:<span class="lineCov">         60 :                 assert(trace_empty(&amp;fake_cpus[i].trace-&gt;tb));</span>
-<span class="lineNum">     275 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 60 times"> + </span>]:<span class="lineCov">         60 :                 assert(!trace_get(&amp;trace, &amp;fake_cpus[i].trace-&gt;tb));</span>
+<span class="lineNum">     273 </span>        [<span class="branchCov" title="Branch 0 was taken 20 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">         25 :         for (i = 0; i &lt; CPUS; i++) {</span>
+<span class="lineNum">     274 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 20 times"> + </span>]:<span class="lineCov">         20 :                 assert(trace_empty(&amp;fake_cpus[i].trace-&gt;tb));</span>
+<span class="lineNum">     275 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 20 times"> + </span>]:<span class="lineCov">         20 :                 assert(!trace_get(&amp;trace, &amp;fake_cpus[i].trace-&gt;tb));</span>
 <span class="lineNum">     276 </span>                :            :         }
 <span class="lineNum">     277 </span>                :            : 
 <span class="lineNum">     278 </span>                :            :         assert(sizeof(trace.hdr) % 8 == 0);
-<span class="lineNum">     279 </span>                :<span class="lineCov">         15 :         timestamp = 1;</span>
-<span class="lineNum">     280 </span>                :<span class="lineCov">         15 :         trace_add(&amp;minimal, 100, sizeof(trace.hdr));</span>
-<span class="lineNum">     281 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
-<span class="lineNum">     282 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.len_div_8 == minimal.hdr.len_div_8);</span>
-<span class="lineNum">     283 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(be64_to_cpu(trace.hdr.timestamp) == timestamp);</span>
+<span class="lineNum">     279 </span>                :<span class="lineCov">          5 :         timestamp = 1;</span>
+<span class="lineNum">     280 </span>                :<span class="lineCov">          5 :         trace_add(&amp;minimal, 100, sizeof(trace.hdr));</span>
+<span class="lineNum">     281 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
+<span class="lineNum">     282 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.len_div_8 == minimal.hdr.len_div_8);</span>
+<span class="lineNum">     283 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(be64_to_cpu(trace.hdr.timestamp) == timestamp);</span>
 <span class="lineNum">     284 </span>                :            : 
 <span class="lineNum">     285 </span>                :            :         /* Make it wrap once. */
-<span class="lineNum">     286 </span>        [<span class="branchCov" title="Branch 0 was taken 983055 times"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">     983070 :         for (i = 0; i &lt; TBUF_SZ / (minimal.hdr.len_div_8 * 8) + 1; i++) {</span>
-<span class="lineNum">     287 </span>                :<span class="lineCov">     983055 :                 timestamp = i;</span>
-<span class="lineNum">     288 </span>                :<span class="lineCov">     983055 :                 trace_add(&amp;minimal, 99 + (i%2), sizeof(trace.hdr));</span>
+<span class="lineNum">     286 </span>        [<span class="branchCov" title="Branch 0 was taken 327685 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">     327690 :         for (i = 0; i &lt; TBUF_SZ / (minimal.hdr.len_div_8 * 8) + 1; i++) {</span>
+<span class="lineNum">     287 </span>                :<span class="lineCov">     327685 :                 timestamp = i;</span>
+<span class="lineNum">     288 </span>                :<span class="lineCov">     327685 :                 trace_add(&amp;minimal, 99 + (i%2), sizeof(trace.hdr));</span>
 <span class="lineNum">     289 </span>                :            :         }
 <span class="lineNum">     290 </span>                :            : 
-<span class="lineNum">     291 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
+<span class="lineNum">     291 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
 <span class="lineNum">     292 </span>                :            :         /* First one must be overflow marker. */
-<span class="lineNum">     293 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.type == TRACE_OVERFLOW);</span>
-<span class="lineNum">     294 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.len_div_8 * 8 == sizeof(trace.overflow));</span>
-<span class="lineNum">     295 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(be64_to_cpu(trace.overflow.bytes_missed) == minimal.hdr.len_div_8 * 8);</span>
+<span class="lineNum">     293 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.type == TRACE_OVERFLOW);</span>
+<span class="lineNum">     294 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.len_div_8 * 8 == sizeof(trace.overflow));</span>
+<span class="lineNum">     295 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(be64_to_cpu(trace.overflow.bytes_missed) == minimal.hdr.len_div_8 * 8);</span>
 <span class="lineNum">     296 </span>                :            : 
-<span class="lineNum">     297 </span>        [<span class="branchCov" title="Branch 0 was taken 983040 times"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">     983055 :         for (i = 0; i &lt; TBUF_SZ / (minimal.hdr.len_div_8 * 8); i++) {</span>
-<span class="lineNum">     298 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 983040 times"> + </span>]:<span class="lineCov">     983040 :                 assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
-<span class="lineNum">     299 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 983040 times"> + </span>]:<span class="lineCov">     983040 :                 assert(trace.hdr.len_div_8 == minimal.hdr.len_div_8);</span>
-<span class="lineNum">     300 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 983040 times"> + </span>]:<span class="lineCov">     983040 :                 assert(be64_to_cpu(trace.hdr.timestamp) == i+1);</span>
-<span class="lineNum">     301 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 983040 times"> + </span>]:<span class="lineCov">     983040 :                 assert(trace.hdr.type == 99 + ((i+1)%2));</span>
+<span class="lineNum">     297 </span>        [<span class="branchCov" title="Branch 0 was taken 327680 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">     327685 :         for (i = 0; i &lt; TBUF_SZ / (minimal.hdr.len_div_8 * 8); i++) {</span>
+<span class="lineNum">     298 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 327680 times"> + </span>]:<span class="lineCov">     327680 :                 assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
+<span class="lineNum">     299 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 327680 times"> + </span>]:<span class="lineCov">     327680 :                 assert(trace.hdr.len_div_8 == minimal.hdr.len_div_8);</span>
+<span class="lineNum">     300 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 327680 times"> + </span>]:<span class="lineCov">     327680 :                 assert(be64_to_cpu(trace.hdr.timestamp) == i+1);</span>
+<span class="lineNum">     301 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 327680 times"> + </span>]:<span class="lineCov">     327680 :                 assert(trace.hdr.type == 99 + ((i+1)%2));</span>
 <span class="lineNum">     302 </span>                :            :         }
-<span class="lineNum">     303 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(!trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
+<span class="lineNum">     303 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(!trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
 <span class="lineNum">     304 </span>                :            : 
 <span class="lineNum">     305 </span>                :            :         /* Now put in some weird-length ones, to test overlap.
 <span class="lineNum">     306 </span>                :            :          * Last power of 2, minus 8. */
-<span class="lineNum">     307 </span>        [<span class="branchCov" title="Branch 0 was taken 105 times"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">        120 :         for (j = 0; (1 &lt;&lt; j) &lt; sizeof(large); j++);</span>
-<span class="lineNum">     308 </span>        [<span class="branchCov" title="Branch 0 was taken 15728640 times"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">   15728655 :         for (i = 0; i &lt; TBUF_SZ; i++) {</span>
-<span class="lineNum">     309 </span>                :<span class="lineCov">   15728640 :                 timestamp = i;</span>
-<span class="lineNum">     310 </span>                :<span class="lineCov">   15728640 :                 trace_add(&amp;large, 100 + (i%2), (1 &lt;&lt; (j-1)));</span>
+<span class="lineNum">     307 </span>        [<span class="branchCov" title="Branch 0 was taken 35 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">         40 :         for (j = 0; (1 &lt;&lt; j) &lt; sizeof(large); j++);</span>
+<span class="lineNum">     308 </span>        [<span class="branchCov" title="Branch 0 was taken 5242880 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">    5242885 :         for (i = 0; i &lt; TBUF_SZ; i++) {</span>
+<span class="lineNum">     309 </span>                :<span class="lineCov">    5242880 :                 timestamp = i;</span>
+<span class="lineNum">     310 </span>                :<span class="lineCov">    5242880 :                 trace_add(&amp;large, 100 + (i%2), (1 &lt;&lt; (j-1)));</span>
 <span class="lineNum">     311 </span>                :            :         }
-<span class="lineNum">     312 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
-<span class="lineNum">     313 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.type == TRACE_OVERFLOW);</span>
-<span class="lineNum">     314 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
-<span class="lineNum">     315 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.len_div_8 == large.hdr.len_div_8);</span>
-<span class="lineNum">     316 </span>                :<span class="lineCov">         15 :         i = be64_to_cpu(trace.hdr.timestamp);</span>
-<span class="lineNum">     317 </span>        [<span class="branchCov" title="Branch 1 was taken 245745 times"> + </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">     245760 :         while (trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb))</span>
-<span class="lineNum">     318 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 245745 times"> + </span>]:<span class="lineCov">     245745 :                 assert(be64_to_cpu(trace.hdr.timestamp) == ++i);</span>
+<span class="lineNum">     312 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
+<span class="lineNum">     313 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.type == TRACE_OVERFLOW);</span>
+<span class="lineNum">     314 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
+<span class="lineNum">     315 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.len_div_8 == large.hdr.len_div_8);</span>
+<span class="lineNum">     316 </span>                :<span class="lineCov">          5 :         i = be64_to_cpu(trace.hdr.timestamp);</span>
+<span class="lineNum">     317 </span>        [<span class="branchCov" title="Branch 1 was taken 81915 times"> + </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">      81920 :         while (trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb))</span>
+<span class="lineNum">     318 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 81915 times"> + </span>]:<span class="lineCov">      81915 :                 assert(be64_to_cpu(trace.hdr.timestamp) == ++i);</span>
 <span class="lineNum">     319 </span>                :            : 
 <span class="lineNum">     320 </span>                :            :         /* Test repeats. */
-<span class="lineNum">     321 </span>        [<span class="branchCov" title="Branch 0 was taken 983070 times"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">     983085 :         for (i = 0; i &lt; 65538; i++) {</span>
-<span class="lineNum">     322 </span>                :<span class="lineCov">     983070 :                 timestamp = i;</span>
-<span class="lineNum">     323 </span>                :<span class="lineCov">     983070 :                 trace_add(&amp;minimal, 100, sizeof(trace.hdr));</span>
+<span class="lineNum">     321 </span>        [<span class="branchCov" title="Branch 0 was taken 327690 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">     327695 :         for (i = 0; i &lt; 65538; i++) {</span>
+<span class="lineNum">     322 </span>                :<span class="lineCov">     327690 :                 timestamp = i;</span>
+<span class="lineNum">     323 </span>                :<span class="lineCov">     327690 :                 trace_add(&amp;minimal, 100, sizeof(trace.hdr));</span>
 <span class="lineNum">     324 </span>                :            :         }
-<span class="lineNum">     325 </span>                :<span class="lineCov">         15 :         timestamp = i;</span>
-<span class="lineNum">     326 </span>                :<span class="lineCov">         15 :         trace_add(&amp;minimal, 101, sizeof(trace.hdr));</span>
-<span class="lineNum">     327 </span>                :<span class="lineCov">         15 :         timestamp = i+1;</span>
-<span class="lineNum">     328 </span>                :<span class="lineCov">         15 :         trace_add(&amp;minimal, 101, sizeof(trace.hdr));</span>
+<span class="lineNum">     325 </span>                :<span class="lineCov">          5 :         timestamp = i;</span>
+<span class="lineNum">     326 </span>                :<span class="lineCov">          5 :         trace_add(&amp;minimal, 101, sizeof(trace.hdr));</span>
+<span class="lineNum">     327 </span>                :<span class="lineCov">          5 :         timestamp = i+1;</span>
+<span class="lineNum">     328 </span>                :<span class="lineCov">          5 :         trace_add(&amp;minimal, 101, sizeof(trace.hdr));</span>
 <span class="lineNum">     329 </span>                :            : 
-<span class="lineNum">     330 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
-<span class="lineNum">     331 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.timestamp == 0);</span>
-<span class="lineNum">     332 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.len_div_8 == minimal.hdr.len_div_8);</span>
-<span class="lineNum">     333 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.type == 100);</span>
-<span class="lineNum">     334 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
-<span class="lineNum">     335 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.type == TRACE_REPEAT);</span>
-<span class="lineNum">     336 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.len_div_8 * 8 == sizeof(trace.repeat));</span>
-<span class="lineNum">     337 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(be16_to_cpu(trace.repeat.num) == 65535);</span>
-<span class="lineNum">     338 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(be64_to_cpu(trace.repeat.timestamp) == 65535);</span>
-<span class="lineNum">     339 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
-<span class="lineNum">     340 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(be64_to_cpu(trace.hdr.timestamp) == 65536);</span>
-<span class="lineNum">     341 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.len_div_8 == minimal.hdr.len_div_8);</span>
-<span class="lineNum">     342 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.type == 100);</span>
-<span class="lineNum">     343 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
-<span class="lineNum">     344 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.type == TRACE_REPEAT);</span>
-<span class="lineNum">     345 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.len_div_8 * 8 == sizeof(trace.repeat));</span>
-<span class="lineNum">     346 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(be16_to_cpu(trace.repeat.num) == 1);</span>
-<span class="lineNum">     347 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(be64_to_cpu(trace.repeat.timestamp) == 65537);</span>
+<span class="lineNum">     330 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
+<span class="lineNum">     331 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.timestamp == 0);</span>
+<span class="lineNum">     332 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.len_div_8 == minimal.hdr.len_div_8);</span>
+<span class="lineNum">     333 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.type == 100);</span>
+<span class="lineNum">     334 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
+<span class="lineNum">     335 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.type == TRACE_REPEAT);</span>
+<span class="lineNum">     336 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.len_div_8 * 8 == sizeof(trace.repeat));</span>
+<span class="lineNum">     337 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(be16_to_cpu(trace.repeat.num) == 65535);</span>
+<span class="lineNum">     338 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(be64_to_cpu(trace.repeat.timestamp) == 65535);</span>
+<span class="lineNum">     339 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
+<span class="lineNum">     340 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(be64_to_cpu(trace.hdr.timestamp) == 65536);</span>
+<span class="lineNum">     341 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.len_div_8 == minimal.hdr.len_div_8);</span>
+<span class="lineNum">     342 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.type == 100);</span>
+<span class="lineNum">     343 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
+<span class="lineNum">     344 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.type == TRACE_REPEAT);</span>
+<span class="lineNum">     345 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.len_div_8 * 8 == sizeof(trace.repeat));</span>
+<span class="lineNum">     346 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(be16_to_cpu(trace.repeat.num) == 1);</span>
+<span class="lineNum">     347 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(be64_to_cpu(trace.repeat.timestamp) == 65537);</span>
 <span class="lineNum">     348 </span>                :            : 
-<span class="lineNum">     349 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
-<span class="lineNum">     350 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(be64_to_cpu(trace.hdr.timestamp) == 65538);</span>
-<span class="lineNum">     351 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.len_div_8 == minimal.hdr.len_div_8);</span>
-<span class="lineNum">     352 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.type == 101);</span>
-<span class="lineNum">     353 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
-<span class="lineNum">     354 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.type == TRACE_REPEAT);</span>
-<span class="lineNum">     355 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.len_div_8 * 8 == sizeof(trace.repeat));</span>
-<span class="lineNum">     356 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(be16_to_cpu(trace.repeat.num) == 1);</span>
-<span class="lineNum">     357 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(be64_to_cpu(trace.repeat.timestamp) == 65539);</span>
+<span class="lineNum">     349 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
+<span class="lineNum">     350 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(be64_to_cpu(trace.hdr.timestamp) == 65538);</span>
+<span class="lineNum">     351 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.len_div_8 == minimal.hdr.len_div_8);</span>
+<span class="lineNum">     352 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.type == 101);</span>
+<span class="lineNum">     353 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
+<span class="lineNum">     354 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.type == TRACE_REPEAT);</span>
+<span class="lineNum">     355 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.len_div_8 * 8 == sizeof(trace.repeat));</span>
+<span class="lineNum">     356 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(be16_to_cpu(trace.repeat.num) == 1);</span>
+<span class="lineNum">     357 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(be64_to_cpu(trace.repeat.timestamp) == 65539);</span>
 <span class="lineNum">     358 </span>                :            : 
 <span class="lineNum">     359 </span>                :            :         /* Now, test adding repeat while we're reading... */
-<span class="lineNum">     360 </span>                :<span class="lineCov">         15 :         timestamp = 0;</span>
-<span class="lineNum">     361 </span>                :<span class="lineCov">         15 :         trace_add(&amp;minimal, 100, sizeof(trace.hdr));</span>
-<span class="lineNum">     362 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
-<span class="lineNum">     363 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(be64_to_cpu(trace.hdr.timestamp) == 0);</span>
-<span class="lineNum">     364 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.len_div_8 == minimal.hdr.len_div_8);</span>
-<span class="lineNum">     365 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         assert(trace.hdr.type == 100);</span>
+<span class="lineNum">     360 </span>                :<span class="lineCov">          5 :         timestamp = 0;</span>
+<span class="lineNum">     361 </span>                :<span class="lineCov">          5 :         trace_add(&amp;minimal, 100, sizeof(trace.hdr));</span>
+<span class="lineNum">     362 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
+<span class="lineNum">     363 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(be64_to_cpu(trace.hdr.timestamp) == 0);</span>
+<span class="lineNum">     364 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.len_div_8 == minimal.hdr.len_div_8);</span>
+<span class="lineNum">     365 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         assert(trace.hdr.type == 100);</span>
 <span class="lineNum">     366 </span>                :            : 
-<span class="lineNum">     367 </span>        [<span class="branchCov" title="Branch 0 was taken 15728625 times"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">   15728640 :         for (i = 1; i &lt; TBUF_SZ; i++) {</span>
-<span class="lineNum">     368 </span>                :<span class="lineCov">   15728625 :                 timestamp = i;</span>
-<span class="lineNum">     369 </span>                :<span class="lineCov">   15728625 :                 trace_add(&amp;minimal, 100, sizeof(trace.hdr));</span>
-<span class="lineNum">     370 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15728625 times"> + </span>]:<span class="lineCov">   15728625 :                 assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
-<span class="lineNum">     371 </span>        [<span class="branchCov" title="Branch 0 was taken 225 times"> + </span><span class="branchCov" title="Branch 1 was taken 15728400 times"> + </span>]:<span class="lineCov">   15728625 :                 if (i % 65536 == 0) {</span>
-<span class="lineNum">     372 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 225 times"> + </span>]:<span class="lineCov">        225 :                         assert(trace.hdr.type == 100);</span>
-<span class="lineNum">     373 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 225 times"> + </span>]:<span class="lineCov">        225 :                         assert(trace.hdr.len_div_8 == minimal.hdr.len_div_8);</span>
+<span class="lineNum">     367 </span>        [<span class="branchCov" title="Branch 0 was taken 5242875 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">    5242880 :         for (i = 1; i &lt; TBUF_SZ; i++) {</span>
+<span class="lineNum">     368 </span>                :<span class="lineCov">    5242875 :                 timestamp = i;</span>
+<span class="lineNum">     369 </span>                :<span class="lineCov">    5242875 :                 trace_add(&amp;minimal, 100, sizeof(trace.hdr));</span>
+<span class="lineNum">     370 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5242875 times"> + </span>]:<span class="lineCov">    5242875 :                 assert(trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
+<span class="lineNum">     371 </span>        [<span class="branchCov" title="Branch 0 was taken 75 times"> + </span><span class="branchCov" title="Branch 1 was taken 5242800 times"> + </span>]:<span class="lineCov">    5242875 :                 if (i % 65536 == 0) {</span>
+<span class="lineNum">     372 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 75 times"> + </span>]:<span class="lineCov">         75 :                         assert(trace.hdr.type == 100);</span>
+<span class="lineNum">     373 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 75 times"> + </span>]:<span class="lineCov">         75 :                         assert(trace.hdr.len_div_8 == minimal.hdr.len_div_8);</span>
 <span class="lineNum">     374 </span>                :            :                 } else {
-<span class="lineNum">     375 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15728400 times"> + </span>]:<span class="lineCov">   15728400 :                         assert(trace.hdr.type == TRACE_REPEAT);</span>
-<span class="lineNum">     376 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15728400 times"> + </span>]:<span class="lineCov">   15728400 :                         assert(trace.hdr.len_div_8 * 8 == sizeof(trace.repeat));</span>
-<span class="lineNum">     377 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15728400 times"> + </span>]:<span class="lineCov">   15728400 :                         assert(be16_to_cpu(trace.repeat.num) == 1);</span>
+<span class="lineNum">     375 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5242800 times"> + </span>]:<span class="lineCov">    5242800 :                         assert(trace.hdr.type == TRACE_REPEAT);</span>
+<span class="lineNum">     376 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5242800 times"> + </span>]:<span class="lineCov">    5242800 :                         assert(trace.hdr.len_div_8 * 8 == sizeof(trace.repeat));</span>
+<span class="lineNum">     377 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5242800 times"> + </span>]:<span class="lineCov">    5242800 :                         assert(be16_to_cpu(trace.repeat.num) == 1);</span>
 <span class="lineNum">     378 </span>                :            :                 }
-<span class="lineNum">     379 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15728625 times"> + </span>]:<span class="lineCov">   15728625 :                 assert(be64_to_cpu(trace.repeat.timestamp) == i);</span>
-<span class="lineNum">     380 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 15728625 times"> + </span>]:<span class="lineCov">   15728625 :                 assert(!trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
+<span class="lineNum">     379 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5242875 times"> + </span>]:<span class="lineCov">    5242875 :                 assert(be64_to_cpu(trace.repeat.timestamp) == i);</span>
+<span class="lineNum">     380 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5242875 times"> + </span>]:<span class="lineCov">    5242875 :                 assert(!trace_get(&amp;trace, &amp;my_fake_cpu-&gt;trace-&gt;tb));</span>
 <span class="lineNum">     381 </span>                :            :         }
 <span class="lineNum">     382 </span>                :            : 
-<span class="lineNum">     383 </span>        [<span class="branchCov" title="Branch 0 was taken 60 times"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         75 :         for (i = 0; i &lt; CPUS; i++)</span>
-<span class="lineNum">     384 </span>        [<span class="branchCov" title="Branch 0 was taken 30 times"> + </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>]:<span class="lineCov">         60 :                 if (!fake_cpus[i].is_secondary)</span>
-<span class="lineNum">     385 </span>                :<span class="lineCov">         30 :                         free(fake_cpus[i].trace);</span>
+<span class="lineNum">     383 </span>        [<span class="branchCov" title="Branch 0 was taken 20 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">         25 :         for (i = 0; i &lt; CPUS; i++)</span>
+<span class="lineNum">     384 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         20 :                 if (!fake_cpus[i].is_secondary)</span>
+<span class="lineNum">     385 </span>                :<span class="lineCov">         10 :                         free(fake_cpus[i].trace);</span>
 <span class="lineNum">     386 </span>                :            : 
-<span class="lineNum">     387 </span>                :<span class="lineCov">         15 :         test_parallel();</span>
+<span class="lineNum">     387 </span>                :<span class="lineCov">          5 :         test_parallel();</span>
 <span class="lineNum">     388 </span>                :            : 
-<span class="lineNum">     389 </span>                :<span class="lineCov">          3 :         return 0;</span>
+<span class="lineNum">     389 </span>                :<span class="lineCov">          1 :         return 0;</span>
 <span class="lineNum">     390 </span>                :            : }
 </pre>
       </td>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2014-12-02</td>
+            <td class="headerValue">2014-12-17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">5</td>
@@ -92,66 +92,66 @@
 <span class="lineNum">      21 </span>                :            : 
 <a name="22"><span class="lineNum">      22 </span>                :            : #define DEFAULT_ALIGN __alignof__(long)</a>
 <span class="lineNum">      23 </span>                :            : 
-<span class="lineNum">      24 </span>                :<span class="lineCov">      12423 : void *__memalign(size_t blocksize, size_t bytes, const char *location)</span>
+<span class="lineNum">      24 </span>                :<span class="lineCov">       4141 : void *__memalign(size_t blocksize, size_t bytes, const char *location)</span>
 <span class="lineNum">      25 </span>                :            : {
 <span class="lineNum">      26 </span>                :            :         void *p;
 <span class="lineNum">      27 </span>                :            : 
-<span class="lineNum">      28 </span>                :<span class="lineCov">      12423 :         lock(&amp;mem_region_lock);</span>
-<span class="lineNum">      29 </span>                :<span class="lineCov">      12423 :         p = mem_alloc(&amp;skiboot_heap, bytes, blocksize, location);</span>
-<span class="lineNum">      30 </span>                :<span class="lineCov">      12423 :         unlock(&amp;mem_region_lock);</span>
+<span class="lineNum">      28 </span>                :<span class="lineCov">       4141 :         lock(&amp;mem_region_lock);</span>
+<span class="lineNum">      29 </span>                :<span class="lineCov">       4141 :         p = mem_alloc(&amp;skiboot_heap, bytes, blocksize, location);</span>
+<span class="lineNum">      30 </span>                :<span class="lineCov">       4141 :         unlock(&amp;mem_region_lock);</span>
 <span class="lineNum">      31 </span>                :            : 
-<span class="lineNum">      32 </span>                :<span class="lineCov">      12423 :         return p;</span>
+<span class="lineNum">      32 </span>                :<span class="lineCov">       4141 :         return p;</span>
 <a name="33"><span class="lineNum">      33 </span>                :            : }</a>
 <span class="lineNum">      34 </span>                :            : 
-<span class="lineNum">      35 </span>                :<span class="lineCov">      12423 : void *__malloc(size_t bytes, const char *location)</span>
+<span class="lineNum">      35 </span>                :<span class="lineCov">       4141 : void *__malloc(size_t bytes, const char *location)</span>
 <span class="lineNum">      36 </span>                :            : {
-<span class="lineNum">      37 </span>                :<span class="lineCov">      12423 :         return __memalign(DEFAULT_ALIGN, bytes, location);</span>
+<span class="lineNum">      37 </span>                :<span class="lineCov">       4141 :         return __memalign(DEFAULT_ALIGN, bytes, location);</span>
 <a name="38"><span class="lineNum">      38 </span>                :            : }</a>
 <span class="lineNum">      39 </span>                :            : 
-<span class="lineNum">      40 </span>                :<span class="lineCov">        141 : void __free(void *p, const char *location)</span>
+<span class="lineNum">      40 </span>                :<span class="lineCov">         47 : void __free(void *p, const char *location)</span>
 <span class="lineNum">      41 </span>                :            : {
-<span class="lineNum">      42 </span>                :<span class="lineCov">        141 :         lock(&amp;mem_region_lock);</span>
-<span class="lineNum">      43 </span>                :<span class="lineCov">        141 :         mem_free(&amp;skiboot_heap, p, location);</span>
-<span class="lineNum">      44 </span>                :<span class="lineCov">        141 :         unlock(&amp;mem_region_lock);</span>
-<a name="45"><span class="lineNum">      45 </span>                :<span class="lineCov">        141 : }</span></a>
+<span class="lineNum">      42 </span>                :<span class="lineCov">         47 :         lock(&amp;mem_region_lock);</span>
+<span class="lineNum">      43 </span>                :<span class="lineCov">         47 :         mem_free(&amp;skiboot_heap, p, location);</span>
+<span class="lineNum">      44 </span>                :<span class="lineCov">         47 :         unlock(&amp;mem_region_lock);</span>
+<a name="45"><span class="lineNum">      45 </span>                :<span class="lineCov">         47 : }</span></a>
 <span class="lineNum">      46 </span>                :            : 
-<span class="lineNum">      47 </span>                :<span class="lineCov">         27 : void *__realloc(void *ptr, size_t size, const char *location)</span>
+<span class="lineNum">      47 </span>                :<span class="lineCov">          9 : void *__realloc(void *ptr, size_t size, const char *location)</span>
 <span class="lineNum">      48 </span>                :            : {
 <span class="lineNum">      49 </span>                :            :         void *newptr;
 <span class="lineNum">      50 </span>                :            : 
 <span class="lineNum">      51 </span>                :            :         /* Two classic malloc corner cases. */
-<span class="lineNum">      52 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 24 times"> + </span>]:<span class="lineCov">         27 :         if (!size) {</span>
-<span class="lineNum">      53 </span>                :<span class="lineCov">          3 :                 __free(ptr, location);</span>
-<span class="lineNum">      54 </span>                :<span class="lineCov">          3 :                 return NULL;</span>
+<span class="lineNum">      52 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          9 :         if (!size) {</span>
+<span class="lineNum">      53 </span>                :<span class="lineCov">          1 :                 __free(ptr, location);</span>
+<span class="lineNum">      54 </span>                :<span class="lineCov">          1 :                 return NULL;</span>
 <span class="lineNum">      55 </span>                :            :         }
-<span class="lineNum">      56 </span>        [<span class="branchCov" title="Branch 0 was taken 9 times"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>]:<span class="lineCov">         24 :         if (!ptr)</span>
-<span class="lineNum">      57 </span>                :<span class="lineCov">          9 :                 return __malloc(size, location);</span>
+<span class="lineNum">      56 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          8 :         if (!ptr)</span>
+<span class="lineNum">      57 </span>                :<span class="lineCov">          3 :                 return __malloc(size, location);</span>
 <span class="lineNum">      58 </span>                :            : 
-<span class="lineNum">      59 </span>                :<span class="lineCov">         15 :         lock(&amp;mem_region_lock);</span>
-<span class="lineNum">      60 </span>        [<span class="branchCov" title="Branch 1 was taken 9 times"> + </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">         15 :         if (mem_resize(&amp;skiboot_heap, ptr, size, location)) {</span>
-<span class="lineNum">      61 </span>                :<span class="lineCov">          9 :                 newptr = ptr;</span>
+<span class="lineNum">      59 </span>                :<span class="lineCov">          5 :         lock(&amp;mem_region_lock);</span>
+<span class="lineNum">      60 </span>        [<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          5 :         if (mem_resize(&amp;skiboot_heap, ptr, size, location)) {</span>
+<span class="lineNum">      61 </span>                :<span class="lineCov">          3 :                 newptr = ptr;</span>
 <span class="lineNum">      62 </span>                :            :         } else {
-<span class="lineNum">      63 </span>                :<span class="lineCov">          6 :                 newptr = mem_alloc(&amp;skiboot_heap, size, DEFAULT_ALIGN,</span>
+<span class="lineNum">      63 </span>                :<span class="lineCov">          2 :                 newptr = mem_alloc(&amp;skiboot_heap, size, DEFAULT_ALIGN,</span>
 <span class="lineNum">      64 </span>                :            :                                    location);
-<span class="lineNum">      65 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          6 :                 if (newptr) {</span>
-<span class="lineNum">      66 </span>                :<span class="lineCov">          3 :                         size_t copy = mem_allocated_size(ptr);</span>
-<span class="lineNum">      67 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :                         if (copy &gt; size)</span>
+<span class="lineNum">      65 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :                 if (newptr) {</span>
+<span class="lineNum">      66 </span>                :<span class="lineCov">          1 :                         size_t copy = mem_allocated_size(ptr);</span>
+<span class="lineNum">      67 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                         if (copy &gt; size)</span>
 <span class="lineNum">      68 </span>                :<span class="lineNoCov">          0 :                                 copy = size;</span>
-<span class="lineNum">      69 </span>                :<span class="lineCov">          3 :                         memcpy(newptr, ptr, copy);</span>
-<span class="lineNum">      70 </span>                :<span class="lineCov">          3 :                         mem_free(&amp;skiboot_heap, ptr, location);</span>
+<span class="lineNum">      69 </span>                :<span class="lineCov">          1 :                         memcpy(newptr, ptr, copy);</span>
+<span class="lineNum">      70 </span>                :<span class="lineCov">          1 :                         mem_free(&amp;skiboot_heap, ptr, location);</span>
 <span class="lineNum">      71 </span>                :            :                 }
 <span class="lineNum">      72 </span>                :            :         }
-<span class="lineNum">      73 </span>                :<span class="lineCov">         15 :         unlock(&amp;mem_region_lock);</span>
-<span class="lineNum">      74 </span>                :<span class="lineCov">         27 :         return newptr;</span>
+<span class="lineNum">      73 </span>                :<span class="lineCov">          5 :         unlock(&amp;mem_region_lock);</span>
+<span class="lineNum">      74 </span>                :<span class="lineCov">          9 :         return newptr;</span>
 <a name="75"><span class="lineNum">      75 </span>                :            : }</a>
 <span class="lineNum">      76 </span>                :            : 
-<span class="lineNum">      77 </span>                :<span class="lineCov">          9 : void *__zalloc(size_t bytes, const char *location)</span>
+<span class="lineNum">      77 </span>                :<span class="lineCov">          3 : void *__zalloc(size_t bytes, const char *location)</span>
 <span class="lineNum">      78 </span>                :            : {
-<span class="lineNum">      79 </span>                :<span class="lineCov">          9 :         void *p = __malloc(bytes, location);</span>
+<span class="lineNum">      79 </span>                :<span class="lineCov">          3 :         void *p = __malloc(bytes, location);</span>
 <span class="lineNum">      80 </span>                :            : 
-<span class="lineNum">      81 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          9 :         if (p)</span>
-<span class="lineNum">      82 </span>                :<span class="lineCov">          6 :                 memset(p, 0, bytes);</span>
-<span class="lineNum">      83 </span>                :<span class="lineCov">          9 :         return p;</span>
+<span class="lineNum">      81 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if (p)</span>
+<span class="lineNum">      82 </span>                :<span class="lineCov">          2 :                 memset(p, 0, bytes);</span>
+<span class="lineNum">      83 </span>                :<span class="lineCov">          3 :         return p;</span>
 <span class="lineNum">      84 </span>                :            : }
 </pre>
       </td>

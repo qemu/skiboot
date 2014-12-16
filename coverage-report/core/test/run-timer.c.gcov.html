@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2014-12-02</td>
+            <td class="headerValue">2014-12-17</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">5</td>
@@ -81,8 +81,8 @@
 <span class="lineNum">      10 </span>                :            : 
 <a name="11"><span class="lineNum">      11 </span>                :            : static uint64_t stamp, last;</a>
 <a name="12"><span class="lineNum">      12 </span>                :            : struct lock;</a>
-<span class="lineNum">      13 </span>                :<span class="lineCov">        900 : static inline void lock(struct lock *l) { (void)l; }</span>
-<span class="lineNum">      14 </span>                :<span class="lineCov">        900 : static inline void unlock(struct lock *l) { (void)l; }</span>
+<span class="lineNum">      13 </span>                :<span class="lineCov">        300 : static inline void lock(struct lock *l) { (void)l; }</span>
+<span class="lineNum">      14 </span>                :<span class="lineCov">        300 : static inline void unlock(struct lock *l) { (void)l; }</span>
 <span class="lineNum">      15 </span>                :            : 
 <span class="lineNum">      16 </span>                :            : #include &quot;../timer.c&quot;
 <span class="lineNum">      17 </span>                :            : 
@@ -91,39 +91,39 @@
 <span class="lineNum">      20 </span>                :            : static struct timer timers[NUM_TIMERS];
 <a name="21"><span class="lineNum">      21 </span>                :            : static unsigned int rand_shift, count;</a>
 <span class="lineNum">      22 </span>                :            : 
-<span class="lineNum">      23 </span>                :<span class="lineCov">          3 : static void init_rand(void)</span>
+<span class="lineNum">      23 </span>                :<span class="lineCov">          1 : static void init_rand(void)</span>
 <span class="lineNum">      24 </span>                :            : {
-<span class="lineNum">      25 </span>                :<span class="lineCov">          3 :         unsigned long max = RAND_MAX;</span>
+<span class="lineNum">      25 </span>                :<span class="lineCov">          1 :         unsigned long max = RAND_MAX;</span>
 <span class="lineNum">      26 </span>                :            : 
 <span class="lineNum">      27 </span>                :            :         /* Get something reasonably small */
-<span class="lineNum">      28 </span>        [<span class="branchCov" title="Branch 0 was taken 45 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">         48 :         while(max &gt; 0x10000) {</span>
-<span class="lineNum">      29 </span>                :<span class="lineCov">         45 :                 rand_shift++;</span>
-<span class="lineNum">      30 </span>                :<span class="lineCov">         45 :                 max &gt;&gt;= 1;</span>
+<span class="lineNum">      28 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         16 :         while(max &gt; 0x10000) {</span>
+<span class="lineNum">      29 </span>                :<span class="lineCov">         15 :                 rand_shift++;</span>
+<span class="lineNum">      30 </span>                :<span class="lineCov">         15 :                 max &gt;&gt;= 1;</span>
 <span class="lineNum">      31 </span>                :            :         }
-<a name="32"><span class="lineNum">      32 </span>                :<span class="lineCov">          3 : }</span></a>
+<a name="32"><span class="lineNum">      32 </span>                :<span class="lineCov">          1 : }</span></a>
 <span class="lineNum">      33 </span>                :            : 
-<span class="lineNum">      34 </span>                :<span class="lineCov">        300 : static void expiry(struct timer *t, void *data)</span>
+<span class="lineNum">      34 </span>                :<span class="lineCov">        100 : static void expiry(struct timer *t, void *data)</span>
 <span class="lineNum">      35 </span>                :            : {
 <span class="lineNum">      36 </span>                :            :         (void)data;
-<span class="lineNum">      37 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 300 times"> + </span>]:<span class="lineCov">        300 :         assert(t-&gt;target &gt;= last);</span>
-<span class="lineNum">      38 </span>                :<span class="lineCov">        300 :         count--;</span>
-<a name="39"><span class="lineNum">      39 </span>                :<span class="lineCov">        300 : }</span></a>
+<span class="lineNum">      37 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 100 times"> + </span>]:<span class="lineCov">        100 :         assert(t-&gt;target &gt;= last);</span>
+<span class="lineNum">      38 </span>                :<span class="lineCov">        100 :         count--;</span>
+<a name="39"><span class="lineNum">      39 </span>                :<span class="lineCov">        100 : }</span></a>
 <span class="lineNum">      40 </span>                :            : 
-<span class="lineNum">      41 </span>                :<span class="lineCov">          3 : int main(void)</span>
+<span class="lineNum">      41 </span>                :<span class="lineCov">          1 : int main(void)</span>
 <span class="lineNum">      42 </span>                :            : {
 <span class="lineNum">      43 </span>                :            :         unsigned int i;
 <span class="lineNum">      44 </span>                :            : 
-<span class="lineNum">      45 </span>                :<span class="lineCov">          3 :         init_rand();</span>
-<span class="lineNum">      46 </span>        [<span class="branchCov" title="Branch 0 was taken 300 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">        303 :         for (i = 0; i &lt; NUM_TIMERS; i++) {</span>
-<span class="lineNum">      47 </span>                :<span class="lineCov">        300 :                 init_timer(&amp;timers[i], expiry, NULL);</span>
-<span class="lineNum">      48 </span>                :<span class="lineCov">        300 :                 schedule_timer(&amp;timers[i], random() &gt;&gt; rand_shift);</span>
+<span class="lineNum">      45 </span>                :<span class="lineCov">          1 :         init_rand();</span>
+<span class="lineNum">      46 </span>        [<span class="branchCov" title="Branch 0 was taken 100 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">        101 :         for (i = 0; i &lt; NUM_TIMERS; i++) {</span>
+<span class="lineNum">      47 </span>                :<span class="lineCov">        100 :                 init_timer(&amp;timers[i], expiry, NULL);</span>
+<span class="lineNum">      48 </span>                :<span class="lineCov">        100 :                 schedule_timer(&amp;timers[i], random() &gt;&gt; rand_shift);</span>
 <span class="lineNum">      49 </span>                :            :         }
-<span class="lineNum">      50 </span>                :<span class="lineCov">          3 :         count = NUM_TIMERS;</span>
-<span class="lineNum">      51 </span>        [<span class="branchCov" title="Branch 0 was taken 196398 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">     196401 :         while(count) {</span>
-<span class="lineNum">      52 </span>                :<span class="lineCov">     196398 :                 check_timers(false);</span>
-<span class="lineNum">      53 </span>                :<span class="lineCov">     196398 :                 stamp++;</span>
+<span class="lineNum">      50 </span>                :<span class="lineCov">          1 :         count = NUM_TIMERS;</span>
+<span class="lineNum">      51 </span>        [<span class="branchCov" title="Branch 0 was taken 65466 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">      65467 :         while(count) {</span>
+<span class="lineNum">      52 </span>                :<span class="lineCov">      65466 :                 check_timers(false);</span>
+<span class="lineNum">      53 </span>                :<span class="lineCov">      65466 :                 stamp++;</span>
 <span class="lineNum">      54 </span>                :            :         }
-<span class="lineNum">      55 </span>                :<span class="lineCov">          3 :         return 0;</span>
+<span class="lineNum">      55 </span>                :<span class="lineCov">          1 :         return 0;</span>
 <span class="lineNum">      56 </span>                :            : }
 </pre>
       </td>
