@@ -78,16 +78,16 @@
 <span class="lineNum">       7 </span>                :            : #include &lt;stdarg.h&gt;
 <a name="8"><span class="lineNum">       8 </span>                :            : </a>
 <span class="lineNum">       9 </span>                :            : #define _B(n)   ((unsigned long long)((uint8_t *)&amp;x)[n])
-<span class="lineNum">      10 </span>                :<span class="lineCov">         88 : static inline uint32_t fdt32_to_cpu(uint32_t x)</span>
+<span class="lineNum">      10 </span>                :<span class="lineCov">        352 : static inline uint32_t fdt32_to_cpu(uint32_t x)</span>
 <span class="lineNum">      11 </span>                :            : {
-<span class="lineNum">      12 </span>                :<span class="lineCov">         88 :         return (_B(0) &lt;&lt; 24) | (_B(1) &lt;&lt; 16) | (_B(2) &lt;&lt; 8) | _B(3);</span>
+<span class="lineNum">      12 </span>                :<span class="lineCov">        352 :         return (_B(0) &lt;&lt; 24) | (_B(1) &lt;&lt; 16) | (_B(2) &lt;&lt; 8) | _B(3);</span>
 <span class="lineNum">      13 </span>                :            : }
 <a name="14"><span class="lineNum">      14 </span>                :            : #define cpu_to_fdt32(x) fdt32_to_cpu(x)</a>
 <span class="lineNum">      15 </span>                :            : 
-<span class="lineNum">      16 </span>                :<span class="lineCov">         60 : static inline uint64_t fdt64_to_cpu(uint64_t x)</span>
+<span class="lineNum">      16 </span>                :<span class="lineCov">        240 : static inline uint64_t fdt64_to_cpu(uint64_t x)</span>
 <span class="lineNum">      17 </span>                :            : {
-<span class="lineNum">      18 </span>                :<span class="lineCov">         60 :         return (_B(0) &lt;&lt; 56) | (_B(1) &lt;&lt; 48) | (_B(2) &lt;&lt; 40) | (_B(3) &lt;&lt; 32)</span>
-<span class="lineNum">      19 </span>                :<span class="lineCov">         60 :                 | (_B(4) &lt;&lt; 24) | (_B(5) &lt;&lt; 16) | (_B(6) &lt;&lt; 8) | _B(7);</span>
+<span class="lineNum">      18 </span>                :<span class="lineCov">        240 :         return (_B(0) &lt;&lt; 56) | (_B(1) &lt;&lt; 48) | (_B(2) &lt;&lt; 40) | (_B(3) &lt;&lt; 32)</span>
+<span class="lineNum">      19 </span>                :<span class="lineCov">        240 :                 | (_B(4) &lt;&lt; 24) | (_B(5) &lt;&lt; 16) | (_B(6) &lt;&lt; 8) | _B(7);</span>
 <span class="lineNum">      20 </span>                :            : }
 <span class="lineNum">      21 </span>                :            : #define cpu_to_fdt64(x) fdt64_to_cpu(x)
 <span class="lineNum">      22 </span>                :            : #undef _B
