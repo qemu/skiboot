@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2014-12-19</td>
+            <td class="headerValue">2015-01-20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -129,11 +129,11 @@
 <span class="lineNum">      58 </span>                :            : 
 <a name="59"><span class="lineNum">      59 </span>                :            : extern bool bust_locks;</a>
 <span class="lineNum">      60 </span>                :            : 
-<span class="lineNum">      61 </span>                :<span class="lineCov">         80 : static inline void init_lock(struct lock *l)</span>
+<span class="lineNum">      61 </span>                :<span class="lineCov">         30 : static inline void init_lock(struct lock *l)</span>
 <span class="lineNum">      62 </span>                :            : {
-<span class="lineNum">      63 </span>                :<span class="lineCov">         80 :         l-&gt;lock_val = 0;</span>
-<span class="lineNum">      64 </span>                :<span class="lineCov">         80 :         l-&gt;in_con_path = false;</span>
-<span class="lineNum">      65 </span>                :<span class="lineCov">         80 : }</span>
+<span class="lineNum">      63 </span>                :<span class="lineCov">         30 :         l-&gt;lock_val = 0;</span>
+<span class="lineNum">      64 </span>                :<span class="lineCov">         30 :         l-&gt;in_con_path = false;</span>
+<span class="lineNum">      65 </span>                :<span class="lineCov">         30 : }</span>
 <span class="lineNum">      66 </span>                :            : 
 <span class="lineNum">      67 </span>                :            : extern bool __try_lock(struct lock *l);
 <span class="lineNum">      68 </span>                :            : extern bool try_lock(struct lock *l);

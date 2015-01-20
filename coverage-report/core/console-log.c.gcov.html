@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2014-12-19</td>
+            <td class="headerValue">2015-01-20</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">2</td>
@@ -98,11 +98,11 @@
 <span class="lineNum">      27 </span>                :            : #include &quot;console.h&quot;
 <a name="28"><span class="lineNum">      28 </span>                :            : #include &quot;timebase.h&quot;</a>
 <span class="lineNum">      29 </span>                :            : 
-<span class="lineNum">      30 </span>                :<span class="lineCov">          8 : static int vprlog(int log_level, const char *fmt, va_list ap)</span>
+<span class="lineNum">      30 </span>                :<span class="lineCov">         27 : static int vprlog(int log_level, const char *fmt, va_list ap)</span>
 <span class="lineNum">      31 </span>                :            : {
 <span class="lineNum">      32 </span>                :            :         int count;
 <span class="lineNum">      33 </span>                :            :         char buffer[320];
-<span class="lineNum">      34 </span>                :<span class="lineCov">          8 :         bool flush_to_drivers = true;</span>
+<span class="lineNum">      34 </span>                :<span class="lineCov">         27 :         bool flush_to_drivers = true;</span>
 <span class="lineNum">      35 </span>                :            : 
 <span class="lineNum">      36 </span>                :            :         /* It's safe to return 0 when we &quot;did&quot; something here
 <span class="lineNum">      37 </span>                :            :          * as only printf cares about how much we wrote, and
@@ -111,19 +111,19 @@
 <span class="lineNum">      40 </span>                :            :          * By default, only PR_DEBUG and higher are stored in memory.
 <span class="lineNum">      41 </span>                :            :          * PR_TRACE and PR_INSANE are for those having a bad day.
 <span class="lineNum">      42 </span>                :            :          */
-<span class="lineNum">      43 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          8 :         if (log_level &gt; (debug_descriptor.console_log_levels &gt;&gt; 4))</span>
-<span class="lineNum">      44 </span>                :<span class="lineCov">          2 :                 return 0;</span>
+<span class="lineNum">      43 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 24 times"> + </span>]:<span class="lineCov">         27 :         if (log_level &gt; (debug_descriptor.console_log_levels &gt;&gt; 4))</span>
+<span class="lineNum">      44 </span>                :<span class="lineCov">          3 :                 return 0;</span>
 <span class="lineNum">      45 </span>                :            : 
-<span class="lineNum">      46 </span>                :<span class="lineCov">          6 :         count = snprintf(buffer, sizeof(buffer), &quot;[%lu,%d] &quot;,</span>
+<span class="lineNum">      46 </span>                :<span class="lineCov">         24 :         count = snprintf(buffer, sizeof(buffer), &quot;[%lu,%d] &quot;,</span>
 <span class="lineNum">      47 </span>                :            :                          mftb(), log_level);
-<span class="lineNum">      48 </span>                :<span class="lineCov">          6 :         count+= vsnprintf(buffer+count, sizeof(buffer)-count, fmt, ap);</span>
+<span class="lineNum">      48 </span>                :<span class="lineCov">         24 :         count+= vsnprintf(buffer+count, sizeof(buffer)-count, fmt, ap);</span>
 <span class="lineNum">      49 </span>                :            : 
-<span class="lineNum">      50 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          6 :         if (log_level &gt; (debug_descriptor.console_log_levels &amp; 0x0f))</span>
-<span class="lineNum">      51 </span>                :<span class="lineCov">          2 :                 flush_to_drivers = false;</span>
+<span class="lineNum">      50 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 21 times"> + </span>]:<span class="lineCov">         24 :         if (log_level &gt; (debug_descriptor.console_log_levels &amp; 0x0f))</span>
+<span class="lineNum">      51 </span>                :<span class="lineCov">          3 :                 flush_to_drivers = false;</span>
 <span class="lineNum">      52 </span>                :            : 
-<span class="lineNum">      53 </span>                :<span class="lineCov">          6 :         console_write(flush_to_drivers, buffer, count);</span>
+<span class="lineNum">      53 </span>                :<span class="lineCov">         24 :         console_write(flush_to_drivers, buffer, count);</span>
 <span class="lineNum">      54 </span>                :            : 
-<span class="lineNum">      55 </span>                :<span class="lineCov">          8 :         return count;</span>
+<span class="lineNum">      55 </span>                :<span class="lineCov">         27 :         return count;</span>
 <span class="lineNum">      56 </span>                :            : }
 <span class="lineNum">      57 </span>                :            : 
 <span class="lineNum">      58 </span>                :            : /* we don't return anything as what on earth are we going to do
@@ -131,25 +131,25 @@
 <span class="lineNum">      60 </span>                :            :  * Callers shouldn't care, prlog and friends should do something generically
 <a name="61"><span class="lineNum">      61 </span>                :            :  * sane in such crazy situations.</a>
 <span class="lineNum">      62 </span>                :            :  */
-<span class="lineNum">      63 </span>                :<span class="lineCov">          6 : void prlog(int log_level, const char* fmt, ...)</span>
+<span class="lineNum">      63 </span>                :<span class="lineCov">         21 : void prlog(int log_level, const char* fmt, ...)</span>
 <span class="lineNum">      64 </span>                :            : {
 <span class="lineNum">      65 </span>                :            :         va_list ap;
 <span class="lineNum">      66 </span>                :            :     
-<span class="lineNum">      67 </span>                :<span class="lineCov">          6 :         va_start(ap, fmt);</span>
-<span class="lineNum">      68 </span>                :<span class="lineCov">          6 :         vprlog(log_level, fmt, ap);</span>
-<span class="lineNum">      69 </span>                :<span class="lineCov">          6 :         va_end(ap);</span>
-<span class="lineNum">      70 </span>                :<span class="lineCov">          6 : }</span>
+<span class="lineNum">      67 </span>                :<span class="lineCov">         21 :         va_start(ap, fmt);</span>
+<span class="lineNum">      68 </span>                :<span class="lineCov">         21 :         vprlog(log_level, fmt, ap);</span>
+<span class="lineNum">      69 </span>                :<span class="lineCov">         21 :         va_end(ap);</span>
+<span class="lineNum">      70 </span>                :<span class="lineCov">         21 : }</span>
 <span class="lineNum">      71 </span>                :            : 
 <span class="lineNum">      72 </span>                :            : int printf(const char* fmt, ...)
 <span class="lineNum">      73 </span>                :            : {
 <span class="lineNum">      74 </span>                :            :         int count;
 <span class="lineNum">      75 </span>                :            :         va_list ap;
 <span class="lineNum">      76 </span>                :            :     
-<span class="lineNum">      77 </span>                :<span class="lineCov">          2 :         va_start(ap, fmt);</span>
-<span class="lineNum">      78 </span>                :<span class="lineCov">          2 :         count = vprlog(PR_PRINTF, fmt, ap);</span>
-<span class="lineNum">      79 </span>                :<span class="lineCov">          2 :         va_end(ap);</span>
+<span class="lineNum">      77 </span>                :<span class="lineCov">          6 :         va_start(ap, fmt);</span>
+<span class="lineNum">      78 </span>                :<span class="lineCov">          6 :         count = vprlog(PR_PRINTF, fmt, ap);</span>
+<span class="lineNum">      79 </span>                :<span class="lineCov">          6 :         va_end(ap);</span>
 <span class="lineNum">      80 </span>                :            :     
-<span class="lineNum">      81 </span>                :<span class="lineCov">          2 :         return count;</span>
+<span class="lineNum">      81 </span>                :<span class="lineCov">          6 :         return count;</span>
 <span class="lineNum">      82 </span>                :            : }
 </pre>
       </td>
