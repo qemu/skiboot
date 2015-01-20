@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">5</td>
-            <td class="headerCovTableEntry">6</td>
-            <td class="headerCovTableEntryMed">83.3 %</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-01-20</td>
+            <td class="headerValue">2015-01-21</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">0</td>
-            <td class="headerCovTableEntry">0</td>
-            <td class="headerCovTableEntryHi">-</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">3</td>
             <td class="headerCovTableEntry">4</td>
-            <td class="headerCovTableEntryLo">50.0 %</td>
+            <td class="headerCovTableEntryMed">75.0 %</td>
           </tr>
           <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -82,21 +82,21 @@
 <span class="lineNum">      11 </span>                :            :  *****************************************************************************/
 <span class="lineNum">      12 </span>                :            : 
 <span class="lineNum">      13 </span>                :            : #include &lt;stdio.h&gt;
-<span class="lineNum">      14 </span>                :            : 
+<a name="14"><span class="lineNum">      14 </span>                :            : </a>
 <span class="lineNum">      15 </span>                :            : 
-<span class="lineNum">      16 </span>                :            : int snprintf(char *buff, size_t size, const char *format, ...)
+<span class="lineNum">      16 </span>                :<span class="lineCov">       1450 : int snprintf(char *buff, size_t size, const char *format, ...)</span>
 <span class="lineNum">      17 </span>                :            : {
 <span class="lineNum">      18 </span>                :            :         va_list ar;
 <span class="lineNum">      19 </span>                :            :         int count;
 <span class="lineNum">      20 </span>                :            : 
-<span class="lineNum">      21 </span>[<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 15 times"> + </span>]:<span class="lineCov">         15 :         if ((buff==NULL) || (format==NULL))</span>
-<span class="lineNum">      22 </span>                :<span class="lineNoCov">          0 :                 return(-1);</span>
+<span class="lineNum">      21 </span>[<span class="branchCov" title="Branch 0 was taken 1450 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1450 times"> + </span>]:<span class="lineCov">       1455 :         if ((buff==NULL) || (format==NULL))</span>
+<span class="lineNum">      22 </span>                :<span class="lineCov">          5 :                 return(-1);</span>
 <span class="lineNum">      23 </span>                :            : 
-<span class="lineNum">      24 </span>                :<span class="lineCov">         15 :         va_start(ar, format);</span>
-<span class="lineNum">      25 </span>                :<span class="lineCov">         15 :         count = vsnprintf(buff, size, format, ar);</span>
-<span class="lineNum">      26 </span>                :<span class="lineCov">         15 :         va_end(ar);</span>
+<span class="lineNum">      24 </span>                :<span class="lineCov">       1450 :         va_start(ar, format);</span>
+<span class="lineNum">      25 </span>                :<span class="lineCov">       1450 :         count = vsnprintf(buff, size, format, ar);</span>
+<span class="lineNum">      26 </span>                :<span class="lineCov">       1450 :         va_end(ar);</span>
 <span class="lineNum">      27 </span>                :            :         
-<span class="lineNum">      28 </span>                :<span class="lineCov">         15 :         return(count);</span>
+<span class="lineNum">      28 </span>                :<span class="lineCov">       1455 :         return(count);</span>
 <span class="lineNum">      29 </span>                :            : }
 <span class="lineNum">      30 </span>                :            : 
 </pre>
