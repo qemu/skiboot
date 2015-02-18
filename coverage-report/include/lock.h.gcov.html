@@ -31,13 +31,13 @@
             <td class="headerValue">skiboot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">4</td>
-            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
             <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-01-21</td>
+            <td class="headerValue">2015-02-18</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -129,31 +129,30 @@
 <span class="lineNum">      58 </span>                :            : 
 <a name="59"><span class="lineNum">      59 </span>                :            : extern bool bust_locks;</a>
 <span class="lineNum">      60 </span>                :            : 
-<span class="lineNum">      61 </span>                :<span class="lineCov">         10 : static inline void init_lock(struct lock *l)</span>
+<span class="lineNum">      61 </span>                :<span class="lineCov">         20 : static inline void init_lock(struct lock *l)</span>
 <span class="lineNum">      62 </span>                :            : {
-<span class="lineNum">      63 </span>                :<span class="lineCov">         10 :         l-&gt;lock_val = 0;</span>
-<span class="lineNum">      64 </span>                :<span class="lineCov">         10 :         l-&gt;in_con_path = false;</span>
-<span class="lineNum">      65 </span>                :<span class="lineCov">         10 : }</span>
-<span class="lineNum">      66 </span>                :            : 
-<span class="lineNum">      67 </span>                :            : extern bool __try_lock(struct lock *l);
-<span class="lineNum">      68 </span>                :            : extern bool try_lock(struct lock *l);
-<span class="lineNum">      69 </span>                :            : extern void lock(struct lock *l);
-<span class="lineNum">      70 </span>                :            : extern void unlock(struct lock *l);
-<span class="lineNum">      71 </span>                :            : 
-<span class="lineNum">      72 </span>                :            : extern bool lock_held_by_me(struct lock *l);
-<span class="lineNum">      73 </span>                :            : 
-<span class="lineNum">      74 </span>                :            : /* The debug output can happen while the FSP lock, so we need some kind
-<span class="lineNum">      75 </span>                :            :  * of recursive lock support here. I don't want all locks to be recursive
-<span class="lineNum">      76 </span>                :            :  * though, thus the caller need to explicitly call lock_recursive which
-<span class="lineNum">      77 </span>                :            :  * returns false if the lock was already held by this cpu. If it returns
-<span class="lineNum">      78 </span>                :            :  * true, then the caller shall release it when done.
-<span class="lineNum">      79 </span>                :            :  */
-<span class="lineNum">      80 </span>                :            : extern bool lock_recursive(struct lock *l);
-<span class="lineNum">      81 </span>                :            : 
-<span class="lineNum">      82 </span>                :            : /* Called after per-cpu data structures are available */
-<span class="lineNum">      83 </span>                :            : extern void init_locks(void);
-<span class="lineNum">      84 </span>                :            : 
-<span class="lineNum">      85 </span>                :            : #endif /* __LOCK_H */
+<span class="lineNum">      63 </span>                :<span class="lineCov">         20 :         *l = (struct lock)LOCK_UNLOCKED;</span>
+<span class="lineNum">      64 </span>                :<span class="lineCov">         20 : }</span>
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :            : extern bool __try_lock(struct lock *l);
+<span class="lineNum">      67 </span>                :            : extern bool try_lock(struct lock *l);
+<span class="lineNum">      68 </span>                :            : extern void lock(struct lock *l);
+<span class="lineNum">      69 </span>                :            : extern void unlock(struct lock *l);
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>                :            : extern bool lock_held_by_me(struct lock *l);
+<span class="lineNum">      72 </span>                :            : 
+<span class="lineNum">      73 </span>                :            : /* The debug output can happen while the FSP lock, so we need some kind
+<span class="lineNum">      74 </span>                :            :  * of recursive lock support here. I don't want all locks to be recursive
+<span class="lineNum">      75 </span>                :            :  * though, thus the caller need to explicitly call lock_recursive which
+<span class="lineNum">      76 </span>                :            :  * returns false if the lock was already held by this cpu. If it returns
+<span class="lineNum">      77 </span>                :            :  * true, then the caller shall release it when done.
+<span class="lineNum">      78 </span>                :            :  */
+<span class="lineNum">      79 </span>                :            : extern bool lock_recursive(struct lock *l);
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :            : /* Called after per-cpu data structures are available */
+<span class="lineNum">      82 </span>                :            : extern void init_locks(void);
+<span class="lineNum">      83 </span>                :            : 
+<span class="lineNum">      84 </span>                :            : #endif /* __LOCK_H */
 </pre>
       </td>
     </tr>
