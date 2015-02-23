@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-02-18</td>
+            <td class="headerValue">2015-02-23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -89,14 +89,14 @@
 <span class="lineNum">      18 </span>                :            :         va_list ar;
 <span class="lineNum">      19 </span>                :            :         int count;
 <span class="lineNum">      20 </span>                :            : 
-<span class="lineNum">      21 </span>[<span class="branchCov" title="Branch 0 was taken 1455 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1455 times"> + </span>]:<span class="lineCov">       1460 :         if ((buff==NULL) || (format==NULL))</span>
+<span class="lineNum">      21 </span>[<span class="branchCov" title="Branch 0 was taken 1450 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1450 times"> + </span>]:<span class="lineCov">       1455 :         if ((buff==NULL) || (format==NULL))</span>
 <span class="lineNum">      22 </span>                :<span class="lineCov">          5 :                 return(-1);</span>
 <span class="lineNum">      23 </span>                :            : 
-<span class="lineNum">      24 </span>                :<span class="lineCov">       1455 :         va_start(ar, format);</span>
-<span class="lineNum">      25 </span>                :<span class="lineCov">       1455 :         count = vsnprintf(buff, size, format, ar);</span>
-<span class="lineNum">      26 </span>                :<span class="lineCov">       1455 :         va_end(ar);</span>
+<span class="lineNum">      24 </span>                :<span class="lineCov">       1450 :         va_start(ar, format);</span>
+<span class="lineNum">      25 </span>                :<span class="lineCov">       1450 :         count = vsnprintf(buff, size, format, ar);</span>
+<span class="lineNum">      26 </span>                :<span class="lineCov">       1450 :         va_end(ar);</span>
 <span class="lineNum">      27 </span>                :            :         
-<span class="lineNum">      28 </span>                :<span class="lineCov">       1460 :         return(count);</span>
+<span class="lineNum">      28 </span>                :<span class="lineCov">       1455 :         return(count);</span>
 <span class="lineNum">      29 </span>                :            : }
 <span class="lineNum">      30 </span>                :            : 
 </pre>

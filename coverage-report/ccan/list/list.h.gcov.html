@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-02-18</td>
+            <td class="headerValue">2015-02-23</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">12</td>
@@ -208,10 +208,10 @@
 <span class="lineNum">     137 </span>                :            :  *      list_head_init(&amp;parent-&gt;children);
 <a name="138"><span class="lineNum">     138 </span>                :            :  *      parent-&gt;num_children = 0;</a>
 <span class="lineNum">     139 </span>                :            :  */
-<span class="lineNum">     140 </span>                :<span class="lineCov">        160 : static inline void list_head_init(struct list_head *h)</span>
+<span class="lineNum">     140 </span>                :<span class="lineCov">         80 : static inline void list_head_init(struct list_head *h)</span>
 <span class="lineNum">     141 </span>                :            : {
-<span class="lineNum">     142 </span>                :<span class="lineCov">        160 :         h-&gt;n.next = h-&gt;n.prev = &amp;h-&gt;n;</span>
-<span class="lineNum">     143 </span>                :<span class="lineCov">        160 : }</span>
+<span class="lineNum">     142 </span>                :<span class="lineCov">         80 :         h-&gt;n.next = h-&gt;n.prev = &amp;h-&gt;n;</span>
+<span class="lineNum">     143 </span>                :<span class="lineCov">         80 : }</span>
 <span class="lineNum">     144 </span>                :            : 
 <span class="lineNum">     145 </span>                :            : /**
 <span class="lineNum">     146 </span>                :            :  * list_add - add an entry at the start of a linked list.
@@ -226,14 +226,14 @@
 <span class="lineNum">     155 </span>                :            :  *      list_add(&amp;parent-&gt;children, &amp;child-&gt;list);
 <a name="156"><span class="lineNum">     156 </span>                :            :  *      parent-&gt;num_children++;</a>
 <span class="lineNum">     157 </span>                :            :  */
-<span class="lineNum">     158 </span>                :<span class="lineCov">      10320 : static inline void list_add(struct list_head *h, struct list_node *n)</span>
+<span class="lineNum">     158 </span>                :<span class="lineCov">       5160 : static inline void list_add(struct list_head *h, struct list_node *n)</span>
 <span class="lineNum">     159 </span>                :            : {
-<span class="lineNum">     160 </span>                :<span class="lineCov">      10320 :         n-&gt;next = h-&gt;n.next;</span>
-<span class="lineNum">     161 </span>                :<span class="lineCov">      10320 :         n-&gt;prev = &amp;h-&gt;n;</span>
-<span class="lineNum">     162 </span>                :<span class="lineCov">      10320 :         h-&gt;n.next-&gt;prev = n;</span>
-<span class="lineNum">     163 </span>                :<span class="lineCov">      10320 :         h-&gt;n.next = n;</span>
-<span class="lineNum">     164 </span>                :<span class="lineCov">         48 :         (void)list_debug(h);</span>
-<span class="lineNum">     165 </span>                :<span class="lineCov">      10320 : }</span>
+<span class="lineNum">     160 </span>                :<span class="lineCov">       5160 :         n-&gt;next = h-&gt;n.next;</span>
+<span class="lineNum">     161 </span>                :<span class="lineCov">       5160 :         n-&gt;prev = &amp;h-&gt;n;</span>
+<span class="lineNum">     162 </span>                :<span class="lineCov">       5160 :         h-&gt;n.next-&gt;prev = n;</span>
+<span class="lineNum">     163 </span>                :<span class="lineCov">       5160 :         h-&gt;n.next = n;</span>
+<span class="lineNum">     164 </span>                :<span class="lineCov">         24 :         (void)list_debug(h);</span>
+<span class="lineNum">     165 </span>                :<span class="lineCov">       5160 : }</span>
 <span class="lineNum">     166 </span>                :            : 
 <span class="lineNum">     167 </span>                :            : /**
 <span class="lineNum">     168 </span>                :            :  * list_add_before - add an entry before another entry.
@@ -243,16 +243,16 @@
 <span class="lineNum">     172 </span>                :            :  *
 <a name="173"><span class="lineNum">     173 </span>                :            :  * The list_node does not need to be initialized; it will be overwritten.</a>
 <span class="lineNum">     174 </span>                :            :  */
-<span class="lineNum">     175 </span>                :<span class="lineCov">        192 : static inline void list_add_before(struct list_head *h, struct list_node *n,</span>
+<span class="lineNum">     175 </span>                :<span class="lineCov">         96 : static inline void list_add_before(struct list_head *h, struct list_node *n,</span>
 <span class="lineNum">     176 </span>                :            :                                    struct list_node *p)
 <span class="lineNum">     177 </span>                :            : {
-<span class="lineNum">     178 </span>                :<span class="lineCov">        192 :         n-&gt;next = p;</span>
-<span class="lineNum">     179 </span>                :<span class="lineCov">        192 :         n-&gt;prev = p-&gt;prev;</span>
-<span class="lineNum">     180 </span>                :<span class="lineCov">        192 :         p-&gt;prev = n;</span>
-<span class="lineNum">     181 </span>                :<span class="lineCov">        192 :         n-&gt;prev-&gt;next = n;</span>
+<span class="lineNum">     178 </span>                :<span class="lineCov">         96 :         n-&gt;next = p;</span>
+<span class="lineNum">     179 </span>                :<span class="lineCov">         96 :         n-&gt;prev = p-&gt;prev;</span>
+<span class="lineNum">     180 </span>                :<span class="lineCov">         96 :         p-&gt;prev = n;</span>
+<span class="lineNum">     181 </span>                :<span class="lineCov">         96 :         n-&gt;prev-&gt;next = n;</span>
 <span class="lineNum">     182 </span>                :            :         if (h)
 <span class="lineNum">     183 </span>                :            :                 (void)list_debug(h);
-<span class="lineNum">     184 </span>                :<span class="lineCov">        192 : }</span>
+<span class="lineNum">     184 </span>                :<span class="lineCov">         96 : }</span>
 <span class="lineNum">     185 </span>                :            : 
 <span class="lineNum">     186 </span>                :            : /**
 <span class="lineNum">     187 </span>                :            :  * list_add_tail - add an entry at the end of a linked list.
@@ -264,14 +264,14 @@
 <span class="lineNum">     193 </span>                :            :  *      list_add_tail(&amp;parent-&gt;children, &amp;child-&gt;list);
 <a name="194"><span class="lineNum">     194 </span>                :            :  *      parent-&gt;num_children++;</a>
 <span class="lineNum">     195 </span>                :            :  */
-<span class="lineNum">     196 </span>                :<span class="lineCov">        364 : static inline void list_add_tail(struct list_head *h, struct list_node *n)</span>
+<span class="lineNum">     196 </span>                :<span class="lineCov">        182 : static inline void list_add_tail(struct list_head *h, struct list_node *n)</span>
 <span class="lineNum">     197 </span>                :            : {
-<span class="lineNum">     198 </span>                :<span class="lineCov">        364 :         n-&gt;next = &amp;h-&gt;n;</span>
-<span class="lineNum">     199 </span>                :<span class="lineCov">        364 :         n-&gt;prev = h-&gt;n.prev;</span>
-<span class="lineNum">     200 </span>                :<span class="lineCov">        364 :         h-&gt;n.prev-&gt;next = n;</span>
-<span class="lineNum">     201 </span>                :<span class="lineCov">        364 :         h-&gt;n.prev = n;</span>
-<span class="lineNum">     202 </span>                :<span class="lineCov">         60 :         (void)list_debug(h);</span>
-<span class="lineNum">     203 </span>                :<span class="lineCov">        364 : }</span>
+<span class="lineNum">     198 </span>                :<span class="lineCov">        182 :         n-&gt;next = &amp;h-&gt;n;</span>
+<span class="lineNum">     199 </span>                :<span class="lineCov">        182 :         n-&gt;prev = h-&gt;n.prev;</span>
+<span class="lineNum">     200 </span>                :<span class="lineCov">        182 :         h-&gt;n.prev-&gt;next = n;</span>
+<span class="lineNum">     201 </span>                :<span class="lineCov">        182 :         h-&gt;n.prev = n;</span>
+<span class="lineNum">     202 </span>                :<span class="lineCov">         30 :         (void)list_debug(h);</span>
+<span class="lineNum">     203 </span>                :<span class="lineCov">        182 : }</span>
 <span class="lineNum">     204 </span>                :            : 
 <span class="lineNum">     205 </span>                :            : /**
 <span class="lineNum">     206 </span>                :            :  * list_empty - is a list empty?
@@ -282,10 +282,10 @@
 <span class="lineNum">     211 </span>                :            :  * Example:
 <a name="212"><span class="lineNum">     212 </span>                :            :  *      assert(list_empty(&amp;parent-&gt;children) == (parent-&gt;num_children == 0));</a>
 <span class="lineNum">     213 </span>                :            :  */
-<span class="lineNum">     214 </span>                :<span class="lineCov">     273732 : static inline bool list_empty(const struct list_head *h)</span>
+<span class="lineNum">     214 </span>                :<span class="lineCov">     136866 : static inline bool list_empty(const struct list_head *h)</span>
 <span class="lineNum">     215 </span>                :            : {
-<span class="lineNum">     216 </span>                :<span class="lineCov">        204 :         (void)list_debug(h);</span>
-<span class="lineNum">     217 </span>                :<span class="lineCov">     273732 :         return h-&gt;n.next == &amp;h-&gt;n;</span>
+<span class="lineNum">     216 </span>                :<span class="lineCov">        102 :         (void)list_debug(h);</span>
+<span class="lineNum">     217 </span>                :<span class="lineCov">     136866 :         return h-&gt;n.next == &amp;h-&gt;n;</span>
 <span class="lineNum">     218 </span>                :            : }
 <span class="lineNum">     219 </span>                :            : 
 <span class="lineNum">     220 </span>                :            : /**
@@ -302,16 +302,16 @@
 <span class="lineNum">     231 </span>                :            :  *      list_del(&amp;child-&gt;list);
 <a name="232"><span class="lineNum">     232 </span>                :            :  *      parent-&gt;num_children--;</a>
 <span class="lineNum">     233 </span>                :            :  */
-<span class="lineNum">     234 </span>                :<span class="lineCov">      10812 : static inline void list_del(struct list_node *n)</span>
+<span class="lineNum">     234 </span>                :<span class="lineCov">       5406 : static inline void list_del(struct list_node *n)</span>
 <span class="lineNum">     235 </span>                :            : {
-<span class="lineNum">     236 </span>                :<span class="lineCov">         84 :         (void)list_debug_node(n);</span>
-<span class="lineNum">     237 </span>                :<span class="lineCov">      10812 :         n-&gt;next-&gt;prev = n-&gt;prev;</span>
-<span class="lineNum">     238 </span>                :<span class="lineCov">      10812 :         n-&gt;prev-&gt;next = n-&gt;next;</span>
+<span class="lineNum">     236 </span>                :<span class="lineCov">         42 :         (void)list_debug_node(n);</span>
+<span class="lineNum">     237 </span>                :<span class="lineCov">       5406 :         n-&gt;next-&gt;prev = n-&gt;prev;</span>
+<span class="lineNum">     238 </span>                :<span class="lineCov">       5406 :         n-&gt;prev-&gt;next = n-&gt;next;</span>
 <span class="lineNum">     239 </span>                :            : #ifdef CCAN_LIST_DEBUG
 <span class="lineNum">     240 </span>                :            :         /* Catch use-after-del. */
-<span class="lineNum">     241 </span>                :<span class="lineCov">         84 :         n-&gt;next = n-&gt;prev = NULL;</span>
+<span class="lineNum">     241 </span>                :<span class="lineCov">         42 :         n-&gt;next = n-&gt;prev = NULL;</span>
 <span class="lineNum">     242 </span>                :            : #endif
-<span class="lineNum">     243 </span>                :<span class="lineCov">      10812 : }</span>
+<span class="lineNum">     243 </span>                :<span class="lineCov">       5406 : }</span>
 <span class="lineNum">     244 </span>                :            : 
 <span class="lineNum">     245 </span>                :            : /**
 <span class="lineNum">     246 </span>                :            :  * list_del_from - delete an entry from a known linked list.
@@ -327,21 +327,21 @@
 <span class="lineNum">     256 </span>                :            :  *      list_del_from(&amp;parent-&gt;children, &amp;child-&gt;list);
 <a name="257"><span class="lineNum">     257 </span>                :            :  *      parent-&gt;num_children--;</a>
 <span class="lineNum">     258 </span>                :            :  */
-<span class="lineNum">     259 </span>                :<span class="lineCov">      10290 : static inline void list_del_from(struct list_head *h, struct list_node *n)</span>
+<span class="lineNum">     259 </span>                :<span class="lineCov">       5145 : static inline void list_del_from(struct list_head *h, struct list_node *n)</span>
 <span class="lineNum">     260 </span>                :            : {
 <span class="lineNum">     261 </span>                :            : #ifdef CCAN_LIST_DEBUG
 <span class="lineNum">     262 </span>                :            :         {
 <span class="lineNum">     263 </span>                :            :                 /* Thorough check: make sure it was in list! */
 <span class="lineNum">     264 </span>                :            :                 struct list_node *i;
-<span class="lineNum">     265 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 60 times"> + </span>]:<span class="lineCov">         72 :                 for (i = h-&gt;n.next; i != n; i = i-&gt;next)</span>
-<span class="lineNum">     266 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         12 :                         assert(i != &amp;h-&gt;n);</span>
+<span class="lineNum">     265 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>]:<span class="lineCov">         36 :                 for (i = h-&gt;n.next; i != n; i = i-&gt;next)</span>
+<span class="lineNum">     266 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                         assert(i != &amp;h-&gt;n);</span>
 <span class="lineNum">     267 </span>                :            :         }
 <span class="lineNum">     268 </span>                :            : #endif /* CCAN_LIST_DEBUG */
 <span class="lineNum">     269 </span>                :            : 
 <span class="lineNum">     270 </span>                :            :         /* Quick test that catches a surprising number of bugs. */
-<span class="lineNum">     271 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 10290 times"> + </span>]:<span class="lineCov">      10290 :         assert(!list_empty(h));</span>
-<span class="lineNum">     272 </span>                :<span class="lineCov">      10290 :         list_del(n);</span>
-<span class="lineNum">     273 </span>                :<span class="lineCov">      10290 : }</span>
+<span class="lineNum">     271 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 5145 times"> + </span>]:<span class="lineCov">       5145 :         assert(!list_empty(h));</span>
+<span class="lineNum">     272 </span>                :<span class="lineCov">       5145 :         list_del(n);</span>
+<span class="lineNum">     273 </span>                :<span class="lineCov">       5145 : }</span>
 <span class="lineNum">     274 </span>                :            : 
 <span class="lineNum">     275 </span>                :            : /**
 <span class="lineNum">     276 </span>                :            :  * list_entry - convert a list_node back into the structure containing it.
@@ -375,11 +375,11 @@
 <span class="lineNum">     304 </span>                :            : #define list_top(h, type, member)                                       \
 <a name="305"><span class="lineNum">     305 </span>                :            :         ((type *)list_top_((h), list_off_(type, member)))</a>
 <span class="lineNum">     306 </span>                :            : 
-<span class="lineNum">     307 </span>                :<span class="lineCov">     131720 : static inline const void *list_top_(const struct list_head *h, size_t off)</span>
+<span class="lineNum">     307 </span>                :<span class="lineCov">      65860 : static inline const void *list_top_(const struct list_head *h, size_t off)</span>
 <span class="lineNum">     308 </span>                :            : {
-<span class="lineNum">     309 </span>        [<span class="branchCov" title="Branch 1 was taken 296 times"> + </span><span class="branchCov" title="Branch 2 was taken 131424 times"> + </span>]:<span class="lineCov">     131720 :         if (list_empty(h))</span>
-<span class="lineNum">     310 </span>                :<span class="lineCov">        296 :                 return NULL;</span>
-<span class="lineNum">     311 </span>                :<span class="lineCov">     131720 :         return (const char *)h-&gt;n.next - off;</span>
+<span class="lineNum">     309 </span>        [<span class="branchCov" title="Branch 1 was taken 148 times"> + </span><span class="branchCov" title="Branch 2 was taken 65712 times"> + </span>]:<span class="lineCov">      65860 :         if (list_empty(h))</span>
+<span class="lineNum">     310 </span>                :<span class="lineCov">        148 :                 return NULL;</span>
+<span class="lineNum">     311 </span>                :<span class="lineCov">      65860 :         return (const char *)h-&gt;n.next - off;</span>
 <span class="lineNum">     312 </span>                :            : }
 <span class="lineNum">     313 </span>                :            : 
 <span class="lineNum">     314 </span>                :            : /**
@@ -390,15 +390,15 @@
 <span class="lineNum">     319 </span>                :            :  */
 <a name="320"><span class="lineNum">     320 </span>                :            : #define list_pop(h, type, member)                                       \</a>
 <span class="lineNum">     321 </span>                :            :         ((type *)list_pop_((h), list_off_(type, member)))
-<span class="lineNum">     322 </span>                :<span class="lineCov">        278 : static inline const void *list_pop_(struct list_head *h, size_t off)</span>
+<span class="lineNum">     322 </span>                :<span class="lineCov">        139 : static inline const void *list_pop_(struct list_head *h, size_t off)</span>
 <span class="lineNum">     323 </span>                :            : {
 <span class="lineNum">     324 </span>                :            :         struct list_node *n;
 <span class="lineNum">     325 </span>                :            : 
-<span class="lineNum">     326 </span>        [<span class="branchCov" title="Branch 1 was taken 42 times"> + </span><span class="branchCov" title="Branch 2 was taken 236 times"> + </span>]:<span class="lineCov">        278 :         if (list_empty(h))</span>
-<span class="lineNum">     327 </span>                :<span class="lineCov">         42 :                 return NULL;</span>
-<span class="lineNum">     328 </span>                :<span class="lineCov">        236 :         n = h-&gt;n.next;</span>
-<span class="lineNum">     329 </span>                :<span class="lineCov">        236 :         list_del(n);</span>
-<span class="lineNum">     330 </span>                :<span class="lineCov">        278 :         return (const char *)n - off;</span>
+<span class="lineNum">     326 </span>        [<span class="branchCov" title="Branch 1 was taken 21 times"> + </span><span class="branchCov" title="Branch 2 was taken 118 times"> + </span>]:<span class="lineCov">        139 :         if (list_empty(h))</span>
+<span class="lineNum">     327 </span>                :<span class="lineCov">         21 :                 return NULL;</span>
+<span class="lineNum">     328 </span>                :<span class="lineCov">        118 :         n = h-&gt;n.next;</span>
+<span class="lineNum">     329 </span>                :<span class="lineCov">        118 :         list_del(n);</span>
+<span class="lineNum">     330 </span>                :<span class="lineCov">        139 :         return (const char *)n - off;</span>
 <span class="lineNum">     331 </span>                :            : }
 <span class="lineNum">     332 </span>                :            : 
 <span class="lineNum">     333 </span>                :            : /**
@@ -418,11 +418,11 @@
 <span class="lineNum">     347 </span>                :            : #define list_tail(h, type, member) \
 <a name="348"><span class="lineNum">     348 </span>                :            :         ((type *)list_tail_((h), list_off_(type, member)))</a>
 <span class="lineNum">     349 </span>                :            : 
-<span class="lineNum">     350 </span>                :<span class="lineCov">         72 : static inline const void *list_tail_(const struct list_head *h, size_t off)</span>
+<span class="lineNum">     350 </span>                :<span class="lineCov">         36 : static inline const void *list_tail_(const struct list_head *h, size_t off)</span>
 <span class="lineNum">     351 </span>                :            : {
-<span class="lineNum">     352 </span>        [<span class="branchCov" title="Branch 1 was taken 36 times"> + </span><span class="branchCov" title="Branch 2 was taken 36 times"> + </span>]:<span class="lineCov">         72 :         if (list_empty(h))</span>
-<span class="lineNum">     353 </span>                :<span class="lineCov">         36 :                 return NULL;</span>
-<span class="lineNum">     354 </span>                :<span class="lineCov">         72 :         return (const char *)h-&gt;n.prev - off;</span>
+<span class="lineNum">     352 </span>        [<span class="branchCov" title="Branch 1 was taken 18 times"> + </span><span class="branchCov" title="Branch 2 was taken 18 times"> + </span>]:<span class="lineCov">         36 :         if (list_empty(h))</span>
+<span class="lineNum">     353 </span>                :<span class="lineCov">         18 :                 return NULL;</span>
+<span class="lineNum">     354 </span>                :<span class="lineCov">         36 :         return (const char *)h-&gt;n.prev - off;</span>
 <span class="lineNum">     355 </span>                :            : }
 <span class="lineNum">     356 </span>                :            : 
 <span class="lineNum">     357 </span>                :            : /**
@@ -561,13 +561,13 @@
 <span class="lineNum">     490 </span>                :            :         list_del_from(h, list_node_from_off_((n), (off)))
 <a name="491"><span class="lineNum">     491 </span>                :            : </a>
 <span class="lineNum">     492 </span>                :            : /* Offset helper functions so we only single-evaluate. */
-<span class="lineNum">     493 </span>                :<span class="lineCov">      50004 : static inline void *list_node_to_off_(struct list_node *node, size_t off)</span>
+<span class="lineNum">     493 </span>                :<span class="lineCov">      25002 : static inline void *list_node_to_off_(struct list_node *node, size_t off)</span>
 <span class="lineNum">     494 </span>                :            : {
-<a name="495"><span class="lineNum">     495 </span>                :<span class="lineCov">      50004 :         return (void *)((char *)node - off);</span></a>
+<a name="495"><span class="lineNum">     495 </span>                :<span class="lineCov">      25002 :         return (void *)((char *)node - off);</span></a>
 <span class="lineNum">     496 </span>                :            : }
-<span class="lineNum">     497 </span>                :<span class="lineCov">      73986 : static inline struct list_node *list_node_from_off_(void *ptr, size_t off)</span>
+<span class="lineNum">     497 </span>                :<span class="lineCov">      36993 : static inline struct list_node *list_node_from_off_(void *ptr, size_t off)</span>
 <span class="lineNum">     498 </span>                :            : {
-<span class="lineNum">     499 </span>                :<span class="lineCov">      73986 :         return (struct list_node *)((char *)ptr + off);</span>
+<span class="lineNum">     499 </span>                :<span class="lineCov">      36993 :         return (struct list_node *)((char *)ptr + off);</span>
 <span class="lineNum">     500 </span>                :            : }
 <span class="lineNum">     501 </span>                :            : 
 <span class="lineNum">     502 </span>                :            : /* Get the offset of the member, but make sure it's a list_node. */
