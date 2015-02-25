@@ -1,0 +1,436 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - core/hmi.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">core</a> - hmi.c<span style="font-size: 80%;"> (source / <a href="hmi.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">105</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">50</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      17 </span>                :            : #include &lt;opal.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;opal-api.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;opal-msg.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;processor.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;chiptod.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;xscom.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;capp.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;pci.h&gt;
+<span class="lineNum">      26 </span>                :            : 
+<span class="lineNum">      27 </span>                :            : /*
+<span class="lineNum">      28 </span>                :            :  * HMER register layout:
+<span class="lineNum">      29 </span>                :            :  * +===+==========+============================+========+===================+
+<span class="lineNum">      30 </span>                :            :  * |Bit|Name      |Description                 |PowerKVM|Action             |
+<span class="lineNum">      31 </span>                :            :  * |   |          |                            |HMI     |                   |
+<span class="lineNum">      32 </span>                :            :  * |   |          |                            |enabled |                   |
+<span class="lineNum">      33 </span>                :            :  * |   |          |                            |for this|                   |
+<span class="lineNum">      34 </span>                :            :  * |   |          |                            |bit ?   |                   |
+<span class="lineNum">      35 </span>                :            :  * +===+==========+============================+========+===================+
+<span class="lineNum">      36 </span>                :            :  * |0  |malfunctio|A processor core in the     |Yes     |Raise attn from    |
+<span class="lineNum">      37 </span>                :            :  * |   |n_allert  |system has checkstopped     |        |sapphire resulting |
+<span class="lineNum">      38 </span>                :            :  * |   |          |(failed recovery) and has   |        |xstop              |
+<span class="lineNum">      39 </span>                :            :  * |   |          |requested a CP Sparing      |        |                   |
+<span class="lineNum">      40 </span>                :            :  * |   |          |to occur. This is           |        |                   |
+<span class="lineNum">      41 </span>                :            :  * |   |          |broadcasted to every        |        |                   |
+<span class="lineNum">      42 </span>                :            :  * |   |          |processor in the system     |        |                   |
+<span class="lineNum">      43 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">      44 </span>                :            :  * |1  |Reserved  |reserved                    |n/a     |                   |
+<span class="lineNum">      45 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">      46 </span>                :            :  * |2  |proc_recv_|Processor recovery occurred |Yes     |Log message and    |
+<span class="lineNum">      47 </span>                :            :  * |   |done      |error-bit in fir not masked |        |continue working.  |
+<span class="lineNum">      48 </span>                :            :  * |   |          |(see bit 11)                |        |                   |
+<span class="lineNum">      49 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">      50 </span>                :            :  * |3  |proc_recv_|Processor went through      |Yes     |Log message and    |
+<span class="lineNum">      51 </span>                :            :  * |   |error_mask|recovery for an error which |        |continue working.  |
+<span class="lineNum">      52 </span>                :            :  * |   |ed        |is actually masked for      |        |                   |
+<span class="lineNum">      53 </span>                :            :  * |   |          |reporting                   |        |                   |
+<span class="lineNum">      54 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">      55 </span>                :            :  * |4  |          |Timer facility experienced  |Yes     |Raise attn from    |
+<span class="lineNum">      56 </span>                :            :  * |   |tfac_error|an error.                   |        |sapphire resulting |
+<span class="lineNum">      57 </span>                :            :  * |   |          |TB, DEC, HDEC, PURR or SPURR|        |xstop              |
+<span class="lineNum">      58 </span>                :            :  * |   |          |may be corrupted (details in|        |                   |
+<span class="lineNum">      59 </span>                :            :  * |   |          |TFMR)                       |        |                   |
+<span class="lineNum">      60 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">      61 </span>                :            :  * |5  |          |TFMR SPR itself is          |Yes     |Raise attn from    |
+<span class="lineNum">      62 </span>                :            :  * |   |tfmr_parit|corrupted.                  |        |sapphire resulting |
+<span class="lineNum">      63 </span>                :            :  * |   |y_error   |Entire timing facility may  |        |xstop              |
+<span class="lineNum">      64 </span>                :            :  * |   |          |be compromised.             |        |                   |
+<span class="lineNum">      65 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">      66 </span>                :            :  * |6  |ha_overflo| UPS (Uniterrupted Power    |No      |N/A                |
+<span class="lineNum">      67 </span>                :            :  * |   |w_warning |System) Overflow indication |        |                   |
+<span class="lineNum">      68 </span>                :            :  * |   |          |indicating that the UPS     |        |                   |
+<span class="lineNum">      69 </span>                :            :  * |   |          |DirtyAddrTable has          |        |                   |
+<span class="lineNum">      70 </span>                :            :  * |   |          |reached a limit where it    |        |                   |
+<span class="lineNum">      71 </span>                :            :  * |   |          |requires PHYP unload support|        |                   |
+<span class="lineNum">      72 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">      73 </span>                :            :  * |7  |reserved  |reserved                    |n/a     |n/a                |
+<span class="lineNum">      74 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">      75 </span>                :            :  * |8  |xscom_fail|An XSCOM operation caused by|No      |We handle it by    |
+<span class="lineNum">      76 </span>                :            :  * |   |          |a cache inhibited load/store|        |manually reading   |
+<span class="lineNum">      77 </span>                :            :  * |   |          |from this thread failed. A  |        |HMER register.     |
+<span class="lineNum">      78 </span>                :            :  * |   |          |trap register is            |        |                   |
+<span class="lineNum">      79 </span>                :            :  * |   |          |available.                  |        |                   |
+<span class="lineNum">      80 </span>                :            :  * |   |          |                            |        |                   |
+<span class="lineNum">      81 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">      82 </span>                :            :  * |9  |xscom_done|An XSCOM operation caused by|No      |We handle it by    |
+<span class="lineNum">      83 </span>                :            :  * |   |          |a cache inhibited load/store|        |manually reading   |
+<span class="lineNum">      84 </span>                :            :  * |   |          |from this thread completed. |        |HMER register.     |
+<span class="lineNum">      85 </span>                :            :  * |   |          |If hypervisor               |        |                   |
+<span class="lineNum">      86 </span>                :            :  * |   |          |intends to use this bit, it |        |                   |
+<span class="lineNum">      87 </span>                :            :  * |   |          |is responsible for clearing |        |                   |
+<span class="lineNum">      88 </span>                :            :  * |   |          |it before performing the    |        |                   |
+<span class="lineNum">      89 </span>                :            :  * |   |          |xscom operation.            |        |                   |
+<span class="lineNum">      90 </span>                :            :  * |   |          |NOTE: this bit should always|        |                   |
+<span class="lineNum">      91 </span>                :            :  * |   |          |be masked in HMEER          |        |                   |
+<span class="lineNum">      92 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">      93 </span>                :            :  * |10 |reserved  |reserved                    |n/a     |n/a                |
+<span class="lineNum">      94 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">      95 </span>                :            :  * |11 |proc_recv_|Processor recovery occurred |y       |Log message and    |
+<span class="lineNum">      96 </span>                :            :  * |   |again     |again before bit2 or bit3   |        |continue working.  |
+<span class="lineNum">      97 </span>                :            :  * |   |          |was cleared                 |        |                   |
+<span class="lineNum">      98 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">      99 </span>                :            :  * |12-|reserved  |was temperature sensor      |n/a     |n/a                |
+<span class="lineNum">     100 </span>                :            :  * |15 |          |passed the critical point on|        |                   |
+<span class="lineNum">     101 </span>                :            :  * |   |          |the way up                  |        |                   |
+<span class="lineNum">     102 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">     103 </span>                :            :  * |16 |          |SCOM has set a reserved FIR |No      |n/a                |
+<span class="lineNum">     104 </span>                :            :  * |   |scom_fir_h|bit to cause recovery       |        |                   |
+<span class="lineNum">     105 </span>                :            :  * |   |m         |                            |        |                   |
+<span class="lineNum">     106 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">     107 </span>                :            :  * |17 |trig_fir_h|Debug trigger has set a     |No      |n/a                |
+<span class="lineNum">     108 </span>                :            :  * |   |mi        |reserved FIR bit to cause   |        |                   |
+<span class="lineNum">     109 </span>                :            :  * |   |          |recovery                    |        |                   |
+<span class="lineNum">     110 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">     111 </span>                :            :  * |18 |reserved  |reserved                    |n/a     |n/a                |
+<span class="lineNum">     112 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">     113 </span>                :            :  * |19 |reserved  |reserved                    |n/a     |n/a                |
+<span class="lineNum">     114 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">     115 </span>                :            :  * |20 |hyp_resour|A hypervisor resource error |y       |Raise attn from    |
+<span class="lineNum">     116 </span>                :            :  * |   |ce_err    |occurred: data parity error |        |sapphire resulting |
+<span class="lineNum">     117 </span>                :            :  * |   |          |on, SPRC0:3; SPR_Modereg or |        |xstop.             |
+<span class="lineNum">     118 </span>                :            :  * |   |          |HMEER.                      |        |                   |
+<span class="lineNum">     119 </span>                :            :  * |   |          |Note: this bit will cause an|        |                   |
+<span class="lineNum">     120 </span>                :            :  * |   |          |check_stop when (HV=1, PR=0 |        |                   |
+<span class="lineNum">     121 </span>                :            :  * |   |          |and EE=0)                   |        |                   |
+<span class="lineNum">     122 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">     123 </span>                :            :  * |21-|          |if bit 8 is active, the     |No      |We handle it by    |
+<span class="lineNum">     124 </span>                :            :  * |23 |xscom_stat|reason will be detailed in  |        |Manually reading   |
+<span class="lineNum">     125 </span>                :            :  * |   |us        |these bits. see chapter 11.1|        |HMER register.     |
+<span class="lineNum">     126 </span>                :            :  * |   |          |This bits are information   |        |                   |
+<span class="lineNum">     127 </span>                :            :  * |   |          |only and always masked      |        |                   |
+<span class="lineNum">     128 </span>                :            :  * |   |          |(mask = '0')                |        |                   |
+<span class="lineNum">     129 </span>                :            :  * |   |          |If hypervisor intends to use|        |                   |
+<span class="lineNum">     130 </span>                :            :  * |   |          |this bit, it is responsible |        |                   |
+<span class="lineNum">     131 </span>                :            :  * |   |          |for clearing it before      |        |                   |
+<span class="lineNum">     132 </span>                :            :  * |   |          |performing the xscom        |        |                   |
+<span class="lineNum">     133 </span>                :            :  * |   |          |operation.                  |        |                   |
+<span class="lineNum">     134 </span>                :            :  * |---+----------+----------------------------+--------+-------------------|
+<span class="lineNum">     135 </span>                :            :  * |24-|Not       |Not implemented             |n/a     |n/a                |
+<span class="lineNum">     136 </span>                :            :  * |63 |implemente|                            |        |                   |
+<span class="lineNum">     137 </span>                :            :  * |   |d         |                            |        |                   |
+<span class="lineNum">     138 </span>                :            :  * +-- +----------+----------------------------+--------+-------------------+
+<span class="lineNum">     139 </span>                :            :  *
+<span class="lineNum">     140 </span>                :            :  * Above HMER bits can be enabled/disabled by modifying
+<span class="lineNum">     141 </span>                :            :  * SPR_HMEER_HMI_ENABLE_MASK #define in include/processor.h
+<span class="lineNum">     142 </span>                :            :  * If you modify support for any of the bits listed above, please make sure
+<span class="lineNum">     143 </span>                :            :  * you change the above table to refelct that.
+<span class="lineNum">     144 </span>                :            :  *
+<span class="lineNum">     145 </span>                :            :  * NOTE: Per Dave Larson, never enable 8,9,21-23
+<span class="lineNum">     146 </span>                :            :  */
+<span class="lineNum">     147 </span>                :            : 
+<a name="148"><span class="lineNum">     148 </span>                :            : static struct lock hmi_lock = LOCK_UNLOCKED;</a>
+<span class="lineNum">     149 </span>                :            : 
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 : static int queue_hmi_event(struct OpalHMIEvent *hmi_evt, int recover)</span>
+<span class="lineNum">     151 </span>                :            : {
+<span class="lineNum">     152 </span>                :            :         uint64_t *hmi_data;
+<span class="lineNum">     153 </span>                :            : 
+<span class="lineNum">     154 </span>                :            :         /* Don't queue up event if recover == -1 */
+<span class="lineNum">     155 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (recover == -1)</span>
+<span class="lineNum">     156 </span>                :            :                 return 0;
+<span class="lineNum">     157 </span>                :            : 
+<span class="lineNum">     158 </span>                :            :         /* set disposition */
+<span class="lineNum">     159 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (recover == 1)</span>
+<span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 :                 hmi_evt-&gt;disposition = OpalHMI_DISPOSITION_RECOVERED;</span>
+<span class="lineNum">     161 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (recover == 0)</span>
+<span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :                 hmi_evt-&gt;disposition = OpalHMI_DISPOSITION_NOT_RECOVERED;</span>
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>                :            :         /*
+<span class="lineNum">     165 </span>                :            :          * struct OpalHMIEvent is of (3 * 64 bits) size and well packed
+<span class="lineNum">     166 </span>                :            :          * structure. Hence use uint64_t pointer to pass entire structure
+<span class="lineNum">     167 </span>                :            :          * using 4 params in generic message format.
+<span class="lineNum">     168 </span>                :            :          */
+<span class="lineNum">     169 </span>                :<span class="lineNoCov">          0 :         hmi_data = (uint64_t *)hmi_evt;</span>
+<span class="lineNum">     170 </span>                :            : 
+<span class="lineNum">     171 </span>                :            :         /* queue up for delivery to host. */
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :         return opal_queue_msg(OPAL_MSG_HMI_EVT, NULL, NULL,</span>
+<span class="lineNum">     173 </span>                :            :                                 hmi_data[0], hmi_data[1], hmi_data[2]);
+<a name="174"><span class="lineNum">     174 </span>                :            : }</a>
+<span class="lineNum">     175 </span>                :            : 
+<span class="lineNum">     176 </span>                :<span class="lineNoCov">          0 : static int is_capp_recoverable(int chip_id)</span>
+<span class="lineNum">     177 </span>                :            : {
+<span class="lineNum">     178 </span>                :            :         uint64_t reg;
+<span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :         xscom_read(chip_id, CAPP_ERR_STATUS_CTRL, &amp;reg);</span>
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :         return (reg &amp; PPC_BIT(0)) != 0;</span>
+<a name="181"><span class="lineNum">     181 </span>                :            : }</a>
+<span class="lineNum">     182 </span>                :            : 
+<span class="lineNum">     183 </span>                :<span class="lineNoCov">          0 : static int handle_capp_recoverable(int chip_id)</span>
+<span class="lineNum">     184 </span>                :            : {
+<span class="lineNum">     185 </span>                :            :         struct dt_node *np;
+<span class="lineNum">     186 </span>                :            :         u64 phb_id;
+<span class="lineNum">     187 </span>                :            :         u32 dt_chip_id;
+<span class="lineNum">     188 </span>                :            :         struct phb *phb;
+<span class="lineNum">     189 </span>                :            :         u32 phb_index;
+<span class="lineNum">     190 </span>                :            : 
+<span class="lineNum">     191 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         dt_for_each_compatible(dt_root, np, &quot;ibm,power8-pciex&quot;) {</span>
+<span class="lineNum">     192 </span>                :<span class="lineNoCov">          0 :                 dt_chip_id = dt_prop_get_u32(np, &quot;ibm,chip-id&quot;);</span>
+<span class="lineNum">     193 </span>                :<span class="lineNoCov">          0 :                 phb_index = dt_prop_get_u32(np, &quot;ibm,phb-index&quot;);</span>
+<span class="lineNum">     194 </span>                :<span class="lineNoCov">          0 :                 phb_id = dt_prop_get_u64(np, &quot;ibm,opal-phbid&quot;);</span>
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if ((phb_index == 0) &amp;&amp; (chip_id == dt_chip_id)) {</span>
+<span class="lineNum">     197 </span>                :<span class="lineNoCov">          0 :                         phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     198 </span>                :<span class="lineNoCov">          0 :                         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 :                         phb-&gt;ops-&gt;set_capp_recovery(phb);</span>
+<span class="lineNum">     200 </span>                :<span class="lineNoCov">          0 :                         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     201 </span>                :<span class="lineNoCov">          0 :                         return 1;</span>
+<span class="lineNum">     202 </span>                :            :                 }
+<span class="lineNum">     203 </span>                :            :         }
+<span class="lineNum">     204 </span>                :            :         return 0;
+<a name="205"><span class="lineNum">     205 </span>                :            : }</a>
+<span class="lineNum">     206 </span>                :            : 
+<span class="lineNum">     207 </span>                :<span class="lineNoCov">          0 : static int decode_one_malfunction(int flat_chip_id, struct OpalHMIEvent *hmi_evt)</span>
+<span class="lineNum">     208 </span>                :            : {
+<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 :         hmi_evt-&gt;severity = OpalHMI_SEV_FATAL;</span>
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :         hmi_evt-&gt;type = OpalHMI_ERROR_MALFUNC_ALERT;</span>
+<span class="lineNum">     211 </span>                :            : 
+<span class="lineNum">     212 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (is_capp_recoverable(flat_chip_id)) {</span>
+<span class="lineNum">     213 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (handle_capp_recoverable(flat_chip_id) == 0)</span>
+<span class="lineNum">     214 </span>                :            :                         return 0;
+<span class="lineNum">     215 </span>                :            : 
+<span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 :                 hmi_evt-&gt;severity = OpalHMI_SEV_NO_ERROR;</span>
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :                 hmi_evt-&gt;type = OpalHMI_ERROR_CAPP_RECOVERY;</span>
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :                 return 1;</span>
+<span class="lineNum">     219 </span>                :            :         }
+<span class="lineNum">     220 </span>                :            :         /* TODO check other FIRs */
+<span class="lineNum">     221 </span>                :            :         return 0;
+<a name="222"><span class="lineNum">     222 </span>                :            : }</a>
+<span class="lineNum">     223 </span>                :            : 
+<span class="lineNum">     224 </span>                :<span class="lineNoCov">          0 : static int decode_malfunction(struct OpalHMIEvent *hmi_evt)</span>
+<span class="lineNum">     225 </span>                :            : {
+<span class="lineNum">     226 </span>                :            :         int i;
+<span class="lineNum">     227 </span>                :<span class="lineNoCov">          0 :         int recover = -1;</span>
+<span class="lineNum">     228 </span>                :            :         uint64_t malf_alert;
+<span class="lineNum">     229 </span>                :            : 
+<span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 :         xscom_read(this_cpu()-&gt;chip_id, 0x2020011, &amp;malf_alert);</span>
+<span class="lineNum">     231 </span>                :            : 
+<span class="lineNum">     232 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; 64; i++)</span>
+<span class="lineNum">     233 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (malf_alert &amp; PPC_BIT(i)) {</span>
+<span class="lineNum">     234 </span>                :<span class="lineNoCov">          0 :                         recover = decode_one_malfunction(i, hmi_evt);</span>
+<span class="lineNum">     235 </span>                :<span class="lineNoCov">          0 :                         xscom_write(this_cpu()-&gt;chip_id, 0x02020011, ~PPC_BIT(i));</span>
+<span class="lineNum">     236 </span>                :            :                 }
+<span class="lineNum">     237 </span>                :            : 
+<span class="lineNum">     238 </span>                :<span class="lineNoCov">          0 :         return recover;</span>
+<a name="239"><span class="lineNum">     239 </span>                :            : }</a>
+<span class="lineNum">     240 </span>                :            : 
+<span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 : int handle_hmi_exception(uint64_t hmer, struct OpalHMIEvent *hmi_evt)</span>
+<span class="lineNum">     242 </span>                :            : {
+<span class="lineNum">     243 </span>                :<span class="lineNoCov">          0 :         int recover = 1;</span>
+<span class="lineNum">     244 </span>                :            :         uint64_t tfmr;
+<span class="lineNum">     245 </span>                :            : 
+<span class="lineNum">     246 </span>                :<span class="lineNoCov">          0 :         printf(&quot;HMI: Received HMI interrupt: HMER = 0x%016llx\n&quot;, hmer);</span>
+<span class="lineNum">     247 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (hmi_evt)</span>
+<span class="lineNum">     248 </span>                :<span class="lineNoCov">          0 :                 hmi_evt-&gt;hmer = hmer;</span>
+<span class="lineNum">     249 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (hmer &amp; SPR_HMER_PROC_RECV_DONE) {</span>
+<span class="lineNum">     250 </span>                :<span class="lineNoCov">          0 :                 hmer &amp;= ~SPR_HMER_PROC_RECV_DONE;</span>
+<span class="lineNum">     251 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (hmi_evt) {</span>
+<span class="lineNum">     252 </span>                :<span class="lineNoCov">          0 :                         hmi_evt-&gt;severity = OpalHMI_SEV_NO_ERROR;</span>
+<span class="lineNum">     253 </span>                :<span class="lineNoCov">          0 :                         hmi_evt-&gt;type = OpalHMI_ERROR_PROC_RECOV_DONE;</span>
+<span class="lineNum">     254 </span>                :<span class="lineNoCov">          0 :                         queue_hmi_event(hmi_evt, recover);</span>
+<span class="lineNum">     255 </span>                :            :                 }
+<span class="lineNum">     256 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;HMI: Processor recovery Done.\n&quot;);</span>
+<span class="lineNum">     257 </span>                :            :         }
+<span class="lineNum">     258 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (hmer &amp; SPR_HMER_PROC_RECV_ERROR_MASKED) {</span>
+<span class="lineNum">     259 </span>                :<span class="lineNoCov">          0 :                 hmer &amp;= ~SPR_HMER_PROC_RECV_ERROR_MASKED;</span>
+<span class="lineNum">     260 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (hmi_evt) {</span>
+<span class="lineNum">     261 </span>                :<span class="lineNoCov">          0 :                         hmi_evt-&gt;severity = OpalHMI_SEV_NO_ERROR;</span>
+<span class="lineNum">     262 </span>                :<span class="lineNoCov">          0 :                         hmi_evt-&gt;type = OpalHMI_ERROR_PROC_RECOV_MASKED;</span>
+<span class="lineNum">     263 </span>                :<span class="lineNoCov">          0 :                         queue_hmi_event(hmi_evt, recover);</span>
+<span class="lineNum">     264 </span>                :            :                 }
+<span class="lineNum">     265 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;HMI: Processor recovery Done (masked).\n&quot;);</span>
+<span class="lineNum">     266 </span>                :            :         }
+<span class="lineNum">     267 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (hmer &amp; SPR_HMER_PROC_RECV_AGAIN) {</span>
+<span class="lineNum">     268 </span>                :<span class="lineNoCov">          0 :                 hmer &amp;= ~SPR_HMER_PROC_RECV_AGAIN;</span>
+<span class="lineNum">     269 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (hmi_evt) {</span>
+<span class="lineNum">     270 </span>                :<span class="lineNoCov">          0 :                         hmi_evt-&gt;severity = OpalHMI_SEV_NO_ERROR;</span>
+<span class="lineNum">     271 </span>                :<span class="lineNoCov">          0 :                         hmi_evt-&gt;type = OpalHMI_ERROR_PROC_RECOV_DONE_AGAIN;</span>
+<span class="lineNum">     272 </span>                :<span class="lineNoCov">          0 :                         queue_hmi_event(hmi_evt, recover);</span>
+<span class="lineNum">     273 </span>                :            :                 }
+<span class="lineNum">     274 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;HMI: Processor recovery occurred again before&quot;</span>
+<span class="lineNum">     275 </span>                :            :                         &quot;bit2 was cleared\n&quot;);
+<span class="lineNum">     276 </span>                :            :         }
+<span class="lineNum">     277 </span>                :            :         /* Assert if we see malfunction alert, we can not continue. */
+<span class="lineNum">     278 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (hmer &amp; SPR_HMER_MALFUNCTION_ALERT) {</span>
+<span class="lineNum">     279 </span>                :<span class="lineNoCov">          0 :                 hmer &amp;= ~SPR_HMER_MALFUNCTION_ALERT;</span>
+<span class="lineNum">     280 </span>                :<span class="lineNoCov">          0 :                 recover = 0;</span>
+<span class="lineNum">     281 </span>                :            : 
+<span class="lineNum">     282 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (hmi_evt) {</span>
+<span class="lineNum">     283 </span>                :<span class="lineNoCov">          0 :                         recover = decode_malfunction(hmi_evt);</span>
+<span class="lineNum">     284 </span>                :<span class="lineNoCov">          0 :                         queue_hmi_event(hmi_evt, recover);</span>
+<span class="lineNum">     285 </span>                :            :                 }
+<span class="lineNum">     286 </span>                :            :         }
+<span class="lineNum">     287 </span>                :            : 
+<span class="lineNum">     288 </span>                :            :         /* Assert if we see Hypervisor resource error, we can not continue. */
+<span class="lineNum">     289 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (hmer &amp; SPR_HMER_HYP_RESOURCE_ERR) {</span>
+<span class="lineNum">     290 </span>                :<span class="lineNoCov">          0 :                 hmer &amp;= ~SPR_HMER_HYP_RESOURCE_ERR;</span>
+<span class="lineNum">     291 </span>                :<span class="lineNoCov">          0 :                 recover = 0;</span>
+<span class="lineNum">     292 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (hmi_evt) {</span>
+<span class="lineNum">     293 </span>                :<span class="lineNoCov">          0 :                         hmi_evt-&gt;severity = OpalHMI_SEV_FATAL;</span>
+<span class="lineNum">     294 </span>                :<span class="lineNoCov">          0 :                         hmi_evt-&gt;type = OpalHMI_ERROR_HYP_RESOURCE;</span>
+<span class="lineNum">     295 </span>                :<span class="lineNoCov">          0 :                         queue_hmi_event(hmi_evt, recover);</span>
+<span class="lineNum">     296 </span>                :            :                 }
+<span class="lineNum">     297 </span>                :            :         }
+<span class="lineNum">     298 </span>                :            : 
+<span class="lineNum">     299 </span>                :            :         /*
+<span class="lineNum">     300 </span>                :            :          * Assert for now for all TOD errors. In future we need to decode
+<span class="lineNum">     301 </span>                :            :          * TFMR and take corrective action wherever required.
+<span class="lineNum">     302 </span>                :            :          */
+<span class="lineNum">     303 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (hmer &amp; SPR_HMER_TFAC_ERROR) {</span>
+<span class="lineNum">     304 </span>                :<span class="lineNoCov">          0 :                 tfmr = mfspr(SPR_TFMR);         /* save original TFMR */</span>
+<span class="lineNum">     305 </span>                :<span class="lineNoCov">          0 :                 hmer &amp;= ~SPR_HMER_TFAC_ERROR;</span>
+<span class="lineNum">     306 </span>                :<span class="lineNoCov">          0 :                 recover = chiptod_recover_tb_errors();</span>
+<span class="lineNum">     307 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (hmi_evt) {</span>
+<span class="lineNum">     308 </span>                :<span class="lineNoCov">          0 :                         hmi_evt-&gt;severity = OpalHMI_SEV_ERROR_SYNC;</span>
+<span class="lineNum">     309 </span>                :<span class="lineNoCov">          0 :                         hmi_evt-&gt;type = OpalHMI_ERROR_TFAC;</span>
+<span class="lineNum">     310 </span>                :<span class="lineNoCov">          0 :                         hmi_evt-&gt;tfmr = tfmr;</span>
+<span class="lineNum">     311 </span>                :<span class="lineNoCov">          0 :                         queue_hmi_event(hmi_evt, recover);</span>
+<span class="lineNum">     312 </span>                :            :                 }
+<span class="lineNum">     313 </span>                :            :         }
+<span class="lineNum">     314 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (hmer &amp; SPR_HMER_TFMR_PARITY_ERROR) {</span>
+<span class="lineNum">     315 </span>                :<span class="lineNoCov">          0 :                 tfmr = mfspr(SPR_TFMR);         /* save original TFMR */</span>
+<span class="lineNum">     316 </span>                :<span class="lineNoCov">          0 :                 hmer &amp;= ~SPR_HMER_TFMR_PARITY_ERROR;</span>
+<span class="lineNum">     317 </span>                :<span class="lineNoCov">          0 :                 recover = 0;</span>
+<span class="lineNum">     318 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (hmi_evt) {</span>
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :                         hmi_evt-&gt;severity = OpalHMI_SEV_FATAL;</span>
+<span class="lineNum">     320 </span>                :<span class="lineNoCov">          0 :                         hmi_evt-&gt;type = OpalHMI_ERROR_TFMR_PARITY;</span>
+<span class="lineNum">     321 </span>                :<span class="lineNoCov">          0 :                         hmi_evt-&gt;tfmr = tfmr;</span>
+<span class="lineNum">     322 </span>                :<span class="lineNoCov">          0 :                         queue_hmi_event(hmi_evt, recover);</span>
+<span class="lineNum">     323 </span>                :            :                 }
+<span class="lineNum">     324 </span>                :            :         }
+<span class="lineNum">     325 </span>                :            : 
+<span class="lineNum">     326 </span>                :            :         /*
+<span class="lineNum">     327 </span>                :            :          * HMER bits are sticky, once set to 1 they remain set to 1 until
+<span class="lineNum">     328 </span>                :            :          * they are set to 0. Reset the error source bit to 0, otherwise
+<span class="lineNum">     329 </span>                :            :          * we keep getting HMI interrupt again and again.
+<span class="lineNum">     330 </span>                :            :          */
+<span class="lineNum">     331 </span>                :            :         mtspr(SPR_HMER, hmer);
+<span class="lineNum">     332 </span>                :<span class="lineNoCov">          0 :         return recover;</span>
+<a name="333"><span class="lineNum">     333 </span>                :            : }</a>
+<span class="lineNum">     334 </span>                :            : 
+<span class="lineNum">     335 </span>                :<span class="lineNoCov">          0 : static int64_t opal_handle_hmi(void)</span>
+<span class="lineNum">     336 </span>                :            : {
+<span class="lineNum">     337 </span>                :            :         uint64_t hmer;
+<span class="lineNum">     338 </span>                :<span class="lineNoCov">          0 :         int rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     339 </span>                :            :         struct OpalHMIEvent hmi_evt;
+<span class="lineNum">     340 </span>                :            : 
+<span class="lineNum">     341 </span>                :<span class="lineNoCov">          0 :         memset(&amp;hmi_evt, 0, sizeof(struct OpalHMIEvent));</span>
+<span class="lineNum">     342 </span>                :<span class="lineNoCov">          0 :         hmi_evt.version = OpalHMIEvt_V1;</span>
+<span class="lineNum">     343 </span>                :            : 
+<span class="lineNum">     344 </span>                :<span class="lineNoCov">          0 :         lock(&amp;hmi_lock);</span>
+<span class="lineNum">     345 </span>                :<span class="lineNoCov">          0 :         hmer = mfspr(SPR_HMER);         /* Get HMER register value */</span>
+<span class="lineNum">     346 </span>                :<span class="lineNoCov">          0 :         handle_hmi_exception(hmer, &amp;hmi_evt);</span>
+<span class="lineNum">     347 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;hmi_lock);</span>
+<span class="lineNum">     348 </span>                :            : 
+<span class="lineNum">     349 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     350 </span>                :            : }
+<span class="lineNum">     351 </span>                :            : opal_call(OPAL_HANDLE_HMI, opal_handle_hmi, 0);
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

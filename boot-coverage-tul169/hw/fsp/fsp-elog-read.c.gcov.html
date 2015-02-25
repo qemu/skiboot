@@ -1,0 +1,645 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/fsp/fsp-elog-read.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">hw/fsp</a> - fsp-elog-read.c<span style="font-size: 80%;"> (source / <a href="fsp-elog-read.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntry">205</td>
+            <td class="headerCovTableEntryLo">15.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntryLo">26.7 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">95</td>
+            <td class="headerCovTableEntryLo">10.5 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : 
+<span class="lineNum">      18 </span>                :            : /*
+<span class="lineNum">      19 </span>                :            :  * This code will enable retrieving of error log from fsp-&gt;sapphire
+<span class="lineNum">      20 </span>                :            :  * in sequence.
+<span class="lineNum">      21 </span>                :            :  * Here, FSP would send next log only when sapphire sends a new
+<span class="lineNum">      22 </span>                :            :  * log notification response to FSP. On Completion of reading
+<span class="lineNum">      23 </span>                :            :  * the log from FSP, OPAL_EVENT_ERROR_LOG_AVAIL is signaled.
+<span class="lineNum">      24 </span>                :            :  * This will remain raised until a call to opal_elog_read()
+<span class="lineNum">      25 </span>                :            :  * is made and OPAL_SUCCESS is returned, upon which.
+<span class="lineNum">      26 </span>                :            :  * the operation is complete and the event is cleared.
+<span class="lineNum">      27 </span>                :            :  * This is READ action from FSP.
+<span class="lineNum">      28 </span>                :            :  */
+<span class="lineNum">      29 </span>                :            : 
+<span class="lineNum">      30 </span>                :            : /*
+<span class="lineNum">      31 </span>                :            :  * Design of READ error log :
+<span class="lineNum">      32 </span>                :            :  * When we receive a new error log entry notificatiion from FSP,
+<span class="lineNum">      33 </span>                :            :  * we queue it into the &quot;pending&quot; list.
+<span class="lineNum">      34 </span>                :            :  * If the &quot;pending&quot; list is not empty, then we start the fetching log from FSP.
+<span class="lineNum">      35 </span>                :            :  *
+<span class="lineNum">      36 </span>                :            :  * When Linux reads a log entry, we dequeue it from the &quot;pending&quot; list
+<span class="lineNum">      37 </span>                :            :  * and enqueue it to another &quot;processed&quot; list. At this point, if the
+<span class="lineNum">      38 </span>                :            :  * &quot;pending&quot; list is not empty, we continue to fetch the next log.
+<span class="lineNum">      39 </span>                :            :  *
+<span class="lineNum">      40 </span>                :            :  * When Linux calls opal_resend_pending_logs(), we fetch the log
+<span class="lineNum">      41 </span>                :            :  * corresponding to the head of the pending list and move it to the
+<span class="lineNum">      42 </span>                :            :  * processed list, and continue this process this until the pending list is
+<span class="lineNum">      43 </span>                :            :  * empty. If the pending list was empty earlier and is currently non-empty, we
+<span class="lineNum">      44 </span>                :            :  * initiate an error log fetch.
+<span class="lineNum">      45 </span>                :            :  *
+<span class="lineNum">      46 </span>                :            :  * When Linux acks an error log, we remove it from processed list.
+<span class="lineNum">      47 </span>                :            :  */
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      50 </span>                :            : #include &lt;fsp.h&gt;
+<span class="lineNum">      51 </span>                :            : #include &lt;cpu.h&gt;
+<span class="lineNum">      52 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      53 </span>                :            : #include &lt;errno.h&gt;
+<span class="lineNum">      54 </span>                :            : #include &lt;psi.h&gt;
+<span class="lineNum">      55 </span>                :            : #include &lt;fsp-elog.h&gt;
+<span class="lineNum">      56 </span>                :            : #include &lt;opal-api.h&gt;
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :            : /*
+<span class="lineNum">      59 </span>                :            :  * Maximum number of entries that are pre-allocated
+<span class="lineNum">      60 </span>                :            :  * to keep track of pending elogs to be fetched.
+<span class="lineNum">      61 </span>                :            :  */
+<span class="lineNum">      62 </span>                :            : #define ELOG_READ_MAX_RECORD            128
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :            : /* structure to maintain log-id,log-size, pending and processed list */
+<span class="lineNum">      65 </span>                :            : struct fsp_log_entry {
+<span class="lineNum">      66 </span>                :            :         uint32_t log_id;
+<span class="lineNum">      67 </span>                :            :         size_t log_size;
+<span class="lineNum">      68 </span>                :            :         struct list_node link;
+<span class="lineNum">      69 </span>                :            : };
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>                :            : static LIST_HEAD(elog_read_pending);
+<span class="lineNum">      72 </span>                :            : static LIST_HEAD(elog_read_processed);
+<span class="lineNum">      73 </span>                :            : static LIST_HEAD(elog_read_free);
+<span class="lineNum">      74 </span>                :            : 
+<span class="lineNum">      75 </span>                :            : /*
+<span class="lineNum">      76 </span>                :            :  * lock is used to protect overwriting of processed and pending list
+<span class="lineNum">      77 </span>                :            :  * and also used while updating state of each log
+<span class="lineNum">      78 </span>                :            :  */
+<span class="lineNum">      79 </span>                :            : static struct lock elog_read_lock = LOCK_UNLOCKED;
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :            : /* log buffer  to copy FSP log for READ */
+<span class="lineNum">      82 </span>                :            : #define ELOG_READ_BUFFER_SIZE   0x00040000
+<span class="lineNum">      83 </span>                :            : static void *elog_read_buffer;
+<span class="lineNum">      84 </span>                :            : static uint32_t elog_head_id;   /* FSP entry ID */
+<span class="lineNum">      85 </span>                :            : static size_t elog_head_size;   /* actual FSP log size */
+<span class="lineNum">      86 </span>                :            : static uint32_t elog_read_retries;      /* bad response status count */
+<span class="lineNum">      87 </span>                :            : 
+<span class="lineNum">      88 </span>                :            : /* Initialize the state of the log */
+<span class="lineNum">      89 </span>                :            : static enum elog_head_state elog_read_from_fsp_head_state = ELOG_STATE_NONE;
+<span class="lineNum">      90 </span>                :            : 
+<span class="lineNum">      91 </span>                :            : /* Need forward declaration because of Circular dependency */
+<span class="lineNum">      92 </span>                :            : static void fsp_elog_queue_fetch(void);
+<span class="lineNum">      93 </span>                :            : 
+<span class="lineNum">      94 </span>                :            : /*
+<span class="lineNum">      95 </span>                :            :  * check the response message for mbox acknowledgment
+<a name="96"><span class="lineNum">      96 </span>                :            :  * command send to FSP.</a>
+<span class="lineNum">      97 </span>                :            :  */
+<span class="lineNum">      98 </span>                :<span class="lineNoCov">          0 : static void fsp_elog_ack_complete(struct fsp_msg *msg)</span>
+<span class="lineNum">      99 </span>                :            : {
+<span class="lineNum">     100 </span>                :            :         uint8_t val;
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!msg-&gt;resp)</span>
+<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 :         val = (msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     105 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (val != 0)</span>
+<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;ELOG: Acknowledgment error\n&quot;);</span>
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 :         fsp_freemsg(msg);</span>
+<span class="lineNum">     108 </span>                :            : }
+<a name="109"><span class="lineNum">     109 </span>                :            : </a>
+<span class="lineNum">     110 </span>                :            : /* send Error Log PHYP Acknowledgment to FSP with entry ID */
+<span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_send_elog_ack(uint32_t log_id)</span>
+<span class="lineNum">     112 </span>                :            : {
+<span class="lineNum">     113 </span>                :            : 
+<span class="lineNum">     114 </span>                :            :         struct fsp_msg *ack_msg;
+<span class="lineNum">     115 </span>                :            : 
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :         ack_msg = fsp_mkmsg(FSP_CMD_ERRLOG_PHYP_ACK, 1, log_id);</span>
+<span class="lineNum">     117 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!ack_msg) {</span>
+<span class="lineNum">     118 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;ELOG: Failed to allocate ack message\n&quot;);</span>
+<span class="lineNum">     119 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     120 </span>                :            :         }
+<span class="lineNum">     121 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_queue_msg(ack_msg, fsp_elog_ack_complete)) {</span>
+<span class="lineNum">     122 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(ack_msg);</span>
+<span class="lineNum">     123 </span>                :<span class="lineNoCov">          0 :                 ack_msg = NULL;</span>
+<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;ELOG: Error queueing elog ack complete\n&quot;);</span>
+<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     126 </span>                :            :         }
+<span class="lineNum">     127 </span>                :            :         return OPAL_SUCCESS;
+<span class="lineNum">     128 </span>                :            : }
+<a name="129"><span class="lineNum">     129 </span>                :            : </a>
+<span class="lineNum">     130 </span>                :            : /* retrive error log from FSP with TCE for the data transfer */
+<span class="lineNum">     131 </span>                :<span class="lineCov">          1 : static void fsp_elog_check_and_fetch_head(void)</span>
+<span class="lineNum">     132 </span>                :            : {
+<span class="lineNum">     133 </span>                :<span class="lineCov">          1 :         lock(&amp;elog_read_lock);</span>
+<span class="lineNum">     134 </span>                :            : 
+<span class="lineNum">     135 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if (elog_read_from_fsp_head_state != ELOG_STATE_NONE ||</span>
+<span class="lineNum">     136 </span>                :            :                         list_empty(&amp;elog_read_pending)) {
+<span class="lineNum">     137 </span>                :<span class="lineCov">          1 :                 unlock(&amp;elog_read_lock);</span>
+<span class="lineNum">     138 </span>                :<span class="lineCov">          1 :                 return;</span>
+<span class="lineNum">     139 </span>                :            :         }
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>                :<span class="lineNoCov">          0 :         elog_read_retries = 0;</span>
+<span class="lineNum">     142 </span>                :            : 
+<span class="lineNum">     143 </span>                :            :         /* Start fetching first entry from the pending list */
+<span class="lineNum">     144 </span>                :<span class="lineNoCov">          0 :         fsp_elog_queue_fetch();</span>
+<span class="lineNum">     145 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;elog_read_lock);</span>
+<span class="lineNum">     146 </span>                :            : }
+<a name="147"><span class="lineNum">     147 </span>                :            : </a>
+<span class="lineNum">     148 </span>                :            : /* this function should be called with the lock held */
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 : static void fsp_elog_set_head_state(enum elog_head_state state)</span>
+<span class="lineNum">     150 </span>                :            : {
+<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :         enum elog_head_state old_state = elog_read_from_fsp_head_state;</span>
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 :         elog_read_from_fsp_head_state = state;</span>
+<span class="lineNum">     154 </span>                :            : 
+<span class="lineNum">     155 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (state == ELOG_STATE_FETCHED_DATA &amp;&amp;</span>
+<span class="lineNum">     156 </span>                :            :                         old_state != ELOG_STATE_FETCHED_DATA)
+<span class="lineNum">     157 </span>                :<span class="lineNoCov">          0 :                 opal_update_pending_evt(OPAL_EVENT_ERROR_LOG_AVAIL,</span>
+<span class="lineNum">     158 </span>                :            :                                         OPAL_EVENT_ERROR_LOG_AVAIL);
+<span class="lineNum">     159 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (state != ELOG_STATE_FETCHED_DATA &amp;&amp;</span>
+<span class="lineNum">     160 </span>                :            :                         old_state == ELOG_STATE_FETCHED_DATA)
+<span class="lineNum">     161 </span>                :<span class="lineNoCov">          0 :                 opal_update_pending_evt(OPAL_EVENT_ERROR_LOG_AVAIL, 0);</span>
+<span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>                :            : /*
+<span class="lineNum">     165 </span>                :            :  * when we try maximum time of fetching log from fsp
+<span class="lineNum">     166 </span>                :            :  * we call following function to delete log from the
+<span class="lineNum">     167 </span>                :            :  * pending list and update the state to fetch next log
+<span class="lineNum">     168 </span>                :            :  *
+<a name="169"><span class="lineNum">     169 </span>                :            :  * this function should be called with the lock held</a>
+<span class="lineNum">     170 </span>                :            :  */
+<span class="lineNum">     171 </span>                :<span class="lineNoCov">          0 : static void fsp_elog_fetch_failure(uint8_t fsp_status)</span>
+<span class="lineNum">     172 </span>                :            : {
+<span class="lineNum">     173 </span>                :            :         struct fsp_log_entry *log_data;
+<span class="lineNum">     174 </span>                :            : 
+<span class="lineNum">     175 </span>                :            :         /* read top list and delete the node */
+<span class="lineNum">     176 </span>                :<span class="lineNoCov">          0 :         log_data = list_top(&amp;elog_read_pending, struct fsp_log_entry, link);</span>
+<span class="lineNum">     177 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!log_data) {</span>
+<span class="lineNum">     178 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR, &quot;%s: Inconsistent internal list state !\n&quot;,</span>
+<span class="lineNum">     179 </span>                :            :                       __func__);
+<span class="lineNum">     180 </span>                :            :         } else {
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :                 list_del(&amp;log_data-&gt;link);</span>
+<span class="lineNum">     182 </span>                :<span class="lineNoCov">          0 :                 list_add(&amp;elog_read_free, &amp;log_data-&gt;link);</span>
+<span class="lineNum">     183 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;ELOG: received invalid data: %x FSP status: 0x%x\n&quot;,</span>
+<span class="lineNum">     184 </span>                :            :                         log_data-&gt;log_id, fsp_status);
+<span class="lineNum">     185 </span>                :            : 
+<span class="lineNum">     186 </span>                :            :         }
+<span class="lineNum">     187 </span>                :<span class="lineNoCov">          0 :         fsp_elog_set_head_state(ELOG_STATE_NONE);</span>
+<span class="lineNum">     188 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="189"><span class="lineNum">     189 </span>                :            : </a>
+<span class="lineNum">     190 </span>                :            : /* Read response value from FSP for fetch sp data mbox command */
+<span class="lineNum">     191 </span>                :<span class="lineNoCov">          0 : static void fsp_elog_read_complete(struct fsp_msg *read_msg)</span>
+<span class="lineNum">     192 </span>                :            : {
+<span class="lineNum">     193 </span>                :            :         uint8_t val;
+<span class="lineNum">     194 </span>                :            :         /*struct fsp_log_entry *log_data;*/
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>                :<span class="lineNoCov">          0 :         lock(&amp;elog_read_lock);</span>
+<span class="lineNum">     197 </span>                :<span class="lineNoCov">          0 :         val = (read_msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     198 </span>                :<span class="lineNoCov">          0 :         fsp_freemsg(read_msg);</span>
+<span class="lineNum">     199 </span>                :            : 
+<span class="lineNum">     200 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (val) {</span>
+<span class="lineNum">     201 </span>                :            :         case FSP_STATUS_SUCCESS:
+<span class="lineNum">     202 </span>                :<span class="lineNoCov">          0 :                 fsp_elog_set_head_state(ELOG_STATE_FETCHED_DATA);</span>
+<span class="lineNum">     203 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     204 </span>                :            : 
+<span class="lineNum">     205 </span>                :            :         case FSP_STATUS_DMA_ERROR:
+<span class="lineNum">     206 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (elog_read_retries++ &lt; MAX_RETRIES) {</span>
+<span class="lineNum">     207 </span>                :            :                         /*
+<span class="lineNum">     208 </span>                :            :                          * for a error response value from FSP, we try to
+<span class="lineNum">     209 </span>                :            :                          * send fetch sp data mbox command again for three
+<span class="lineNum">     210 </span>                :            :                          * times if response from FSP is still not valid
+<span class="lineNum">     211 </span>                :            :                          * we send generic error response to fsp.
+<span class="lineNum">     212 </span>                :            :                          */
+<span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 :                         fsp_elog_queue_fetch();</span>
+<span class="lineNum">     214 </span>                :<span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     215 </span>                :            :                 }
+<span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 :                 fsp_elog_fetch_failure(val);</span>
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     218 </span>                :            : 
+<span class="lineNum">     219 </span>                :            :         default:
+<span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 :                 fsp_elog_fetch_failure(val);</span>
+<span class="lineNum">     221 </span>                :            :         }
+<span class="lineNum">     222 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (elog_read_from_fsp_head_state == ELOG_STATE_REJECTED)</span>
+<span class="lineNum">     223 </span>                :<span class="lineNoCov">          0 :                 fsp_elog_set_head_state(ELOG_STATE_NONE);</span>
+<span class="lineNum">     224 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;elog_read_lock);</span>
+<span class="lineNum">     225 </span>                :            : 
+<span class="lineNum">     226 </span>                :            :         /* Check if a new log needs fetching */
+<span class="lineNum">     227 </span>                :<span class="lineNoCov">          0 :         fsp_elog_check_and_fetch_head();</span>
+<span class="lineNum">     228 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="229"><span class="lineNum">     229 </span>                :            : </a>
+<span class="lineNum">     230 </span>                :            : /* read error log from FSP through mbox commands */
+<span class="lineNum">     231 </span>                :<span class="lineNoCov">          0 : static void fsp_elog_queue_fetch(void)</span>
+<span class="lineNum">     232 </span>                :            : {
+<span class="lineNum">     233 </span>                :            :         int rc;
+<span class="lineNum">     234 </span>                :<span class="lineNoCov">          0 :         uint8_t flags = 0;</span>
+<span class="lineNum">     235 </span>                :            :         struct fsp_log_entry *entry;
+<span class="lineNum">     236 </span>                :            : 
+<span class="lineNum">     237 </span>                :<span class="lineNoCov">          0 :         entry = list_top(&amp;elog_read_pending, struct fsp_log_entry, link);</span>
+<span class="lineNum">     238 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!entry) {</span>
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR, &quot;%s: Inconsistent internal list state !\n&quot;,</span>
+<span class="lineNum">     240 </span>                :            :                       __func__);
+<span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 :                 fsp_elog_set_head_state(ELOG_STATE_NONE);</span>
+<span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     243 </span>                :            :         }
+<span class="lineNum">     244 </span>                :<span class="lineNoCov">          0 :         fsp_elog_set_head_state(ELOG_STATE_FETCHING);</span>
+<span class="lineNum">     245 </span>                :<span class="lineNoCov">          0 :         elog_head_id = entry-&gt;log_id;</span>
+<span class="lineNum">     246 </span>                :<span class="lineNoCov">          0 :         elog_head_size = entry-&gt;log_size;</span>
+<span class="lineNum">     247 </span>                :            : 
+<span class="lineNum">     248 </span>                :<span class="lineNoCov">          0 :         rc = fsp_fetch_data_queue(flags, FSP_DATASET_ERRLOG, elog_head_id,</span>
+<span class="lineNum">     249 </span>                :            :                                   0, (void *)PSI_DMA_ERRLOG_READ_BUF,
+<span class="lineNum">     250 </span>                :            :                                   &amp;elog_head_size, fsp_elog_read_complete);
+<span class="lineNum">     251 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     252 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;ELOG: failed to queue read message: %d\n&quot;, rc);</span>
+<span class="lineNum">     253 </span>                :<span class="lineNoCov">          0 :                 fsp_elog_set_head_state(ELOG_STATE_NONE);</span>
+<span class="lineNum">     254 </span>                :            :         }
+<span class="lineNum">     255 </span>                :            : }
+<a name="256"><span class="lineNum">     256 </span>                :            : </a>
+<span class="lineNum">     257 </span>                :            : /* opal interface for powernv to read log size and log ID from sapphire */
+<span class="lineNum">     258 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_opal_elog_info(uint64_t *opal_elog_id,</span>
+<span class="lineNum">     259 </span>                :            :                                   uint64_t *opal_elog_size, uint64_t *elog_type)
+<span class="lineNum">     260 </span>                :            : {
+<span class="lineNum">     261 </span>                :            :         struct fsp_log_entry *log_data;
+<span class="lineNum">     262 </span>                :            : 
+<span class="lineNum">     263 </span>                :            :         /* copy type of the error log */
+<span class="lineNum">     264 </span>                :<span class="lineNoCov">          0 :         *elog_type = ELOG_TYPE_PEL;</span>
+<span class="lineNum">     265 </span>                :            : 
+<span class="lineNum">     266 </span>                :            :         /* Check if any OPAL log needs to be reported to the host */
+<span class="lineNum">     267 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (opal_elog_info(opal_elog_id, opal_elog_size))</span>
+<span class="lineNum">     268 </span>                :            :                 return OPAL_SUCCESS;
+<span class="lineNum">     269 </span>                :            : 
+<span class="lineNum">     270 </span>                :<span class="lineNoCov">          0 :         lock(&amp;elog_read_lock);</span>
+<span class="lineNum">     271 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (elog_read_from_fsp_head_state != ELOG_STATE_FETCHED_DATA) {</span>
+<span class="lineNum">     272 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;elog_read_lock);</span>
+<span class="lineNum">     273 </span>                :<span class="lineNoCov">          0 :                 return OPAL_WRONG_STATE;</span>
+<span class="lineNum">     274 </span>                :            :         }
+<span class="lineNum">     275 </span>                :<span class="lineNoCov">          0 :         log_data = list_top(&amp;elog_read_pending, struct fsp_log_entry, link);</span>
+<span class="lineNum">     276 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!log_data) {</span>
+<span class="lineNum">     277 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR, &quot;%s: Inconsistent internal list state !\n&quot;,</span>
+<span class="lineNum">     278 </span>                :            :                       __func__);
+<span class="lineNum">     279 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;elog_read_lock);</span>
+<span class="lineNum">     280 </span>                :<span class="lineNoCov">          0 :                 return OPAL_WRONG_STATE;</span>
+<span class="lineNum">     281 </span>                :            :         }
+<span class="lineNum">     282 </span>                :<span class="lineNoCov">          0 :         *opal_elog_id = log_data-&gt;log_id;</span>
+<span class="lineNum">     283 </span>                :<span class="lineNoCov">          0 :         *opal_elog_size = log_data-&gt;log_size;</span>
+<span class="lineNum">     284 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;elog_read_lock);</span>
+<span class="lineNum">     285 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<span class="lineNum">     286 </span>                :            : }
+<a name="287"><span class="lineNum">     287 </span>                :            : </a>
+<span class="lineNum">     288 </span>                :            : /* opal interface for powernv to read log from sapphire */
+<span class="lineNum">     289 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_opal_elog_read(uint64_t *buffer, uint64_t opal_elog_size,</span>
+<span class="lineNum">     290 </span>                :            :                                   uint64_t opal_elog_id)
+<span class="lineNum">     291 </span>                :            : {
+<span class="lineNum">     292 </span>                :<span class="lineNoCov">          0 :         int size = opal_elog_size;</span>
+<span class="lineNum">     293 </span>                :            :         struct fsp_log_entry *log_data;
+<span class="lineNum">     294 </span>                :            : 
+<span class="lineNum">     295 </span>                :            : 
+<span class="lineNum">     296 </span>                :            :         /* Check if any OPAL log needs to be reported to the host */
+<span class="lineNum">     297 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (opal_elog_read(buffer, opal_elog_size, opal_elog_id))</span>
+<span class="lineNum">     298 </span>                :            :                 return OPAL_SUCCESS;
+<span class="lineNum">     299 </span>                :            :         /*
+<span class="lineNum">     300 </span>                :            :          * Read top entry from list.
+<span class="lineNum">     301 </span>                :            :          * as we know always top record of the list is fetched from FSP
+<span class="lineNum">     302 </span>                :            :          */
+<span class="lineNum">     303 </span>                :<span class="lineNoCov">          0 :         lock(&amp;elog_read_lock);</span>
+<span class="lineNum">     304 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (elog_read_from_fsp_head_state != ELOG_STATE_FETCHED_DATA) {</span>
+<span class="lineNum">     305 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;elog_read_lock);</span>
+<span class="lineNum">     306 </span>                :<span class="lineNoCov">          0 :                 return OPAL_WRONG_STATE;</span>
+<span class="lineNum">     307 </span>                :            :         }
+<span class="lineNum">     308 </span>                :            : 
+<span class="lineNum">     309 </span>                :<span class="lineNoCov">          0 :         log_data = list_top(&amp;elog_read_pending, struct fsp_log_entry, link);</span>
+<span class="lineNum">     310 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!log_data) {</span>
+<span class="lineNum">     311 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR, &quot;%s: Inconsistent internal list state !\n&quot;,</span>
+<span class="lineNum">     312 </span>                :            :                       __func__);
+<span class="lineNum">     313 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;elog_read_lock);</span>
+<span class="lineNum">     314 </span>                :<span class="lineNoCov">          0 :                 return OPAL_WRONG_STATE;</span>
+<span class="lineNum">     315 </span>                :            :         }
+<span class="lineNum">     316 </span>                :            : 
+<span class="lineNum">     317 </span>                :            :         /* Check log ID and then read log from buffer */
+<span class="lineNum">     318 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (opal_elog_id != log_data-&gt;log_id) {</span>
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;elog_read_lock);</span>
+<span class="lineNum">     320 </span>                :<span class="lineNoCov">          0 :                 return OPAL_PARAMETER;</span>
+<span class="lineNum">     321 </span>                :            :         }
+<span class="lineNum">     322 </span>                :            : 
+<span class="lineNum">     323 </span>                :            :         /* Do not copy more than actual log size */
+<span class="lineNum">     324 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (opal_elog_size &gt; log_data-&gt;log_size)</span>
+<span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 :                 size = log_data-&gt;log_size;</span>
+<span class="lineNum">     326 </span>                :            : 
+<span class="lineNum">     327 </span>                :<span class="lineNoCov">          0 :         memset((void *)buffer, 0, opal_elog_size);</span>
+<span class="lineNum">     328 </span>                :<span class="lineNoCov">          0 :         memcpy((void *)buffer, elog_read_buffer, size);</span>
+<span class="lineNum">     329 </span>                :            : 
+<span class="lineNum">     330 </span>                :            :         /*
+<span class="lineNum">     331 </span>                :            :          * once log is read from linux move record from pending
+<span class="lineNum">     332 </span>                :            :          * to processed list and delete record from pending list
+<span class="lineNum">     333 </span>                :            :          * and change state of the log to fetch next record
+<span class="lineNum">     334 </span>                :            :          */
+<span class="lineNum">     335 </span>                :<span class="lineNoCov">          0 :         list_del(&amp;log_data-&gt;link);</span>
+<span class="lineNum">     336 </span>                :<span class="lineNoCov">          0 :         list_add(&amp;elog_read_processed, &amp;log_data-&gt;link);</span>
+<span class="lineNum">     337 </span>                :<span class="lineNoCov">          0 :         fsp_elog_set_head_state(ELOG_STATE_NONE);</span>
+<span class="lineNum">     338 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;elog_read_lock);</span>
+<span class="lineNum">     339 </span>                :            : 
+<span class="lineNum">     340 </span>                :            : 
+<span class="lineNum">     341 </span>                :            :         /* read error log from FSP */
+<span class="lineNum">     342 </span>                :<span class="lineNoCov">          0 :         fsp_elog_check_and_fetch_head();</span>
+<span class="lineNum">     343 </span>                :            : 
+<span class="lineNum">     344 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<span class="lineNum">     345 </span>                :            : }
+<a name="346"><span class="lineNum">     346 </span>                :            : </a>
+<span class="lineNum">     347 </span>                :            : /* set state of the log head before fetching the log */
+<span class="lineNum">     348 </span>                :<span class="lineNoCov">          0 : static void elog_reject_head(void)</span>
+<span class="lineNum">     349 </span>                :            : {
+<span class="lineNum">     350 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (elog_read_from_fsp_head_state == ELOG_STATE_FETCHING)</span>
+<span class="lineNum">     351 </span>                :<span class="lineNoCov">          0 :                 fsp_elog_set_head_state(ELOG_STATE_REJECTED);</span>
+<span class="lineNum">     352 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (elog_read_from_fsp_head_state == ELOG_STATE_FETCHED_DATA)</span>
+<span class="lineNum">     353 </span>                :<span class="lineNoCov">          0 :                 fsp_elog_set_head_state(ELOG_STATE_NONE);</span>
+<span class="lineNum">     354 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="355"><span class="lineNum">     355 </span>                :            : </a>
+<span class="lineNum">     356 </span>                :            : /* opal Interface for powernv to send ack to fsp with log ID */
+<span class="lineNum">     357 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_opal_elog_ack(uint64_t ack_id)</span>
+<span class="lineNum">     358 </span>                :            : {
+<span class="lineNum">     359 </span>                :<span class="lineNoCov">          0 :         int rc = 0;</span>
+<span class="lineNum">     360 </span>                :            :         struct fsp_log_entry  *record, *next_record;
+<span class="lineNum">     361 </span>                :            : 
+<span class="lineNum">     362 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (opal_elog_ack(ack_id))</span>
+<span class="lineNum">     363 </span>                :            :                 return rc;
+<span class="lineNum">     364 </span>                :            : 
+<span class="lineNum">     365 </span>                :            :         /* Send acknowledgement to FSP */
+<span class="lineNum">     366 </span>                :<span class="lineNoCov">          0 :         rc = fsp_send_elog_ack(ack_id);</span>
+<span class="lineNum">     367 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc != OPAL_SUCCESS) {</span>
+<span class="lineNum">     368 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;ELOG: failed to send acknowledgement: %d\n&quot;, rc);</span>
+<span class="lineNum">     369 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
+<span class="lineNum">     370 </span>                :            :         }
+<span class="lineNum">     371 </span>                :<span class="lineNoCov">          0 :         lock(&amp;elog_read_lock);</span>
+<span class="lineNum">     372 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ack_id == elog_head_id)</span>
+<span class="lineNum">     373 </span>                :<span class="lineNoCov">          0 :                 elog_reject_head();</span>
+<span class="lineNum">     374 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         list_for_each_safe(&amp;elog_read_pending, record, next_record, link) {</span>
+<span class="lineNum">     375 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (record-&gt;log_id != ack_id)</span>
+<span class="lineNum">     376 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     377 </span>                :<span class="lineNoCov">          0 :                 list_del(&amp;record-&gt;link);</span>
+<span class="lineNum">     378 </span>                :<span class="lineNoCov">          0 :                 list_add(&amp;elog_read_free, &amp;record-&gt;link);</span>
+<span class="lineNum">     379 </span>                :            :         }
+<span class="lineNum">     380 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         list_for_each_safe(&amp;elog_read_processed, record, next_record, link) {</span>
+<span class="lineNum">     381 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (record-&gt;log_id != ack_id)</span>
+<span class="lineNum">     382 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     383 </span>                :<span class="lineNoCov">          0 :                 list_del(&amp;record-&gt;link);</span>
+<span class="lineNum">     384 </span>                :<span class="lineNoCov">          0 :                 list_add(&amp;elog_read_free, &amp;record-&gt;link);</span>
+<span class="lineNum">     385 </span>                :            :         }
+<span class="lineNum">     386 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;elog_read_lock);</span>
+<span class="lineNum">     387 </span>                :            : 
+<span class="lineNum">     388 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     389 </span>                :            : }
+<span class="lineNum">     390 </span>                :            : 
+<span class="lineNum">     391 </span>                :            : /*
+<span class="lineNum">     392 </span>                :            :  * once linux kexec's it ask to resend all logs which
+<a name="393"><span class="lineNum">     393 </span>                :            :  * are not acknowledged from  linux</a>
+<span class="lineNum">     394 </span>                :            :  */
+<span class="lineNum">     395 </span>                :<span class="lineCov">          1 : static void fsp_opal_resend_pending_logs(void)</span>
+<span class="lineNum">     396 </span>                :            : {
+<span class="lineNum">     397 </span>                :            :         struct fsp_log_entry  *entry;
+<span class="lineNum">     398 </span>                :            : 
+<span class="lineNum">     399 </span>                :            :         /* Check if any Sapphire logs are pending */
+<span class="lineNum">     400 </span>                :<span class="lineCov">          1 :         opal_resend_pending_logs();</span>
+<span class="lineNum">     401 </span>                :            : 
+<span class="lineNum">     402 </span>                :<span class="lineCov">          1 :         lock(&amp;elog_read_lock);</span>
+<span class="lineNum">     403 </span>                :            :         /*
+<span class="lineNum">     404 </span>                :            :          * If processed list is not empty add all record from
+<span class="lineNum">     405 </span>                :            :          * processed list to pending list at head of the list
+<span class="lineNum">     406 </span>                :            :          * and delete records from processed list.
+<span class="lineNum">     407 </span>                :            :          */
+<span class="lineNum">     408 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         while (!list_empty(&amp;elog_read_processed)) {</span>
+<span class="lineNum">     409 </span>                :<span class="lineNoCov">          0 :                 entry = list_pop(&amp;elog_read_processed,</span>
+<span class="lineNum">     410 </span>                :            :                                          struct fsp_log_entry, link);
+<span class="lineNum">     411 </span>                :<span class="lineNoCov">          0 :                 list_add(&amp;elog_read_pending, &amp;entry-&gt;link);</span>
+<span class="lineNum">     412 </span>                :            :         }
+<span class="lineNum">     413 </span>                :            : 
+<span class="lineNum">     414 </span>                :            :         /*
+<span class="lineNum">     415 </span>                :            :          * If the current fetched or fetching log doesn't match our
+<span class="lineNum">     416 </span>                :            :          * new pending list head, then reject it
+<span class="lineNum">     417 </span>                :            :          */
+<span class="lineNum">     418 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!list_empty(&amp;elog_read_pending)) {</span>
+<span class="lineNum">     419 </span>                :<span class="lineNoCov">          0 :                 entry = list_top(&amp;elog_read_pending,</span>
+<span class="lineNum">     420 </span>                :            :                                          struct fsp_log_entry, link);
+<span class="lineNum">     421 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (entry-&gt;log_id != elog_head_id)</span>
+<span class="lineNum">     422 </span>                :<span class="lineNoCov">          0 :                         elog_reject_head();</span>
+<span class="lineNum">     423 </span>                :            :         }
+<span class="lineNum">     424 </span>                :            : 
+<span class="lineNum">     425 </span>                :<span class="lineCov">          1 :         unlock(&amp;elog_read_lock);</span>
+<span class="lineNum">     426 </span>                :            : 
+<span class="lineNum">     427 </span>                :            :         /* Read error log from FSP if needed */
+<span class="lineNum">     428 </span>                :<span class="lineCov">          1 :         fsp_elog_check_and_fetch_head();</span>
+<span class="lineNum">     429 </span>                :<span class="lineCov">          1 : }</span>
+<a name="430"><span class="lineNum">     430 </span>                :            : </a>
+<span class="lineNum">     431 </span>                :            : /* fsp elog notify function  */
+<span class="lineNum">     432 </span>                :<span class="lineNoCov">          0 : static bool fsp_elog_msg(uint32_t cmd_sub_mod, struct fsp_msg *msg)</span>
+<span class="lineNum">     433 </span>                :            : {
+<span class="lineNum">     434 </span>                :<span class="lineNoCov">          0 :         int rc = 0;</span>
+<span class="lineNum">     435 </span>                :            :         struct fsp_log_entry  *record;
+<span class="lineNum">     436 </span>                :            :         uint32_t log_id;
+<span class="lineNum">     437 </span>                :            :         uint32_t log_size;
+<span class="lineNum">     438 </span>                :            : 
+<span class="lineNum">     439 </span>                :            : 
+<span class="lineNum">     440 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (cmd_sub_mod != FSP_CMD_ERRLOG_NOTIFICATION)</span>
+<span class="lineNum">     441 </span>                :            :                 return false;
+<span class="lineNum">     442 </span>                :            : 
+<span class="lineNum">     443 </span>                :<span class="lineNoCov">          0 :         log_id = msg-&gt;data.words[0];</span>
+<span class="lineNum">     444 </span>                :<span class="lineNoCov">          0 :         log_size = msg-&gt;data.words[1];</span>
+<span class="lineNum">     445 </span>                :            : 
+<span class="lineNum">     446 </span>                :<span class="lineNoCov">          0 :         printf(&quot;ELOG: Notified of log 0x%08x (size: %d)\n&quot;,</span>
+<span class="lineNum">     447 </span>                :            :                log_id, log_size);
+<span class="lineNum">     448 </span>                :            : 
+<span class="lineNum">     449 </span>                :            :         /* Make sure we don't cross read buffer size */
+<span class="lineNum">     450 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (log_size &gt; ELOG_READ_BUFFER_SIZE) {</span>
+<span class="lineNum">     451 </span>                :<span class="lineNoCov">          0 :                 log_size = ELOG_READ_BUFFER_SIZE;</span>
+<span class="lineNum">     452 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;ELOG: Truncated log (0x%08x) to 0x%x\n&quot;,</span>
+<span class="lineNum">     453 </span>                :            :                        log_id, log_size);
+<span class="lineNum">     454 </span>                :            :         }
+<span class="lineNum">     455 </span>                :            : 
+<span class="lineNum">     456 </span>                :            :         /* take a lock until we take out the node from elog_read_free */
+<span class="lineNum">     457 </span>                :<span class="lineNoCov">          0 :         lock(&amp;elog_read_lock);</span>
+<span class="lineNum">     458 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!list_empty(&amp;elog_read_free)) {</span>
+<span class="lineNum">     459 </span>                :            :                 /* Create a new entry in the pending list */
+<span class="lineNum">     460 </span>                :<span class="lineNoCov">          0 :                 record = list_pop(&amp;elog_read_free, struct fsp_log_entry, link);</span>
+<span class="lineNum">     461 </span>                :<span class="lineNoCov">          0 :                 record-&gt;log_id = log_id;</span>
+<span class="lineNum">     462 </span>                :<span class="lineNoCov">          0 :                 record-&gt;log_size = log_size;</span>
+<span class="lineNum">     463 </span>                :<span class="lineNoCov">          0 :                 list_add_tail(&amp;elog_read_pending, &amp;record-&gt;link);</span>
+<span class="lineNum">     464 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;elog_read_lock);</span>
+<span class="lineNum">     465 </span>                :            : 
+<span class="lineNum">     466 </span>                :            :                 /* Send response back to FSP for a new elog notify message */
+<span class="lineNum">     467 </span>                :<span class="lineNoCov">          0 :                 rc = fsp_queue_msg(fsp_mkmsg(FSP_RSP_ERRLOG_NOTIFICATION,</span>
+<span class="lineNum">     468 </span>                :            :                                         1, log_id), fsp_freemsg);
+<span class="lineNum">     469 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     470 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;ELOG: Failed to queue errlog notification&quot;</span>
+<span class="lineNum">     471 </span>                :            :                                 &quot; response: %d\n&quot;, rc);
+<span class="lineNum">     472 </span>                :            : 
+<span class="lineNum">     473 </span>                :            :                 /* read error log from FSP */
+<span class="lineNum">     474 </span>                :<span class="lineNoCov">          0 :                 fsp_elog_check_and_fetch_head();</span>
+<span class="lineNum">     475 </span>                :            : 
+<span class="lineNum">     476 </span>                :            :         } else {
+<span class="lineNum">     477 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;ELOG: Log entry 0x%08x discarded\n&quot;, log_id);</span>
+<span class="lineNum">     478 </span>                :            : 
+<span class="lineNum">     479 </span>                :            :                 /* unlock if elog_read_free is empty */
+<span class="lineNum">     480 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;elog_read_lock);</span>
+<span class="lineNum">     481 </span>                :            : 
+<span class="lineNum">     482 </span>                :<span class="lineNoCov">          0 :                 rc = fsp_queue_msg(fsp_mkmsg(FSP_RSP_ERRLOG_NOTIFICATION,</span>
+<span class="lineNum">     483 </span>                :            :                                              1, log_id), fsp_freemsg);
+<span class="lineNum">     484 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     485 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;ELOG: Failed to queue errlog notification&quot;</span>
+<span class="lineNum">     486 </span>                :            :                                 &quot; response: %d\n&quot;, rc);
+<span class="lineNum">     487 </span>                :            :                 /*
+<span class="lineNum">     488 </span>                :            :                  * if list is full with max record then we
+<span class="lineNum">     489 </span>                :            :                  * send discarded by phyp (condition full) ack to FSP.
+<span class="lineNum">     490 </span>                :            :                  *
+<span class="lineNum">     491 </span>                :            :                  * At some point in the future, we'll get notified again.
+<span class="lineNum">     492 </span>                :            :                  * This is largely up to FSP as to when they tell us about
+<span class="lineNum">     493 </span>                :            :                  * the log again.
+<span class="lineNum">     494 </span>                :            :                  */
+<span class="lineNum">     495 </span>                :<span class="lineNoCov">          0 :                 rc = fsp_queue_msg(fsp_mkmsg(FSP_CMD_ERRLOG_PHYP_ACK | 0x02,</span>
+<span class="lineNum">     496 </span>                :            :                                 1, log_id), fsp_freemsg);
+<span class="lineNum">     497 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     498 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;ELOG: Failed to queue errlog ack&quot;</span>
+<span class="lineNum">     499 </span>                :            :                                 &quot; response: %d\n&quot;, rc);
+<span class="lineNum">     500 </span>                :            :         }
+<span class="lineNum">     501 </span>                :            : 
+<span class="lineNum">     502 </span>                :            :         return true;
+<span class="lineNum">     503 </span>                :            : }
+<span class="lineNum">     504 </span>                :            : 
+<span class="lineNum">     505 </span>                :            : static struct fsp_client fsp_get_elog_notify = {
+<span class="lineNum">     506 </span>                :            :         .message = fsp_elog_msg,
+<span class="lineNum">     507 </span>                :            : };
+<a name="508"><span class="lineNum">     508 </span>                :            : </a>
+<span class="lineNum">     509 </span>                :            : /* Pre-allocate memory for reading error log from FSP */
+<span class="lineNum">     510 </span>                :<span class="lineCov">          1 : static int init_elog_read_free_list(uint32_t num_entries)</span>
+<span class="lineNum">     511 </span>                :            : {
+<span class="lineNum">     512 </span>                :            :         struct fsp_log_entry *entry;
+<span class="lineNum">     513 </span>                :            :         int i;
+<span class="lineNum">     514 </span>                :            : 
+<span class="lineNum">     515 </span>                :<span class="lineCov">          1 :         entry = zalloc(sizeof(struct fsp_log_entry) * num_entries);</span>
+<span class="lineNum">     516 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!entry)</span>
+<span class="lineNum">     517 </span>                :            :                 goto out_err;
+<span class="lineNum">     518 </span>                :            : 
+<span class="lineNum">     519 </span>        [<span class="branchCov" title="Branch 0 was taken 128 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">        129 :         for (i = 0; i &lt; num_entries; ++i) {</span>
+<span class="lineNum">     520 </span>                :<span class="lineCov">        128 :                 list_add_tail(&amp;elog_read_free, &amp;entry-&gt;link);</span>
+<span class="lineNum">     521 </span>                :<span class="lineCov">        128 :                 entry++;</span>
+<span class="lineNum">     522 </span>                :            :         }
+<span class="lineNum">     523 </span>                :            :         return 0;
+<span class="lineNum">     524 </span>                :            : 
+<span class="lineNum">     525 </span>                :            : out_err:
+<span class="lineNum">     526 </span>                :            :         return -ENOMEM;
+<span class="lineNum">     527 </span>                :            : }
+<a name="528"><span class="lineNum">     528 </span>                :            : </a>
+<span class="lineNum">     529 </span>                :            : /* fsp elog read init function */
+<span class="lineNum">     530 </span>                :<span class="lineCov">          1 : void fsp_elog_read_init(void)</span>
+<span class="lineNum">     531 </span>                :            : {
+<span class="lineNum">     532 </span>                :<span class="lineCov">          1 :         int val = 0;</span>
+<span class="lineNum">     533 </span>                :            : 
+<span class="lineNum">     534 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!fsp_present())</span>
+<span class="lineNum">     535 </span>                :            :                 return;
+<span class="lineNum">     536 </span>                :            : 
+<span class="lineNum">     537 </span>                :<span class="lineCov">          1 :         elog_read_buffer = memalign(TCE_PSIZE, ELOG_READ_BUFFER_SIZE);</span>
+<span class="lineNum">     538 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!elog_read_buffer) {</span>
+<span class="lineNum">     539 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FSP: could not allocate FSP ELOG_READ_BUFFER!\n&quot;);</span>
+<span class="lineNum">     540 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     541 </span>                :            :         }
+<span class="lineNum">     542 </span>                :            : 
+<span class="lineNum">     543 </span>                :            :         /* Map TCEs */
+<span class="lineNum">     544 </span>                :<span class="lineCov">          1 :         fsp_tce_map(PSI_DMA_ERRLOG_READ_BUF, elog_read_buffer,</span>
+<span class="lineNum">     545 </span>                :            :                                         PSI_DMA_ERRLOG_READ_BUF_SZ);
+<span class="lineNum">     546 </span>                :            : 
+<span class="lineNum">     547 </span>                :            :         /* pre allocate memory for 128 record */
+<span class="lineNum">     548 </span>                :<span class="lineCov">          1 :         val = init_elog_read_free_list(ELOG_READ_MAX_RECORD);</span>
+<span class="lineNum">     549 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (val != 0)</span>
+<span class="lineNum">     550 </span>                :            :                 return;
+<span class="lineNum">     551 </span>                :            : 
+<span class="lineNum">     552 </span>                :            :         /* register Eror log Class D2 */
+<span class="lineNum">     553 </span>                :<span class="lineCov">          1 :         fsp_register_client(&amp;fsp_get_elog_notify, FSP_MCLASS_ERR_LOG);</span>
+<span class="lineNum">     554 </span>                :            : 
+<span class="lineNum">     555 </span>                :            :         /* register opal Interface */
+<span class="lineNum">     556 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_ELOG_READ, fsp_opal_elog_read, 3);</span>
+<span class="lineNum">     557 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_ELOG_ACK, fsp_opal_elog_ack, 1);</span>
+<span class="lineNum">     558 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_ELOG_RESEND, fsp_opal_resend_pending_logs, 0);</span>
+<span class="lineNum">     559 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_ELOG_SIZE, fsp_opal_elog_info, 3);</span>
+<span class="lineNum">     560 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

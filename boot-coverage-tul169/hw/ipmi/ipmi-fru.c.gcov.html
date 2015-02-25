@@ -1,0 +1,323 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/ipmi/ipmi-fru.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">hw/ipmi</a> - ipmi-fru.c<span style="font-size: 80%;"> (source / <a href="ipmi-fru.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">90</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">38</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;string.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;ipmi.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;opal.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;device.h&gt;
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :            : struct product_info {
+<span class="lineNum">      26 </span>                :            :         char *manufacturer;
+<span class="lineNum">      27 </span>                :            :         char *product;
+<span class="lineNum">      28 </span>                :            :         char *part_no;
+<span class="lineNum">      29 </span>                :            :         char *version;
+<span class="lineNum">      30 </span>                :            :         char *serial_no;
+<span class="lineNum">      31 </span>                :            :         char *asset_tag;
+<span class="lineNum">      32 </span>                :            : };
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            : struct common_header {
+<span class="lineNum">      35 </span>                :            :         u8 version;
+<span class="lineNum">      36 </span>                :            :         u8 internal_offset;
+<span class="lineNum">      37 </span>                :            :         u8 chassis_offset;
+<span class="lineNum">      38 </span>                :            :         u8 board_offset;
+<span class="lineNum">      39 </span>                :            :         u8 product_offset;
+<span class="lineNum">      40 </span>                :            :         u8 multirecord_offset;
+<span class="lineNum">      41 </span>                :            :         u8 pad;
+<span class="lineNum">      42 </span>                :            :         u8 checksum;
+<span class="lineNum">      43 </span>                :            : } __packed;
+<span class="lineNum">      44 </span>                :            : 
+<span class="lineNum">      45 </span>                :            : #define min(x,y) ((x) &lt; (y) ? x : y)
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>                :            : /* The maximum amount of FRU data we can store. */
+<span class="lineNum">      48 </span>                :            : #define FRU_DATA_SIZE 256
+<span class="lineNum">      49 </span>                :            : 
+<span class="lineNum">      50 </span>                :            : /* We allocate two bytes at these locations in the data array to track
+<span class="lineNum">      51 </span>                :            :  * state. */
+<span class="lineNum">      52 </span>                :            : #define WRITE_INDEX 256
+<span class="lineNum">      53 </span>                :            : #define REMAINING 257
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            : /* The ASCII string encoding used only has 5 bits to encode length
+<span class="lineNum">      56 </span>                :            :  * hence the maximum is 31 characters. */
+<span class="lineNum">      57 </span>                :            : #define MAX_STR_LEN 31
+<span class="lineNum">      58 </span>                :            : 
+<a name="59"><span class="lineNum">      59 </span>                :            : static u8 fru_dev_id = 0;</a>
+<span class="lineNum">      60 </span>                :            : 
+<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 : static int fru_insert_string(u8 *buf, char *str)</span>
+<span class="lineNum">      62 </span>                :            : {
+<span class="lineNum">      63 </span>                :<span class="lineNoCov">          0 :         int len = strlen(str);</span>
+<span class="lineNum">      64 </span>                :            : 
+<span class="lineNum">      65 </span>                :            :         /* The ASCII type/length format only supports a string length
+<span class="lineNum">      66 </span>                :            :          * between 2 and 31 characters. Zero characters is ok though
+<span class="lineNum">      67 </span>                :            :          * as it indicates no data present. */
+<span class="lineNum">      68 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (len == 1 || len &gt; MAX_STR_LEN)</span>
+<span class="lineNum">      69 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 :         buf[0] = 0xc0 | len;</span>
+<span class="lineNum">      72 </span>                :<span class="lineNoCov">          0 :         memcpy(&amp;buf[1], str, len);</span>
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 :         return len + 1;</span>
+<a name="75"><span class="lineNum">      75 </span>                :            : }</a>
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 : static u8 fru_checksum(u8 *buf, int len)</span>
+<span class="lineNum">      78 </span>                :            : {
+<span class="lineNum">      79 </span>                :            :         int i;
+<span class="lineNum">      80 </span>                :<span class="lineNoCov">          0 :         u8 checksum = 0;</span>
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for(i = 0; i &lt; len; i++) {</span>
+<span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 :                 checksum += buf[i];</span>
+<span class="lineNum">      84 </span>                :            :         }
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 :         checksum = ~checksum + 1;</span>
+<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 :         return checksum;</span>
+<span class="lineNum">      87 </span>                :            : }
+<span class="lineNum">      88 </span>                :            : 
+<span class="lineNum">      89 </span>                :            : #define FRU_INSERT_STRING(x, y)                                         \
+<span class="lineNum">      90 </span>                :            :         ({ rc = fru_insert_string(x, y);                                \
+<a name="91"><span class="lineNum">      91 </span>                :            :                 if (rc &lt; 1) return OPAL_PARAMETER; rc; })</a>
+<span class="lineNum">      92 </span>                :            : 
+<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 : static int fru_fill_product_info(u8 *buf, struct product_info *info, size_t size)</span>
+<span class="lineNum">      94 </span>                :            : {
+<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 :         size_t total_size = 11;</span>
+<span class="lineNum">      96 </span>                :<span class="lineNoCov">          0 :         int index = 0;</span>
+<span class="lineNum">      97 </span>                :            :         int rc;
+<span class="lineNum">      98 </span>                :            : 
+<span class="lineNum">      99 </span>                :<span class="lineNoCov">          0 :         total_size += strlen(info-&gt;manufacturer);</span>
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 :         total_size += strlen(info-&gt;product);</span>
+<span class="lineNum">     101 </span>                :<span class="lineNoCov">          0 :         total_size += strlen(info-&gt;part_no);</span>
+<span class="lineNum">     102 </span>                :<span class="lineNoCov">          0 :         total_size += strlen(info-&gt;version);</span>
+<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :         total_size += strlen(info-&gt;serial_no);</span>
+<span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 :         total_size += strlen(info-&gt;asset_tag);</span>
+<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 :         total_size += (8 - (total_size % 8)) % 8;</span>
+<span class="lineNum">     106 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (total_size &gt; size)</span>
+<span class="lineNum">     107 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     108 </span>                :            : 
+<span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 :         buf[index++] = 0x1;             /* Version */</span>
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :         buf[index++] = total_size / 8;  /* Size */</span>
+<span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 :         buf[index++] = 0;               /* Language code (English) */</span>
+<span class="lineNum">     112 </span>                :            : 
+<span class="lineNum">     113 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         index += FRU_INSERT_STRING(&amp;buf[index], info-&gt;manufacturer);</span>
+<span class="lineNum">     114 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         index += FRU_INSERT_STRING(&amp;buf[index], info-&gt;product);</span>
+<span class="lineNum">     115 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         index += FRU_INSERT_STRING(&amp;buf[index], info-&gt;part_no);</span>
+<span class="lineNum">     116 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         index += FRU_INSERT_STRING(&amp;buf[index], info-&gt;version);</span>
+<span class="lineNum">     117 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         index += FRU_INSERT_STRING(&amp;buf[index], info-&gt;serial_no);</span>
+<span class="lineNum">     118 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         index += FRU_INSERT_STRING(&amp;buf[index], info-&gt;asset_tag);</span>
+<span class="lineNum">     119 </span>                :            : 
+<span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 :         buf[index++] = 0xc1;            /* End of data marker */</span>
+<span class="lineNum">     121 </span>                :<span class="lineNoCov">          0 :         memset(&amp;buf[index], 0, total_size - index - 1);</span>
+<span class="lineNum">     122 </span>                :<span class="lineNoCov">          0 :         index += total_size - index - 1;</span>
+<span class="lineNum">     123 </span>                :<span class="lineNoCov">          0 :         buf[index] = fru_checksum(buf, index);</span>
+<span class="lineNum">     124 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(index == total_size - 1);</span>
+<span class="lineNum">     125 </span>                :            : 
+<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 :         return total_size;</span>
+<a name="127"><span class="lineNum">     127 </span>                :            : }</a>
+<span class="lineNum">     128 </span>                :            : 
+<span class="lineNum">     129 </span>                :<span class="lineNoCov">          0 : static int fru_add(u8 *buf, int size)</span>
+<span class="lineNum">     130 </span>                :            : {
+<span class="lineNum">     131 </span>                :            :         int len;
+<span class="lineNum">     132 </span>                :            :         char short_version[MAX_STR_LEN + 1];
+<span class="lineNum">     133 </span>                :            :         struct common_header common_hdr;
+<span class="lineNum">     134 </span>                :<span class="lineNoCov">          0 :         struct product_info info = {</span>
+<span class="lineNum">     135 </span>                :            :                 .manufacturer = (char *) &quot;IBM&quot;,
+<span class="lineNum">     136 </span>                :            :                 .product = (char *) &quot;skiboot&quot;,
+<span class="lineNum">     137 </span>                :            :                 .part_no = (char *) &quot;&quot;,
+<span class="lineNum">     138 </span>                :            :                 .serial_no = (char *) &quot;&quot;,
+<span class="lineNum">     139 </span>                :            :                 .asset_tag = (char *) &quot;&quot;,
+<span class="lineNum">     140 </span>                :            :         };
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (size &lt; sizeof(common_hdr))</span>
+<span class="lineNum">     143 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     144 </span>                :            : 
+<span class="lineNum">     145 </span>                :            :         /* We currently only support adding the version number at the
+<span class="lineNum">     146 </span>                :            :          * product information offset. We choose an offset of 64 bytes
+<span class="lineNum">     147 </span>                :            :          * because that's what the standard recommends. */
+<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 :         common_hdr.version = 1;</span>
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :         common_hdr.internal_offset = 0;</span>
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :         common_hdr.chassis_offset = 0;</span>
+<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :         common_hdr.board_offset = 0;</span>
+<span class="lineNum">     152 </span>                :<span class="lineNoCov">          0 :         common_hdr.product_offset = 64/8;</span>
+<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 :         common_hdr.multirecord_offset = 0;</span>
+<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 :         common_hdr.pad = 0;</span>
+<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :         common_hdr.checksum = fru_checksum((u8 *) &amp;common_hdr, sizeof(common_hdr) - 1);</span>
+<span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 :         memcpy(buf, &amp;common_hdr, sizeof(common_hdr));</span>
+<span class="lineNum">     157 </span>                :            : 
+<span class="lineNum">     158 </span>                :<span class="lineNoCov">          0 :         info.version = short_version;</span>
+<span class="lineNum">     159 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!strncmp(version, &quot;skiboot-&quot;, 8))</span>
+<span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 :                 strncpy(info.version, &amp;version[8], MAX_STR_LEN + 1);</span>
+<span class="lineNum">     161 </span>                :            :         else
+<span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :                 strncpy(info.version, version, MAX_STR_LEN + 1);</span>
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (info.version[MAX_STR_LEN] != '\0')</span>
+<span class="lineNum">     165 </span>                :<span class="lineNoCov">          0 :                 info.version[MAX_STR_LEN - 1] = '+';</span>
+<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :         info.version[MAX_STR_LEN] = '\0';</span>
+<span class="lineNum">     167 </span>                :            : 
+<span class="lineNum">     168 </span>                :<span class="lineNoCov">          0 :         len = fru_fill_product_info(&amp;buf[64], &amp;info, size - 64);</span>
+<span class="lineNum">     169 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (len &lt; 0)</span>
+<span class="lineNum">     170 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     171 </span>                :            : 
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :         return len + 64;</span>
+<a name="173"><span class="lineNum">     173 </span>                :            : }</a>
+<span class="lineNum">     174 </span>                :            : 
+<span class="lineNum">     175 </span>                :<span class="lineNoCov">          0 : static void fru_write_complete(struct ipmi_msg *msg)</span>
+<span class="lineNum">     176 </span>                :            : {
+<span class="lineNum">     177 </span>                :<span class="lineNoCov">          0 :         u8 write_count = msg-&gt;data[0];</span>
+<span class="lineNum">     178 </span>                :            :         u16 offset;
+<span class="lineNum">     179 </span>                :            : 
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :         msg-&gt;data[WRITE_INDEX] += write_count;</span>
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :         msg-&gt;data[REMAINING] -= write_count;</span>
+<span class="lineNum">     182 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (msg-&gt;data[REMAINING] == 0)</span>
+<span class="lineNum">     183 </span>                :            :                 goto out;
+<span class="lineNum">     184 </span>                :            : 
+<span class="lineNum">     185 </span>                :<span class="lineNoCov">          0 :         offset = msg-&gt;data[WRITE_INDEX];</span>
+<span class="lineNum">     186 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         ipmi_init_msg(msg, IPMI_DEFAULT_INTERFACE, IPMI_WRITE_FRU,</span>
+<span class="lineNum">     187 </span>                :            :                       fru_write_complete, NULL,
+<span class="lineNum">     188 </span>                :<span class="lineNoCov">          0 :                       MIN(msg-&gt;data[REMAINING] + 3, IPMI_MAX_REQ_SIZE), 2);</span>
+<span class="lineNum">     189 </span>                :            : 
+<span class="lineNum">     190 </span>                :<span class="lineNoCov">          0 :         memmove(&amp;msg-&gt;data[3], &amp;msg-&gt;data[offset + 3], msg-&gt;req_size - 3);</span>
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>                :<span class="lineNoCov">          0 :         msg-&gt;data[0] = fru_dev_id;                   /* FRU Device ID */</span>
+<span class="lineNum">     193 </span>                :<span class="lineNoCov">          0 :         msg-&gt;data[1] = offset &amp; 0xff;            /* Offset LSB */</span>
+<span class="lineNum">     194 </span>                :<span class="lineNoCov">          0 :         msg-&gt;data[2] = (offset &gt;&gt; 8) &amp; 0xff;       /* Offset MSB */</span>
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>                :<span class="lineNoCov">          0 :         ipmi_queue_msg(msg);</span>
+<span class="lineNum">     197 </span>                :            : 
+<span class="lineNum">     198 </span>                :<span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     199 </span>                :            : 
+<span class="lineNum">     200 </span>                :            : out:
+<span class="lineNum">     201 </span>                :<span class="lineNoCov">          0 :         ipmi_free_msg(msg);</span>
+<a name="202"><span class="lineNum">     202 </span>                :            : }</a>
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 : static int fru_write(void)</span>
+<span class="lineNum">     205 </span>                :            : {
+<span class="lineNum">     206 </span>                :            :         struct ipmi_msg *msg;
+<span class="lineNum">     207 </span>                :            :         int len;
+<span class="lineNum">     208 </span>                :            : 
+<span class="lineNum">     209 </span>                :            :         /* We allocate FRU_DATA_SIZE + 5 bytes for the message:
+<span class="lineNum">     210 </span>                :            :          * - 3 bytes for the the write FRU command header
+<span class="lineNum">     211 </span>                :            :          * - FRU_DATA_SIZE bytes for FRU data
+<span class="lineNum">     212 </span>                :            :          * - 2 bytes for offset &amp; bytes remaining count
+<span class="lineNum">     213 </span>                :            :          */
+<span class="lineNum">     214 </span>                :<span class="lineNoCov">          0 :         msg = ipmi_mkmsg(IPMI_DEFAULT_INTERFACE, IPMI_WRITE_FRU,</span>
+<span class="lineNum">     215 </span>                :            :                          fru_write_complete, NULL, NULL, FRU_DATA_SIZE + 5, 2);
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :         msg-&gt;data[0] = fru_dev_id;   /* FRU Device ID */</span>
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :         msg-&gt;data[1] = 0x0;          /* Offset LSB (we always write a new common header) */</span>
+<span class="lineNum">     219 </span>                :<span class="lineNoCov">          0 :         msg-&gt;data[2] = 0x0;          /* Offset MSB */</span>
+<span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 :         len = fru_add(&amp;msg-&gt;data[3], FRU_DATA_SIZE);</span>
+<span class="lineNum">     221 </span>                :            : 
+<span class="lineNum">     222 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (len &lt; 0)</span>
+<span class="lineNum">     223 </span>                :            :                 return len;
+<span class="lineNum">     224 </span>                :            : 
+<span class="lineNum">     225 </span>                :            :         /* Three bytes for the actual FRU Data Command */
+<span class="lineNum">     226 </span>                :<span class="lineNoCov">          0 :         msg-&gt;data[WRITE_INDEX] = 0;</span>
+<span class="lineNum">     227 </span>                :<span class="lineNoCov">          0 :         msg-&gt;data[REMAINING] = len;</span>
+<span class="lineNum">     228 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         msg-&gt;req_size = min(len + 3, IPMI_MAX_REQ_SIZE);</span>
+<span class="lineNum">     229 </span>                :<span class="lineNoCov">          0 :         return ipmi_queue_msg(msg);</span>
+<a name="230"><span class="lineNum">     230 </span>                :            : }</a>
+<span class="lineNum">     231 </span>                :            : 
+<span class="lineNum">     232 </span>                :<span class="lineNoCov">          0 : void ipmi_fru_init(u8 dev_id)</span>
+<span class="lineNum">     233 </span>                :            : {
+<span class="lineNum">     234 </span>                :<span class="lineNoCov">          0 :         fru_dev_id = dev_id;</span>
+<span class="lineNum">     235 </span>                :<span class="lineNoCov">          0 :         fru_write();</span>
+<span class="lineNum">     236 </span>                :            : 
+<span class="lineNum">     237 </span>                :<span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     238 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

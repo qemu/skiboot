@@ -1,0 +1,476 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - core/opal.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">core</a> - opal.c<span style="font-size: 80%;"> (source / <a href="opal.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">91</td>
+            <td class="headerCovTableEntry">148</td>
+            <td class="headerCovTableEntryLo">61.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryLo">55.6 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">52</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;opal.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;opal-api.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;stack.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;fsp.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;cpu.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;interrupts.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;op-panel.h&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;device.h&gt;
+<span class="lineNum">      27 </span>                :            : #include &lt;console.h&gt;
+<span class="lineNum">      28 </span>                :            : #include &lt;trace.h&gt;
+<span class="lineNum">      29 </span>                :            : #include &lt;timebase.h&gt;
+<span class="lineNum">      30 </span>                :            : #include &lt;affinity.h&gt;
+<span class="lineNum">      31 </span>                :            : #include &lt;opal-msg.h&gt;
+<span class="lineNum">      32 </span>                :            : #include &lt;timer.h&gt;
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            : /* Pending events to signal via opal_poll_events */
+<span class="lineNum">      35 </span>                :            : uint64_t opal_pending_events;
+<span class="lineNum">      36 </span>                :            : 
+<span class="lineNum">      37 </span>                :            : /* OPAL dispatch table defined in head.S */
+<span class="lineNum">      38 </span>                :            : extern uint64_t opal_branch_table[];
+<span class="lineNum">      39 </span>                :            : 
+<span class="lineNum">      40 </span>                :            : /* Number of args expected for each call. */
+<span class="lineNum">      41 </span>                :            : static u8 opal_num_args[OPAL_LAST+1];
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :            : /* OPAL anchor node */
+<span class="lineNum">      44 </span>                :            : struct dt_node *opal_node;
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            : /* mask of dynamic vs fixed events; opal_allocate_dynamic_event will
+<span class="lineNum">      47 </span>                :            :  * only allocate from this range */
+<span class="lineNum">      48 </span>                :            : static const uint64_t opal_dynamic_events_mask = 0xffffffff00000000ul;
+<span class="lineNum">      49 </span>                :            : static uint64_t opal_dynamic_events;
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>                :            : extern uint32_t attn_trigger;
+<a name="52"><span class="lineNum">      52 </span>                :            : extern uint32_t hir_trigger;</a>
+<span class="lineNum">      53 </span>                :            : 
+<span class="lineNum">      54 </span>                :<span class="lineCov">          1 : void opal_table_init(void)</span>
+<span class="lineNum">      55 </span>                :            : {
+<span class="lineNum">      56 </span>                :<span class="lineCov">          1 :         struct opal_table_entry *s = __opal_table_start;</span>
+<span class="lineNum">      57 </span>                :<span class="lineCov">          1 :         struct opal_table_entry *e = __opal_table_end;</span>
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :<span class="lineCov">          1 :         printf(&quot;OPAL table: %p .. %p, branch table: %p\n&quot;,</span>
+<span class="lineNum">      60 </span>                :            :                s, e, opal_branch_table);
+<span class="lineNum">      61 </span>        [<span class="branchCov" title="Branch 0 was taken 69 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         70 :         while(s &lt; e) {</span>
+<span class="lineNum">      62 </span>                :<span class="lineCov">         69 :                 uint64_t *func = s-&gt;func;</span>
+<span class="lineNum">      63 </span>                :<span class="lineCov">         69 :                 opal_branch_table[s-&gt;token] = *func;</span>
+<span class="lineNum">      64 </span>                :<span class="lineCov">         69 :                 opal_num_args[s-&gt;token] = s-&gt;nargs;</span>
+<span class="lineNum">      65 </span>                :<span class="lineCov">         69 :                 s++;</span>
+<span class="lineNum">      66 </span>                :            :         }
+<span class="lineNum">      67 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :            : /* Called from head.S, thus no prototype */
+<a name="70"><span class="lineNum">      70 </span>                :            : long opal_bad_token(uint64_t token);</a>
+<span class="lineNum">      71 </span>                :            : 
+<span class="lineNum">      72 </span>                :<span class="lineNoCov">          0 : long opal_bad_token(uint64_t token)</span>
+<span class="lineNum">      73 </span>                :            : {
+<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 :         prerror(&quot;OPAL: Called with bad token %lld !\n&quot;, token);</span>
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :<span class="lineNoCov">          0 :         return OPAL_PARAMETER;</span>
+<span class="lineNum">      77 </span>                :            : }
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>                :            : /* Called from head.S, thus no prototype */
+<span class="lineNum">      80 </span>                :            : void opal_trace_entry(struct stack_frame *eframe);
+<a name="81"><span class="lineNum">      81 </span>                :            : </a>
+<span class="lineNum">      82 </span>                :            : /* FIXME: Do this in asm */ 
+<span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 : void opal_trace_entry(struct stack_frame *eframe)</span>
+<span class="lineNum">      84 </span>                :            : {
+<span class="lineNum">      85 </span>                :            :         union trace t;
+<span class="lineNum">      86 </span>                :            :         unsigned nargs;
+<span class="lineNum">      87 </span>                :            : 
+<span class="lineNum">      88 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (this_cpu()-&gt;pir != mfspr(SPR_PIR)) {</span>
+<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;CPU MISMATCH ! PIR=%04lx cpu @%p -&gt; pir=%04x\n&quot;,</span>
+<span class="lineNum">      90 </span>                :            :                        mfspr(SPR_PIR), this_cpu(), this_cpu()-&gt;pir);
+<span class="lineNum">      91 </span>                :<span class="lineNoCov">          0 :                 abort();</span>
+<span class="lineNum">      92 </span>                :            :         }
+<span class="lineNum">      93 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (eframe-&gt;gpr[0] &gt; OPAL_LAST)</span>
+<span class="lineNum">      94 </span>                :            :                 nargs = 0;
+<span class="lineNum">      95 </span>                :            :         else
+<span class="lineNum">      96 </span>                :<span class="lineNoCov">          0 :                 nargs = opal_num_args[eframe-&gt;gpr[0]];</span>
+<span class="lineNum">      97 </span>                :            : 
+<span class="lineNum">      98 </span>                :<span class="lineNoCov">          0 :         t.opal.token = eframe-&gt;gpr[0];</span>
+<span class="lineNum">      99 </span>                :<span class="lineNoCov">          0 :         t.opal.lr = eframe-&gt;lr;</span>
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 :         t.opal.sp = eframe-&gt;gpr[1];</span>
+<span class="lineNum">     101 </span>                :<span class="lineNoCov">          0 :         memcpy(t.opal.r3_to_11, &amp;eframe-&gt;gpr[3], nargs*sizeof(u64));</span>
+<span class="lineNum">     102 </span>                :            : 
+<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :         trace_add(&amp;t, TRACE_OPAL, offsetof(struct trace_opal, r3_to_11[nargs]));</span>
+<a name="104"><span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :<span class="lineCov">         28 : void __opal_register(uint64_t token, void *func, unsigned int nargs)</span>
+<span class="lineNum">     107 </span>                :            : {
+<span class="lineNum">     108 </span>                :<span class="lineCov">         28 :         uint64_t *opd = func;</span>
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 28 times"> + </span>]:<span class="lineCov">         28 :         assert(token &lt;= OPAL_LAST);</span>
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :<span class="lineCov">         28 :         opal_branch_table[token] = *opd;</span>
+<span class="lineNum">     113 </span>                :<span class="lineCov">         28 :         opal_num_args[token] = nargs;</span>
+<a name="114"><span class="lineNum">     114 </span>                :<span class="lineCov">         28 : }</span></a>
+<span class="lineNum">     115 </span>                :            : 
+<span class="lineNum">     116 </span>                :<span class="lineCov">          1 : static void add_opal_firmware_node(void)</span>
+<span class="lineNum">     117 </span>                :            : {
+<span class="lineNum">     118 </span>                :<span class="lineCov">          1 :         struct dt_node *firmware = dt_new(opal_node, &quot;firmware&quot;);</span>
+<span class="lineNum">     119 </span>                :<span class="lineCov">          1 :         uint64_t sym_start = (uint64_t)__sym_map_start;</span>
+<span class="lineNum">     120 </span>                :<span class="lineCov">          1 :         uint64_t sym_size = (uint64_t)__sym_map_end - sym_start;</span>
+<span class="lineNum">     121 </span>                :<span class="lineCov">          1 :         dt_add_property_string(firmware, &quot;compatible&quot;, &quot;ibm,opal-firmware&quot;);</span>
+<span class="lineNum">     122 </span>                :<span class="lineCov">          1 :         dt_add_property_string(firmware, &quot;name&quot;, &quot;firmware&quot;);</span>
+<span class="lineNum">     123 </span>                :<span class="lineCov">          1 :         dt_add_property_string(firmware, &quot;version&quot;, version);</span>
+<span class="lineNum">     124 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(firmware, &quot;symbol-map&quot;,</span>
+<span class="lineNum">     125 </span>                :            :                               hi32(sym_start), lo32(sym_start),
+<span class="lineNum">     126 </span>                :            :                               hi32(sym_size), lo32(sym_size));
+<a name="127"><span class="lineNum">     127 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     128 </span>                :            : 
+<span class="lineNum">     129 </span>                :<span class="lineCov">          1 : void add_opal_node(void)</span>
+<span class="lineNum">     130 </span>                :            : {
+<span class="lineNum">     131 </span>                :            :         uint64_t base, entry, size;
+<span class="lineNum">     132 </span>                :            :         extern uint32_t opal_entry;
+<span class="lineNum">     133 </span>                :            : 
+<span class="lineNum">     134 </span>                :            :         /* XXX TODO: Reorg this. We should create the base OPAL
+<span class="lineNum">     135 </span>                :            :          * node early on, and have the various sub modules populate
+<span class="lineNum">     136 </span>                :            :          * their own entries (console etc...)
+<span class="lineNum">     137 </span>                :            :          *
+<span class="lineNum">     138 </span>                :            :          * The logic of which console backend to use should be
+<span class="lineNum">     139 </span>                :            :          * extracted
+<span class="lineNum">     140 </span>                :            :          */
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :<span class="lineCov">          1 :         entry = (uint64_t)&amp;opal_entry;</span>
+<span class="lineNum">     143 </span>                :<span class="lineCov">          1 :         base = SKIBOOT_BASE;</span>
+<span class="lineNum">     144 </span>                :<span class="lineCov">          1 :         size = (CPU_STACKS_BASE +</span>
+<span class="lineNum">     145 </span>                :<span class="lineCov">          1 :                 (cpu_max_pir + 1) * STACK_SIZE) - SKIBOOT_BASE;</span>
+<span class="lineNum">     146 </span>                :            : 
+<span class="lineNum">     147 </span>                :<span class="lineCov">          1 :         opal_node = dt_new(dt_root, &quot;ibm,opal&quot;);</span>
+<span class="lineNum">     148 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(opal_node, &quot;#address-cells&quot;, 0);</span>
+<span class="lineNum">     149 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(opal_node, &quot;#size-cells&quot;, 0);</span>
+<span class="lineNum">     150 </span>                :<span class="lineCov">          1 :         dt_add_property_strings(opal_node, &quot;compatible&quot;, &quot;ibm,opal-v2&quot;,</span>
+<span class="lineNum">     151 </span>                :            :                                 &quot;ibm,opal-v3&quot;);
+<span class="lineNum">     152 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(opal_node, &quot;opal-msg-async-num&quot;, OPAL_MAX_ASYNC_COMP);</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(opal_node, &quot;opal-msg-size&quot;, sizeof(struct opal_msg));</span>
+<span class="lineNum">     154 </span>                :<span class="lineCov">          1 :         dt_add_property_u64(opal_node, &quot;opal-base-address&quot;, base);</span>
+<span class="lineNum">     155 </span>                :<span class="lineCov">          1 :         dt_add_property_u64(opal_node, &quot;opal-entry-address&quot;, entry);</span>
+<span class="lineNum">     156 </span>                :<span class="lineCov">          1 :         dt_add_property_u64(opal_node, &quot;opal-runtime-size&quot;, size);</span>
+<span class="lineNum">     157 </span>                :            : 
+<span class="lineNum">     158 </span>                :<span class="lineCov">          1 :         add_opal_firmware_node();</span>
+<span class="lineNum">     159 </span>                :<span class="lineCov">          1 :         add_associativity_ref_point();</span>
+<span class="lineNum">     160 </span>                :<span class="lineCov">          1 :         memcons_add_properties();</span>
+<span class="lineNum">     161 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">     162 </span>                :            : 
+<a name="163"><span class="lineNum">     163 </span>                :            : static struct lock evt_lock = LOCK_UNLOCKED;</a>
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :<span class="lineCov">        969 : void opal_update_pending_evt(uint64_t evt_mask, uint64_t evt_values)</span>
+<span class="lineNum">     166 </span>                :            : {
+<span class="lineNum">     167 </span>                :            :         uint64_t new_evts;
+<span class="lineNum">     168 </span>                :            : 
+<span class="lineNum">     169 </span>                :            :         /* XXX FIXME: Use atomics instead ??? Or caller locks (con_lock ?) */
+<span class="lineNum">     170 </span>                :<span class="lineCov">        969 :         lock(&amp;evt_lock);</span>
+<span class="lineNum">     171 </span>                :<span class="lineCov">        969 :         new_evts = (opal_pending_events &amp; ~evt_mask) | evt_values;</span>
+<span class="lineNum">     172 </span>        [<span class="branchCov" title="Branch 0 was taken 962 times"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">        969 :         if (opal_pending_events != new_evts) {</span>
+<span class="lineNum">     173 </span>                :            :                 uint64_t tok;
+<span class="lineNum">     174 </span>                :            : 
+<span class="lineNum">     175 </span>                :            : #ifdef OPAL_TRACE_EVT_CHG
+<span class="lineNum">     176 </span>                :            :                 printf(&quot;OPAL: Evt change: 0x%016llx -&gt; 0x%016llx\n&quot;,
+<span class="lineNum">     177 </span>                :            :                        opal_pending_events, new_evts);
+<span class="lineNum">     178 </span>                :            : #endif
+<span class="lineNum">     179 </span>                :            :                 /*
+<span class="lineNum">     180 </span>                :            :                  * If an event gets *set* while we are in a different call chain
+<span class="lineNum">     181 </span>                :            :                  * than opal_handle_interrupt() or opal_handle_hmi(), then we
+<span class="lineNum">     182 </span>                :            :                  * artificially generate an interrupt (OCC interrupt specifically)
+<span class="lineNum">     183 </span>                :            :                  * to ensure that Linux properly broadcast the event change internally
+<span class="lineNum">     184 </span>                :            :                  */
+<span class="lineNum">     185 </span>        [<span class="branchCov" title="Branch 0 was taken 481 times"> + </span><span class="branchCov" title="Branch 1 was taken 481 times"> + </span>]:<span class="lineCov">        962 :                 if ((new_evts &amp; ~opal_pending_events) != 0) {</span>
+<span class="lineNum">     186 </span>                :<span class="lineCov">        481 :                         tok = this_cpu()-&gt;current_token;</span>
+<span class="lineNum">     187 </span>[<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 476 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        481 :                         if (tok != OPAL_HANDLE_INTERRUPT &amp;&amp; tok != OPAL_HANDLE_HMI)</span>
+<span class="lineNum">     188 </span>                :<span class="lineCov">          5 :                                 occ_send_dummy_interrupt();</span>
+<span class="lineNum">     189 </span>                :            :                 }
+<span class="lineNum">     190 </span>                :<span class="lineCov">        962 :                 opal_pending_events = new_evts;</span>
+<span class="lineNum">     191 </span>                :            :         }
+<span class="lineNum">     192 </span>                :<span class="lineCov">        969 :         unlock(&amp;evt_lock);</span>
+<a name="193"><span class="lineNum">     193 </span>                :<span class="lineCov">        969 : }</span></a>
+<span class="lineNum">     194 </span>                :            : 
+<span class="lineNum">     195 </span>                :<span class="lineNoCov">          0 : uint64_t opal_dynamic_event_alloc(void)</span>
+<span class="lineNum">     196 </span>                :            : {
+<span class="lineNum">     197 </span>                :            :         uint64_t new_event;
+<span class="lineNum">     198 </span>                :            :         int n;
+<span class="lineNum">     199 </span>                :            : 
+<span class="lineNum">     200 </span>                :<span class="lineNoCov">          0 :         lock(&amp;evt_lock);</span>
+<span class="lineNum">     201 </span>                :            : 
+<span class="lineNum">     202 </span>                :            :         /* Create the event mask. This set-bit will be within the event mask
+<span class="lineNum">     203 </span>                :            :          * iff there are free events, or out of the mask if there are no free
+<span class="lineNum">     204 </span>                :            :          * events. If opal_dynamic_events is all ones (ie, all events are
+<span class="lineNum">     205 </span>                :            :          * dynamic, and allocated), then ilog2 will return -1, and we'll have a
+<span class="lineNum">     206 </span>                :            :          * zero mask.
+<span class="lineNum">     207 </span>                :            :          */
+<span class="lineNum">     208 </span>                :<span class="lineNoCov">          0 :         n = ilog2(~opal_dynamic_events);</span>
+<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 :         new_event = 1ull &lt;&lt; n;</span>
+<span class="lineNum">     210 </span>                :            : 
+<span class="lineNum">     211 </span>                :            :         /* Ensure we're still within the allocatable dynamic events range */
+<span class="lineNum">     212 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (new_event &amp; opal_dynamic_events_mask)</span>
+<span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 :                 opal_dynamic_events |= new_event;</span>
+<span class="lineNum">     214 </span>                :            :         else
+<span class="lineNum">     215 </span>                :            :                 new_event = 0;
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;evt_lock);</span>
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :         return new_event;</span>
+<a name="219"><span class="lineNum">     219 </span>                :            : }</a>
+<span class="lineNum">     220 </span>                :            : 
+<span class="lineNum">     221 </span>                :<span class="lineNoCov">          0 : void opal_dynamic_event_free(uint64_t event)</span>
+<span class="lineNum">     222 </span>                :            : {
+<span class="lineNum">     223 </span>                :<span class="lineNoCov">          0 :         lock(&amp;evt_lock);</span>
+<span class="lineNum">     224 </span>                :<span class="lineNoCov">          0 :         opal_dynamic_events &amp;= ~event;</span>
+<span class="lineNum">     225 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;evt_lock);</span>
+<a name="226"><span class="lineNum">     226 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     227 </span>                :            : 
+<span class="lineNum">     228 </span>                :<span class="lineNoCov">          0 : static uint64_t opal_test_func(uint64_t arg)</span>
+<span class="lineNum">     229 </span>                :            : {
+<span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 :         printf(&quot;OPAL: Test function called with arg 0x%llx\n&quot;, arg);</span>
+<span class="lineNum">     231 </span>                :            : 
+<span class="lineNum">     232 </span>                :<span class="lineNoCov">          0 :         return 0xfeedf00d;</span>
+<span class="lineNum">     233 </span>                :            : }
+<span class="lineNum">     234 </span>                :            : opal_call(OPAL_TEST, opal_test_func, 1);
+<span class="lineNum">     235 </span>                :            : 
+<span class="lineNum">     236 </span>                :            : struct opal_poll_entry {
+<span class="lineNum">     237 </span>                :            :         struct list_node        link;
+<span class="lineNum">     238 </span>                :            :         void                    (*poller)(void *data);
+<span class="lineNum">     239 </span>                :            :         void                    *data;
+<span class="lineNum">     240 </span>                :            : };
+<span class="lineNum">     241 </span>                :            : 
+<span class="lineNum">     242 </span>                :            : static struct list_head opal_pollers = LIST_HEAD_INIT(opal_pollers);
+<a name="243"><span class="lineNum">     243 </span>                :            : static struct lock opal_poll_lock = LOCK_UNLOCKED;</a>
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>                :<span class="lineCov">          6 : void opal_add_poller(void (*poller)(void *data), void *data)</span>
+<span class="lineNum">     246 </span>                :            : {
+<span class="lineNum">     247 </span>                :            :         struct opal_poll_entry *ent;
+<span class="lineNum">     248 </span>                :            : 
+<span class="lineNum">     249 </span>                :<span class="lineCov">          6 :         ent = zalloc(sizeof(struct opal_poll_entry));</span>
+<span class="lineNum">     250 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         assert(ent);</span>
+<span class="lineNum">     251 </span>                :<span class="lineCov">          6 :         ent-&gt;poller = poller;</span>
+<span class="lineNum">     252 </span>                :<span class="lineCov">          6 :         ent-&gt;data = data;</span>
+<span class="lineNum">     253 </span>                :<span class="lineCov">          6 :         lock(&amp;opal_poll_lock);</span>
+<span class="lineNum">     254 </span>                :<span class="lineCov">          6 :         list_add_tail(&amp;opal_pollers, &amp;ent-&gt;link);</span>
+<span class="lineNum">     255 </span>                :<span class="lineCov">          6 :         unlock(&amp;opal_poll_lock);</span>
+<a name="256"><span class="lineNum">     256 </span>                :<span class="lineCov">          6 : }</span></a>
+<span class="lineNum">     257 </span>                :            : 
+<span class="lineNum">     258 </span>                :<span class="lineNoCov">          0 : void opal_del_poller(void (*poller)(void *data))</span>
+<span class="lineNum">     259 </span>                :            : {
+<span class="lineNum">     260 </span>                :            :         struct opal_poll_entry *ent;
+<span class="lineNum">     261 </span>                :            : 
+<span class="lineNum">     262 </span>                :            :         /* XXX This is currently unused. To solve various &quot;interesting&quot;
+<span class="lineNum">     263 </span>                :            :          * locking issues, the pollers are run locklessly, so if we were
+<span class="lineNum">     264 </span>                :            :          * to free them, we would have to be careful, using something
+<span class="lineNum">     265 </span>                :            :          * akin to RCU to synchronize with other OPAL entries. For now
+<span class="lineNum">     266 </span>                :            :          * if anybody uses it, print a warning and leak the entry, don't
+<span class="lineNum">     267 </span>                :            :          * free it.
+<span class="lineNum">     268 </span>                :            :          */
+<span class="lineNum">     269 </span>                :<span class="lineNoCov">          0 :         prlog(PR_ALERT, &quot;WARNING: Unsupported opal_del_poller.&quot;</span>
+<span class="lineNum">     270 </span>                :            :               &quot; Interesting locking issues, don't call this.\n&quot;);
+<span class="lineNum">     271 </span>                :            : 
+<span class="lineNum">     272 </span>                :<span class="lineNoCov">          0 :         lock(&amp;opal_poll_lock);</span>
+<span class="lineNum">     273 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         list_for_each(&amp;opal_pollers, ent, link) {</span>
+<span class="lineNum">     274 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (ent-&gt;poller == poller) {</span>
+<span class="lineNum">     275 </span>                :<span class="lineNoCov">          0 :                         list_del(&amp;ent-&gt;link);</span>
+<span class="lineNum">     276 </span>                :            :                         /* free(ent); */
+<span class="lineNum">     277 </span>                :<span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     278 </span>                :            :                 }
+<span class="lineNum">     279 </span>                :            :         }
+<span class="lineNum">     280 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;opal_poll_lock);</span>
+<a name="281"><span class="lineNum">     281 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     282 </span>                :            : 
+<span class="lineNum">     283 </span>                :<span class="lineCov">     221253 : void opal_run_pollers(void)</span>
+<span class="lineNum">     284 </span>                :            : {
+<span class="lineNum">     285 </span>                :            :         struct opal_poll_entry *poll_ent;
+<span class="lineNum">     286 </span>                :            :         static int pollers_with_lock_warnings = 0;
+<span class="lineNum">     287 </span>                :            : 
+<span class="lineNum">     288 </span>[<span class="branchCov" title="Branch 0 was taken 58401 times"> + </span><span class="branchCov" title="Branch 1 was taken 162852 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 64 times"> + </span><span class="branchCov" title="Branch 3 was taken 58337 times"> + </span>]:<span class="lineCov">     221253 :         if (this_cpu()-&gt;lock_depth &amp;&amp; pollers_with_lock_warnings &lt; 64) {</span>
+<span class="lineNum">     289 </span>                :<span class="lineCov">         64 :                 prlog(PR_ERR, &quot;Running pollers with lock held !\n&quot;);</span>
+<span class="lineNum">     290 </span>                :<span class="lineCov">         64 :                 backtrace();</span>
+<span class="lineNum">     291 </span>                :<span class="lineCov">         64 :                 pollers_with_lock_warnings++;</span>
+<span class="lineNum">     292 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 63 times"> + </span>]:<span class="lineCov">         64 :                 if (pollers_with_lock_warnings == 64)</span>
+<span class="lineNum">     293 </span>                :<span class="lineCov">          1 :                         prlog(PR_ERR, &quot;opal_run_pollers with lock run 64 &quot;</span>
+<span class="lineNum">     294 </span>                :            :                               &quot;times, disabling warning.\n&quot;);
+<span class="lineNum">     295 </span>                :            :         }
+<span class="lineNum">     296 </span>                :            : 
+<span class="lineNum">     297 </span>                :            :         /* We run the timers first */
+<span class="lineNum">     298 </span>                :<span class="lineCov">     221253 :         check_timers(false);</span>
+<span class="lineNum">     299 </span>                :            : 
+<span class="lineNum">     300 </span>                :            :         /* The pollers are run lokelessly, see comment in opal_del_poller */
+<span class="lineNum">     301 </span>        [<span class="branchCov" title="Branch 0 was taken 1146765 times"> + </span><span class="branchCov" title="Branch 1 was taken 221257 times"> + </span>]:<span class="lineCov">    1368022 :         list_for_each(&amp;opal_pollers, poll_ent, link)</span>
+<span class="lineNum">     302 </span>                :<span class="lineCov">    1146765 :                 poll_ent-&gt;poller(poll_ent-&gt;data);</span>
+<span class="lineNum">     303 </span>                :            : 
+<span class="lineNum">     304 </span>                :            :         /* On debug builds, print max stack usage */
+<span class="lineNum">     305 </span>                :            :         check_stacks();
+<a name="306"><span class="lineNum">     306 </span>                :<span class="lineCov">     221257 : }</span></a>
+<span class="lineNum">     307 </span>                :            : 
+<span class="lineNum">     308 </span>                :<span class="lineCov">      57184 : static int64_t opal_poll_events(uint64_t *outstanding_event_mask)</span>
+<span class="lineNum">     309 </span>                :            : {
+<span class="lineNum">     310 </span>                :            :         /* Check if we need to trigger an attn for test use */
+<span class="lineNum">     311 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 57184 times"> + </span>]:<span class="lineCov">      57184 :         if (attn_trigger == 0xdeadbeef) {</span>
+<span class="lineNum">     312 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_EMERG, &quot;Triggering attn\n&quot;);</span>
+<span class="lineNum">     313 </span>                :<span class="lineNoCov">          0 :                 assert(false);</span>
+<span class="lineNum">     314 </span>                :            :         }
+<span class="lineNum">     315 </span>                :            : 
+<span class="lineNum">     316 </span>                :            :         /* Test the host initiated reset */
+<span class="lineNum">     317 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 57184 times"> + </span>]:<span class="lineCov">      57184 :         if (hir_trigger == 0xdeadbeef) {</span>
+<span class="lineNum">     318 </span>                :<span class="lineNoCov">          0 :                 fsp_trigger_reset();</span>
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :                 hir_trigger = 0;</span>
+<span class="lineNum">     320 </span>                :            :         }
+<span class="lineNum">     321 </span>                :            : 
+<span class="lineNum">     322 </span>                :<span class="lineCov">      57184 :         opal_run_pollers();</span>
+<span class="lineNum">     323 </span>                :            : 
+<span class="lineNum">     324 </span>        [<span class="branchCov" title="Branch 0 was taken 56982 times"> + </span><span class="branchCov" title="Branch 1 was taken 204 times"> + </span>]:<span class="lineCov">      57186 :         if (outstanding_event_mask)</span>
+<span class="lineNum">     325 </span>                :<span class="lineCov">      56982 :                 *outstanding_event_mask = opal_pending_events;</span>
+<span class="lineNum">     326 </span>                :            : 
+<span class="lineNum">     327 </span>                :<span class="lineCov">      57186 :         return OPAL_SUCCESS;</span>
+<span class="lineNum">     328 </span>                :            : }
+<a name="329"><span class="lineNum">     329 </span>                :            : opal_call(OPAL_POLL_EVENTS, opal_poll_events, 1);</a>
+<span class="lineNum">     330 </span>                :            : 
+<span class="lineNum">     331 </span>                :<span class="lineCov">          1 : static int64_t opal_check_token(uint64_t token)</span>
+<span class="lineNum">     332 </span>                :            : {
+<span class="lineNum">     333 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (token &gt; OPAL_LAST)</span>
+<span class="lineNum">     334 </span>                :            :                 return OPAL_TOKEN_ABSENT;
+<span class="lineNum">     335 </span>                :            : 
+<span class="lineNum">     336 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (opal_branch_table[token])</span>
+<span class="lineNum">     337 </span>                :            :                 return OPAL_TOKEN_PRESENT;
+<span class="lineNum">     338 </span>                :            : 
+<span class="lineNum">     339 </span>                :<span class="lineNoCov">          0 :         return OPAL_TOKEN_ABSENT;</span>
+<span class="lineNum">     340 </span>                :            : }
+<span class="lineNum">     341 </span>                :            : opal_call(OPAL_CHECK_TOKEN, opal_check_token, 1);
+<span class="lineNum">     342 </span>                :            : 
+<span class="lineNum">     343 </span>                :            : struct opal_sync_entry {
+<span class="lineNum">     344 </span>                :            :         struct list_node        link;
+<span class="lineNum">     345 </span>                :            :         bool                    (*notify)(void *data);
+<span class="lineNum">     346 </span>                :            :         void                    *data;
+<span class="lineNum">     347 </span>                :            : };
+<span class="lineNum">     348 </span>                :            : 
+<a name="349"><span class="lineNum">     349 </span>                :            : static struct list_head opal_syncers = LIST_HEAD_INIT(opal_syncers);</a>
+<span class="lineNum">     350 </span>                :            : 
+<span class="lineNum">     351 </span>                :<span class="lineCov">          1 : void opal_add_host_sync_notifier(bool (*notify)(void *data), void *data)</span>
+<span class="lineNum">     352 </span>                :            : {
+<span class="lineNum">     353 </span>                :            :         struct opal_sync_entry *ent;
+<span class="lineNum">     354 </span>                :            : 
+<span class="lineNum">     355 </span>                :<span class="lineCov">          1 :         ent = zalloc(sizeof(struct opal_sync_entry));</span>
+<span class="lineNum">     356 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         assert(ent);</span>
+<span class="lineNum">     357 </span>                :<span class="lineCov">          1 :         ent-&gt;notify = notify;</span>
+<span class="lineNum">     358 </span>                :<span class="lineCov">          1 :         ent-&gt;data = data;</span>
+<span class="lineNum">     359 </span>                :<span class="lineCov">          1 :         list_add_tail(&amp;opal_syncers, &amp;ent-&gt;link);</span>
+<a name="360"><span class="lineNum">     360 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     361 </span>                :            : 
+<span class="lineNum">     362 </span>                :<span class="lineNoCov">          0 : void opal_del_host_sync_notifier(bool (*notify)(void *data))</span>
+<span class="lineNum">     363 </span>                :            : {
+<span class="lineNum">     364 </span>                :            :         struct opal_sync_entry *ent;
+<span class="lineNum">     365 </span>                :            : 
+<span class="lineNum">     366 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         list_for_each(&amp;opal_syncers, ent, link) {</span>
+<span class="lineNum">     367 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (ent-&gt;notify == notify) {</span>
+<span class="lineNum">     368 </span>                :<span class="lineNoCov">          0 :                         list_del(&amp;ent-&gt;link);</span>
+<span class="lineNum">     369 </span>                :<span class="lineNoCov">          0 :                         free(ent);</span>
+<span class="lineNum">     370 </span>                :<span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     371 </span>                :            :                 }
+<span class="lineNum">     372 </span>                :            :         }
+<span class="lineNum">     373 </span>                :            : }
+<span class="lineNum">     374 </span>                :            : 
+<span class="lineNum">     375 </span>                :            : /*
+<a name="376"><span class="lineNum">     376 </span>                :            :  * OPAL call to handle host kexec'ing scenario</a>
+<span class="lineNum">     377 </span>                :            :  */
+<span class="lineNum">     378 </span>                :<span class="lineNoCov">          0 : static int64_t opal_sync_host_reboot(void)</span>
+<span class="lineNum">     379 </span>                :            : {
+<span class="lineNum">     380 </span>                :            :         struct opal_sync_entry *ent;
+<span class="lineNum">     381 </span>                :<span class="lineNoCov">          0 :         bool ret = true;</span>
+<span class="lineNum">     382 </span>                :            : 
+<span class="lineNum">     383 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         list_for_each(&amp;opal_syncers, ent, link)</span>
+<span class="lineNum">     384 </span>                :<span class="lineNoCov">          0 :                 ret &amp;= ent-&gt;notify(ent-&gt;data);</span>
+<span class="lineNum">     385 </span>                :            : 
+<span class="lineNum">     386 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ret)</span>
+<span class="lineNum">     387 </span>                :            :                 return OPAL_SUCCESS;
+<span class="lineNum">     388 </span>                :            :         else
+<span class="lineNum">     389 </span>                :<span class="lineNoCov">          0 :                 return OPAL_BUSY_EVENT;</span>
+<span class="lineNum">     390 </span>                :            : }
+<span class="lineNum">     391 </span>                :            : opal_call(OPAL_SYNC_HOST_REBOOT, opal_sync_host_reboot, 0);
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

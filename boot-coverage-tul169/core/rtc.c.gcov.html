@@ -1,0 +1,157 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - core/rtc.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">core</a> - rtc.c<span style="font-size: 80%;"> (source / <a href="rtc.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntryHi">90.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : 
+<span class="lineNum">      18 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;rtc.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;timebase.h&gt;
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : static struct lock rtc_tod_lock = LOCK_UNLOCKED;
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :            : static struct {
+<span class="lineNum">      26 </span>                :            :         struct tm       tm;
+<span class="lineNum">      27 </span>                :            :         unsigned long   tb;
+<span class="lineNum">      28 </span>                :            :         bool            valid;
+<a name="29"><span class="lineNum">      29 </span>                :            : } rtc_tod_cache;</a>
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :<span class="lineCov">          2 : void rtc_cache_update(struct tm *tm)</span>
+<span class="lineNum">      32 </span>                :            : {
+<span class="lineNum">      33 </span>                :<span class="lineCov">          2 :         lock(&amp;rtc_tod_lock);</span>
+<span class="lineNum">      34 </span>                :<span class="lineCov">          2 :         rtc_tod_cache.tb = mftb();</span>
+<span class="lineNum">      35 </span>                :<span class="lineCov">          2 :         rtc_tod_cache.tm = *tm;</span>
+<span class="lineNum">      36 </span>                :<span class="lineCov">          2 :         rtc_tod_cache.valid = true;</span>
+<span class="lineNum">      37 </span>                :<span class="lineCov">          2 :         unlock(&amp;rtc_tod_lock);</span>
+<a name="38"><span class="lineNum">      38 </span>                :<span class="lineCov">          2 : }</span></a>
+<span class="lineNum">      39 </span>                :            : 
+<span class="lineNum">      40 </span>                :<span class="lineCov">          1 : int rtc_cache_get(struct tm *tm)</span>
+<span class="lineNum">      41 </span>                :            : {
+<span class="lineNum">      42 </span>                :            :         unsigned long cache_age_sec;
+<span class="lineNum">      43 </span>                :            : 
+<span class="lineNum">      44 </span>                :<span class="lineCov">          1 :         lock(&amp;rtc_tod_lock);</span>
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!rtc_tod_cache.valid) {</span>
+<span class="lineNum">      47 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;rtc_tod_lock);</span>
+<span class="lineNum">      48 </span>                :<span class="lineNoCov">          0 :                 return -1;</span>
+<span class="lineNum">      49 </span>                :            :         }
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>                :<span class="lineCov">          2 :         cache_age_sec = tb_to_msecs(mftb() - rtc_tod_cache.tb) / 1000;</span>
+<span class="lineNum">      52 </span>                :<span class="lineCov">          1 :         *tm = rtc_tod_cache.tm;</span>
+<span class="lineNum">      53 </span>                :<span class="lineCov">          1 :         unlock(&amp;rtc_tod_lock);</span>
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :<span class="lineCov">          1 :         tm-&gt;tm_sec += cache_age_sec;</span>
+<span class="lineNum">      56 </span>                :<span class="lineCov">          1 :         mktime(tm);</span>
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :<span class="lineCov">          1 :         return 0;</span>
+<a name="59"><span class="lineNum">      59 </span>                :            : }</a>
+<span class="lineNum">      60 </span>                :            : 
+<span class="lineNum">      61 </span>                :<span class="lineCov">          1 : int rtc_cache_get_datetime(uint32_t *year_month_day,</span>
+<span class="lineNum">      62 </span>                :            :                 uint64_t *hour_minute_second_millisecond)
+<span class="lineNum">      63 </span>                :            : {
+<span class="lineNum">      64 </span>                :            :         struct tm tm;
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if (rtc_cache_get(&amp;tm) &lt; 0)</span>
+<span class="lineNum">      67 </span>                :            :                 return -1;
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :<span class="lineCov">          1 :         tm_to_datetime(&amp;tm, year_month_day, hour_minute_second_millisecond);</span>
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>                :<span class="lineCov">          1 :         return 0;</span>
+<span class="lineNum">      72 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,966 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - libpore/pore_inline.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">libpore</a> - pore_inline.h<span style="font-size: 80%;"> (source / <a href="pore_inline.h.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* IBM_PROLOG_BEGIN_TAG                                                   */</a>
+<span class="lineNum">       2 </span>                :            : /* This is an automatically generated prolog.                             */
+<span class="lineNum">       3 </span>                :            : /*                                                                        */
+<span class="lineNum">       4 </span>                :            : /* $Source: src/usr/hwpf/hwp/build_winkle_images/p8_slw_build/pore_inline.h $ */
+<span class="lineNum">       5 </span>                :            : /*                                                                        */
+<span class="lineNum">       6 </span>                :            : /* OpenPOWER HostBoot Project                                             */
+<span class="lineNum">       7 </span>                :            : /*                                                                        */
+<span class="lineNum">       8 </span>                :            : /* COPYRIGHT International Business Machines Corp. 2012,2014              */
+<span class="lineNum">       9 </span>                :            : /*                                                                        */
+<span class="lineNum">      10 </span>                :            : /* Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);        */
+<span class="lineNum">      11 </span>                :            : /* you may not use this file except in compliance with the License.       */
+<span class="lineNum">      12 </span>                :            : /* You may obtain a copy of the License at                                */
+<span class="lineNum">      13 </span>                :            : /*                                                                        */
+<span class="lineNum">      14 </span>                :            : /*     http://www.apache.org/licenses/LICENSE-2.0                         */
+<span class="lineNum">      15 </span>                :            : /*                                                                        */
+<span class="lineNum">      16 </span>                :            : /* Unless required by applicable law or agreed to in writing, software    */
+<span class="lineNum">      17 </span>                :            : /* distributed under the License is distributed on an &quot;AS IS&quot; BASIS,      */
+<span class="lineNum">      18 </span>                :            : /* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or        */
+<span class="lineNum">      19 </span>                :            : /* implied. See the License for the specific language governing           */
+<span class="lineNum">      20 </span>                :            : /* permissions and limitations under the License.                         */
+<span class="lineNum">      21 </span>                :            : /*                                                                        */
+<span class="lineNum">      22 </span>                :            : /* IBM_PROLOG_END_TAG                                                     */
+<span class="lineNum">      23 </span>                :            : #ifndef __PORE_INLINE_H__
+<span class="lineNum">      24 </span>                :            : #define __PORE_INLINE_H__
+<span class="lineNum">      25 </span>                :            : 
+<span class="lineNum">      26 </span>                :            : // $Id: pore_inline.h,v 1.20 2013/12/11 00:11:13 bcbrock Exp $
+<span class="lineNum">      27 </span>                :            : // $Source: /afs/awd/projects/eclipz/KnowledgeBase/.cvsroot/eclipz/chips/p8/working/procedures/pore_inline.h,v $
+<span class="lineNum">      28 </span>                :            : //-----------------------------------------------------------------------------
+<span class="lineNum">      29 </span>                :            : // *! (C) Copyright International Business Machines Corp. 2013
+<span class="lineNum">      30 </span>                :            : // *! All Rights Reserved -- Property of IBM
+<span class="lineNum">      31 </span>                :            : // *! *** IBM Confidential ***
+<span class="lineNum">      32 </span>                :            : //-----------------------------------------------------------------------------
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            : // ** WARNING : This file is maintained as part of the OCC firmware.  Do **
+<span class="lineNum">      35 </span>                :            : // ** not edit this file in the PMX area or the hardware procedure area  **
+<span class="lineNum">      36 </span>                :            : // ** as any changes will be lost.                                       **
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :            : /// \file pore_inline.h
+<span class="lineNum">      39 </span>                :            : /// \brief Inline assembler for PORE code
+<span class="lineNum">      40 </span>                :            : ///
+<span class="lineNum">      41 </span>                :            : /// Note that this file defines several short macro symbols for register names
+<span class="lineNum">      42 </span>                :            : /// and other mnemonics used by inline assembly.  For this reason it would
+<span class="lineNum">      43 </span>                :            : /// probably be best to only include this header when it was absolutely
+<span class="lineNum">      44 </span>                :            : /// necessary, i.e., only in C files that explicitly use inline assembly and
+<span class="lineNum">      45 </span>                :            : /// disassembly.
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>                :            : #ifndef PPC_HYP
+<span class="lineNum">      48 </span>                :            : #include &lt;ctype.h&gt;
+<span class="lineNum">      49 </span>                :            : #include &lt;stddef.h&gt;
+<span class="lineNum">      50 </span>                :            : #include &lt;stdint.h&gt;
+<span class="lineNum">      51 </span>                :            : #endif // PPC_HYP
+<span class="lineNum">      52 </span>                :            : #include &quot;pgas.h&quot;
+<span class="lineNum">      53 </span>                :            : 
+<span class="lineNum">      54 </span>                :            : #if( defined(__cplusplus) &amp;&amp; !defined(PLIC_MODULE) ) 
+<span class="lineNum">      55 </span>                :            : extern &quot;C&quot; {
+<span class="lineNum">      56 </span>                :            : #endif
+<span class="lineNum">      57 </span>                :            : #if 0
+<span class="lineNum">      58 </span>                :            : } /* So __cplusplus doesn't mess w/auto-indent */
+<span class="lineNum">      59 </span>                :            : #endif
+<span class="lineNum">      60 </span>                :            : 
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :            : #ifndef __ASSEMBLER__
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :            : // PHYP tools do not support 'static' functions and variables as it interferes
+<span class="lineNum">      65 </span>                :            : // with their concurrent patch methodology.  So when compiling for PHYP the
+<span class="lineNum">      66 </span>                :            : // PORE instruction &quot;macros&quot; are simply declared &quot;inline&quot;.  This also extends
+<span class="lineNum">      67 </span>                :            : // into the implementation C files - so under PHYP all previosuly local static
+<span class="lineNum">      68 </span>                :            : // functions will now be global functions. We retain 'static' to reduce code
+<span class="lineNum">      69 </span>                :            : // size and improve abstraction for OCC applications.
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>                :            : #ifdef PPC_HYP
+<span class="lineNum">      72 </span>                :            : #define PORE_STATIC
+<span class="lineNum">      73 </span>                :            : #include &lt;p8_pore_api_custom.h&gt;
+<span class="lineNum">      74 </span>                :            : #else
+<span class="lineNum">      75 </span>                :            : #define PORE_STATIC static
+<span class="lineNum">      76 </span>                :            : #endif
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :            : /// Error code strings from the PORE inline assembler/disassembler
+<span class="lineNum">      79 </span>                :            : ///
+<span class="lineNum">      80 </span>                :            : /// The PoreInlineContext object stores error codes that occur during
+<span class="lineNum">      81 </span>                :            : /// assembly as small integers.  The '0' code indicates success. This is a
+<span class="lineNum">      82 </span>                :            : /// table of strings that describe the codes.  It will be instantiated in
+<span class="lineNum">      83 </span>                :            : /// pore_inline.c 
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :            : extern const char *pore_inline_error_strings[];
+<span class="lineNum">      86 </span>                :            : 
+<span class="lineNum">      87 </span>                :            : #ifdef __PORE_INLINE_ASSEMBLER_C__
+<span class="lineNum">      88 </span>                :            : const char *pore_inline_error_strings[] = {
+<span class="lineNum">      89 </span>                :            :     &quot;No error&quot;,
+<span class="lineNum">      90 </span>                :            :     &quot;The inline assembler memory is full, or disassembly has reached the end of the memory area&quot;,
+<span class="lineNum">      91 </span>                :            :     &quot;The instruction requires an ImD24 operand&quot;,
+<span class="lineNum">      92 </span>                :            :     &quot;The LC is not aligned or the instruction requires an aligned operand&quot;,
+<span class="lineNum">      93 </span>                :            :     &quot;The branch target is unreachable (too distant)&quot;,
+<span class="lineNum">      94 </span>                :            :     &quot;A register operand is illegal for the given instruction&quot;,
+<span class="lineNum">      95 </span>                :            :     &quot;The instruction form requires a signed 16-bit immediate&quot;,
+<span class="lineNum">      96 </span>                :            :     &quot;Valid rotate lengths are 1, 4, 8, 16 and 32&quot;,
+<span class="lineNum">      97 </span>                :            :     &quot;The instruction requires a 20-bit signed immediate&quot;,
+<span class="lineNum">      98 </span>                :            :     &quot;The instruction requires a 24-bit unsigned immediate&quot;,
+<span class="lineNum">      99 </span>                :            :     &quot;A parameter to pore_inline_context_create() is invalid&quot;,
+<span class="lineNum">     100 </span>                :            :     &quot;The instruction form requires an unsigned 22-bit immediate&quot;,
+<span class="lineNum">     101 </span>                :            :     &quot;This error is due to a bug in the PORE inline assembler (Please report)&quot;,
+<span class="lineNum">     102 </span>                :            :     &quot;The 'source' label for pore_inline_branch_fixup() is illegal&quot;,
+<span class="lineNum">     103 </span>                :            :     &quot;The 'source' instruction for pore_inline_branch_fixup() is not a branch&quot;,
+<span class="lineNum">     104 </span>                :            :     &quot;The disassembler does not recognize the instruction as a PORE opcode&quot;,
+<span class="lineNum">     105 </span>                :            :     &quot;Instruction parity error during disassembly&quot;,
+<span class="lineNum">     106 </span>                :            :     &quot;The string form of the disassembly is too long to represent (Please report)`&quot;,
+<span class="lineNum">     107 </span>                :            :     &quot;Use HALT instead of WAIT 0 if the intention is to halt.&quot;,
+<span class="lineNum">     108 </span>                :            :     &quot;A putative SCOM address is illegal (has non-0 bits where 0s are expected).&quot;
+<span class="lineNum">     109 </span>                :            : };
+<span class="lineNum">     110 </span>                :            : #endif  /* __PORE_INLINE_ASSEMBLER_C__ */
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :            : #endif  /* __ASSEMBLER__ */
+<span class="lineNum">     113 </span>                :            : 
+<span class="lineNum">     114 </span>                :            : #define PORE_INLINE_SUCCESS              0
+<span class="lineNum">     115 </span>                :            : #define PORE_INLINE_NO_MEMORY            1
+<span class="lineNum">     116 </span>                :            : #define PORE_INLINE_IMD24_ERROR          2
+<span class="lineNum">     117 </span>                :            : #define PORE_INLINE_ALIGNMENT_ERROR      3
+<span class="lineNum">     118 </span>                :            : #define PORE_INLINE_UNREACHABLE_TARGET   4
+<span class="lineNum">     119 </span>                :            : #define PORE_INLINE_ILLEGAL_REGISTER     5
+<span class="lineNum">     120 </span>                :            : #define PORE_INLINE_INT16_REQUIRED       6
+<span class="lineNum">     121 </span>                :            : #define PORE_INLINE_ILLEGAL_ROTATE       7
+<span class="lineNum">     122 </span>                :            : #define PORE_INLINE_INT20_REQUIRED       8
+<span class="lineNum">     123 </span>                :            : #define PORE_INLINE_UINT24_REQUIRED      9
+<span class="lineNum">     124 </span>                :            : #define PORE_INLINE_INVALID_PARAMETER    10
+<span class="lineNum">     125 </span>                :            : #define PORE_INLINE_UINT22_REQUIRED      11
+<span class="lineNum">     126 </span>                :            : #define PORE_INLINE_BUG                  12
+<span class="lineNum">     127 </span>                :            : #define PORE_INLINE_ILLEGAL_SOURCE_LC    13
+<span class="lineNum">     128 </span>                :            : #define PORE_INLINE_NOT_A_BRANCH         14
+<span class="lineNum">     129 </span>                :            : #define PORE_INLINE_UNKNOWN_OPCODE       15
+<span class="lineNum">     130 </span>                :            : #define PORE_INLINE_PARITY_ERROR         16
+<span class="lineNum">     131 </span>                :            : #define PORE_INLINE_DISASSEMBLY_OVERFLOW 17
+<span class="lineNum">     132 </span>                :            : #define PORE_INLINE_USE_HALT             18
+<span class="lineNum">     133 </span>                :            : #define PORE_INLINE_ILLEGAL_SCOM_ADDRESS 19
+<span class="lineNum">     134 </span>                :            : 
+<span class="lineNum">     135 </span>                :            : 
+<span class="lineNum">     136 </span>                :            : /// Register name strings for the PORE inline assembler/disassembler
+<span class="lineNum">     137 </span>                :            : 
+<span class="lineNum">     138 </span>                :            : extern const char *pore_inline_register_strings[16];
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>                :            : // C++ requires that these arrays of strings be declared 'const' to avoid
+<span class="lineNum">     141 </span>                :            : // warnings.  But then you get warnings when the strings get stored into
+<span class="lineNum">     142 </span>                :            : // non-const variables.  The solution is to rename these arrays inside the
+<span class="lineNum">     143 </span>                :            : // disassembler.  If anyone has a better solution please let me know - Bishop
+<span class="lineNum">     144 </span>                :            : 
+<span class="lineNum">     145 </span>                :            : #ifdef __PORE_INLINE_ASSEMBLER_C__
+<span class="lineNum">     146 </span>                :            : const char* pore_inline_register_strings[16] = {
+<span class="lineNum">     147 </span>                :            :     &quot;P0&quot;, &quot;P1&quot;, &quot;A0&quot;, &quot;A1&quot;, &quot;CTR&quot;, &quot;D0&quot;, &quot;D1&quot;, &quot;EMR&quot;,
+<span class="lineNum">     148 </span>                :            :     &quot;?&quot;, &quot;ETR&quot;, &quot;SPRG0&quot;, &quot;?&quot;, &quot;?&quot;, &quot;?&quot;, &quot;PC&quot;, &quot;IFR&quot;
+<span class="lineNum">     149 </span>                :            : };
+<span class="lineNum">     150 </span>                :            : #endif /* __PORE_INLINE_ASSEMBLER_C__ */
+<span class="lineNum">     151 </span>                :            : 
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>                :            : // Shorthand forms of constants defined in pgas.h, defined for consistency
+<span class="lineNum">     154 </span>                :            : // using the assembler-supported names.  These constants are defined as an
+<span class="lineNum">     155 </span>                :            : // enum to avoid name conflicts with some firmware symbols when the PORE
+<span class="lineNum">     156 </span>                :            : // inline facility is used to create Host Boot procedures.
+<span class="lineNum">     157 </span>                :            : 
+<span class="lineNum">     158 </span>                :            : enum {
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>                :            :     // Shorthand register mnemonics, defined as an enum to avoid name clashes.
+<span class="lineNum">     161 </span>                :            : 
+<span class="lineNum">     162 </span>                :            :     P0    = PORE_REGISTER_PRV_BASE_ADDR0,
+<span class="lineNum">     163 </span>                :            :     P1    = PORE_REGISTER_PRV_BASE_ADDR1,
+<span class="lineNum">     164 </span>                :            :     A0    = PORE_REGISTER_OCI_BASE_ADDR0,
+<span class="lineNum">     165 </span>                :            :     A1    = PORE_REGISTER_OCI_BASE_ADDR1,
+<span class="lineNum">     166 </span>                :            :     CTR   = PORE_REGISTER_SCRATCH0,
+<span class="lineNum">     167 </span>                :            :     D0    = PORE_REGISTER_SCRATCH1,
+<span class="lineNum">     168 </span>                :            :     D1    = PORE_REGISTER_SCRATCH2,
+<span class="lineNum">     169 </span>                :            :     EMR   = PORE_REGISTER_ERROR_MASK,
+<span class="lineNum">     170 </span>                :            :     ETR   = PORE_REGISTER_EXE_TRIGGER,
+<span class="lineNum">     171 </span>                :            :     SPRG0 = PORE_REGISTER_DATA0,
+<span class="lineNum">     172 </span>                :            :     PC    = PORE_REGISTER_PC,
+<span class="lineNum">     173 </span>                :            :     IFR   = PORE_REGISTER_IBUF_ID,
+<span class="lineNum">     174 </span>                :            : 
+<span class="lineNum">     175 </span>                :            :     // PgP IBUF_ID values
+<span class="lineNum">     176 </span>                :            : 
+<span class="lineNum">     177 </span>                :            :     PORE_GPE0 = PORE_ID_GPE0,
+<span class="lineNum">     178 </span>                :            :     PORE_GPE1 = PORE_ID_GPE1,
+<span class="lineNum">     179 </span>                :            :     PORE_SLW  = PORE_ID_SLW,
+<span class="lineNum">     180 </span>                :            :     PORE_SBE  = PORE_ID_SBE,
+<span class="lineNum">     181 </span>                :            : 
+<span class="lineNum">     182 </span>                :            :     // Condition Codes
+<span class="lineNum">     183 </span>                :            : 
+<span class="lineNum">     184 </span>                :            :     CC_UGT = PORE_CC_UGT,
+<span class="lineNum">     185 </span>                :            :     CC_ULT = PORE_CC_ULT,
+<span class="lineNum">     186 </span>                :            :     CC_SGT = PORE_CC_SGT,
+<span class="lineNum">     187 </span>                :            :     CC_SLT = PORE_CC_SLT,
+<span class="lineNum">     188 </span>                :            :     CC_C   = PORE_CC_C,
+<span class="lineNum">     189 </span>                :            :     CC_V   = PORE_CC_V,
+<span class="lineNum">     190 </span>                :            :     CC_N   = PORE_CC_N,
+<span class="lineNum">     191 </span>                :            :     CC_Z   = PORE_CC_Z,
+<span class="lineNum">     192 </span>                :            : };
+<span class="lineNum">     193 </span>                :            : 
+<span class="lineNum">     194 </span>                :            : // Pseudo-opcodes for LD/LDANDI/STD
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>                :            : #define PORE_INLINE_PSEUDO_LD     0
+<span class="lineNum">     197 </span>                :            : #define PORE_INLINE_PSEUDO_LDANDI 1
+<span class="lineNum">     198 </span>                :            : #define PORE_INLINE_PSEUDO_STD    2
+<span class="lineNum">     199 </span>                :            : 
+<span class="lineNum">     200 </span>                :            : 
+<span class="lineNum">     201 </span>                :            : // Private version of _BIG_ENDIAN
+<span class="lineNum">     202 </span>                :            : 
+<span class="lineNum">     203 </span>                :            : #ifndef _BIG_ENDIAN
+<span class="lineNum">     204 </span>                :            : #define PORE_BIG_ENDIAN 0
+<span class="lineNum">     205 </span>                :            : #else
+<span class="lineNum">     206 </span>                :            : #define PORE_BIG_ENDIAN _BIG_ENDIAN
+<span class="lineNum">     207 </span>                :            : #endif
+<span class="lineNum">     208 </span>                :            : 
+<span class="lineNum">     209 </span>                :            : 
+<span class="lineNum">     210 </span>                :            : /// Maximum size of disassembly strings
+<span class="lineNum">     211 </span>                :            : ///
+<span class="lineNum">     212 </span>                :            : /// This is currently sufficient for PORE_INLINE_LISTING_MODE. We don't want
+<span class="lineNum">     213 </span>                :            : /// to make this too long since the PoreInlineDisassembly object may be on the
+<span class="lineNum">     214 </span>                :            : /// stack in embedded applications.
+<span class="lineNum">     215 </span>                :            : #define PORE_INLINE_DISASSEMBLER_STRING_SIZE 128
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>                :            : 
+<span class="lineNum">     218 </span>                :            : /// Generate PORE instruction parity
+<span class="lineNum">     219 </span>                :            : ///
+<span class="lineNum">     220 </span>                :            : /// This flag is an option to pore_inline_context_create(). If set, PORE
+<span class="lineNum">     221 </span>                :            : /// inline assembly sets the instruction parity bit for each assembled
+<span class="lineNum">     222 </span>                :            : /// instruction; otherwise the instruction parity bit is always 0.
+<span class="lineNum">     223 </span>                :            : #define PORE_INLINE_GENERATE_PARITY 0x01
+<span class="lineNum">     224 </span>                :            : 
+<span class="lineNum">     225 </span>                :            : /// Check PORE instruction parity
+<span class="lineNum">     226 </span>                :            : ///
+<span class="lineNum">     227 </span>                :            : /// This flag is an option to pore_inline_context_create(). If set, PORE
+<span class="lineNum">     228 </span>                :            : /// inline disassembly checks the instruction parity bit for each disassembled
+<span class="lineNum">     229 </span>                :            : /// instruction, failing with PORE_INLINE_PARITY_ERROR if the parify is not
+<span class="lineNum">     230 </span>                :            : /// correct. Otherwise the instruction parity bit is ignored during
+<span class="lineNum">     231 </span>                :            : /// disassembly.
+<span class="lineNum">     232 </span>                :            : #define PORE_INLINE_CHECK_PARITY 0x02
+<span class="lineNum">     233 </span>                :            : 
+<span class="lineNum">     234 </span>                :            : /// Disassemble in listing mode
+<span class="lineNum">     235 </span>                :            : ///
+<span class="lineNum">     236 </span>                :            : /// This flag is an option to pore_inline_context_create(). If set, then
+<span class="lineNum">     237 </span>                :            : /// generate disassembly strings in the form of a listing that contains
+<span class="lineNum">     238 </span>                :            : /// location counters and encoded instructions as well as their diassembly.
+<span class="lineNum">     239 </span>                :            : /// By default the disassembly strings do not contain this information and can
+<span class="lineNum">     240 </span>                :            : /// be fed back in as source code to a PORE assembler.
+<span class="lineNum">     241 </span>                :            : #define PORE_INLINE_LISTING_MODE 0x04
+<span class="lineNum">     242 </span>                :            : 
+<span class="lineNum">     243 </span>                :            : /// Disassemble in data mode
+<span class="lineNum">     244 </span>                :            : ///
+<span class="lineNum">     245 </span>                :            : /// This flag is an option to pore_inline_context_create().  If set, then
+<span class="lineNum">     246 </span>                :            : /// generate disassembly assuming that the context contains data rather than
+<span class="lineNum">     247 </span>                :            : /// text. Normally data is disassembled as .long directives, however if the
+<span class="lineNum">     248 </span>                :            : /// context is unaligned or of an odd length then .byte directives may be used
+<span class="lineNum">     249 </span>                :            : /// as well.  This option can be used in conjunction with
+<span class="lineNum">     250 </span>                :            : /// PORE_INLINE_LISTING_MODE and PORE_INLINE_8_BYTE_DATA.
+<span class="lineNum">     251 </span>                :            : ///
+<span class="lineNum">     252 </span>                :            : /// Note: An intelligent application can switch between the default text
+<span class="lineNum">     253 </span>                :            : /// disassembly and data disassembly by manipulating the \a options field of
+<span class="lineNum">     254 </span>                :            : /// the PoreInlineContext between calls of pore_inline_disassemble().
+<span class="lineNum">     255 </span>                :            : #define PORE_INLINE_DISASSEMBLE_DATA 0x08
+<span class="lineNum">     256 </span>                :            : 
+<span class="lineNum">     257 </span>                :            : /// Disassemble data in 8-byte format
+<span class="lineNum">     258 </span>                :            : ///
+<span class="lineNum">     259 </span>                :            : /// This flag is an option to pore_inline_context_create().  If set, then if
+<span class="lineNum">     260 </span>                :            : /// PORE_INLINE_DISASSEMBLE_DATA is also set then generate data disassembly as
+<span class="lineNum">     261 </span>                :            : /// 8-byte values rather then the default 4-byte values. Normally data is
+<span class="lineNum">     262 </span>                :            : /// disassembled as .quad directives under this option, however if the context
+<span class="lineNum">     263 </span>                :            : /// is unaligned or of an odd length then .long and .byte directives may be
+<span class="lineNum">     264 </span>                :            : /// used as well.  This option can be used in conjunction with
+<span class="lineNum">     265 </span>                :            : /// PORE_INLINE_LISTING_MODE.
+<span class="lineNum">     266 </span>                :            : ///
+<span class="lineNum">     267 </span>                :            : /// Note: An intelligent application can switch between the default text
+<span class="lineNum">     268 </span>                :            : /// disassembly and data disassembly by manipulating the \a options field of
+<span class="lineNum">     269 </span>                :            : /// the PoreInlineContext between calls of pore_inline_disassemble().
+<span class="lineNum">     270 </span>                :            : #define PORE_INLINE_8_BYTE_DATA 0x10
+<span class="lineNum">     271 </span>                :            : 
+<span class="lineNum">     272 </span>                :            : /// Disassemble unrecognized opcodes as 4-byte data
+<span class="lineNum">     273 </span>                :            : ///
+<span class="lineNum">     274 </span>                :            : /// This flag is an option to pore_inline_context_create().  If set, then
+<span class="lineNum">     275 </span>                :            : /// any putative instruction with an unrecognized opcode will be silently
+<span class="lineNum">     276 </span>                :            : /// diassembled as 4-byte data.
+<span class="lineNum">     277 </span>                :            : ///
+<span class="lineNum">     278 </span>                :            : /// This option was added to allow error-free disassembly of
+<span class="lineNum">     279 </span>                :            : /// non-parity-protected PORE text sections that contain 0x00000000 alignment
+<span class="lineNum">     280 </span>                :            : /// padding, and is not guaranteed to produce correct or consistent results in
+<span class="lineNum">     281 </span>                :            : /// any other case.
+<span class="lineNum">     282 </span>                :            : #define PORE_INLINE_DISASSEMBLE_UNKNOWN 0x20
+<span class="lineNum">     283 </span>                :            : 
+<span class="lineNum">     284 </span>                :            : 
+<span class="lineNum">     285 </span>                :            : #ifndef __ASSEMBLER__
+<span class="lineNum">     286 </span>                :            : 
+<span class="lineNum">     287 </span>                :            : /// The type of location counters for the PORE inline assembler
+<span class="lineNum">     288 </span>                :            : 
+<span class="lineNum">     289 </span>                :            : typedef uint32_t PoreInlineLocation;
+<span class="lineNum">     290 </span>                :            : 
+<span class="lineNum">     291 </span>                :            : /// PORE inline assembler context
+<span class="lineNum">     292 </span>                :            : ///
+<span class="lineNum">     293 </span>                :            : /// See the documentation page \ref pore_inline_assembler and the function
+<span class="lineNum">     294 </span>                :            : /// pore_inline_context_create() for futher details.
+<span class="lineNum">     295 </span>                :            : 
+<span class="lineNum">     296 </span>                :            : typedef struct {
+<span class="lineNum">     297 </span>                :            : 
+<span class="lineNum">     298 </span>                :            :     /// The memory area to receive the inline assembly
+<span class="lineNum">     299 </span>                :            :     ///
+<span class="lineNum">     300 </span>                :            :     /// This field is never modified, allowing the *reset* APIs to function.
+<span class="lineNum">     301 </span>                :            :     ///
+<span class="lineNum">     302 </span>                :            :     /// Note: C++ does not allow arithmetic on void* objects, so we use the
+<span class="lineNum">     303 </span>                :            :     /// Linux convention of storing memory addresses as type 'unsigned long'. 
+<span class="lineNum">     304 </span>                :            :     unsigned long memory;
+<span class="lineNum">     305 </span>                :            : 
+<span class="lineNum">     306 </span>                :            :     /// The original size of the memory area to receive the inline assembly
+<span class="lineNum">     307 </span>                :            :     ///
+<span class="lineNum">     308 </span>                :            :     /// This field is never modified, allowing the *reset* APIs to function.
+<span class="lineNum">     309 </span>                :            :     size_t size;
+<span class="lineNum">     310 </span>                :            : 
+<span class="lineNum">     311 </span>                :            :     /// The original Location Counter (associated with \a memory)
+<span class="lineNum">     312 </span>                :            :     ///
+<span class="lineNum">     313 </span>                :            :     /// This field is never modified, allowing the *reset* APIs to function.
+<span class="lineNum">     314 </span>                :            :     PoreInlineLocation original_lc;
+<span class="lineNum">     315 </span>                :            : 
+<span class="lineNum">     316 </span>                :            :     /// The memory address associated with the current LC
+<span class="lineNum">     317 </span>                :            :     ///
+<span class="lineNum">     318 </span>                :            :     /// Note: C++ does not allow arithmetic on void* objects, so we use the
+<span class="lineNum">     319 </span>                :            :     /// Linux convention of storing memory addresses as type 'unsigned long'. 
+<span class="lineNum">     320 </span>                :            :     unsigned long lc_address;
+<span class="lineNum">     321 </span>                :            : 
+<span class="lineNum">     322 </span>                :            :     /// The remaining size of the memory area to receive the inline assembly
+<span class="lineNum">     323 </span>                :            :     size_t remaining;
+<span class="lineNum">     324 </span>                :            : 
+<span class="lineNum">     325 </span>                :            :     /// The bytewise Location Counter of the assembled code
+<span class="lineNum">     326 </span>                :            :     PoreInlineLocation lc;
+<span class="lineNum">     327 </span>                :            : 
+<span class="lineNum">     328 </span>                :            :     /// Inline assembly options
+<span class="lineNum">     329 </span>                :            :     ///
+<span class="lineNum">     330 </span>                :            :     /// This field is never modified, allowing the *reset* APIs to function.
+<span class="lineNum">     331 </span>                :            :     int options;
+<span class="lineNum">     332 </span>                :            : 
+<span class="lineNum">     333 </span>                :            :     /// The last error code generated by the inline assembler
+<span class="lineNum">     334 </span>                :            :     int error;
+<span class="lineNum">     335 </span>                :            : 
+<span class="lineNum">     336 </span>                :            : } PoreInlineContext;
+<span class="lineNum">     337 </span>                :            : 
+<span class="lineNum">     338 </span>                :            : 
+<span class="lineNum">     339 </span>                :            : /// PORE inline disassembler result
+<span class="lineNum">     340 </span>                :            : ///
+<span class="lineNum">     341 </span>                :            : /// This object holds the disassembly produced by pore_inline_disassemble().
+<span class="lineNum">     342 </span>                :            : /// See documentation for that function for complete details.
+<span class="lineNum">     343 </span>                :            : 
+<span class="lineNum">     344 </span>                :            : typedef struct {
+<span class="lineNum">     345 </span>                :            : 
+<span class="lineNum">     346 </span>                :            :     /// The context as it existed when the instruction was assembled
+<span class="lineNum">     347 </span>                :            :     ///
+<span class="lineNum">     348 </span>                :            :     /// Disassembling an instruction modifies the context provided to
+<span class="lineNum">     349 </span>                :            :     /// pore_inline_disassemble() to point to the next instruction.  This
+<span class="lineNum">     350 </span>                :            :     /// structure stores a copy of the context at the initial call of
+<span class="lineNum">     351 </span>                :            :     /// pore_inline_disassemble(), that is, the context in effect when the
+<span class="lineNum">     352 </span>                :            :     /// dissassembled instruction was assembled.
+<span class="lineNum">     353 </span>                :            :     PoreInlineContext ctx;
+<span class="lineNum">     354 </span>                :            : 
+<span class="lineNum">     355 </span>                :            :     /// The first 32 bits of every instruction
+<span class="lineNum">     356 </span>                :            :     uint32_t instruction;
+<span class="lineNum">     357 </span>                :            : 
+<span class="lineNum">     358 </span>                :            :     /// The opcode; bits 0..6 of the instruction
+<span class="lineNum">     359 </span>                :            :     int opcode;
+<span class="lineNum">     360 </span>                :            : 
+<span class="lineNum">     361 </span>                :            :     /// A flag - If set the opcode is for a 12-byte instruction
+<span class="lineNum">     362 </span>                :            :     int long_instruction;
+<span class="lineNum">     363 </span>                :            : 
+<span class="lineNum">     364 </span>                :            :     /// The parity bit; bit 7 of the instruction
+<span class="lineNum">     365 </span>                :            :     int parity;
+<span class="lineNum">     366 </span>                :            : 
+<span class="lineNum">     367 </span>                :            :     /// The register specifier at bits 8..11 of the instruction
+<span class="lineNum">     368 </span>                :            :     ///
+<span class="lineNum">     369 </span>                :            :     /// This register is sometimes called the source, sometimes the target,
+<span class="lineNum">     370 </span>                :            :     /// depending on the opcode.
+<span class="lineNum">     371 </span>                :            :     int r0;
+<span class="lineNum">     372 </span>                :            : 
+<span class="lineNum">     373 </span>                :            :     /// The register specifier at bits 12..15 of the instruction
+<span class="lineNum">     374 </span>                :            :     ///
+<span class="lineNum">     375 </span>                :            :     /// This register is always called the 'source' but is named generically
+<span class="lineNum">     376 </span>                :            :     /// here since sometimes the specifier at bits 8..11 is also called a
+<span class="lineNum">     377 </span>                :            :     /// 'source'.
+<span class="lineNum">     378 </span>                :            :     int r1;
+<span class="lineNum">     379 </span>                :            : 
+<span class="lineNum">     380 </span>                :            :     /// 'ImD16' is the signed 16-bit immediate for short immediate adds and
+<span class="lineNum">     381 </span>                :            :     /// subtracts.  For the rotate instruction this field also contains the
+<span class="lineNum">     382 </span>                :            :     /// rotate count which is either 1, 4, 8, 16 or 32.
+<span class="lineNum">     383 </span>                :            :     int16_t imd16;
+<span class="lineNum">     384 </span>                :            : 
+<span class="lineNum">     385 </span>                :            :     /// 'ImD20' is the 20-bit signed immediate for the LOAD20 instruction
+<span class="lineNum">     386 </span>                :            :     int32_t imd20;
+<span class="lineNum">     387 </span>                :            : 
+<span class="lineNum">     388 </span>                :            :     /// 'ImD24' is the 24-bit unsigned immediate for the WAIT instruction
+<span class="lineNum">     389 </span>                :            :     uint32_t imd24;
+<span class="lineNum">     390 </span>                :            : 
+<span class="lineNum">     391 </span>                :            :     /// 'ImD64' is the 64-bit immediate for data immediates and BRAI.  This
+<span class="lineNum">     392 </span>                :            :     /// field is only set for 3-word instructions.
+<span class="lineNum">     393 </span>                :            :     uint64_t imd64;
+<span class="lineNum">     394 </span>                :            : 
+<span class="lineNum">     395 </span>                :            :     /// 'ImPCO20' is a signed, 20-bit word offset for branch instructions
+<span class="lineNum">     396 </span>                :            :     int32_t impco20;
+<span class="lineNum">     397 </span>                :            : 
+<span class="lineNum">     398 </span>                :            :     /// 'ImPCO24' is a signed, 24-bit word offset for branch instructions
+<span class="lineNum">     399 </span>                :            :     int32_t impco24;
+<span class="lineNum">     400 </span>                :            : 
+<span class="lineNum">     401 </span>                :            :     /// For imA24 opcodes, this indicates memory/pib (1/0) addressing..
+<span class="lineNum">     402 </span>                :            :     int memory_space;
+<span class="lineNum">     403 </span>                :            : 
+<span class="lineNum">     404 </span>                :            :     /// This is the base register specifier - either a memory (OCI) base
+<span class="lineNum">     405 </span>                :            :     /// register or a pervasive base register - for Read/Write operations.
+<span class="lineNum">     406 </span>                :            :     /// Note that this is a PORE register index, not simply 0/1.
+<span class="lineNum">     407 </span>                :            :     int base_register;
+<span class="lineNum">     408 </span>                :            : 
+<span class="lineNum">     409 </span>                :            :     /// This is the 22-bit signed offset for memory (OCI) addressing.  This
+<span class="lineNum">     410 </span>                :            :     /// unsigned offset is added to a memory base register (A0/A1) to form the
+<span class="lineNum">     411 </span>                :            :     /// final 32-bit address.
+<span class="lineNum">     412 </span>                :            :     uint32_t memory_offset;
+<span class="lineNum">     413 </span>                :            : 
+<span class="lineNum">     414 </span>                :            :     /// This field contains the port number and local address portions of the
+<span class="lineNum">     415 </span>                :            :     /// PIB/PCB address for load/store operations that target the PIB/PCB.
+<span class="lineNum">     416 </span>                :            :     /// Note that bits 0..11 will always be 0 in this address.  Bits 1..7 (the
+<span class="lineNum">     417 </span>                :            :     /// multicast bit and chiplet id) are sourced from the associated
+<span class="lineNum">     418 </span>                :            :     /// pervasive base register when the instruction executes.
+<span class="lineNum">     419 </span>                :            :     uint32_t pib_offset;
+<span class="lineNum">     420 </span>                :            : 
+<span class="lineNum">     421 </span>                :            :     /// The update bit of the SCAND instruction
+<span class="lineNum">     422 </span>                :            :     int update;
+<span class="lineNum">     423 </span>                :            : 
+<span class="lineNum">     424 </span>                :            :     /// The capture bit of the SCAND instruction
+<span class="lineNum">     425 </span>                :            :     int capture;
+<span class="lineNum">     426 </span>                :            : 
+<span class="lineNum">     427 </span>                :            :     /// The scan length from a SCAND instruction
+<span class="lineNum">     428 </span>                :            :     int scan_length;
+<span class="lineNum">     429 </span>                :            : 
+<span class="lineNum">     430 </span>                :            :     /// The scan select from a SCAND instruction
+<span class="lineNum">     431 </span>                :            :     uint32_t scan_select;
+<span class="lineNum">     432 </span>                :            : 
+<span class="lineNum">     433 </span>                :            :     /// The address offset from a SCAND instruction
+<span class="lineNum">     434 </span>                :            :     uint32_t scan_offset;
+<span class="lineNum">     435 </span>                :            : 
+<span class="lineNum">     436 </span>                :            :     /// The string form of the disassembly.
+<span class="lineNum">     437 </span>                :            :     ///
+<span class="lineNum">     438 </span>                :            :     /// The disassembly string is \e not terminated by a newline.  In listing
+<span class="lineNum">     439 </span>                :            :     /// mode the disassembly string \e will contain embedded newlines for long
+<span class="lineNum">     440 </span>                :            :     /// instructions.
+<span class="lineNum">     441 </span>                :            :     char s[PORE_INLINE_DISASSEMBLER_STRING_SIZE];
+<span class="lineNum">     442 </span>                :            : 
+<span class="lineNum">     443 </span>                :            :     /// The data (for data disassembly)
+<span class="lineNum">     444 </span>                :            :     ///
+<span class="lineNum">     445 </span>                :            :     /// This is either 1, 4 or 8 bytes in host byte order.
+<span class="lineNum">     446 </span>                :            :     uint64_t data;
+<span class="lineNum">     447 </span>                :            : 
+<span class="lineNum">     448 </span>                :            :     /// The size of the disassembled \a data field (for data disassembly)
+<span class="lineNum">     449 </span>                :            :     size_t data_size;
+<span class="lineNum">     450 </span>                :            : 
+<span class="lineNum">     451 </span>                :            :     /// Was this location disassembled as an instruction (0) or as data (1)
+<span class="lineNum">     452 </span>                :            :     int is_data;
+<span class="lineNum">     453 </span>                :            : 
+<span class="lineNum">     454 </span>                :            : } PoreInlineDisassembly;
+<span class="lineNum">     455 </span>                :            : 
+<span class="lineNum">     456 </span>                :            : 
+<span class="lineNum">     457 </span>                :            : // These are internal APIs - they are not needed by application code.
+<span class="lineNum">     458 </span>                :            : 
+<span class="lineNum">     459 </span>                :            : void
+<span class="lineNum">     460 </span>                :            : pore_inline_be32(unsigned long p, uint32_t x);
+<span class="lineNum">     461 </span>                :            : 
+<span class="lineNum">     462 </span>                :            : void
+<span class="lineNum">     463 </span>                :            : pore_inline_be64(unsigned long p, uint64_t x);
+<span class="lineNum">     464 </span>                :            : 
+<span class="lineNum">     465 </span>                :            : uint32_t
+<span class="lineNum">     466 </span>                :            : pore_inline_host32(unsigned long p);
+<span class="lineNum">     467 </span>                :            : 
+<span class="lineNum">     468 </span>                :            : uint64_t
+<span class="lineNum">     469 </span>                :            : pore_inline_host64(unsigned long p);
+<span class="lineNum">     470 </span>                :            : 
+<span class="lineNum">     471 </span>                :            : int
+<span class="lineNum">     472 </span>                :            : pore_inline_parity(uint32_t instruction, uint64_t imd64);
+<span class="lineNum">     473 </span>                :            : 
+<span class="lineNum">     474 </span>                :            : void
+<span class="lineNum">     475 </span>                :            : pore_inline_context_bump(PoreInlineContext *ctx, size_t bytes);
+<span class="lineNum">     476 </span>                :            : 
+<span class="lineNum">     477 </span>                :            : int
+<span class="lineNum">     478 </span>                :            : pore_inline_instruction1(PoreInlineContext *ctx, int opcode, uint32_t operand);
+<span class="lineNum">     479 </span>                :            : 
+<span class="lineNum">     480 </span>                :            : int
+<span class="lineNum">     481 </span>                :            : pore_inline_instruction3(PoreInlineContext *ctx, int opcode, uint32_t operand,
+<span class="lineNum">     482 </span>                :            :                          uint64_t imm);
+<span class="lineNum">     483 </span>                :            : 
+<span class="lineNum">     484 </span>                :            : int
+<span class="lineNum">     485 </span>                :            : pore_inline_bra(PoreInlineContext *ctx, 
+<span class="lineNum">     486 </span>                :            :                 int opcode, PoreInlineLocation target);
+<span class="lineNum">     487 </span>                :            : 
+<span class="lineNum">     488 </span>                :            : int
+<span class="lineNum">     489 </span>                :            : pore_inline_brac(PoreInlineContext *ctx,
+<span class="lineNum">     490 </span>                :            :                  int opcode, int reg, PoreInlineLocation target);
+<span class="lineNum">     491 </span>                :            : 
+<span class="lineNum">     492 </span>                :            : int
+<span class="lineNum">     493 </span>                :            : pore_inline_cmpibra(PoreInlineContext *ctx, 
+<span class="lineNum">     494 </span>                :            :                     int opcode, int reg,
+<span class="lineNum">     495 </span>                :            :                     PoreInlineLocation target, uint64_t imm);
+<span class="lineNum">     496 </span>                :            : 
+<span class="lineNum">     497 </span>                :            : int
+<span class="lineNum">     498 </span>                :            : pore_inline_brad(PoreInlineContext *ctx, int opcode, int reg);
+<span class="lineNum">     499 </span>                :            : 
+<span class="lineNum">     500 </span>                :            : int
+<span class="lineNum">     501 </span>                :            : pore_inline_ilogic(PoreInlineContext *ctx, 
+<span class="lineNum">     502 </span>                :            :                    int opcode, int dest, int src, uint64_t imm);
+<span class="lineNum">     503 </span>                :            : int
+<span class="lineNum">     504 </span>                :            : pore_inline_alurr(PoreInlineContext *ctx, 
+<span class="lineNum">     505 </span>                :            :                   int opcode, int dest, int src1, int src2);
+<span class="lineNum">     506 </span>                :            : 
+<span class="lineNum">     507 </span>                :            : int
+<span class="lineNum">     508 </span>                :            : pore_inline_adds(PoreInlineContext *ctx, 
+<span class="lineNum">     509 </span>                :            :                  int opcode, int dest, int src, int imm);
+<span class="lineNum">     510 </span>                :            : 
+<span class="lineNum">     511 </span>                :            : int
+<span class="lineNum">     512 </span>                :            : pore_inline_load_store(PoreInlineContext *ctx, 
+<span class="lineNum">     513 </span>                :            :                        int opcode, int src_dest, int32_t offset, int base,
+<span class="lineNum">     514 </span>                :            :                        uint64_t imm);
+<span class="lineNum">     515 </span>                :            : 
+<span class="lineNum">     516 </span>                :            : 
+<span class="lineNum">     517 </span>                :            : // These are utility APIs that may be required by special-purpose code that
+<span class="lineNum">     518 </span>                :            : // uses the pore_inline library.
+<span class="lineNum">     519 </span>                :            : 
+<span class="lineNum">     520 </span>                :            : void
+<span class="lineNum">     521 </span>                :            : pore_inline_decode_instruction(PoreInlineDisassembly* dis, 
+<span class="lineNum">     522 </span>                :            :                                uint32_t instruction);
+<span class="lineNum">     523 </span>                :            : 
+<span class="lineNum">     524 </span>                :            : void
+<span class="lineNum">     525 </span>                :            : pore_inline_decode_imd64(PoreInlineDisassembly* dis, uint64_t imd64);
+<span class="lineNum">     526 </span>                :            : 
+<span class="lineNum">     527 </span>                :            : 
+<span class="lineNum">     528 </span>                :            : // These are the inline PORE instructions, extended mnemonics and pseudo-ops
+<span class="lineNum">     529 </span>                :            : // to be used by application code.
+<span class="lineNum">     530 </span>                :            : 
+<span class="lineNum">     531 </span>                :            : /// Set a location counter variable from a context
+<span class="lineNum">     532 </span>                :            : ///
+<span class="lineNum">     533 </span>                :            : /// This is a macro that sets the \a var (of type PoreInlineLocation) to the
+<span class="lineNum">     534 </span>                :            : /// current location counter of the \a ctx.  The macro produces an expression
+<span class="lineNum">     535 </span>                :            : /// that evaluates to 0 so that it can be used in the logical-OR expressions
+<span class="lineNum">     536 </span>                :            : /// used to define inline assembly sequences.
+<span class="lineNum">     537 </span>                :            : 
+<span class="lineNum">     538 </span>                :            : #define PORE_LOCATION(ctx, var) (((var) = (ctx)-&gt;lc), 0)
+<span class="lineNum">     539 </span>                :            : 
+<span class="lineNum">     540 </span>                :            : int
+<span class="lineNum">     541 </span>                :            : pore_inline_context_create(PoreInlineContext *context,
+<span class="lineNum">     542 </span>                :            :                            void *memory, 
+<span class="lineNum">     543 </span>                :            :                            size_t size, 
+<span class="lineNum">     544 </span>                :            :                            PoreInlineLocation lc, 
+<span class="lineNum">     545 </span>                :            :                            int options);
+<span class="lineNum">     546 </span>                :            : 
+<span class="lineNum">     547 </span>                :            : void
+<span class="lineNum">     548 </span>                :            : pore_inline_context_reset(PoreInlineContext *context);
+<span class="lineNum">     549 </span>                :            : 
+<span class="lineNum">     550 </span>                :            : void
+<span class="lineNum">     551 </span>                :            : pore_inline_context_reset_excursion(PoreInlineContext *context);
+<span class="lineNum">     552 </span>                :            : 
+<span class="lineNum">     553 </span>                :            : void
+<span class="lineNum">     554 </span>                :            : pore_inline_context_copy(PoreInlineContext *dest, PoreInlineContext *src);
+<span class="lineNum">     555 </span>                :            : 
+<span class="lineNum">     556 </span>                :            : 
+<span class="lineNum">     557 </span>                :            : int
+<span class="lineNum">     558 </span>                :            : pore_inline_branch_fixup(PoreInlineContext *ctx, 
+<span class="lineNum">     559 </span>                :            :                          PoreInlineLocation source,
+<span class="lineNum">     560 </span>                :            :                          PoreInlineLocation target);
+<span class="lineNum">     561 </span>                :            : 
+<span class="lineNum">     562 </span>                :            : 
+<span class="lineNum">     563 </span>                :            : int
+<span class="lineNum">     564 </span>                :            : pore_inline_disassemble(PoreInlineContext *ctx, PoreInlineDisassembly *dis);
+<span class="lineNum">     565 </span>                :            : 
+<span class="lineNum">     566 </span>                :            : 
+<span class="lineNum">     567 </span>                :            : // Native PORE instruction assembly, using PGAS opcode names and operand
+<span class="lineNum">     568 </span>                :            : // ordering rules. 
+<span class="lineNum">     569 </span>                :            : 
+<span class="lineNum">     570 </span>                :            : // NOP, TRAP, RET
+<a name="571"><span class="lineNum">     571 </span>                :            : </a>
+<span class="lineNum">     572 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     573 </span>                :<span class="lineNoCov">          0 : pore_NOP(PoreInlineContext *ctx) </span>
+<span class="lineNum">     574 </span>                :            : {
+<span class="lineNum">     575 </span>                :<span class="lineNoCov">          0 :     return pore_inline_instruction1(ctx, PGAS_OPCODE_NOP, 0);</span>
+<span class="lineNum">     576 </span>                :            : }
+<span class="lineNum">     577 </span>                :            : 
+<span class="lineNum">     578 </span>                :            : 
+<span class="lineNum">     579 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     580 </span>                :            : pore_TRAP(PoreInlineContext *ctx) 
+<span class="lineNum">     581 </span>                :            : {
+<span class="lineNum">     582 </span>                :            :     return pore_inline_instruction1(ctx, PGAS_OPCODE_TRAP, 0);
+<span class="lineNum">     583 </span>                :            : }
+<span class="lineNum">     584 </span>                :            : 
+<a name="585"><span class="lineNum">     585 </span>                :            : </a>
+<span class="lineNum">     586 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     587 </span>                :<span class="lineNoCov">          0 : pore_RET(PoreInlineContext *ctx) </span>
+<span class="lineNum">     588 </span>                :            : {
+<span class="lineNum">     589 </span>                :<span class="lineNoCov">          0 :     return pore_inline_instruction1(ctx, PGAS_OPCODE_RET, 0);</span>
+<span class="lineNum">     590 </span>                :            : }
+<span class="lineNum">     591 </span>                :            : 
+<span class="lineNum">     592 </span>                :            : 
+<span class="lineNum">     593 </span>                :            : // WAITS, HALT, HOOKI
+<span class="lineNum">     594 </span>                :            : 
+<span class="lineNum">     595 </span>                :            : int
+<span class="lineNum">     596 </span>                :            : pore_WAITS(PoreInlineContext *ctx, uint32_t cycles);
+<span class="lineNum">     597 </span>                :            : 
+<span class="lineNum">     598 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     599 </span>                :            : pore_HALT(PoreInlineContext *ctx)
+<span class="lineNum">     600 </span>                :            : {
+<span class="lineNum">     601 </span>                :            :     return pore_inline_instruction1(ctx, PGAS_OPCODE_WAITS, 0);
+<span class="lineNum">     602 </span>                :            : }    
+<span class="lineNum">     603 </span>                :            : 
+<span class="lineNum">     604 </span>                :            : int
+<span class="lineNum">     605 </span>                :            : pore_HOOKI(PoreInlineContext *ctx, uint32_t index, uint64_t imm);
+<span class="lineNum">     606 </span>                :            : 
+<span class="lineNum">     607 </span>                :            : 
+<span class="lineNum">     608 </span>                :            : // BRA, BSR, LOOP
+<a name="609"><span class="lineNum">     609 </span>                :            : </a>
+<span class="lineNum">     610 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     611 </span>                :<span class="lineNoCov">          0 : pore_BRA(PoreInlineContext *ctx, PoreInlineLocation target)</span>
+<span class="lineNum">     612 </span>                :            : {
+<span class="lineNum">     613 </span>                :<span class="lineNoCov">          0 :     return pore_inline_bra(ctx, PGAS_OPCODE_BRA, target);</span>
+<span class="lineNum">     614 </span>                :            : }
+<a name="615"><span class="lineNum">     615 </span>                :            : </a>
+<span class="lineNum">     616 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     617 </span>                :<span class="lineNoCov">          0 : pore_BSR(PoreInlineContext *ctx, PoreInlineLocation target)</span>
+<span class="lineNum">     618 </span>                :            : {
+<span class="lineNum">     619 </span>                :<span class="lineNoCov">          0 :     return pore_inline_bra(ctx, PGAS_OPCODE_BSR, target);</span>
+<span class="lineNum">     620 </span>                :            : }
+<a name="621"><span class="lineNum">     621 </span>                :            : </a>
+<span class="lineNum">     622 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     623 </span>                :<span class="lineNoCov">          0 : pore_LOOP(PoreInlineContext *ctx, PoreInlineLocation target)</span>
+<span class="lineNum">     624 </span>                :            : {
+<span class="lineNum">     625 </span>                :<span class="lineNoCov">          0 :     return pore_inline_bra(ctx, PGAS_OPCODE_LOOP, target);</span>
+<span class="lineNum">     626 </span>                :            : }
+<span class="lineNum">     627 </span>                :            : 
+<span class="lineNum">     628 </span>                :            : 
+<span class="lineNum">     629 </span>                :            : // BRAZ, BRANZ
+<a name="630"><span class="lineNum">     630 </span>                :            : </a>
+<span class="lineNum">     631 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     632 </span>                :<span class="lineNoCov">          0 : pore_BRAZ(PoreInlineContext *ctx, int reg, PoreInlineLocation target)</span>
+<span class="lineNum">     633 </span>                :            : {
+<span class="lineNum">     634 </span>                :<span class="lineNoCov">          0 :     return pore_inline_brac(ctx, PGAS_OPCODE_BRAZ, reg, target);</span>
+<span class="lineNum">     635 </span>                :            : }
+<span class="lineNum">     636 </span>                :            : 
+<a name="637"><span class="lineNum">     637 </span>                :            : </a>
+<span class="lineNum">     638 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     639 </span>                :<span class="lineNoCov">          0 : pore_BRANZ(PoreInlineContext *ctx, int reg, PoreInlineLocation target)</span>
+<span class="lineNum">     640 </span>                :            : {
+<span class="lineNum">     641 </span>                :<span class="lineNoCov">          0 :     return pore_inline_brac(ctx, PGAS_OPCODE_BRANZ, reg, target);</span>
+<span class="lineNum">     642 </span>                :            : }
+<span class="lineNum">     643 </span>                :            : 
+<span class="lineNum">     644 </span>                :            : 
+<span class="lineNum">     645 </span>                :            : // CMPIBRAEQ, CMPIBRANE, CMPIBSREQ
+<a name="646"><span class="lineNum">     646 </span>                :            : </a>
+<span class="lineNum">     647 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     648 </span>                :<span class="lineNoCov">          0 : pore_CMPIBRAEQ(PoreInlineContext *ctx, </span>
+<span class="lineNum">     649 </span>                :            :                int reg, PoreInlineLocation target, uint64_t imm)
+<span class="lineNum">     650 </span>                :            : {
+<span class="lineNum">     651 </span>                :<span class="lineNoCov">          0 :     return pore_inline_cmpibra(ctx, PGAS_OPCODE_CMPIBRAEQ, reg, target, imm);</span>
+<span class="lineNum">     652 </span>                :            : }
+<span class="lineNum">     653 </span>                :            : 
+<a name="654"><span class="lineNum">     654 </span>                :            : </a>
+<span class="lineNum">     655 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     656 </span>                :<span class="lineNoCov">          0 : pore_CMPIBRANE(PoreInlineContext *ctx, </span>
+<span class="lineNum">     657 </span>                :            :                int reg, PoreInlineLocation target, uint64_t imm)
+<span class="lineNum">     658 </span>                :            : {
+<span class="lineNum">     659 </span>                :<span class="lineNoCov">          0 :     return pore_inline_cmpibra(ctx, PGAS_OPCODE_CMPIBRANE, reg, target, imm);</span>
+<span class="lineNum">     660 </span>                :            : }
+<span class="lineNum">     661 </span>                :            : 
+<a name="662"><span class="lineNum">     662 </span>                :            : </a>
+<span class="lineNum">     663 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     664 </span>                :<span class="lineNoCov">          0 : pore_CMPIBSREQ(PoreInlineContext *ctx, </span>
+<span class="lineNum">     665 </span>                :            :                int reg, PoreInlineLocation target, uint64_t imm)
+<span class="lineNum">     666 </span>                :            : {
+<span class="lineNum">     667 </span>                :<span class="lineNoCov">          0 :     return pore_inline_cmpibra(ctx, PGAS_OPCODE_CMPIBSREQ, reg, target, imm);</span>
+<span class="lineNum">     668 </span>                :            : }
+<span class="lineNum">     669 </span>                :            : 
+<span class="lineNum">     670 </span>                :            : 
+<span class="lineNum">     671 </span>                :            : // BRAD, BSRD
+<span class="lineNum">     672 </span>                :            : 
+<span class="lineNum">     673 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     674 </span>                :            : pore_BRAD(PoreInlineContext *ctx, int reg) {
+<span class="lineNum">     675 </span>                :            :     return pore_inline_brad(ctx, PGAS_OPCODE_BRAD, reg);
+<span class="lineNum">     676 </span>                :            : }
+<span class="lineNum">     677 </span>                :            : 
+<span class="lineNum">     678 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     679 </span>                :            : pore_BSRD(PoreInlineContext *ctx, int reg) {
+<span class="lineNum">     680 </span>                :            :     return pore_inline_brad(ctx, PGAS_OPCODE_BSRD, reg);
+<span class="lineNum">     681 </span>                :            : }
+<span class="lineNum">     682 </span>                :            : 
+<span class="lineNum">     683 </span>                :            : 
+<span class="lineNum">     684 </span>                :            : // ANDI, ORI, XORI
+<span class="lineNum">     685 </span>                :            : 
+<span class="lineNum">     686 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     687 </span>                :            : pore_ANDI(PoreInlineContext *ctx, int dest, int src, uint64_t imm)
+<span class="lineNum">     688 </span>                :            : {
+<span class="lineNum">     689 </span>                :            :     return pore_inline_ilogic(ctx, PGAS_OPCODE_ANDI, dest, src, imm);
+<span class="lineNum">     690 </span>                :            : }
+<span class="lineNum">     691 </span>                :            : 
+<span class="lineNum">     692 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     693 </span>                :            : pore_ORI(PoreInlineContext *ctx, int dest, int src, uint64_t imm)
+<span class="lineNum">     694 </span>                :            : {
+<span class="lineNum">     695 </span>                :            :     return pore_inline_ilogic(ctx, PGAS_OPCODE_ORI, dest, src, imm);
+<span class="lineNum">     696 </span>                :            : }
+<span class="lineNum">     697 </span>                :            : 
+<span class="lineNum">     698 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     699 </span>                :            : pore_XORI(PoreInlineContext *ctx, int dest, int src, uint64_t imm)
+<span class="lineNum">     700 </span>                :            : {
+<span class="lineNum">     701 </span>                :            :     return pore_inline_ilogic(ctx, PGAS_OPCODE_XORI, dest, src, imm);
+<span class="lineNum">     702 </span>                :            : }
+<span class="lineNum">     703 </span>                :            : 
+<span class="lineNum">     704 </span>                :            : 
+<span class="lineNum">     705 </span>                :            : // AND, OR, XOR, ADD, SUB
+<span class="lineNum">     706 </span>                :            : 
+<span class="lineNum">     707 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     708 </span>                :            : pore_AND(PoreInlineContext *ctx, int dest, int src1, int src2)
+<span class="lineNum">     709 </span>                :            : {
+<span class="lineNum">     710 </span>                :            :     return pore_inline_alurr(ctx, PGAS_OPCODE_AND, dest, src1, src2);
+<span class="lineNum">     711 </span>                :            : }
+<span class="lineNum">     712 </span>                :            : 
+<span class="lineNum">     713 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     714 </span>                :            : pore_OR(PoreInlineContext *ctx, int dest, int src1, int src2)
+<span class="lineNum">     715 </span>                :            : {
+<span class="lineNum">     716 </span>                :            :     return pore_inline_alurr(ctx, PGAS_OPCODE_OR, dest, src1, src2);
+<span class="lineNum">     717 </span>                :            : }
+<span class="lineNum">     718 </span>                :            : 
+<span class="lineNum">     719 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     720 </span>                :            : pore_XOR(PoreInlineContext *ctx, int dest, int src1, int src2)
+<span class="lineNum">     721 </span>                :            : {
+<span class="lineNum">     722 </span>                :            :     return pore_inline_alurr(ctx, PGAS_OPCODE_XOR, dest, src1, src2);
+<span class="lineNum">     723 </span>                :            : }
+<span class="lineNum">     724 </span>                :            : 
+<span class="lineNum">     725 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     726 </span>                :            : pore_ADD(PoreInlineContext *ctx, int dest, int src1, int src2)
+<span class="lineNum">     727 </span>                :            : {
+<span class="lineNum">     728 </span>                :            :     return pore_inline_alurr(ctx, PGAS_OPCODE_ADD, dest, src1, src2);
+<span class="lineNum">     729 </span>                :            : }
+<span class="lineNum">     730 </span>                :            : 
+<span class="lineNum">     731 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     732 </span>                :            : pore_SUB(PoreInlineContext *ctx, int dest, int src1, int src2)
+<span class="lineNum">     733 </span>                :            : {
+<span class="lineNum">     734 </span>                :            :     return pore_inline_alurr(ctx, PGAS_OPCODE_SUB, dest, src1, src2);
+<span class="lineNum">     735 </span>                :            : }
+<span class="lineNum">     736 </span>                :            : 
+<span class="lineNum">     737 </span>                :            : 
+<span class="lineNum">     738 </span>                :            : // ADDS, SUBS
+<span class="lineNum">     739 </span>                :            : 
+<span class="lineNum">     740 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     741 </span>                :            : pore_ADDS(PoreInlineContext *ctx, int dest, int src, int imm)
+<span class="lineNum">     742 </span>                :            : {
+<span class="lineNum">     743 </span>                :            :     return pore_inline_adds(ctx, PGAS_OPCODE_ADDS, dest, src, imm);
+<span class="lineNum">     744 </span>                :            : }
+<span class="lineNum">     745 </span>                :            : 
+<span class="lineNum">     746 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     747 </span>                :            : pore_SUBS(PoreInlineContext *ctx, int dest, int src, int imm)
+<span class="lineNum">     748 </span>                :            : {
+<span class="lineNum">     749 </span>                :            :     return pore_inline_adds(ctx, PGAS_OPCODE_SUBS, dest, src, imm);
+<span class="lineNum">     750 </span>                :            : }
+<span class="lineNum">     751 </span>                :            : 
+<span class="lineNum">     752 </span>                :            : 
+<span class="lineNum">     753 </span>                :            : // NEG, MR, ROLS, LS, LI
+<span class="lineNum">     754 </span>                :            : 
+<span class="lineNum">     755 </span>                :            : int
+<span class="lineNum">     756 </span>                :            : pore_NEG(PoreInlineContext *ctx, int dest, int src);
+<span class="lineNum">     757 </span>                :            : 
+<span class="lineNum">     758 </span>                :            : int
+<span class="lineNum">     759 </span>                :            : pore_MR(PoreInlineContext *ctx, int dest, int src);
+<span class="lineNum">     760 </span>                :            : 
+<span class="lineNum">     761 </span>                :            : int
+<span class="lineNum">     762 </span>                :            : pore_ROLS(PoreInlineContext *ctx, int dest, int src, int imm);
+<span class="lineNum">     763 </span>                :            : 
+<span class="lineNum">     764 </span>                :            : int
+<span class="lineNum">     765 </span>                :            : pore_LS(PoreInlineContext *ctx, int dest, int imm);
+<span class="lineNum">     766 </span>                :            : 
+<span class="lineNum">     767 </span>                :            : int
+<span class="lineNum">     768 </span>                :            : pore_LI(PoreInlineContext *ctx, int dest, uint64_t imm);
+<span class="lineNum">     769 </span>                :            : 
+<span class="lineNum">     770 </span>                :            : 
+<span class="lineNum">     771 </span>                :            : // LD, LDANDI, STD, STI, BSI, BCI
+<span class="lineNum">     772 </span>                :            : 
+<span class="lineNum">     773 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     774 </span>                :            : pore_LD(PoreInlineContext *ctx, int dest, int32_t offset, int base) 
+<span class="lineNum">     775 </span>                :            : {
+<span class="lineNum">     776 </span>                :            :     return 
+<span class="lineNum">     777 </span>                :            :         pore_inline_load_store(ctx, 
+<span class="lineNum">     778 </span>                :            :                                PORE_INLINE_PSEUDO_LD, dest, offset, base, 0);
+<span class="lineNum">     779 </span>                :            : }
+<span class="lineNum">     780 </span>                :            : 
+<span class="lineNum">     781 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     782 </span>                :            : pore_LDANDI(PoreInlineContext *ctx, 
+<span class="lineNum">     783 </span>                :            :             int dest, int32_t offset, int base, uint64_t imm)
+<span class="lineNum">     784 </span>                :            : {
+<span class="lineNum">     785 </span>                :            :     return 
+<span class="lineNum">     786 </span>                :            :         pore_inline_load_store(ctx, 
+<span class="lineNum">     787 </span>                :            :                                PORE_INLINE_PSEUDO_LDANDI, 
+<span class="lineNum">     788 </span>                :            :                                dest, offset, base, imm);
+<span class="lineNum">     789 </span>                :            : }
+<span class="lineNum">     790 </span>                :            : 
+<span class="lineNum">     791 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     792 </span>                :            : pore_STD(PoreInlineContext *ctx, int src, int32_t offset, int base) 
+<span class="lineNum">     793 </span>                :            : {
+<span class="lineNum">     794 </span>                :            :     return 
+<span class="lineNum">     795 </span>                :            :         pore_inline_load_store(ctx, 
+<span class="lineNum">     796 </span>                :            :                                PORE_INLINE_PSEUDO_STD, src, offset, base, 0);
+<span class="lineNum">     797 </span>                :            : }
+<a name="798"><span class="lineNum">     798 </span>                :            : </a>
+<span class="lineNum">     799 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     800 </span>                :<span class="lineNoCov">          0 : pore_STI(PoreInlineContext *ctx, int32_t offset, int base, uint64_t imm)</span>
+<span class="lineNum">     801 </span>                :            : {
+<span class="lineNum">     802 </span>                :<span class="lineNoCov">          0 :     return </span>
+<span class="lineNum">     803 </span>                :            :         pore_inline_load_store(ctx, 
+<span class="lineNum">     804 </span>                :            :                                PGAS_OPCODE_STI, 0, offset, base, imm);
+<span class="lineNum">     805 </span>                :            : }
+<span class="lineNum">     806 </span>                :            : 
+<span class="lineNum">     807 </span>                :            : 
+<span class="lineNum">     808 </span>                :            : #ifdef IGNORE_HW274735
+<span class="lineNum">     809 </span>                :            : 
+<span class="lineNum">     810 </span>                :            : // BSI and BCI are redacted as instructions and reimplemented as &quot;macros&quot; due
+<span class="lineNum">     811 </span>                :            : // to HW274735, unless specifically overridden. Note that the inline assembler
+<span class="lineNum">     812 </span>                :            : // will allow D1 to be used as scratch here, unlike the underlying hardware
+<span class="lineNum">     813 </span>                :            : // instruction. 
+<span class="lineNum">     814 </span>                :            : 
+<span class="lineNum">     815 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     816 </span>                :            : pore_BSI(PoreInlineContext *ctx, 
+<span class="lineNum">     817 </span>                :            :          int src, int32_t offset, int base, uint64_t imm) 
+<span class="lineNum">     818 </span>                :            : {
+<span class="lineNum">     819 </span>                :            :     return 
+<span class="lineNum">     820 </span>                :            :         pore_inline_load_store(ctx, 
+<span class="lineNum">     821 </span>                :            :                                PGAS_OPCODE_BSI, src, offset, base, imm);
+<span class="lineNum">     822 </span>                :            : }
+<span class="lineNum">     823 </span>                :            : 
+<span class="lineNum">     824 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     825 </span>                :            : pore_BCI(PoreInlineContext *ctx, 
+<span class="lineNum">     826 </span>                :            :          int src, int32_t offset, int base, uint64_t imm) 
+<span class="lineNum">     827 </span>                :            : {
+<span class="lineNum">     828 </span>                :            :     return 
+<span class="lineNum">     829 </span>                :            :         pore_inline_load_store(ctx, 
+<span class="lineNum">     830 </span>                :            :                                PGAS_OPCODE_BCI, src, offset, base, imm);
+<span class="lineNum">     831 </span>                :            : }
+<span class="lineNum">     832 </span>                :            : 
+<span class="lineNum">     833 </span>                :            : #else
+<span class="lineNum">     834 </span>                :            : 
+<span class="lineNum">     835 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     836 </span>                :            : pore_BSI(PoreInlineContext *ctx, 
+<span class="lineNum">     837 </span>                :            :          int src, int32_t offset, int base, uint64_t imm) 
+<span class="lineNum">     838 </span>                :            : {
+<span class="lineNum">     839 </span>                :            :     return 
+<span class="lineNum">     840 </span>                :            :         ((pore_LD(ctx, src, offset, base) ||
+<span class="lineNum">     841 </span>                :            :           pore_ORI(ctx, src, src, imm)    ||
+<span class="lineNum">     842 </span>                :            :           pore_STD(ctx, src, offset, base)) ? ctx-&gt;error : 0);
+<span class="lineNum">     843 </span>                :            : }
+<span class="lineNum">     844 </span>                :            : 
+<span class="lineNum">     845 </span>                :            : PORE_STATIC inline int
+<span class="lineNum">     846 </span>                :            : pore_BCI(PoreInlineContext *ctx, 
+<span class="lineNum">     847 </span>                :            :          int src, int32_t offset, int base, uint64_t imm) 
+<span class="lineNum">     848 </span>                :            : {
+<span class="lineNum">     849 </span>                :            :     return 
+<span class="lineNum">     850 </span>                :            :         ((pore_LDANDI(ctx, src, offset, base, ~imm) ||
+<span class="lineNum">     851 </span>                :            :           pore_STD(ctx, src, offset, base)) ? ctx-&gt;error : 0);
+<span class="lineNum">     852 </span>                :            : }
+<span class="lineNum">     853 </span>                :            : 
+<span class="lineNum">     854 </span>                :            : #endif // IGNORE_HW274735
+<span class="lineNum">     855 </span>                :            : 
+<span class="lineNum">     856 </span>                :            : 
+<span class="lineNum">     857 </span>                :            : // BRAIA
+<span class="lineNum">     858 </span>                :            : 
+<span class="lineNum">     859 </span>                :            : int
+<span class="lineNum">     860 </span>                :            : pore_BRAIA(PoreInlineContext *ctx,
+<span class="lineNum">     861 </span>                :            :            uint16_t address_space, uint32_t offset);
+<span class="lineNum">     862 </span>                :            : 
+<span class="lineNum">     863 </span>                :            : 
+<span class="lineNum">     864 </span>                :            : // SCAND
+<span class="lineNum">     865 </span>                :            : 
+<span class="lineNum">     866 </span>                :            : int
+<span class="lineNum">     867 </span>                :            : pore_SCAND(PoreInlineContext *ctx,
+<span class="lineNum">     868 </span>                :            :            int update, int capture, uint16_t length, 
+<span class="lineNum">     869 </span>                :            :            uint32_t select, uint32_t offset);
+<span class="lineNum">     870 </span>                :            : 
+<span class="lineNum">     871 </span>                :            : #endif  /* __ASSEMBLER__ */
+<span class="lineNum">     872 </span>                :            : 
+<span class="lineNum">     873 </span>                :            : #if 0
+<span class="lineNum">     874 </span>                :            : { /* So __cplusplus doesn't mess w/auto-indent */
+<span class="lineNum">     875 </span>                :            : #endif
+<span class="lineNum">     876 </span>                :            : #if( defined(__cplusplus) &amp;&amp; !defined(PLIC_MODULE) ) 
+<span class="lineNum">     877 </span>                :            : }
+<span class="lineNum">     878 </span>                :            : #endif
+<span class="lineNum">     879 </span>                :            : 
+<span class="lineNum">     880 </span>                :            : #endif  /* __PORE_INLINE_H__ */
+<span class="lineNum">     881 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

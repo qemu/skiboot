@@ -1,0 +1,172 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - include/i2c.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">include</a> - i2c.h<span style="font-size: 80%;"> (source / <a href="i2c.h.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #ifndef __I2C_H
+<span class="lineNum">      18 </span>                :            : #define __I2C_H
+<span class="lineNum">      19 </span>                :            : 
+<span class="lineNum">      20 </span>                :            : struct i2c_request;
+<span class="lineNum">      21 </span>                :            : 
+<span class="lineNum">      22 </span>                :            : struct i2c_bus {
+<span class="lineNum">      23 </span>                :            :         struct list_node        link;
+<span class="lineNum">      24 </span>                :            :         struct dt_node          *dt_node;
+<span class="lineNum">      25 </span>                :            :         uint32_t                opal_id;
+<span class="lineNum">      26 </span>                :            :         int                     (*queue_req)(struct i2c_request *req);
+<span class="lineNum">      27 </span>                :            :         struct i2c_request      *(*alloc_req)(struct i2c_bus *bus);
+<span class="lineNum">      28 </span>                :            :         void                    (*free_req)(struct i2c_request *req);
+<span class="lineNum">      29 </span>                :            : };
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : /*
+<span class="lineNum">      32 </span>                :            :  * I2C specific OPAL error codes:
+<span class="lineNum">      33 </span>                :            :  *
+<span class="lineNum">      34 </span>                :            :  * OPAL_I2C_TIMEOUT             I2C request timed out
+<span class="lineNum">      35 </span>                :            :  * OPAL_I2C_INVALID_CMD         New command given when old not completed yet
+<span class="lineNum">      36 </span>                :            :  * OPAL_I2C_LBUS_PARITY         Local bus parity error
+<span class="lineNum">      37 </span>                :            :  * OPAL_I2C_BKEND_OVERRUN       Writing/reading into full/empty fifo respectively
+<span class="lineNum">      38 </span>                :            :  * OPAL_I2C_BKEND_ACCESS        Writing/reading more data than requested
+<span class="lineNum">      39 </span>                :            :  * OPAL_I2C_ARBT_LOST           I2C bus is held by some other master
+<span class="lineNum">      40 </span>                :            :  * OPAL_I2C_NACK_RCVD           Slave is not responding back with the ACK
+<span class="lineNum">      41 </span>                :            :  * OPAL_I2C_STOP_ERR            Did not able to send the STOP condtion on bus
+<span class="lineNum">      42 </span>                :            :  */
+<span class="lineNum">      43 </span>                :            : 
+<span class="lineNum">      44 </span>                :            : struct i2c_request {
+<span class="lineNum">      45 </span>                :            :         struct list_node        link;
+<span class="lineNum">      46 </span>                :            :         struct i2c_bus          *bus;
+<span class="lineNum">      47 </span>                :            :         enum i2c_operation {
+<span class="lineNum">      48 </span>                :            :                 I2C_READ,       /* RAW read from the device without offset */
+<span class="lineNum">      49 </span>                :            :                 I2C_WRITE,      /* RAW write to the device without offset */
+<span class="lineNum">      50 </span>                :            :                 SMBUS_READ,     /* SMBUS protocol read from the device */
+<span class="lineNum">      51 </span>                :            :                 SMBUS_WRITE,    /* SMBUS protocol write to the device */
+<span class="lineNum">      52 </span>                :            :         } op;
+<span class="lineNum">      53 </span>                :            :         int                     result;         /* OPAL i2c error code */
+<span class="lineNum">      54 </span>                :            :         uint32_t                dev_addr;       /* Slave device address */
+<span class="lineNum">      55 </span>                :            :         uint32_t                offset_bytes;   /* Internal device offset */
+<span class="lineNum">      56 </span>                :            :         uint32_t                offset;         /* Internal device offset */
+<span class="lineNum">      57 </span>                :            :         uint32_t                rw_len;         /* Length of the data request */
+<span class="lineNum">      58 </span>                :            :         void                    *rw_buf;        /* Data request buffer */
+<span class="lineNum">      59 </span>                :            :         void                    (*completion)(  /* Completion callback */
+<span class="lineNum">      60 </span>                :            :                                               int rc, struct i2c_request *req);
+<span class="lineNum">      61 </span>                :            :         void                    *user_data;     /* Client data */
+<span class="lineNum">      62 </span>                :            : };
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :            : /* Generic i2c */
+<span class="lineNum">      65 </span>                :            : extern void i2c_add_bus(struct i2c_bus *bus);
+<a name="66"><span class="lineNum">      66 </span>                :            : extern struct i2c_bus *i2c_find_bus_by_id(uint32_t opal_id);</a>
+<span class="lineNum">      67 </span>                :            : 
+<span class="lineNum">      68 </span>                :<span class="lineNoCov">          0 : static inline struct i2c_request *i2c_alloc_req(struct i2c_bus *bus)</span>
+<span class="lineNum">      69 </span>                :            : {
+<span class="lineNum">      70 </span>                :<span class="lineNoCov">          0 :         return bus-&gt;alloc_req(bus);</span>
+<a name="71"><span class="lineNum">      71 </span>                :            : }</a>
+<span class="lineNum">      72 </span>                :            : 
+<span class="lineNum">      73 </span>                :<span class="lineNoCov">          0 : static inline void i2c_free_req(struct i2c_request *req)</span>
+<span class="lineNum">      74 </span>                :            : {
+<span class="lineNum">      75 </span>                :<span class="lineNoCov">          0 :         req-&gt;bus-&gt;free_req(req);</span>
+<a name="76"><span class="lineNum">      76 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :<span class="lineNoCov">          0 : static inline int i2c_queue_req(struct i2c_request *req)</span>
+<span class="lineNum">      79 </span>                :            : {
+<span class="lineNum">      80 </span>                :<span class="lineNoCov">          0 :         return req-&gt;bus-&gt;queue_req(req);</span>
+<span class="lineNum">      81 </span>                :            : }
+<span class="lineNum">      82 </span>                :            : 
+<span class="lineNum">      83 </span>                :            : /* P8 implementation details */
+<span class="lineNum">      84 </span>                :            : extern void p8_i2c_init(void);
+<span class="lineNum">      85 </span>                :            : extern void p8_i2c_interrupt(uint32_t chip_id);
+<span class="lineNum">      86 </span>                :            : 
+<span class="lineNum">      87 </span>                :            : #endif /* __I2C_H */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,643 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - core/flash.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">core</a> - flash.c<span style="font-size: 80%;"> (source / <a href="flash.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">219</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">13</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">114</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;opal.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;opal-msg.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;opal-api.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;device.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;libflash/libflash.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;libflash/libffs.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;ecc.h&gt;
+<span class="lineNum">      26 </span>                :            : 
+<span class="lineNum">      27 </span>                :            : struct flash {
+<span class="lineNum">      28 </span>                :            :         bool                    registered;
+<span class="lineNum">      29 </span>                :            :         struct flash_chip       *chip;
+<span class="lineNum">      30 </span>                :            :         uint32_t                size;
+<span class="lineNum">      31 </span>                :            :         uint32_t                block_size;
+<span class="lineNum">      32 </span>                :            : };
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            : #define MAX_FLASH 1
+<span class="lineNum">      35 </span>                :            : static struct flash flashes[MAX_FLASH];
+<span class="lineNum">      36 </span>                :            : static struct flash *system_flash;
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :            : /* Using a single lock as we only have one flash at present. */
+<span class="lineNum">      39 </span>                :            : static struct lock flash_lock;
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :            : /* nvram-on-flash support */
+<span class="lineNum">      42 </span>                :            : static struct flash *nvram_flash;
+<a name="43"><span class="lineNum">      43 </span>                :            : static u32 nvram_offset, nvram_size;</a>
+<span class="lineNum">      44 </span>                :            : 
+<span class="lineNum">      45 </span>                :<span class="lineNoCov">          0 : static int flash_nvram_info(uint32_t *total_size)</span>
+<span class="lineNum">      46 </span>                :            : {
+<span class="lineNum">      47 </span>                :<span class="lineNoCov">          0 :         int rc = OPAL_HARDWARE;</span>
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :<span class="lineNoCov">          0 :         lock(&amp;flash_lock);</span>
+<span class="lineNum">      50 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (nvram_flash) {</span>
+<span class="lineNum">      51 </span>                :<span class="lineNoCov">          0 :                 *total_size = nvram_size;</span>
+<span class="lineNum">      52 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_SUCCESS;</span>
+<span class="lineNum">      53 </span>                :            :         }
+<span class="lineNum">      54 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;flash_lock);</span>
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="57"><span class="lineNum">      57 </span>                :            : }</a>
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 : static int flash_nvram_start_read(void *dst, uint32_t src, uint32_t len)</span>
+<span class="lineNum">      60 </span>                :            : {
+<span class="lineNum">      61 </span>                :            :         int rc;
+<span class="lineNum">      62 </span>                :            : 
+<span class="lineNum">      63 </span>                :<span class="lineNoCov">          0 :         lock(&amp;flash_lock);</span>
+<span class="lineNum">      64 </span>                :            : 
+<span class="lineNum">      65 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!nvram_flash) {</span>
+<span class="lineNum">      66 </span>                :            :                 rc = OPAL_HARDWARE;
+<span class="lineNum">      67 </span>                :            :                 goto out;
+<span class="lineNum">      68 </span>                :            :         }
+<span class="lineNum">      69 </span>                :            : 
+<span class="lineNum">      70 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((src + len) &gt; nvram_size) {</span>
+<span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FLASH_NVRAM: read out of bound (0x%x,0x%x)\n&quot;,</span>
+<span class="lineNum">      72 </span>                :            :                         src, len);
+<span class="lineNum">      73 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_PARAMETER;</span>
+<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 :                 goto out;</span>
+<span class="lineNum">      75 </span>                :            :         }
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 :         rc = flash_read(nvram_flash-&gt;chip, nvram_offset + src, dst, len);</span>
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>                :            : out:
+<span class="lineNum">      80 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;flash_lock);</span>
+<span class="lineNum">      81 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!rc)</span>
+<span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 :                 nvram_read_complete(true);</span>
+<span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="84"><span class="lineNum">      84 </span>                :            : }</a>
+<span class="lineNum">      85 </span>                :            : 
+<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 : static int flash_nvram_write(uint32_t dst, void *src, uint32_t len)</span>
+<span class="lineNum">      87 </span>                :            : {
+<span class="lineNum">      88 </span>                :            :         int rc;
+<span class="lineNum">      89 </span>                :            : 
+<span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :         lock(&amp;flash_lock);</span>
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :            :         /* TODO: When we have async jobs for PRD, turn this into one */
+<span class="lineNum">      93 </span>                :            : 
+<span class="lineNum">      94 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((dst + len) &gt; nvram_size) {</span>
+<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FLASH_NVRAM: write out of bound (0x%x,0x%x)\n&quot;,</span>
+<span class="lineNum">      96 </span>                :            :                         dst, len);
+<span class="lineNum">      97 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_PARAMETER;</span>
+<span class="lineNum">      98 </span>                :<span class="lineNoCov">          0 :                 goto out;</span>
+<span class="lineNum">      99 </span>                :            :         }
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 :         rc = flash_smart_write(nvram_flash-&gt;chip, nvram_offset + dst, src, len);</span>
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :            : out:
+<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;flash_lock);</span>
+<span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="105"><span class="lineNum">     105 </span>                :            : }</a>
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 : static int flash_nvram_probe(struct flash *flash, struct ffs_handle *ffs)</span>
+<span class="lineNum">     108 </span>                :            : {
+<span class="lineNum">     109 </span>                :            :         uint32_t start, size, part;
+<span class="lineNum">     110 </span>                :            :         int rc;
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :         prlog(PR_INFO, &quot;FLASH: probing for NVRAM\n&quot;);</span>
+<span class="lineNum">     113 </span>                :            : 
+<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :         rc = ffs_lookup_part(ffs, &quot;NVRAM&quot;, &amp;part);</span>
+<span class="lineNum">     115 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_WARNING, &quot;FLASH: no NVRAM partition found\n&quot;);</span>
+<span class="lineNum">     117 </span>                :<span class="lineNoCov">          0 :                 return OPAL_HARDWARE;</span>
+<span class="lineNum">     118 </span>                :            :         }
+<span class="lineNum">     119 </span>                :            : 
+<span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 :         rc = ffs_part_info(ffs, part, NULL,</span>
+<span class="lineNum">     121 </span>                :            :                            &amp;start, &amp;size, NULL, NULL);
+<span class="lineNum">     122 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     123 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR, &quot;FLASH: Can't parse ffs info for NVRAM\n&quot;);</span>
+<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :                 return OPAL_HARDWARE;</span>
+<span class="lineNum">     125 </span>                :            :         }
+<span class="lineNum">     126 </span>                :            : 
+<span class="lineNum">     127 </span>                :<span class="lineNoCov">          0 :         nvram_flash = flash;</span>
+<span class="lineNum">     128 </span>                :<span class="lineNoCov">          0 :         nvram_offset = start;</span>
+<span class="lineNum">     129 </span>                :<span class="lineNoCov">          0 :         nvram_size = size;</span>
+<span class="lineNum">     130 </span>                :            : 
+<span class="lineNum">     131 </span>                :<span class="lineNoCov">          0 :         platform.nvram_info = flash_nvram_info;</span>
+<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :         platform.nvram_start_read = flash_nvram_start_read;</span>
+<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 :         platform.nvram_write = flash_nvram_write;</span>
+<span class="lineNum">     134 </span>                :            : 
+<span class="lineNum">     135 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     136 </span>                :            : }
+<span class="lineNum">     137 </span>                :            : 
+<a name="138"><span class="lineNum">     138 </span>                :            : /* core flash support */</a>
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>                :<span class="lineNoCov">          0 : static void flash_add_dt_partition_node(struct dt_node *flash_node, char *name,</span>
+<span class="lineNum">     141 </span>                :            :                 uint32_t start, uint32_t size)
+<span class="lineNum">     142 </span>                :            : {
+<span class="lineNum">     143 </span>                :            :         struct dt_node *part_node;
+<span class="lineNum">     144 </span>                :            : 
+<span class="lineNum">     145 </span>                :<span class="lineNoCov">          0 :         part_node = dt_new_addr(flash_node, &quot;partition&quot;, start);</span>
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(part_node, &quot;reg&quot;, start, size);</span>
+<span class="lineNum">     147 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (name &amp;&amp; strlen(name))</span>
+<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_strings(part_node, &quot;label&quot;, name);</span>
+<a name="149"><span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     150 </span>                :            : 
+<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 : static void flash_add_dt_node(struct flash *flash, int id,</span>
+<span class="lineNum">     152 </span>                :            :                 struct ffs_handle *ffs)
+<span class="lineNum">     153 </span>                :            : {
+<span class="lineNum">     154 </span>                :            :         struct dt_node *flash_node;
+<span class="lineNum">     155 </span>                :            :         int i;
+<span class="lineNum">     156 </span>                :            : 
+<span class="lineNum">     157 </span>                :<span class="lineNoCov">          0 :         flash_node = dt_new_addr(opal_node, &quot;flash&quot;, id);</span>
+<span class="lineNum">     158 </span>                :<span class="lineNoCov">          0 :         dt_add_property_strings(flash_node, &quot;compatible&quot;, &quot;ibm,opal-flash&quot;);</span>
+<span class="lineNum">     159 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(flash_node, &quot;ibm,opal-id&quot;, id);</span>
+<span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(flash_node, &quot;reg&quot;, 0, flash-&gt;size);</span>
+<span class="lineNum">     161 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(flash_node, &quot;ibm,flash-block-size&quot;,</span>
+<span class="lineNum">     162 </span>                :            :                         flash-&gt;block_size);
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>                :            :         /* we fix to 32-bits */
+<span class="lineNum">     165 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(flash_node, &quot;#address-cells&quot;, 1);</span>
+<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(flash_node, &quot;#size-cells&quot;, 1);</span>
+<span class="lineNum">     167 </span>                :            : 
+<span class="lineNum">     168 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!ffs)</span>
+<span class="lineNum">     169 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     170 </span>                :            : 
+<span class="lineNum">     171 </span>                :<span class="lineNoCov">          0 :         for (i = 0; ; i++) {</span>
+<span class="lineNum">     172 </span>                :            :                 uint32_t start, size;
+<span class="lineNum">     173 </span>                :            :                 char *name;
+<span class="lineNum">     174 </span>                :            :                 int rc;
+<span class="lineNum">     175 </span>                :            : 
+<span class="lineNum">     176 </span>                :<span class="lineNoCov">          0 :                 rc = ffs_part_info(ffs, i, &amp;name, &amp;start, NULL, &amp;size, NULL);</span>
+<span class="lineNum">     177 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     178 </span>                :            :                         break;
+<span class="lineNum">     179 </span>                :            : 
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :                 flash_add_dt_partition_node(flash_node, name, start, size);</span>
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :         }</span>
+<a name="182"><span class="lineNum">     182 </span>                :            : }</a>
+<span class="lineNum">     183 </span>                :            : 
+<span class="lineNum">     184 </span>                :<span class="lineNoCov">          0 : int flash_register(struct flash_chip *chip, bool is_system_flash)</span>
+<span class="lineNum">     185 </span>                :            : {
+<span class="lineNum">     186 </span>                :            :         uint32_t size, block_size;
+<span class="lineNum">     187 </span>                :            :         struct ffs_handle *ffs;
+<span class="lineNum">     188 </span>                :            :         struct flash *flash;
+<span class="lineNum">     189 </span>                :            :         const char *name;
+<span class="lineNum">     190 </span>                :            :         unsigned int i;
+<span class="lineNum">     191 </span>                :            :         int rc;
+<span class="lineNum">     192 </span>                :            : 
+<span class="lineNum">     193 </span>                :<span class="lineNoCov">          0 :         rc = flash_get_info(chip, &amp;name, &amp;size, &amp;block_size);</span>
+<span class="lineNum">     194 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     195 </span>                :            :                 return rc;
+<span class="lineNum">     196 </span>                :            : 
+<span class="lineNum">     197 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         prlog(PR_INFO, &quot;FLASH: registering flash device %s &quot;</span>
+<span class="lineNum">     198 </span>                :            :                         &quot;(size 0x%x, blocksize 0x%x)\n&quot;,
+<span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 :                         name ?: &quot;(unnamed)&quot;, size, block_size);</span>
+<span class="lineNum">     200 </span>                :            : 
+<span class="lineNum">     201 </span>                :<span class="lineNoCov">          0 :         lock(&amp;flash_lock);</span>
+<span class="lineNum">     202 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; ARRAY_SIZE(flashes); i++) {</span>
+<span class="lineNum">     203 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (flashes[i].registered)</span>
+<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     205 </span>                :            : 
+<span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :                 flash = &amp;flashes[i];</span>
+<span class="lineNum">     207 </span>                :<span class="lineNoCov">          0 :                 flash-&gt;registered = true;</span>
+<span class="lineNum">     208 </span>                :<span class="lineNoCov">          0 :                 flash-&gt;chip = chip;</span>
+<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 :                 flash-&gt;size = size;</span>
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :                 flash-&gt;block_size = block_size;</span>
+<span class="lineNum">     211 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     212 </span>                :            :         }
+<span class="lineNum">     213 </span>                :            : 
+<span class="lineNum">     214 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!flash) {</span>
+<span class="lineNum">     215 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;flash_lock);</span>
+<span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR, &quot;FLASH: No flash slots available\n&quot;);</span>
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :                 return OPAL_RESOURCE;</span>
+<span class="lineNum">     218 </span>                :            :         }
+<span class="lineNum">     219 </span>                :            : 
+<span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 :         rc = ffs_open_flash(chip, 0, flash-&gt;size, &amp;ffs);</span>
+<span class="lineNum">     221 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     222 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_WARNING, &quot;FLASH: No ffs info; &quot;</span>
+<span class="lineNum">     223 </span>                :            :                                 &quot;using raw device only\n&quot;);
+<span class="lineNum">     224 </span>                :<span class="lineNoCov">          0 :                 ffs = NULL;</span>
+<span class="lineNum">     225 </span>                :            :         }
+<span class="lineNum">     226 </span>                :            : 
+<span class="lineNum">     227 </span>                :<span class="lineNoCov">          0 :         flash_add_dt_node(flash, i, ffs);</span>
+<span class="lineNum">     228 </span>                :            : 
+<span class="lineNum">     229 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (is_system_flash &amp;&amp; !system_flash) {</span>
+<span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 :                 system_flash = flash;</span>
+<span class="lineNum">     231 </span>                :<span class="lineNoCov">          0 :                 flash_nvram_probe(flash, ffs);</span>
+<span class="lineNum">     232 </span>                :            :         }
+<span class="lineNum">     233 </span>                :            : 
+<span class="lineNum">     234 </span>                :<span class="lineNoCov">          0 :         ffs_close(ffs);</span>
+<span class="lineNum">     235 </span>                :            : 
+<span class="lineNum">     236 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;flash_lock);</span>
+<span class="lineNum">     237 </span>                :            : 
+<span class="lineNum">     238 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<span class="lineNum">     239 </span>                :            : }
+<span class="lineNum">     240 </span>                :            : 
+<span class="lineNum">     241 </span>                :            : enum flash_op {
+<span class="lineNum">     242 </span>                :            :         FLASH_OP_READ,
+<span class="lineNum">     243 </span>                :            :         FLASH_OP_WRITE,
+<span class="lineNum">     244 </span>                :            :         FLASH_OP_ERASE,
+<a name="245"><span class="lineNum">     245 </span>                :            : };</a>
+<span class="lineNum">     246 </span>                :            : 
+<span class="lineNum">     247 </span>                :<span class="lineNoCov">          0 : static int64_t opal_flash_op(enum flash_op op, uint64_t id, uint64_t offset,</span>
+<span class="lineNum">     248 </span>                :            :                 uint64_t buf, uint64_t size, uint64_t token)
+<span class="lineNum">     249 </span>                :            : {
+<span class="lineNum">     250 </span>                :            :         struct flash *flash;
+<span class="lineNum">     251 </span>                :            :         uint32_t mask;
+<span class="lineNum">     252 </span>                :            :         int rc;
+<span class="lineNum">     253 </span>                :            : 
+<span class="lineNum">     254 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (id &gt;= ARRAY_SIZE(flashes))</span>
+<span class="lineNum">     255 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     256 </span>                :            : 
+<span class="lineNum">     257 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!try_lock(&amp;flash_lock))</span>
+<span class="lineNum">     258 </span>                :            :                 return OPAL_BUSY;
+<span class="lineNum">     259 </span>                :            : 
+<span class="lineNum">     260 </span>                :<span class="lineNoCov">          0 :         flash = &amp;flashes[id];</span>
+<span class="lineNum">     261 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!flash-&gt;registered) {</span>
+<span class="lineNum">     262 </span>                :            :                 rc = OPAL_PARAMETER;
+<span class="lineNum">     263 </span>                :            :                 goto err;
+<span class="lineNum">     264 </span>                :            :         }
+<span class="lineNum">     265 </span>                :            : 
+<span class="lineNum">     266 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (size &gt;= flash-&gt;size || offset &gt;= flash-&gt;size</span>
+<span class="lineNum">     267 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         || offset + size &gt;= flash-&gt;size) {</span>
+<span class="lineNum">     268 </span>                :            :                 rc = OPAL_PARAMETER;
+<span class="lineNum">     269 </span>                :            :                 goto err;
+<span class="lineNum">     270 </span>                :            :         }
+<span class="lineNum">     271 </span>                :            : 
+<span class="lineNum">     272 </span>                :<span class="lineNoCov">          0 :         mask = flash-&gt;block_size - 1;</span>
+<span class="lineNum">     273 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (size &amp; mask || offset &amp; mask) {</span>
+<span class="lineNum">     274 </span>                :            :                 rc = OPAL_PARAMETER;
+<span class="lineNum">     275 </span>                :            :                 goto err;
+<span class="lineNum">     276 </span>                :            :         }
+<span class="lineNum">     277 </span>                :            : 
+<span class="lineNum">     278 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (op) {</span>
+<span class="lineNum">     279 </span>                :            :         case FLASH_OP_READ:
+<span class="lineNum">     280 </span>                :<span class="lineNoCov">          0 :                 rc = flash_read(flash-&gt;chip, offset, (void *)buf, size);</span>
+<span class="lineNum">     281 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     282 </span>                :            :         case FLASH_OP_WRITE:
+<span class="lineNum">     283 </span>                :<span class="lineNoCov">          0 :                 rc = flash_write(flash-&gt;chip, offset, (void *)buf, size, false);</span>
+<span class="lineNum">     284 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     285 </span>                :            :         case FLASH_OP_ERASE:
+<span class="lineNum">     286 </span>                :<span class="lineNoCov">          0 :                 rc = flash_erase(flash-&gt;chip, offset, size);</span>
+<span class="lineNum">     287 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     288 </span>                :            :         default:
+<span class="lineNum">     289 </span>                :<span class="lineNoCov">          0 :                 assert(0);</span>
+<span class="lineNum">     290 </span>                :            :         }
+<span class="lineNum">     291 </span>                :            : 
+<span class="lineNum">     292 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     293 </span>                :            :                 rc = OPAL_HARDWARE;
+<span class="lineNum">     294 </span>                :            :                 goto err;
+<span class="lineNum">     295 </span>                :            :         }
+<span class="lineNum">     296 </span>                :            : 
+<span class="lineNum">     297 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;flash_lock);</span>
+<span class="lineNum">     298 </span>                :            : 
+<span class="lineNum">     299 </span>                :<span class="lineNoCov">          0 :         opal_queue_msg(OPAL_MSG_ASYNC_COMP, NULL, NULL, token, rc);</span>
+<span class="lineNum">     300 </span>                :<span class="lineNoCov">          0 :         return OPAL_ASYNC_COMPLETION;</span>
+<span class="lineNum">     301 </span>                :            : 
+<span class="lineNum">     302 </span>                :            : err:
+<span class="lineNum">     303 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;flash_lock);</span>
+<span class="lineNum">     304 </span>                :<span class="lineNoCov">          0 :         return OPAL_HARDWARE;</span>
+<a name="305"><span class="lineNum">     305 </span>                :            : }</a>
+<span class="lineNum">     306 </span>                :            : 
+<span class="lineNum">     307 </span>                :<span class="lineNoCov">          0 : static int64_t opal_flash_read(uint64_t id, uint64_t offset, uint64_t buf,</span>
+<span class="lineNum">     308 </span>                :            :                 uint64_t size, uint64_t token)
+<span class="lineNum">     309 </span>                :            : {
+<span class="lineNum">     310 </span>                :<span class="lineNoCov">          0 :         return opal_flash_op(FLASH_OP_READ, id, offset, buf, size, token);</span>
+<a name="311"><span class="lineNum">     311 </span>                :            : }</a>
+<span class="lineNum">     312 </span>                :            : 
+<span class="lineNum">     313 </span>                :<span class="lineNoCov">          0 : static int64_t opal_flash_write(uint64_t id, uint64_t offset, uint64_t buf,</span>
+<span class="lineNum">     314 </span>                :            :                 uint64_t size, uint64_t token)
+<span class="lineNum">     315 </span>                :            : {
+<span class="lineNum">     316 </span>                :<span class="lineNoCov">          0 :         return opal_flash_op(FLASH_OP_WRITE, id, offset, buf, size, token);</span>
+<a name="317"><span class="lineNum">     317 </span>                :            : }</a>
+<span class="lineNum">     318 </span>                :            : 
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 : static int64_t opal_flash_erase(uint64_t id, uint64_t offset, uint64_t size,</span>
+<span class="lineNum">     320 </span>                :            :                 uint64_t token)
+<span class="lineNum">     321 </span>                :            : {
+<span class="lineNum">     322 </span>                :<span class="lineNoCov">          0 :         return opal_flash_op(FLASH_OP_ERASE, id, offset, 0L, size, token);</span>
+<span class="lineNum">     323 </span>                :            : }
+<span class="lineNum">     324 </span>                :            : 
+<span class="lineNum">     325 </span>                :            : opal_call(OPAL_FLASH_READ, opal_flash_read, 5);
+<span class="lineNum">     326 </span>                :            : opal_call(OPAL_FLASH_WRITE, opal_flash_write, 5);
+<span class="lineNum">     327 </span>                :            : opal_call(OPAL_FLASH_ERASE, opal_flash_erase, 4);
+<span class="lineNum">     328 </span>                :            : 
+<span class="lineNum">     329 </span>                :            : /* flash resource API */
+<span class="lineNum">     330 </span>                :            : static struct {
+<span class="lineNum">     331 </span>                :            :         enum resource_id        id;
+<span class="lineNum">     332 </span>                :            :         uint32_t                subid;
+<span class="lineNum">     333 </span>                :            :         char                    name[PART_NAME_MAX+1];
+<span class="lineNum">     334 </span>                :            : } part_name_map[] = {
+<span class="lineNum">     335 </span>                :            :         { RESOURCE_ID_KERNEL,   RESOURCE_SUBID_NONE,            &quot;KERNEL&quot; },
+<span class="lineNum">     336 </span>                :            :         { RESOURCE_ID_INITRAMFS,RESOURCE_SUBID_NONE,            &quot;ROOTFS&quot; },
+<span class="lineNum">     337 </span>                :            :         { RESOURCE_ID_CAPP,     RESOURCE_SUBID_SUPPORTED,       &quot;CAPP&quot; },
+<span class="lineNum">     338 </span>                :            : };
+<span class="lineNum">     339 </span>                :            : 
+<span class="lineNum">     340 </span>                :            : /* This mimics the hostboot SBE format */
+<span class="lineNum">     341 </span>                :            : #define FLASH_SUBPART_ALIGNMENT 0x1000
+<span class="lineNum">     342 </span>                :            : #define FLASH_SUBPART_HEADER_SIZE FLASH_SUBPART_ALIGNMENT
+<span class="lineNum">     343 </span>                :            : 
+<span class="lineNum">     344 </span>                :            : struct flash_hostboot_toc {
+<span class="lineNum">     345 </span>                :            :         be32 ec;
+<span class="lineNum">     346 </span>                :            :         be32 offset; /* From start of header.  4K aligned */
+<span class="lineNum">     347 </span>                :            :         be32 size;
+<span class="lineNum">     348 </span>                :            : };
+<span class="lineNum">     349 </span>                :            : #define FLASH_HOSTBOOT_TOC_MAX_ENTRIES ((FLASH_SUBPART_HEADER_SIZE - 8) \
+<span class="lineNum">     350 </span>                :            :                 /sizeof(struct flash_hostboot_toc))
+<span class="lineNum">     351 </span>                :            : 
+<span class="lineNum">     352 </span>                :            : struct flash_hostboot_header {
+<span class="lineNum">     353 </span>                :            :         char eyecatcher[4];
+<span class="lineNum">     354 </span>                :            :         be32 version;
+<span class="lineNum">     355 </span>                :            :         struct flash_hostboot_toc toc[FLASH_HOSTBOOT_TOC_MAX_ENTRIES];
+<span class="lineNum">     356 </span>                :            : };
+<a name="357"><span class="lineNum">     357 </span>                :            : </a>
+<span class="lineNum">     358 </span>                :            : /* start and total size include ECC */
+<span class="lineNum">     359 </span>                :<span class="lineNoCov">          0 : static int flash_find_subpartition(struct flash_chip *chip, uint32_t subid,</span>
+<span class="lineNum">     360 </span>                :            :                                    uint32_t *start, uint32_t *total_size,
+<span class="lineNum">     361 </span>                :            :                                    bool *ecc)
+<span class="lineNum">     362 </span>                :            : {
+<span class="lineNum">     363 </span>                :            :         struct flash_hostboot_header *header;
+<span class="lineNum">     364 </span>                :            :         char eyecatcher[5];
+<span class="lineNum">     365 </span>                :            :         uint32_t i, partsize;
+<span class="lineNum">     366 </span>                :            :         bool rc;
+<span class="lineNum">     367 </span>                :            : 
+<span class="lineNum">     368 </span>                :<span class="lineNoCov">          0 :         header = malloc(FLASH_SUBPART_HEADER_SIZE);</span>
+<span class="lineNum">     369 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!header)</span>
+<span class="lineNum">     370 </span>                :            :                 return false;
+<span class="lineNum">     371 </span>                :            : 
+<span class="lineNum">     372 </span>                :            :         /* Get raw partition size without ECC */
+<span class="lineNum">     373 </span>                :<span class="lineNoCov">          0 :         partsize = *total_size;</span>
+<span class="lineNum">     374 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ecc)</span>
+<span class="lineNum">     375 </span>                :<span class="lineNoCov">          0 :                 partsize = BUFFER_SIZE_MINUS_ECC(*total_size);</span>
+<span class="lineNum">     376 </span>                :            : 
+<span class="lineNum">     377 </span>                :            :         /* Get the TOC */
+<span class="lineNum">     378 </span>                :<span class="lineNoCov">          0 :         rc = ffs_flash_read(chip, *start, header, FLASH_SUBPART_HEADER_SIZE,</span>
+<span class="lineNum">     379 </span>                :            :                             ecc);
+<span class="lineNum">     380 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     381 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FLASH: flash subpartition TOC read failed %i\n&quot;, rc);</span>
+<span class="lineNum">     382 </span>                :<span class="lineNoCov">          0 :                 goto end;</span>
+<span class="lineNum">     383 </span>                :            :         }
+<span class="lineNum">     384 </span>                :            : 
+<span class="lineNum">     385 </span>                :            :         /* Perform sanity */
+<span class="lineNum">     386 </span>                :<span class="lineNoCov">          0 :         i = be32_to_cpu(header-&gt;version);</span>
+<span class="lineNum">     387 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (i != 1) {</span>
+<span class="lineNum">     388 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FLASH: flash subpartition TOC version unknown %i\n&quot;, i);</span>
+<span class="lineNum">     389 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_RESOURCE;</span>
+<span class="lineNum">     390 </span>                :<span class="lineNoCov">          0 :                 goto end;</span>
+<span class="lineNum">     391 </span>                :            :         }
+<span class="lineNum">     392 </span>                :            :         /* NULL terminate eyecatcher */
+<span class="lineNum">     393 </span>                :<span class="lineNoCov">          0 :         strncpy(eyecatcher, header-&gt;eyecatcher, 4);</span>
+<span class="lineNum">     394 </span>                :<span class="lineNoCov">          0 :         eyecatcher[4] = 0;</span>
+<span class="lineNum">     395 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;FLASH: flash subpartition eyecatcher %s\n&quot;,</span>
+<span class="lineNum">     396 </span>                :            :                         eyecatcher);
+<span class="lineNum">     397 </span>                :            : 
+<span class="lineNum">     398 </span>                :<span class="lineNoCov">          0 :         rc = OPAL_RESOURCE;</span>
+<span class="lineNum">     399 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i&lt; FLASH_HOSTBOOT_TOC_MAX_ENTRIES; i++) {</span>
+<span class="lineNum">     400 </span>                :            :                 uint32_t ec, offset, size;
+<span class="lineNum">     401 </span>                :            : 
+<span class="lineNum">     402 </span>                :<span class="lineNoCov">          0 :                 ec = be32_to_cpu(header-&gt;toc[i].ec);</span>
+<span class="lineNum">     403 </span>                :<span class="lineNoCov">          0 :                 offset = be32_to_cpu(header-&gt;toc[i].offset);</span>
+<span class="lineNum">     404 </span>                :<span class="lineNoCov">          0 :                 size = be32_to_cpu(header-&gt;toc[i].size);</span>
+<span class="lineNum">     405 </span>                :            :                 /* Check for null terminating entry */
+<span class="lineNum">     406 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!ec &amp;&amp; !offset &amp;&amp; !size) {</span>
+<span class="lineNum">     407 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;FLASH: flash subpartition not found.\n&quot;);</span>
+<span class="lineNum">     408 </span>                :<span class="lineNoCov">          0 :                         goto end;</span>
+<span class="lineNum">     409 </span>                :            :                 }
+<span class="lineNum">     410 </span>                :            : 
+<span class="lineNum">     411 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (ec != subid)</span>
+<span class="lineNum">     412 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     413 </span>                :            : 
+<span class="lineNum">     414 </span>                :            :                 /* Sanity check the offset and size. */
+<span class="lineNum">     415 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (offset + size &gt; partsize) {</span>
+<span class="lineNum">     416 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;FLASH: flash subpartition too big: %i\n&quot;, i);</span>
+<span class="lineNum">     417 </span>                :<span class="lineNoCov">          0 :                         goto end;</span>
+<span class="lineNum">     418 </span>                :            :                 }
+<span class="lineNum">     419 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!size) {</span>
+<span class="lineNum">     420 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;FLASH: flash subpartition zero size: %i\n&quot;, i);</span>
+<span class="lineNum">     421 </span>                :<span class="lineNoCov">          0 :                         goto end;</span>
+<span class="lineNum">     422 </span>                :            :                 }
+<span class="lineNum">     423 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (offset &lt; FLASH_SUBPART_HEADER_SIZE) {</span>
+<span class="lineNum">     424 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;FLASH: flash subpartition &quot;</span>
+<span class="lineNum">     425 </span>                :            :                                         &quot;offset too small: %i\n&quot;, i);
+<span class="lineNum">     426 </span>                :<span class="lineNoCov">          0 :                         goto end;</span>
+<span class="lineNum">     427 </span>                :            :                 }
+<span class="lineNum">     428 </span>                :            : 
+<span class="lineNum">     429 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_DEBUG, &quot;FLASH: flash found subpartition: &quot;</span>
+<span class="lineNum">     430 </span>                :            :                                 &quot;%i size: %i offset %i\n&quot;,
+<span class="lineNum">     431 </span>                :            :                                 i, size, offset);
+<span class="lineNum">     432 </span>                :            : 
+<span class="lineNum">     433 </span>                :            :                 /*
+<span class="lineNum">     434 </span>                :            :                  * Adjust the start and size.  The start location in the needs
+<span class="lineNum">     435 </span>                :            :                  * to account for ecc but the size doesn't.
+<span class="lineNum">     436 </span>                :            :                  */
+<span class="lineNum">     437 </span>                :<span class="lineNoCov">          0 :                 *start += offset;</span>
+<span class="lineNum">     438 </span>                :<span class="lineNoCov">          0 :                 *total_size = size;</span>
+<span class="lineNum">     439 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (ecc) {</span>
+<span class="lineNum">     440 </span>                :<span class="lineNoCov">          0 :                         *start += ECC_SIZE(offset);</span>
+<span class="lineNum">     441 </span>                :<span class="lineNoCov">          0 :                         *total_size += ECC_SIZE(size);</span>
+<span class="lineNum">     442 </span>                :            :                 }
+<span class="lineNum">     443 </span>                :            :                 rc = 0;
+<span class="lineNum">     444 </span>                :            :                 goto end;
+<span class="lineNum">     445 </span>                :            :         }
+<span class="lineNum">     446 </span>                :            : 
+<span class="lineNum">     447 </span>                :            : end:
+<span class="lineNum">     448 </span>                :<span class="lineNoCov">          0 :         free(header);</span>
+<span class="lineNum">     449 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     450 </span>                :            : }
+<span class="lineNum">     451 </span>                :            : 
+<span class="lineNum">     452 </span>                :            : /*
+<span class="lineNum">     453 </span>                :            :  * load a resource from FLASH
+<a name="454"><span class="lineNum">     454 </span>                :            :  * buf and len shouldn't account for ECC even if partition is ECCed.</a>
+<span class="lineNum">     455 </span>                :            :  */
+<span class="lineNum">     456 </span>                :<span class="lineNoCov">          0 : bool flash_load_resource(enum resource_id id, uint32_t subid,</span>
+<span class="lineNum">     457 </span>                :            :                 void *buf, size_t *len)
+<span class="lineNum">     458 </span>                :            : {
+<span class="lineNum">     459 </span>                :            :         int i, rc, part_num, part_size, part_start, size;
+<span class="lineNum">     460 </span>                :            :         struct ffs_handle *ffs;
+<span class="lineNum">     461 </span>                :            :         struct flash *flash;
+<span class="lineNum">     462 </span>                :            :         const char *name;
+<span class="lineNum">     463 </span>                :            :         bool status, ecc;
+<span class="lineNum">     464 </span>                :            : 
+<span class="lineNum">     465 </span>                :<span class="lineNoCov">          0 :         status = false;</span>
+<span class="lineNum">     466 </span>                :            : 
+<span class="lineNum">     467 </span>                :<span class="lineNoCov">          0 :         lock(&amp;flash_lock);</span>
+<span class="lineNum">     468 </span>                :            : 
+<span class="lineNum">     469 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!system_flash)</span>
+<span class="lineNum">     470 </span>                :            :                 goto out_unlock;
+<span class="lineNum">     471 </span>                :            : 
+<span class="lineNum">     472 </span>                :            :         flash = system_flash;
+<span class="lineNum">     473 </span>                :            : 
+<span class="lineNum">     474 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0, name = NULL; i &lt; ARRAY_SIZE(part_name_map); i++) {</span>
+<span class="lineNum">     475 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (part_name_map[i].id == id) {</span>
+<span class="lineNum">     476 </span>                :<span class="lineNoCov">          0 :                         name = part_name_map[i].name;</span>
+<span class="lineNum">     477 </span>                :<span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     478 </span>                :            :                 }
+<span class="lineNum">     479 </span>                :            :         }
+<span class="lineNum">     480 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!name) {</span>
+<span class="lineNum">     481 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FLASH: Couldn't find partition for id %d\n&quot;, id);</span>
+<span class="lineNum">     482 </span>                :<span class="lineNoCov">          0 :                 goto out_unlock;</span>
+<span class="lineNum">     483 </span>                :            :         }
+<span class="lineNum">     484 </span>                :            :         /*
+<span class="lineNum">     485 </span>                :            :          * If partition doesn't have a subindex but the caller specifies one,
+<span class="lineNum">     486 </span>                :            :          * we fail.  eg. kernel partition doesn't have a subindex
+<span class="lineNum">     487 </span>                :            :          */
+<span class="lineNum">     488 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((part_name_map[i].subid == RESOURCE_SUBID_NONE) &amp;&amp;</span>
+<span class="lineNum">     489 </span>                :            :             (subid != RESOURCE_SUBID_NONE)) {
+<span class="lineNum">     490 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;PLAT: Partition %s doesn't have subindex\n&quot;, name);</span>
+<span class="lineNum">     491 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     492 </span>                :            :         }
+<span class="lineNum">     493 </span>                :            : 
+<span class="lineNum">     494 </span>                :<span class="lineNoCov">          0 :         rc = ffs_open_flash(flash-&gt;chip, 0, flash-&gt;size, &amp;ffs);</span>
+<span class="lineNum">     495 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     496 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FLASH: Can't open ffs handle\n&quot;);</span>
+<span class="lineNum">     497 </span>                :<span class="lineNoCov">          0 :                 goto out_unlock;</span>
+<span class="lineNum">     498 </span>                :            :         }
+<span class="lineNum">     499 </span>                :            : 
+<span class="lineNum">     500 </span>                :<span class="lineNoCov">          0 :         rc = ffs_lookup_part(ffs, name, &amp;part_num);</span>
+<span class="lineNum">     501 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     502 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FLASH: No %s partition\n&quot;, name);</span>
+<span class="lineNum">     503 </span>                :<span class="lineNoCov">          0 :                 goto out_free_ffs;</span>
+<span class="lineNum">     504 </span>                :            :         }
+<span class="lineNum">     505 </span>                :<span class="lineNoCov">          0 :         rc = ffs_part_info(ffs, part_num, NULL,</span>
+<span class="lineNum">     506 </span>                :            :                            &amp;part_start, &amp;part_size, NULL, &amp;ecc);
+<span class="lineNum">     507 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     508 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FLASH: Failed to get %s partition info\n&quot;, name);</span>
+<span class="lineNum">     509 </span>                :<span class="lineNoCov">          0 :                 goto out_free_ffs;</span>
+<span class="lineNum">     510 </span>                :            :         }
+<span class="lineNum">     511 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         prlog(PR_DEBUG,&quot;FLASH: %s partition %s ECC\n&quot;,</span>
+<span class="lineNum">     512 </span>                :            :               name, ecc  ? &quot;has&quot; : &quot;doesn't have&quot;);
+<span class="lineNum">     513 </span>                :            : 
+<span class="lineNum">     514 </span>                :            :         /*
+<span class="lineNum">     515 </span>                :            :          * part_start/size are raw pointers into the partition.
+<span class="lineNum">     516 </span>                :            :          *  ie. they will account for ECC if included.
+<span class="lineNum">     517 </span>                :            :          */
+<span class="lineNum">     518 </span>                :            : 
+<span class="lineNum">     519 </span>                :            :         /* Find the sub partition if required */
+<span class="lineNum">     520 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (subid != RESOURCE_SUBID_NONE) {</span>
+<span class="lineNum">     521 </span>                :<span class="lineNoCov">          0 :                 rc = flash_find_subpartition(flash-&gt;chip, subid, &amp;part_start,</span>
+<span class="lineNum">     522 </span>                :            :                                              &amp;part_size, &amp;ecc);
+<span class="lineNum">     523 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     524 </span>                :            :                         goto out_free_ffs;
+<span class="lineNum">     525 </span>                :            :         }
+<span class="lineNum">     526 </span>                :            : 
+<span class="lineNum">     527 </span>                :            :         /* Work out what the final size of buffer will be without ECC */
+<span class="lineNum">     528 </span>                :<span class="lineNoCov">          0 :         size = part_size;</span>
+<span class="lineNum">     529 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ecc) {</span>
+<span class="lineNum">     530 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if ECC_BUFFER_SIZE_CHECK(part_size) {</span>
+<span class="lineNum">     531 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;FLASH: %s image invalid size for ECC %d\n&quot;,</span>
+<span class="lineNum">     532 </span>                :            :                                 name, part_size);
+<span class="lineNum">     533 </span>                :<span class="lineNoCov">          0 :                         goto out_free_ffs;</span>
+<span class="lineNum">     534 </span>                :            :                 }
+<span class="lineNum">     535 </span>                :<span class="lineNoCov">          0 :                 size = BUFFER_SIZE_MINUS_ECC(part_size);</span>
+<span class="lineNum">     536 </span>                :            :         }
+<span class="lineNum">     537 </span>                :            : 
+<span class="lineNum">     538 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (size &gt; *len) {</span>
+<span class="lineNum">     539 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FLASH: %s image too large (%d &gt; %zd)\n&quot;, name,</span>
+<span class="lineNum">     540 </span>                :            :                         part_size, *len);
+<span class="lineNum">     541 </span>                :<span class="lineNoCov">          0 :                 goto out_free_ffs;</span>
+<span class="lineNum">     542 </span>                :            :         }
+<span class="lineNum">     543 </span>                :            : 
+<span class="lineNum">     544 </span>                :<span class="lineNoCov">          0 :         rc = ffs_flash_read(flash-&gt;chip, part_start, buf, size, ecc);</span>
+<span class="lineNum">     545 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     546 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FLASH: failed to read %s partition\n&quot;, name);</span>
+<span class="lineNum">     547 </span>                :<span class="lineNoCov">          0 :                 goto out_free_ffs;</span>
+<span class="lineNum">     548 </span>                :            :         }
+<span class="lineNum">     549 </span>                :            : 
+<span class="lineNum">     550 </span>                :<span class="lineNoCov">          0 :         *len = size;</span>
+<span class="lineNum">     551 </span>                :<span class="lineNoCov">          0 :         status = true;</span>
+<span class="lineNum">     552 </span>                :            : 
+<span class="lineNum">     553 </span>                :            : out_free_ffs:
+<span class="lineNum">     554 </span>                :<span class="lineNoCov">          0 :         ffs_close(ffs);</span>
+<span class="lineNum">     555 </span>                :            : out_unlock:
+<span class="lineNum">     556 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;flash_lock);</span>
+<span class="lineNum">     557 </span>                :<span class="lineNoCov">          0 :         return status;</span>
+<span class="lineNum">     558 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

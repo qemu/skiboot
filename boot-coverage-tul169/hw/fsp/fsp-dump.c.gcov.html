@@ -1,0 +1,1003 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/fsp/fsp-dump.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">hw/fsp</a> - fsp-dump.c<span style="font-size: 80%;"> (source / <a href="fsp-dump.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">79</td>
+            <td class="headerCovTableEntry">298</td>
+            <td class="headerCovTableEntryLo">26.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntryLo">39.3 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntry">133</td>
+            <td class="headerCovTableEntryLo">15.8 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : 
+<span class="lineNum">      18 </span>                :            : /*
+<span class="lineNum">      19 </span>                :            :  * Dump support:
+<span class="lineNum">      20 </span>                :            :  *  We get dump notification from different sources:
+<span class="lineNum">      21 </span>                :            :  *   - During system intialization via HDAT
+<span class="lineNum">      22 </span>                :            :  *   - During FSP reset/reload (FipS dump)
+<span class="lineNum">      23 </span>                :            :  *   - Dump available notification MBOX command (0xCE, 0x78, 0x00)
+<span class="lineNum">      24 </span>                :            :  *
+<span class="lineNum">      25 </span>                :            :  *  To avoid complications, we keep list of dumps in a list and fetch
+<span class="lineNum">      26 </span>                :            :  *  them serially.
+<span class="lineNum">      27 </span>                :            :  *
+<span class="lineNum">      28 </span>                :            :  * Dump retrieve process:
+<span class="lineNum">      29 </span>                :            :  *   - Once we get notification from FSP we enqueue the dump ID and notify
+<span class="lineNum">      30 </span>                :            :  *     Linux via OPAL event notification.
+<span class="lineNum">      31 </span>                :            :  *   - Linux reads dump info and allocates required memory to fetch the dump
+<span class="lineNum">      32 </span>                :            :  *     and makes dump read call.
+<span class="lineNum">      33 </span>                :            :  *   - Sapphire fetches dump data from FSP.
+<span class="lineNum">      34 </span>                :            :  *   - Linux writes dump to disk and sends acknowledgement.
+<span class="lineNum">      35 </span>                :            :  *   - Sapphire acknowledges FSP.
+<span class="lineNum">      36 </span>                :            :  */
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :            : #include &lt;fsp.h&gt;
+<span class="lineNum">      39 </span>                :            : #include &lt;psi.h&gt;
+<span class="lineNum">      40 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      41 </span>                :            : #include &lt;device.h&gt;
+<span class="lineNum">      42 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      43 </span>                :            : #include &lt;errorlog.h&gt;
+<span class="lineNum">      44 </span>                :            : #include &lt;opal-api.h&gt;
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            : /*
+<span class="lineNum">      47 </span>                :            :  * Max outstanding dumps to retrieve
+<span class="lineNum">      48 </span>                :            :  *
+<span class="lineNum">      49 </span>                :            :  * Note:
+<span class="lineNum">      50 </span>                :            :  *  Dumps are serialized. We don't get notification for second
+<span class="lineNum">      51 </span>                :            :  *  dump of given type until we acknowledge first one. But we
+<span class="lineNum">      52 </span>                :            :  *  may get notification for different dump type. And our dump
+<span class="lineNum">      53 </span>                :            :  *  retrieval code is serialized. Hence we use list to keep
+<span class="lineNum">      54 </span>                :            :  *  track of outstanding dumps to be retrieved.
+<span class="lineNum">      55 </span>                :            :  */
+<span class="lineNum">      56 </span>                :            : #define MAX_DUMP_RECORD         0x04
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :            : /* Max retry */
+<span class="lineNum">      59 </span>                :            : #define FIPS_DUMP_MAX_RETRY     0x03
+<span class="lineNum">      60 </span>                :            : 
+<span class="lineNum">      61 </span>                :            : /* Dump type */
+<span class="lineNum">      62 </span>                :            : #define DUMP_TYPE_FSP           0x01
+<span class="lineNum">      63 </span>                :            : #define DUMP_TYPE_SYS           0x02
+<span class="lineNum">      64 </span>                :            : #define DUMP_TYPE_SMA           0x03
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :            : /* Dump fetch size */
+<span class="lineNum">      67 </span>                :            : #define DUMP_FETCH_SIZE_FSP     0x500000
+<span class="lineNum">      68 </span>                :            : #define DUMP_FETCH_SIZE_SYS     0x400000
+<span class="lineNum">      69 </span>                :            : #define DUMP_FETCH_SIZE_RES     0x200000
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>                :            : /* Params for Fips dump */
+<span class="lineNum">      72 </span>                :            : #define FSP_DUMP_TOOL_TYPE      &quot;SYS &quot;
+<span class="lineNum">      73 </span>                :            : #define FSP_DUMP_CLIENT_ID      &quot;SAPPHIRE_CLIENT&quot;
+<span class="lineNum">      74 </span>                :            : 
+<span class="lineNum">      75 </span>                :            : enum dump_state {
+<span class="lineNum">      76 </span>                :            :         DUMP_STATE_ABSENT,      /* No FSP dump */
+<span class="lineNum">      77 </span>                :            :         DUMP_STATE_NONE,        /* No dump to retrieve */
+<span class="lineNum">      78 </span>                :            :         DUMP_STATE_NOTIFY,      /* Notified Linux */
+<span class="lineNum">      79 </span>                :            :         DUMP_STATE_FETCHING,    /* Dump retrieval is in progress */
+<span class="lineNum">      80 </span>                :            :         DUMP_STATE_FETCH,       /* Dump retrieve complete */
+<span class="lineNum">      81 </span>                :            :         DUMP_STATE_PARTIAL,     /* Partial read */
+<span class="lineNum">      82 </span>                :            :         DUMP_STATE_ABORTING,    /* Aborting due to kexec */
+<span class="lineNum">      83 </span>                :            : };
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :            : /* Pending dump list */
+<span class="lineNum">      86 </span>                :            : struct dump_record {
+<span class="lineNum">      87 </span>                :            :         uint8_t  type;
+<span class="lineNum">      88 </span>                :            :         uint32_t id;
+<span class="lineNum">      89 </span>                :            :         uint32_t size;
+<span class="lineNum">      90 </span>                :            :         struct list_node link;
+<span class="lineNum">      91 </span>                :            : };
+<span class="lineNum">      92 </span>                :            : 
+<span class="lineNum">      93 </span>                :            : /* List definations */
+<span class="lineNum">      94 </span>                :            : static LIST_HEAD(dump_pending);
+<span class="lineNum">      95 </span>                :            : static LIST_HEAD(dump_free);
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>                :            : /* Dump retrieve state */
+<span class="lineNum">      98 </span>                :            : static enum dump_state dump_state = DUMP_STATE_NONE;
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :            : /* Dump buffer SG list */
+<span class="lineNum">     101 </span>                :            : static struct opal_sg_list *dump_data;
+<span class="lineNum">     102 </span>                :            : static struct dump_record *dump_entry;
+<span class="lineNum">     103 </span>                :            : static int64_t dump_offset;
+<span class="lineNum">     104 </span>                :            : static size_t fetch_remain;
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :            : /* FipS dump retry count */
+<span class="lineNum">     107 </span>                :            : static int retry_cnt;
+<span class="lineNum">     108 </span>                :            : 
+<span class="lineNum">     109 </span>                :            : /* Protect list and dump retrieve state */
+<span class="lineNum">     110 </span>                :            : static struct lock dump_lock = LOCK_UNLOCKED;
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :            : /* Forward declaration */
+<span class="lineNum">     113 </span>                :            : static int64_t fsp_opal_dump_init(uint8_t dump_type);
+<span class="lineNum">     114 </span>                :            : static int64_t fsp_dump_read(void);
+<span class="lineNum">     115 </span>                :            : 
+<span class="lineNum">     116 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_DUMP_INIT, OPAL_PLATFORM_ERR_EVT, OPAL_DUMP,
+<span class="lineNum">     117 </span>                :            :                  OPAL_PLATFORM_FIRMWARE,
+<span class="lineNum">     118 </span>                :            :                  OPAL_PREDICTIVE_ERR_FAULT_RECTIFY_REBOOT,
+<span class="lineNum">     119 </span>                :            :                  OPAL_NA, NULL);
+<span class="lineNum">     120 </span>                :            : 
+<span class="lineNum">     121 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_DUMP_LIST, OPAL_PLATFORM_ERR_EVT, OPAL_DUMP,
+<span class="lineNum">     122 </span>                :            :                  OPAL_PLATFORM_FIRMWARE,
+<span class="lineNum">     123 </span>                :            :                  OPAL_INFO,
+<span class="lineNum">     124 </span>                :            :                  OPAL_NA, NULL);
+<span class="lineNum">     125 </span>                :            : 
+<span class="lineNum">     126 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_DUMP_ACK, OPAL_PLATFORM_ERR_EVT, OPAL_DUMP,
+<span class="lineNum">     127 </span>                :            :                  OPAL_PLATFORM_FIRMWARE, OPAL_INFO,
+<span class="lineNum">     128 </span>                :            :                  OPAL_NA, NULL);
+<span class="lineNum">     129 </span>                :            : 
+<span class="lineNum">     130 </span>                :            : /*
+<span class="lineNum">     131 </span>                :            :  * Helper functions
+<span class="lineNum">     132 </span>                :            :  */
+<a name="133"><span class="lineNum">     133 </span>                :            : static inline void update_dump_state(enum dump_state state)</a>
+<span class="lineNum">     134 </span>                :            : {
+<span class="lineNum">     135 </span>                :<span class="lineCov">          1 :         dump_state = state;</span>
+<a name="136"><span class="lineNum">     136 </span>                :            : }</a>
+<span class="lineNum">     137 </span>                :            : 
+<span class="lineNum">     138 </span>                :<span class="lineCov">          2 : static int64_t check_dump_state(void)</span>
+<span class="lineNum">     139 </span>                :            : {
+<span class="lineNum">     140 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         switch (dump_state) {</span>
+<span class="lineNum">     141 </span>                :            :         case DUMP_STATE_ABSENT:
+<span class="lineNum">     142 </span>                :            :                 return OPAL_HARDWARE;
+<span class="lineNum">     143 </span>                :            :         case DUMP_STATE_NONE:
+<span class="lineNum">     144 </span>                :            :         case DUMP_STATE_NOTIFY:
+<span class="lineNum">     145 </span>                :            :                 /* During dump fetch, notify is wrong state */
+<span class="lineNum">     146 </span>                :            :                 return OPAL_WRONG_STATE;
+<span class="lineNum">     147 </span>                :            :         case DUMP_STATE_FETCHING:
+<span class="lineNum">     148 </span>                :            :         case DUMP_STATE_ABORTING:
+<span class="lineNum">     149 </span>                :            :                 return OPAL_BUSY_EVENT;
+<span class="lineNum">     150 </span>                :            :         case DUMP_STATE_FETCH:
+<span class="lineNum">     151 </span>                :            :                 return OPAL_SUCCESS;
+<span class="lineNum">     152 </span>                :            :         case DUMP_STATE_PARTIAL:
+<span class="lineNum">     153 </span>                :            :                 return OPAL_PARTIAL;
+<span class="lineNum">     154 </span>                :            :         }
+<span class="lineNum">     155 </span>                :            :         return OPAL_SUCCESS;
+<a name="156"><span class="lineNum">     156 </span>                :            : }</a>
+<span class="lineNum">     157 </span>                :            : 
+<span class="lineNum">     158 </span>                :<span class="lineNoCov">          0 : static inline void dump_tce_map(uint32_t tce_offset,</span>
+<span class="lineNum">     159 </span>                :            :                                 void *buffer, uint32_t size)
+<span class="lineNum">     160 </span>                :            : {
+<span class="lineNum">     161 </span>                :<span class="lineNoCov">          0 :         uint32_t tlen = ALIGN_UP(size, TCE_PSIZE);</span>
+<span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :         fsp_tce_map(PSI_DMA_DUMP_DATA + tce_offset, buffer, tlen);</span>
+<a name="163"><span class="lineNum">     163 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :<span class="lineNoCov">          0 : static inline void dump_tce_unmap(uint32_t size)</span>
+<span class="lineNum">     166 </span>                :            : {
+<span class="lineNum">     167 </span>                :<span class="lineNoCov">          0 :         fsp_tce_unmap(PSI_DMA_DUMP_DATA, size);</span>
+<span class="lineNum">     168 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     169 </span>                :            : 
+<span class="lineNum">     170 </span>                :            : /*
+<a name="171"><span class="lineNum">     171 </span>                :            :  * Returns Data set ID for the given dump type</a>
+<span class="lineNum">     172 </span>                :            :  */
+<span class="lineNum">     173 </span>                :<span class="lineNoCov">          0 : static inline uint16_t get_dump_data_set_id(uint8_t type)</span>
+<span class="lineNum">     174 </span>                :            : {
+<span class="lineNum">     175 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (type) {</span>
+<span class="lineNum">     176 </span>                :            :         case DUMP_TYPE_FSP:
+<span class="lineNum">     177 </span>                :            :                 return FSP_DATASET_SP_DUMP;
+<span class="lineNum">     178 </span>                :            :         case DUMP_TYPE_SYS:
+<span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :                 return FSP_DATASET_HW_DUMP;</span>
+<span class="lineNum">     180 </span>                :            :         default:
+<span class="lineNum">     181 </span>                :            :                 break;
+<span class="lineNum">     182 </span>                :            :         }
+<span class="lineNum">     183 </span>                :<span class="lineNoCov">          0 :         return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     184 </span>                :            : }
+<span class="lineNum">     185 </span>                :            : 
+<span class="lineNum">     186 </span>                :            : /*
+<a name="187"><span class="lineNum">     187 </span>                :            :  * Returns max data we can fetch from FSP fetch data call</a>
+<span class="lineNum">     188 </span>                :            :  */
+<span class="lineNum">     189 </span>                :<span class="lineNoCov">          0 : static inline int64_t get_dump_fetch_max_size(uint8_t type)</span>
+<span class="lineNum">     190 </span>                :            : {
+<span class="lineNum">     191 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (type) {</span>
+<span class="lineNum">     192 </span>                :            :         case DUMP_TYPE_FSP:
+<span class="lineNum">     193 </span>                :            :                 return DUMP_FETCH_SIZE_FSP;
+<span class="lineNum">     194 </span>                :            :         case DUMP_TYPE_SYS:
+<span class="lineNum">     195 </span>                :<span class="lineNoCov">          0 :                 return DUMP_FETCH_SIZE_SYS;</span>
+<span class="lineNum">     196 </span>                :            :         default:
+<span class="lineNum">     197 </span>                :            :                 break;
+<span class="lineNum">     198 </span>                :            :         }
+<span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 :         return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     200 </span>                :            : }
+<span class="lineNum">     201 </span>                :            : 
+<span class="lineNum">     202 </span>                :            : /*
+<a name="203"><span class="lineNum">     203 </span>                :            :  * Get dump record from pending list</a>
+<span class="lineNum">     204 </span>                :            :  */
+<span class="lineNum">     205 </span>                :<span class="lineCov">          2 : static inline struct dump_record *get_dump_rec_from_list(uint32_t id)</span>
+<span class="lineNum">     206 </span>                :            : {
+<span class="lineNum">     207 </span>                :            :         struct dump_record *record;
+<span class="lineNum">     208 </span>                :            : 
+<span class="lineNum">     209 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          3 :         list_for_each(&amp;dump_pending, record, link) {</span>
+<span class="lineNum">     210 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :                 if (record-&gt;id == id)</span>
+<span class="lineNum">     211 </span>                :            :                         return record;
+<span class="lineNum">     212 </span>                :            :         }
+<span class="lineNum">     213 </span>                :            :         return NULL;
+<span class="lineNum">     214 </span>                :            : }
+<span class="lineNum">     215 </span>                :            : 
+<span class="lineNum">     216 </span>                :            : /*
+<span class="lineNum">     217 </span>                :            :  * New dump available notification to Linux
+<span class="lineNum">     218 </span>                :            :  */
+<span class="lineNum">     219 </span>                :<span class="lineCov">          3 : static void update_opal_dump_notify(void)</span>
+<span class="lineNum">     220 </span>                :            : {
+<span class="lineNum">     221 </span>                :            :         /*
+<span class="lineNum">     222 </span>                :            :          * Wait until current dump retrieval to complete
+<span class="lineNum">     223 </span>                :            :          * before notifying again.
+<span class="lineNum">     224 </span>                :            :          */
+<span class="lineNum">     225 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         if (dump_state != DUMP_STATE_NONE)</span>
+<span class="lineNum">     226 </span>                :<span class="lineCov">          3 :                 return;</span>
+<span class="lineNum">     227 </span>                :            : 
+<span class="lineNum">     228 </span>                :            :          /* More dump's to retrieve */
+<span class="lineNum">     229 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!list_empty(&amp;dump_pending)) {</span>
+<span class="lineNum">     230 </span>                :            :                 update_dump_state(DUMP_STATE_NOTIFY);
+<span class="lineNum">     231 </span>                :<span class="lineCov">          2 :                 opal_update_pending_evt(OPAL_EVENT_DUMP_AVAIL,</span>
+<span class="lineNum">     232 </span>                :            :                                         OPAL_EVENT_DUMP_AVAIL);
+<span class="lineNum">     233 </span>                :            :         }
+<span class="lineNum">     234 </span>                :            : }
+<span class="lineNum">     235 </span>                :            : 
+<span class="lineNum">     236 </span>                :<span class="lineNoCov">          0 : static int64_t remove_dump_id_from_list(uint32_t dump_id)</span>
+<span class="lineNum">     237 </span>                :            : {
+<span class="lineNum">     238 </span>                :            :         struct dump_record *record, *nxt_record;
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :         int rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 :         bool found = false;</span>
+<span class="lineNum">     241 </span>                :            : 
+<span class="lineNum">     242 </span>                :            :         /* Remove record from pending list */
+<span class="lineNum">     243 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         list_for_each_safe(&amp;dump_pending, record, nxt_record, link) {</span>
+<span class="lineNum">     244 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (record-&gt;id != dump_id)</span>
+<span class="lineNum">     245 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     246 </span>                :            : 
+<span class="lineNum">     247 </span>                :<span class="lineNoCov">          0 :                 found = true;</span>
+<span class="lineNum">     248 </span>                :<span class="lineNoCov">          0 :                 list_del(&amp;record-&gt;link);</span>
+<span class="lineNum">     249 </span>                :<span class="lineNoCov">          0 :                 list_add(&amp;dump_free, &amp;record-&gt;link);</span>
+<span class="lineNum">     250 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     251 </span>                :            :         }
+<span class="lineNum">     252 </span>                :            : 
+<span class="lineNum">     253 </span>                :            :         /*
+<span class="lineNum">     254 </span>                :            :          * Continue update_opal_dump_notify even if it fails
+<span class="lineNum">     255 </span>                :            :          * to remove ID. So that we can resend notification
+<span class="lineNum">     256 </span>                :            :          * for the same dump ID to Linux.
+<span class="lineNum">     257 </span>                :            :          */
+<span class="lineNum">     258 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!found) { /* List corrupted? */</span>
+<span class="lineNum">     259 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_DUMP_LIST),</span>
+<span class="lineNum">     260 </span>                :            :                                  &quot;DUMP: ID 0x%x not found in list!\n&quot;,
+<span class="lineNum">     261 </span>                :            :                                  dump_id);
+<span class="lineNum">     262 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_PARAMETER;</span>
+<span class="lineNum">     263 </span>                :            :         }
+<span class="lineNum">     264 </span>                :            : 
+<span class="lineNum">     265 </span>                :            :         /* Update state */
+<span class="lineNum">     266 </span>                :            :         update_dump_state(DUMP_STATE_NONE);
+<span class="lineNum">     267 </span>                :            :         /* Notify next available dump to retrieve */
+<span class="lineNum">     268 </span>                :<span class="lineNoCov">          0 :         update_opal_dump_notify();</span>
+<span class="lineNum">     269 </span>                :            : 
+<span class="lineNum">     270 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="271"><span class="lineNum">     271 </span>                :            : }</a>
+<span class="lineNum">     272 </span>                :            : 
+<span class="lineNum">     273 </span>                :<span class="lineCov">          2 : static int64_t add_dump_id_to_list(uint8_t dump_type,</span>
+<span class="lineNum">     274 </span>                :            :                                    uint32_t dump_id, uint32_t dump_size)
+<span class="lineNum">     275 </span>                :            : {
+<span class="lineNum">     276 </span>                :            :         struct dump_record *record;
+<span class="lineNum">     277 </span>                :<span class="lineCov">          2 :         int rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     278 </span>                :            : 
+<span class="lineNum">     279 </span>                :<span class="lineCov">          2 :         lock(&amp;dump_lock);</span>
+<span class="lineNum">     280 </span>                :            : 
+<span class="lineNum">     281 </span>                :<span class="lineCov">          2 :         rc = check_dump_state();</span>
+<span class="lineNum">     282 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (rc == OPAL_HARDWARE)</span>
+<span class="lineNum">     283 </span>                :            :                 goto out;
+<span class="lineNum">     284 </span>                :            : 
+<span class="lineNum">     285 </span>                :            :         /* List is full ? */
+<span class="lineNum">     286 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (list_empty(&amp;dump_free)) {</span>
+<span class="lineNum">     287 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;DUMP: Dump ID 0x%x is not queued.\n&quot;, dump_id);</span>
+<span class="lineNum">     288 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_RESOURCE;</span>
+<span class="lineNum">     289 </span>                :<span class="lineNoCov">          0 :                 goto out;</span>
+<span class="lineNum">     290 </span>                :            :         }
+<span class="lineNum">     291 </span>                :            : 
+<span class="lineNum">     292 </span>                :            :         /* Already queued? */
+<span class="lineNum">     293 </span>                :<span class="lineCov">          2 :         record = get_dump_rec_from_list(dump_id);</span>
+<span class="lineNum">     294 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (record) {</span>
+<span class="lineNum">     295 </span>                :            :                 rc = OPAL_SUCCESS;
+<span class="lineNum">     296 </span>                :            :                 goto out;
+<span class="lineNum">     297 </span>                :            :         }
+<span class="lineNum">     298 </span>                :            : 
+<span class="lineNum">     299 </span>                :            :         /* Add to list */
+<span class="lineNum">     300 </span>                :<span class="lineCov">          2 :         record = list_pop(&amp;dump_free, struct dump_record, link);</span>
+<span class="lineNum">     301 </span>                :<span class="lineCov">          2 :         record-&gt;type = dump_type;</span>
+<span class="lineNum">     302 </span>                :<span class="lineCov">          2 :         record-&gt;id = dump_id;</span>
+<span class="lineNum">     303 </span>                :<span class="lineCov">          2 :         record-&gt;size = dump_size;</span>
+<span class="lineNum">     304 </span>                :<span class="lineCov">          2 :         list_add_tail(&amp;dump_pending, &amp;record-&gt;link);</span>
+<span class="lineNum">     305 </span>                :            : 
+<span class="lineNum">     306 </span>                :            :         /* OPAL notification */
+<span class="lineNum">     307 </span>                :<span class="lineCov">          2 :         update_opal_dump_notify();</span>
+<span class="lineNum">     308 </span>                :<span class="lineCov">          2 :         rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     309 </span>                :            : 
+<span class="lineNum">     310 </span>                :            : out:
+<span class="lineNum">     311 </span>                :<span class="lineCov">          2 :         unlock(&amp;dump_lock);</span>
+<span class="lineNum">     312 </span>                :<span class="lineCov">          2 :         return rc;</span>
+<a name="313"><span class="lineNum">     313 </span>                :            : }</a>
+<span class="lineNum">     314 </span>                :            : 
+<span class="lineNum">     315 </span>                :<span class="lineNoCov">          0 : static void dump_init_complete(struct fsp_msg *msg)</span>
+<span class="lineNum">     316 </span>                :            : {
+<span class="lineNum">     317 </span>                :<span class="lineNoCov">          0 :         uint8_t status = (msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     318 </span>                :            : 
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :         printf(&quot;DUMP: FipS dump init status = 0x%x\n&quot;, status);</span>
+<span class="lineNum">     320 </span>                :<span class="lineNoCov">          0 :         fsp_freemsg(msg);</span>
+<span class="lineNum">     321 </span>                :            : 
+<span class="lineNum">     322 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (status) {</span>
+<span class="lineNum">     323 </span>                :            :         case FSP_STATUS_SUCCESS:
+<span class="lineNum">     324 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;DUMP: Initiated FipS dump.\n&quot;);</span>
+<span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     326 </span>                :            :         case FSP_STATUS_BUSY: /* Retry, if FSP is busy */
+<span class="lineNum">     327 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (retry_cnt++ &lt; FIPS_DUMP_MAX_RETRY)</span>
+<span class="lineNum">     328 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (fsp_opal_dump_init(DUMP_TYPE_FSP) == OPAL_SUCCESS)</span>
+<span class="lineNum">     329 </span>                :<span class="lineNoCov">          0 :                                 return;</span>
+<span class="lineNum">     330 </span>                :            :                 break;
+<span class="lineNum">     331 </span>                :            :         default:
+<span class="lineNum">     332 </span>                :            :                 break;
+<span class="lineNum">     333 </span>                :            :         }
+<span class="lineNum">     334 </span>                :            :         /* Reset max retry count */
+<span class="lineNum">     335 </span>                :<span class="lineNoCov">          0 :         retry_cnt = 0;</span>
+<span class="lineNum">     336 </span>                :            : }
+<span class="lineNum">     337 </span>                :            : 
+<span class="lineNum">     338 </span>                :            : /*
+<a name="339"><span class="lineNum">     339 </span>                :            :  * Initiate new FipS dump</a>
+<span class="lineNum">     340 </span>                :            :  */
+<span class="lineNum">     341 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_opal_dump_init(uint8_t dump_type)</span>
+<span class="lineNum">     342 </span>                :            : {
+<span class="lineNum">     343 </span>                :            :         struct fsp_msg *msg;
+<span class="lineNum">     344 </span>                :<span class="lineNoCov">          0 :         int rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     345 </span>                :<span class="lineNoCov">          0 :         uint32_t *tool_type = (void *)FSP_DUMP_TOOL_TYPE;</span>
+<span class="lineNum">     346 </span>                :<span class="lineNoCov">          0 :         uint32_t *client_id = (void *)FSP_DUMP_CLIENT_ID;</span>
+<span class="lineNum">     347 </span>                :            : 
+<span class="lineNum">     348 </span>                :            :         /* Only FipS dump generate request is supported */
+<span class="lineNum">     349 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (dump_type != DUMP_TYPE_FSP)</span>
+<span class="lineNum">     350 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     351 </span>                :            : 
+<span class="lineNum">     352 </span>                :<span class="lineNoCov">          0 :         msg = fsp_mkmsg(FSP_CMD_FSP_DUMP_INIT, 6, *tool_type,</span>
+<span class="lineNum">     353 </span>                :            :                         sizeof(FSP_DUMP_CLIENT_ID), *client_id,
+<span class="lineNum">     354 </span>                :            :                         *(client_id + 1), *(client_id + 2), *(client_id + 3));
+<span class="lineNum">     355 </span>                :            : 
+<span class="lineNum">     356 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!msg) {</span>
+<span class="lineNum">     357 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_DUMP_INIT),</span>
+<span class="lineNum">     358 </span>                :            :                                  &quot;DUMP: Message allocation failed.\n&quot;);
+<span class="lineNum">     359 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     360 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         } else if (fsp_queue_msg(msg, dump_init_complete)) {</span>
+<span class="lineNum">     361 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_DUMP_INIT),</span>
+<span class="lineNum">     362 </span>                :            :                         &quot;DUMP: Failed to queue FipS dump init request.\n&quot;);
+<span class="lineNum">     363 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(msg);</span>
+<span class="lineNum">     364 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     365 </span>                :            :         }
+<span class="lineNum">     366 </span>                :            : 
+<span class="lineNum">     367 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     368 </span>                :            : }
+<span class="lineNum">     369 </span>                :            : 
+<span class="lineNum">     370 </span>                :            : /*
+<span class="lineNum">     371 </span>                :            :  * OPAL interface to send dump information to Linux.
+<span class="lineNum">     372 </span>                :            :  */
+<span class="lineNum">     373 </span>                :<span class="lineCov">          1 : static int64_t fsp_opal_dump_info2(uint32_t *dump_id, uint32_t *dump_size,</span>
+<span class="lineNum">     374 </span>                :            :                                    uint32_t *dump_type)
+<span class="lineNum">     375 </span>                :            : {
+<span class="lineNum">     376 </span>                :            :         struct dump_record *record;
+<span class="lineNum">     377 </span>                :<span class="lineCov">          1 :         int rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     378 </span>                :            : 
+<span class="lineNum">     379 </span>                :<span class="lineCov">          1 :         lock(&amp;dump_lock);</span>
+<span class="lineNum">     380 </span>                :            : 
+<span class="lineNum">     381 </span>                :            :         /* Clear notification */
+<span class="lineNum">     382 </span>                :<span class="lineCov">          1 :         opal_update_pending_evt(OPAL_EVENT_DUMP_AVAIL, 0);</span>
+<span class="lineNum">     383 </span>                :            : 
+<span class="lineNum">     384 </span>                :<span class="lineCov">          1 :         record = list_top(&amp;dump_pending, struct dump_record, link);</span>
+<span class="lineNum">     385 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!record) { /* List corrupted? */</span>
+<span class="lineNum">     386 </span>                :            :                 update_dump_state(DUMP_STATE_NONE);
+<span class="lineNum">     387 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     388 </span>                :<span class="lineNoCov">          0 :                 goto out;</span>
+<span class="lineNum">     389 </span>                :            :         }
+<span class="lineNum">     390 </span>                :<span class="lineCov">          1 :         *dump_id = record-&gt;id;</span>
+<span class="lineNum">     391 </span>                :<span class="lineCov">          1 :         *dump_size = record-&gt;size;</span>
+<span class="lineNum">     392 </span>                :<span class="lineCov">          1 :         *dump_type = record-&gt;type;</span>
+<span class="lineNum">     393 </span>                :            : 
+<span class="lineNum">     394 </span>                :            : out:
+<span class="lineNum">     395 </span>                :<span class="lineCov">          1 :         unlock(&amp;dump_lock);</span>
+<span class="lineNum">     396 </span>                :<span class="lineCov">          1 :         return rc;</span>
+<a name="397"><span class="lineNum">     397 </span>                :            : }</a>
+<span class="lineNum">     398 </span>                :            : 
+<span class="lineNum">     399 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_opal_dump_info(uint32_t *dump_id, uint32_t *dump_size)</span>
+<span class="lineNum">     400 </span>                :            : {
+<span class="lineNum">     401 </span>                :            :         uint32_t dump_type;
+<span class="lineNum">     402 </span>                :<span class="lineNoCov">          0 :         return fsp_opal_dump_info2(dump_id, dump_size, &amp;dump_type);</span>
+<a name="403"><span class="lineNum">     403 </span>                :            : }</a>
+<span class="lineNum">     404 </span>                :            : 
+<span class="lineNum">     405 </span>                :<span class="lineNoCov">          0 : static int64_t validate_dump_sglist(struct opal_sg_list *list,</span>
+<span class="lineNum">     406 </span>                :            :                                     int64_t *size)
+<span class="lineNum">     407 </span>                :            : {
+<span class="lineNum">     408 </span>                :            :         struct opal_sg_list *sg;
+<span class="lineNum">     409 </span>                :            :         struct opal_sg_entry *prev_entry, *entry;
+<span class="lineNum">     410 </span>                :            :         int length, num_entries, i;
+<span class="lineNum">     411 </span>                :            : 
+<span class="lineNum">     412 </span>                :<span class="lineNoCov">          0 :         prev_entry = NULL;</span>
+<span class="lineNum">     413 </span>                :<span class="lineNoCov">          0 :         *size = 0;</span>
+<span class="lineNum">     414 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (sg = list; sg; sg = (struct opal_sg_list*)be64_to_cpu(sg-&gt;next)) {</span>
+<span class="lineNum">     415 </span>                :<span class="lineNoCov">          0 :                 length = be64_to_cpu(sg-&gt;length) - 16;</span>
+<span class="lineNum">     416 </span>                :<span class="lineNoCov">          0 :                 num_entries = length / sizeof(struct opal_sg_entry);</span>
+<span class="lineNum">     417 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (num_entries &lt;= 0)</span>
+<span class="lineNum">     418 </span>                :            :                         return OPAL_PARAMETER;
+<span class="lineNum">     419 </span>                :            : 
+<span class="lineNum">     420 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 for (i = 0; i &lt; num_entries; i++) {</span>
+<span class="lineNum">     421 </span>                :<span class="lineNoCov">          0 :                         entry = &amp;sg-&gt;entry[i];</span>
+<span class="lineNum">     422 </span>                :<span class="lineNoCov">          0 :                         *size += entry-&gt;length;</span>
+<span class="lineNum">     423 </span>                :            : 
+<span class="lineNum">     424 </span>                :            :                         /* All entries must be aligned */
+<span class="lineNum">     425 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (((uint64_t)be64_to_cpu(entry-&gt;data)) &amp; 0xfff)</span>
+<span class="lineNum">     426 </span>                :            :                                 return OPAL_PARAMETER;
+<span class="lineNum">     427 </span>                :            : 
+<span class="lineNum">     428 </span>                :            :                         /* All non-terminal entries size must be aligned */
+<span class="lineNum">     429 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (prev_entry &amp;&amp; (be64_to_cpu(prev_entry-&gt;length) &amp; 0xfff))</span>
+<span class="lineNum">     430 </span>                :            :                                 return OPAL_PARAMETER;
+<span class="lineNum">     431 </span>                :            : 
+<span class="lineNum">     432 </span>                :<span class="lineNoCov">          0 :                         prev_entry = entry;</span>
+<span class="lineNum">     433 </span>                :            :                 }
+<span class="lineNum">     434 </span>                :            :         }
+<span class="lineNum">     435 </span>                :            :         return OPAL_SUCCESS;
+<span class="lineNum">     436 </span>                :            : }
+<span class="lineNum">     437 </span>                :            : 
+<span class="lineNum">     438 </span>                :            : /*
+<a name="439"><span class="lineNum">     439 </span>                :            :  * Map dump buffer to TCE buffer</a>
+<span class="lineNum">     440 </span>                :            :  */
+<span class="lineNum">     441 </span>                :<span class="lineNoCov">          0 : static int64_t map_dump_buffer(void)</span>
+<span class="lineNum">     442 </span>                :            : {
+<span class="lineNum">     443 </span>                :            :         struct opal_sg_list *sg;
+<span class="lineNum">     444 </span>                :            :         struct opal_sg_entry *entry;
+<span class="lineNum">     445 </span>                :            :         int64_t fetch_max;
+<span class="lineNum">     446 </span>                :            :         int length, num_entries, i;
+<span class="lineNum">     447 </span>                :            :         int buf_off, fetch_off, tce_off, sg_off;
+<span class="lineNum">     448 </span>                :<span class="lineNoCov">          0 :         bool last = false;</span>
+<span class="lineNum">     449 </span>                :            : 
+<span class="lineNum">     450 </span>                :            :         /* FSP fetch max size */
+<span class="lineNum">     451 </span>                :<span class="lineNoCov">          0 :         fetch_max = get_dump_fetch_max_size(dump_entry-&gt;type);</span>
+<span class="lineNum">     452 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fetch_max &gt; (dump_entry-&gt;size - dump_offset))</span>
+<span class="lineNum">     453 </span>                :<span class="lineNoCov">          0 :                 fetch_remain = dump_entry-&gt;size - dump_offset;</span>
+<span class="lineNum">     454 </span>                :            :         else
+<span class="lineNum">     455 </span>                :<span class="lineNoCov">          0 :                 fetch_remain = fetch_max;</span>
+<span class="lineNum">     456 </span>                :            : 
+<span class="lineNum">     457 </span>                :            :         /* offsets */
+<span class="lineNum">     458 </span>                :<span class="lineNoCov">          0 :         fetch_off = fetch_remain;</span>
+<span class="lineNum">     459 </span>                :<span class="lineNoCov">          0 :         tce_off = sg_off = 0;</span>
+<span class="lineNum">     460 </span>                :            : 
+<span class="lineNum">     461 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (sg = dump_data; sg; sg = (struct opal_sg_list*)be64_to_cpu(sg-&gt;next)) {</span>
+<span class="lineNum">     462 </span>                :<span class="lineNoCov">          0 :                 num_entries = (be64_to_cpu(sg-&gt;length) - 16) /</span>
+<span class="lineNum">     463 </span>                :            :                                         sizeof(struct opal_sg_entry);
+<span class="lineNum">     464 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (num_entries &lt;= 0)</span>
+<span class="lineNum">     465 </span>                :            :                         return OPAL_PARAMETER;
+<span class="lineNum">     466 </span>                :            : 
+<span class="lineNum">     467 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 for (i = 0; i &lt; num_entries; i++) {</span>
+<span class="lineNum">     468 </span>                :<span class="lineNoCov">          0 :                         entry = &amp;sg-&gt;entry[i];</span>
+<span class="lineNum">     469 </span>                :            : 
+<span class="lineNum">     470 </span>                :            :                         /* Continue until we get offset */
+<span class="lineNum">     471 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if ((sg_off + be64_to_cpu(entry-&gt;length)) &lt; dump_offset) {</span>
+<span class="lineNum">     472 </span>                :<span class="lineNoCov">          0 :                                 sg_off += be64_to_cpu(entry-&gt;length);</span>
+<span class="lineNum">     473 </span>                :<span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">     474 </span>                :            :                         }
+<span class="lineNum">     475 </span>                :            : 
+<span class="lineNum">     476 </span>                :            :                         /*
+<span class="lineNum">     477 </span>                :            :                          * SG list entry size can be more than 4k.
+<span class="lineNum">     478 </span>                :            :                          * Map only required pages, instead of
+<span class="lineNum">     479 </span>                :            :                          * mapping entire entry.
+<span class="lineNum">     480 </span>                :            :                          */
+<span class="lineNum">     481 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (!tce_off) {</span>
+<span class="lineNum">     482 </span>                :<span class="lineNoCov">          0 :                                 buf_off = (dump_offset - sg_off) &amp; ~0xfff;</span>
+<span class="lineNum">     483 </span>                :<span class="lineNoCov">          0 :                                 length = be64_to_cpu(entry-&gt;length) - buf_off;</span>
+<span class="lineNum">     484 </span>                :            :                         } else {
+<span class="lineNum">     485 </span>                :<span class="lineNoCov">          0 :                                 buf_off = 0;</span>
+<span class="lineNum">     486 </span>                :<span class="lineNoCov">          0 :                                 length = be64_to_cpu(entry-&gt;length);</span>
+<span class="lineNum">     487 </span>                :            :                         }
+<span class="lineNum">     488 </span>                :            : 
+<span class="lineNum">     489 </span>                :            :                         /* Adjust length for last mapping */
+<span class="lineNum">     490 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (fetch_off &lt;= length) {</span>
+<span class="lineNum">     491 </span>                :<span class="lineNoCov">          0 :                                 length = fetch_off;</span>
+<span class="lineNum">     492 </span>                :<span class="lineNoCov">          0 :                                 last = true;</span>
+<span class="lineNum">     493 </span>                :            :                         }
+<span class="lineNum">     494 </span>                :            : 
+<span class="lineNum">     495 </span>                :            :                         /* Adjust offset */
+<span class="lineNum">     496 </span>                :<span class="lineNoCov">          0 :                         sg_off += be64_to_cpu(entry-&gt;length);</span>
+<span class="lineNum">     497 </span>                :<span class="lineNoCov">          0 :                         fetch_off -= length;</span>
+<span class="lineNum">     498 </span>                :            : 
+<span class="lineNum">     499 </span>                :            :                         /* TCE mapping */
+<span class="lineNum">     500 </span>                :<span class="lineNoCov">          0 :                         dump_tce_map(tce_off, (void*)(be64_to_cpu(entry-&gt;data) + buf_off), length);</span>
+<span class="lineNum">     501 </span>                :<span class="lineNoCov">          0 :                         tce_off += length;</span>
+<span class="lineNum">     502 </span>                :            : 
+<span class="lineNum">     503 </span>                :            :                         /* TCE mapping complete */
+<span class="lineNum">     504 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (last)</span>
+<span class="lineNum">     505 </span>                :            :                                 return OPAL_SUCCESS;
+<span class="lineNum">     506 </span>                :            :                 }
+<span class="lineNum">     507 </span>                :            :         } /* outer loop */
+<span class="lineNum">     508 </span>                :            :         return OPAL_PARAMETER;
+<span class="lineNum">     509 </span>                :            : }
+<span class="lineNum">     510 </span>                :            : 
+<span class="lineNum">     511 </span>                :<span class="lineNoCov">          0 : static void dump_read_complete(struct fsp_msg *msg)</span>
+<span class="lineNum">     512 </span>                :            : {
+<span class="lineNum">     513 </span>                :            :         void *buffer;
+<span class="lineNum">     514 </span>                :            :         size_t length, offset;
+<span class="lineNum">     515 </span>                :            :         int rc;
+<span class="lineNum">     516 </span>                :            :         uint32_t dump_id;
+<span class="lineNum">     517 </span>                :            :         uint16_t id;
+<span class="lineNum">     518 </span>                :            :         uint8_t flags, status;
+<span class="lineNum">     519 </span>                :<span class="lineNoCov">          0 :         bool compl = false;</span>
+<span class="lineNum">     520 </span>                :            : 
+<span class="lineNum">     521 </span>                :<span class="lineNoCov">          0 :         status = (msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     522 </span>                :<span class="lineNoCov">          0 :         flags = (msg-&gt;data.words[0] &gt;&gt; 16) &amp; 0xff;</span>
+<span class="lineNum">     523 </span>                :<span class="lineNoCov">          0 :         id = msg-&gt;data.words[0] &amp; 0xffff;</span>
+<span class="lineNum">     524 </span>                :<span class="lineNoCov">          0 :         dump_id = msg-&gt;data.words[1];</span>
+<span class="lineNum">     525 </span>                :<span class="lineNoCov">          0 :         offset = msg-&gt;resp-&gt;data.words[1];</span>
+<span class="lineNum">     526 </span>                :<span class="lineNoCov">          0 :         length = msg-&gt;resp-&gt;data.words[2];</span>
+<span class="lineNum">     527 </span>                :            : 
+<span class="lineNum">     528 </span>                :<span class="lineNoCov">          0 :         fsp_freemsg(msg);</span>
+<span class="lineNum">     529 </span>                :            : 
+<span class="lineNum">     530 </span>                :<span class="lineNoCov">          0 :         lock(&amp;dump_lock);</span>
+<span class="lineNum">     531 </span>                :            : 
+<span class="lineNum">     532 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (dump_state == DUMP_STATE_ABORTING) {</span>
+<span class="lineNum">     533 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;DUMP: Fetch dump aborted, ID = 0x%x\n&quot;, dump_id);</span>
+<span class="lineNum">     534 </span>                :<span class="lineNoCov">          0 :                 dump_tce_unmap(PSI_DMA_DUMP_DATA_SIZE);</span>
+<span class="lineNum">     535 </span>                :            :                 update_dump_state(DUMP_STATE_NONE);
+<span class="lineNum">     536 </span>                :            :                 goto bail;
+<span class="lineNum">     537 </span>                :            :         }
+<span class="lineNum">     538 </span>                :            : 
+<span class="lineNum">     539 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (status) {</span>
+<span class="lineNum">     540 </span>                :            :         case FSP_STATUS_SUCCESS: /* Fetch next dump block */
+<span class="lineNum">     541 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (dump_offset &lt; dump_entry-&gt;size) {</span>
+<span class="lineNum">     542 </span>                :<span class="lineNoCov">          0 :                         dump_tce_unmap(PSI_DMA_DUMP_DATA_SIZE);</span>
+<span class="lineNum">     543 </span>                :<span class="lineNoCov">          0 :                         rc = fsp_dump_read();</span>
+<span class="lineNum">     544 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (rc == OPAL_SUCCESS)</span>
+<span class="lineNum">     545 </span>                :            :                                 goto bail;
+<span class="lineNum">     546 </span>                :            :                 } else { /* Dump read complete */
+<span class="lineNum">     547 </span>                :            :                         compl = true;
+<span class="lineNum">     548 </span>                :            :                 }
+<span class="lineNum">     549 </span>                :            :                 break;
+<span class="lineNum">     550 </span>                :            :         case FSP_STATUS_MORE_DATA:      /* More data to read */
+<span class="lineNum">     551 </span>                :<span class="lineNoCov">          0 :                 offset += length;</span>
+<span class="lineNum">     552 </span>                :<span class="lineNoCov">          0 :                 buffer = (void *)PSI_DMA_DUMP_DATA + offset;</span>
+<span class="lineNum">     553 </span>                :<span class="lineNoCov">          0 :                 fetch_remain -= length;</span>
+<span class="lineNum">     554 </span>                :            : 
+<span class="lineNum">     555 </span>                :<span class="lineNoCov">          0 :                 rc = fsp_fetch_data_queue(flags, id, dump_id, offset, buffer,</span>
+<span class="lineNum">     556 </span>                :            :                                           &amp;fetch_remain, dump_read_complete);
+<span class="lineNum">     557 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc == OPAL_SUCCESS)</span>
+<span class="lineNum">     558 </span>                :            :                         goto bail;
+<span class="lineNum">     559 </span>                :            :                 break;
+<span class="lineNum">     560 </span>                :            :         default:
+<span class="lineNum">     561 </span>                :            :                 break;
+<span class="lineNum">     562 </span>                :            :         }
+<span class="lineNum">     563 </span>                :            : 
+<span class="lineNum">     564 </span>                :<span class="lineNoCov">          0 :         dump_tce_unmap(PSI_DMA_DUMP_DATA_SIZE);</span>
+<span class="lineNum">     565 </span>                :            : 
+<span class="lineNum">     566 </span>                :            :         /* Update state */
+<span class="lineNum">     567 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (compl) {</span>
+<span class="lineNum">     568 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;DUMP: Fetch dump success. ID = 0x%x\n&quot;, dump_id);</span>
+<span class="lineNum">     569 </span>                :            :                 update_dump_state(DUMP_STATE_FETCH);
+<span class="lineNum">     570 </span>                :            :         } else {
+<span class="lineNum">     571 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;DUMP: Fetch dump partial. ID = 0x%x\n&quot;, dump_id);</span>
+<span class="lineNum">     572 </span>                :            :                 update_dump_state(DUMP_STATE_PARTIAL);
+<span class="lineNum">     573 </span>                :            :         }
+<span class="lineNum">     574 </span>                :            :  bail:
+<span class="lineNum">     575 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;dump_lock);</span>
+<span class="lineNum">     576 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     577 </span>                :            : 
+<span class="lineNum">     578 </span>                :            : /*
+<a name="579"><span class="lineNum">     579 </span>                :            :  * Fetch dump data from FSP</a>
+<span class="lineNum">     580 </span>                :            :  */
+<span class="lineNum">     581 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_dump_read(void)</span>
+<span class="lineNum">     582 </span>                :            : {
+<span class="lineNum">     583 </span>                :            :         int64_t rc;
+<span class="lineNum">     584 </span>                :            :         uint16_t data_set;
+<span class="lineNum">     585 </span>                :<span class="lineNoCov">          0 :         uint8_t flags = 0x00;</span>
+<span class="lineNum">     586 </span>                :            : 
+<span class="lineNum">     587 </span>                :            :         /* Get data set ID */
+<span class="lineNum">     588 </span>                :<span class="lineNoCov">          0 :         data_set = get_dump_data_set_id(dump_entry-&gt;type);</span>
+<span class="lineNum">     589 </span>                :            : 
+<span class="lineNum">     590 </span>                :            :         /* Map TCE buffer */
+<span class="lineNum">     591 </span>                :<span class="lineNoCov">          0 :         rc = map_dump_buffer();</span>
+<span class="lineNum">     592 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc != OPAL_SUCCESS) {</span>
+<span class="lineNum">     593 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;DUMP: TCE mapping failed\n&quot;);</span>
+<span class="lineNum">     594 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
+<span class="lineNum">     595 </span>                :            :         }
+<span class="lineNum">     596 </span>                :            : 
+<span class="lineNum">     597 </span>                :<span class="lineNoCov">          0 :         printf(&quot;DUMP: Fetch Dump. ID = %02x, sub ID = %08x, len = %ld\n&quot;,</span>
+<span class="lineNum">     598 </span>                :<span class="lineNoCov">          0 :                data_set, dump_entry-&gt;id, fetch_remain);</span>
+<span class="lineNum">     599 </span>                :            : 
+<span class="lineNum">     600 </span>                :            :         /* Fetch data */
+<span class="lineNum">     601 </span>                :<span class="lineNoCov">          0 :         rc = fsp_fetch_data_queue(flags, data_set, dump_entry-&gt;id,</span>
+<span class="lineNum">     602 </span>                :            :                                   dump_offset, (void *)PSI_DMA_DUMP_DATA,
+<span class="lineNum">     603 </span>                :            :                                   &amp;fetch_remain, dump_read_complete);
+<span class="lineNum">     604 </span>                :            : 
+<span class="lineNum">     605 </span>                :            :         /* Adjust dump fetch offset */
+<span class="lineNum">     606 </span>                :<span class="lineNoCov">          0 :         dump_offset += fetch_remain;</span>
+<span class="lineNum">     607 </span>                :            : 
+<span class="lineNum">     608 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     609 </span>                :            : }
+<span class="lineNum">     610 </span>                :            : 
+<span class="lineNum">     611 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_opal_dump_read(uint32_t dump_id,</span>
+<span class="lineNum">     612 </span>                :            :                                   struct opal_sg_list *list)
+<span class="lineNum">     613 </span>                :            : {
+<span class="lineNum">     614 </span>                :            :         struct dump_record *record;
+<span class="lineNum">     615 </span>                :            :         int64_t rc, size;
+<span class="lineNum">     616 </span>                :            : 
+<span class="lineNum">     617 </span>                :<span class="lineNoCov">          0 :         lock(&amp;dump_lock);</span>
+<span class="lineNum">     618 </span>                :            : 
+<span class="lineNum">     619 </span>                :            :         /* Check state */
+<span class="lineNum">     620 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (dump_state != DUMP_STATE_NOTIFY) {</span>
+<span class="lineNum">     621 </span>                :<span class="lineNoCov">          0 :                 rc = check_dump_state();</span>
+<span class="lineNum">     622 </span>                :<span class="lineNoCov">          0 :                 goto out;</span>
+<span class="lineNum">     623 </span>                :            :         }
+<span class="lineNum">     624 </span>                :            : 
+<span class="lineNum">     625 </span>                :            :         /* Validate dump ID */
+<span class="lineNum">     626 </span>                :<span class="lineNoCov">          0 :         record = get_dump_rec_from_list(dump_id);</span>
+<span class="lineNum">     627 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!record) { /* List corrupted? */</span>
+<span class="lineNum">     628 </span>                :            :                 rc = OPAL_INTERNAL_ERROR;
+<span class="lineNum">     629 </span>                :            :                 goto out;
+<span class="lineNum">     630 </span>                :            :         }
+<span class="lineNum">     631 </span>                :            : 
+<span class="lineNum">     632 </span>                :            :         /* Validate dump buffer and size */
+<span class="lineNum">     633 </span>                :<span class="lineNoCov">          0 :         rc = validate_dump_sglist(list, &amp;size);</span>
+<span class="lineNum">     634 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc != OPAL_SUCCESS) {</span>
+<span class="lineNum">     635 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;DUMP: SG list validation failed\n&quot;);</span>
+<span class="lineNum">     636 </span>                :<span class="lineNoCov">          0 :                 goto out;</span>
+<span class="lineNum">     637 </span>                :            :         }
+<span class="lineNum">     638 </span>                :            : 
+<span class="lineNum">     639 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (size &lt; record-&gt;size) { /* Insuffient buffer */</span>
+<span class="lineNum">     640 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;DUMP: Insufficient buffer\n&quot;);</span>
+<span class="lineNum">     641 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_PARAMETER;</span>
+<span class="lineNum">     642 </span>                :<span class="lineNoCov">          0 :                 goto out;</span>
+<span class="lineNum">     643 </span>                :            :         }
+<span class="lineNum">     644 </span>                :            : 
+<span class="lineNum">     645 </span>                :            :         /* Update state */
+<span class="lineNum">     646 </span>                :            :         update_dump_state(DUMP_STATE_FETCHING);
+<span class="lineNum">     647 </span>                :            : 
+<span class="lineNum">     648 </span>                :            :         /* Fetch dump data */
+<span class="lineNum">     649 </span>                :<span class="lineNoCov">          0 :         dump_entry = record;</span>
+<span class="lineNum">     650 </span>                :<span class="lineNoCov">          0 :         dump_data = list;</span>
+<span class="lineNum">     651 </span>                :<span class="lineNoCov">          0 :         dump_offset = 0;</span>
+<span class="lineNum">     652 </span>                :<span class="lineNoCov">          0 :         rc = fsp_dump_read();</span>
+<span class="lineNum">     653 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc != OPAL_SUCCESS)</span>
+<span class="lineNum">     654 </span>                :            :                 goto out;
+<span class="lineNum">     655 </span>                :            : 
+<span class="lineNum">     656 </span>                :            :         /* Check status after initiating fetch data */
+<span class="lineNum">     657 </span>                :<span class="lineNoCov">          0 :         rc = check_dump_state();</span>
+<span class="lineNum">     658 </span>                :            : 
+<span class="lineNum">     659 </span>                :            : out:
+<span class="lineNum">     660 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;dump_lock);</span>
+<span class="lineNum">     661 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="662"><span class="lineNum">     662 </span>                :            : }</a>
+<span class="lineNum">     663 </span>                :            : 
+<span class="lineNum">     664 </span>                :<span class="lineNoCov">          0 : static void dump_ack_complete(struct fsp_msg *msg)</span>
+<span class="lineNum">     665 </span>                :            : {
+<span class="lineNum">     666 </span>                :<span class="lineNoCov">          0 :         uint8_t status = (msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     667 </span>                :            : 
+<span class="lineNum">     668 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (status)</span>
+<span class="lineNum">     669 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_DUMP_ACK),</span>
+<span class="lineNum">     670 </span>                :            :                                  &quot;DUMP: ACK failed for ID: 0x%x\n&quot;,
+<span class="lineNum">     671 </span>                :            :                                  msg-&gt;data.words[0]);
+<span class="lineNum">     672 </span>                :            :         else
+<span class="lineNum">     673 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;DUMP: ACKed dump ID: 0x%x\n&quot;, msg-&gt;data.words[0]);</span>
+<span class="lineNum">     674 </span>                :            : 
+<span class="lineNum">     675 </span>                :<span class="lineNoCov">          0 :         fsp_freemsg(msg);</span>
+<span class="lineNum">     676 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     677 </span>                :            : 
+<span class="lineNum">     678 </span>                :            : /*
+<a name="679"><span class="lineNum">     679 </span>                :            :  * Acknowledge dump</a>
+<span class="lineNum">     680 </span>                :            :  */
+<span class="lineNum">     681 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_opal_dump_ack(uint32_t dump_id)</span>
+<span class="lineNum">     682 </span>                :            : {
+<span class="lineNum">     683 </span>                :            :         struct dump_record *record;
+<span class="lineNum">     684 </span>                :            :         struct fsp_msg *msg;
+<span class="lineNum">     685 </span>                :            :         int rc;
+<span class="lineNum">     686 </span>                :            :         uint32_t cmd;
+<span class="lineNum">     687 </span>                :<span class="lineNoCov">          0 :         uint8_t dump_type = 0;</span>
+<span class="lineNum">     688 </span>                :            : 
+<span class="lineNum">     689 </span>                :            :         /* Get dump type */
+<span class="lineNum">     690 </span>                :<span class="lineNoCov">          0 :         lock(&amp;dump_lock);</span>
+<span class="lineNum">     691 </span>                :<span class="lineNoCov">          0 :         record = get_dump_rec_from_list(dump_id);</span>
+<span class="lineNum">     692 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (record)</span>
+<span class="lineNum">     693 </span>                :<span class="lineNoCov">          0 :                 dump_type = record-&gt;type;</span>
+<span class="lineNum">     694 </span>                :            : 
+<span class="lineNum">     695 </span>                :            :         /*
+<span class="lineNum">     696 </span>                :            :          * Next available dump in pending list will be of different
+<span class="lineNum">     697 </span>                :            :          * type. Hence we don't need to wait for ack complete.
+<span class="lineNum">     698 </span>                :            :          *
+<span class="lineNum">     699 </span>                :            :          * Note:
+<span class="lineNum">     700 </span>                :            :          *   This allows us to proceed even if we fail to ACK.
+<span class="lineNum">     701 </span>                :            :          *   In the worst case we may get notification for the
+<span class="lineNum">     702 </span>                :            :          *   same dump again, which is probably better than
+<span class="lineNum">     703 </span>                :            :          *   looping forever.
+<span class="lineNum">     704 </span>                :            :          */
+<span class="lineNum">     705 </span>                :<span class="lineNoCov">          0 :         rc = remove_dump_id_from_list(dump_id);</span>
+<span class="lineNum">     706 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc != OPAL_SUCCESS) /* Invalid dump id */</span>
+<span class="lineNum">     707 </span>                :            :                 goto out;
+<span class="lineNum">     708 </span>                :            : 
+<span class="lineNum">     709 </span>                :            :         /* Adjust mod value */
+<span class="lineNum">     710 </span>                :<span class="lineNoCov">          0 :         cmd = FSP_CMD_ACK_DUMP | (dump_type &amp; 0xff);</span>
+<span class="lineNum">     711 </span>                :<span class="lineNoCov">          0 :         msg = fsp_mkmsg(cmd, 1, dump_id);</span>
+<span class="lineNum">     712 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!msg) {</span>
+<span class="lineNum">     713 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_DUMP_ACK),</span>
+<span class="lineNum">     714 </span>                :            :                                  &quot;DUMP: Message allocation failed.!\n&quot;);
+<span class="lineNum">     715 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     716 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         } else if (fsp_queue_msg(msg, dump_ack_complete)) {</span>
+<span class="lineNum">     717 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_DUMP_ACK),</span>
+<span class="lineNum">     718 </span>                :            :                         &quot;DUMP: Failed to queue dump ack message.\n&quot;);
+<span class="lineNum">     719 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(msg);</span>
+<span class="lineNum">     720 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     721 </span>                :            :         }
+<span class="lineNum">     722 </span>                :            : out:
+<span class="lineNum">     723 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;dump_lock);</span>
+<span class="lineNum">     724 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     725 </span>                :            : }
+<span class="lineNum">     726 </span>                :            : 
+<span class="lineNum">     727 </span>                :            : /* Resend dump available notification */
+<span class="lineNum">     728 </span>                :<span class="lineCov">          1 : static int64_t fsp_opal_dump_resend_notification(void)</span>
+<span class="lineNum">     729 </span>                :            : {
+<span class="lineNum">     730 </span>                :<span class="lineCov">          1 :         lock(&amp;dump_lock);</span>
+<span class="lineNum">     731 </span>                :            : 
+<span class="lineNum">     732 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (dump_state != DUMP_STATE_ABSENT)</span>
+<span class="lineNum">     733 </span>                :            :                 update_dump_state(DUMP_STATE_NONE);
+<span class="lineNum">     734 </span>                :            : 
+<span class="lineNum">     735 </span>                :<span class="lineCov">          1 :         update_opal_dump_notify();</span>
+<span class="lineNum">     736 </span>                :            : 
+<span class="lineNum">     737 </span>                :<span class="lineCov">          1 :         unlock(&amp;dump_lock);</span>
+<span class="lineNum">     738 </span>                :            : 
+<span class="lineNum">     739 </span>                :<span class="lineCov">          1 :         return OPAL_SUCCESS;</span>
+<span class="lineNum">     740 </span>                :            : }
+<span class="lineNum">     741 </span>                :            : 
+<span class="lineNum">     742 </span>                :            : /*
+<span class="lineNum">     743 </span>                :            :  * Handle FSP R/R event.
+<span class="lineNum">     744 </span>                :            :  */
+<span class="lineNum">     745 </span>                :<span class="lineNoCov">          0 : static bool fsp_dump_retrieve_rr(uint32_t cmd_sub_mod,</span>
+<span class="lineNum">     746 </span>                :            :                                  struct fsp_msg *msg __unused)
+<span class="lineNum">     747 </span>                :            : {
+<span class="lineNum">     748 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (cmd_sub_mod) {</span>
+<span class="lineNum">     749 </span>                :            :         case FSP_RESET_START:
+<span class="lineNum">     750 </span>                :<span class="lineNoCov">          0 :                 lock(&amp;dump_lock);</span>
+<span class="lineNum">     751 </span>                :            :                 /* Reset dump state */
+<span class="lineNum">     752 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (dump_state == DUMP_STATE_FETCHING)</span>
+<span class="lineNum">     753 </span>                :            :                         update_dump_state(DUMP_STATE_ABORTING);
+<span class="lineNum">     754 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;dump_lock);</span>
+<span class="lineNum">     755 </span>                :<span class="lineNoCov">          0 :                 return true;</span>
+<span class="lineNum">     756 </span>                :            :         case FSP_RELOAD_COMPLETE:
+<span class="lineNum">     757 </span>                :<span class="lineNoCov">          0 :                 lock(&amp;dump_lock);</span>
+<span class="lineNum">     758 </span>                :            : 
+<span class="lineNum">     759 </span>                :            :                 /* Reset TCE mapping */
+<span class="lineNum">     760 </span>                :<span class="lineNoCov">          0 :                 dump_tce_unmap(PSI_DMA_DUMP_DATA_SIZE);</span>
+<span class="lineNum">     761 </span>                :            : 
+<span class="lineNum">     762 </span>                :            :                 /* Reset dump state */
+<span class="lineNum">     763 </span>                :            :                 update_dump_state(DUMP_STATE_NONE);
+<span class="lineNum">     764 </span>                :            : 
+<span class="lineNum">     765 </span>                :            :                 /*
+<span class="lineNum">     766 </span>                :            :                  * For now keeping R/R handler simple. In the worst case
+<span class="lineNum">     767 </span>                :            :                  * we may endup resending dump available notification for
+<span class="lineNum">     768 </span>                :            :                  * same dump ID twice to Linux.
+<span class="lineNum">     769 </span>                :            :                  */
+<span class="lineNum">     770 </span>                :<span class="lineNoCov">          0 :                 update_opal_dump_notify();</span>
+<span class="lineNum">     771 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;dump_lock);</span>
+<span class="lineNum">     772 </span>                :<span class="lineNoCov">          0 :                 return true;</span>
+<span class="lineNum">     773 </span>                :            :         }
+<span class="lineNum">     774 </span>                :            :         return false;
+<span class="lineNum">     775 </span>                :            : }
+<span class="lineNum">     776 </span>                :            : 
+<span class="lineNum">     777 </span>                :            : /*
+<a name="778"><span class="lineNum">     778 </span>                :            :  * Handle host kexec'ing scenarios</a>
+<span class="lineNum">     779 </span>                :            :  */
+<span class="lineNum">     780 </span>                :<span class="lineNoCov">          0 : static bool opal_kexec_dump_notify(void *data __unused)</span>
+<span class="lineNum">     781 </span>                :            : {
+<span class="lineNum">     782 </span>                :<span class="lineNoCov">          0 :         bool ready = true;</span>
+<span class="lineNum">     783 </span>                :            : 
+<span class="lineNum">     784 </span>                :<span class="lineNoCov">          0 :         lock(&amp;dump_lock);</span>
+<span class="lineNum">     785 </span>                :            : 
+<span class="lineNum">     786 </span>                :            :         /* Dump retrieve is in progress? */
+<span class="lineNum">     787 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (dump_state == DUMP_STATE_FETCHING)</span>
+<span class="lineNum">     788 </span>                :<span class="lineNoCov">          0 :                 dump_state = DUMP_STATE_ABORTING;</span>
+<span class="lineNum">     789 </span>                :            : 
+<span class="lineNum">     790 </span>                :            :         /* Not yet safe to kexec */
+<span class="lineNum">     791 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (dump_state == DUMP_STATE_ABORTING)</span>
+<span class="lineNum">     792 </span>                :<span class="lineNoCov">          0 :                 ready = false;</span>
+<span class="lineNum">     793 </span>                :            : 
+<span class="lineNum">     794 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;dump_lock);</span>
+<span class="lineNum">     795 </span>                :            : 
+<span class="lineNum">     796 </span>                :<span class="lineNoCov">          0 :         return ready;</span>
+<span class="lineNum">     797 </span>                :            : }
+<span class="lineNum">     798 </span>                :            : 
+<span class="lineNum">     799 </span>                :            : /*
+<a name="800"><span class="lineNum">     800 </span>                :            :  * FipS dump notification</a>
+<span class="lineNum">     801 </span>                :            :  */
+<span class="lineNum">     802 </span>                :<span class="lineCov">          1 : void fsp_fips_dump_notify(uint32_t dump_id, uint32_t dump_size)</span>
+<span class="lineNum">     803 </span>                :            : {
+<span class="lineNum">     804 </span>                :<span class="lineCov">          1 :         printf(&quot;DUMP: FipS dump available. ID = 0x%x [size: %d bytes]\n&quot;,</span>
+<span class="lineNum">     805 </span>                :            :                dump_id, dump_size);
+<span class="lineNum">     806 </span>                :<span class="lineCov">          1 :         add_dump_id_to_list(DUMP_TYPE_FSP, dump_id, dump_size);</span>
+<span class="lineNum">     807 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">     808 </span>                :            : 
+<span class="lineNum">     809 </span>                :            : /*
+<a name="810"><span class="lineNum">     810 </span>                :            :  * System/Platform dump notification</a>
+<span class="lineNum">     811 </span>                :            :  */
+<span class="lineNum">     812 </span>                :<span class="lineCov">         49 : static bool fsp_sys_dump_notify(uint32_t cmd_sub_mod, struct fsp_msg *msg)</span>
+<span class="lineNum">     813 </span>                :            : {
+<span class="lineNum">     814 </span>                :            :         /*
+<span class="lineNum">     815 </span>                :            :          * Though spec says mod 00 is deprecated we still
+<span class="lineNum">     816 </span>                :            :          * seems to get mod 00 notification (at least on
+<span class="lineNum">     817 </span>                :            :          * P7 machine).
+<span class="lineNum">     818 </span>                :            :          */
+<span class="lineNum">     819 </span>[<span class="branchCov" title="Branch 0 was taken 49 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 49 times"> + </span>]:<span class="lineCov">         49 :         if (cmd_sub_mod != FSP_RSP_SYS_DUMP &amp;&amp;</span>
+<span class="lineNum">     820 </span>                :            :             cmd_sub_mod != FSP_RSP_SYS_DUMP_OLD)
+<span class="lineNum">     821 </span>                :            :                 return false;
+<span class="lineNum">     822 </span>                :            : 
+<span class="lineNum">     823 </span>                :<span class="lineNoCov">          0 :         printf(&quot;DUMP: Platform dump available. ID = 0x%x [size: %d bytes]\n&quot;,</span>
+<span class="lineNum">     824 </span>                :            :                msg-&gt;data.words[0], msg-&gt;data.words[1]);
+<span class="lineNum">     825 </span>                :            : 
+<span class="lineNum">     826 </span>                :<span class="lineNoCov">          0 :         add_dump_id_to_list(DUMP_TYPE_SYS,</span>
+<span class="lineNum">     827 </span>                :            :                             msg-&gt;data.words[0], msg-&gt;data.words[1]);
+<span class="lineNum">     828 </span>                :<span class="lineNoCov">          0 :         return true;</span>
+<span class="lineNum">     829 </span>                :            : }
+<span class="lineNum">     830 </span>                :            : 
+<span class="lineNum">     831 </span>                :            : /*
+<span class="lineNum">     832 </span>                :            :  * If platform dump available during IPL time, then we
+<span class="lineNum">     833 </span>                :            :  * get notification via HDAT. Check for DT for the dump
+<a name="834"><span class="lineNum">     834 </span>                :            :  * presence.</a>
+<span class="lineNum">     835 </span>                :            :  */
+<span class="lineNum">     836 </span>                :<span class="lineCov">          1 : static void check_ipl_sys_dump(void)</span>
+<span class="lineNum">     837 </span>                :            : {
+<span class="lineNum">     838 </span>                :            :         struct dt_node *dump_node;
+<span class="lineNum">     839 </span>                :            :         uint32_t dump_id, dump_size;
+<span class="lineNum">     840 </span>                :            : 
+<span class="lineNum">     841 </span>                :<span class="lineCov">          1 :         dump_node = dt_find_by_path(dt_root, &quot;ipl-params/platform-dump&quot;);</span>
+<span class="lineNum">     842 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!dump_node)</span>
+<span class="lineNum">     843 </span>                :            :                 return;
+<span class="lineNum">     844 </span>                :            : 
+<span class="lineNum">     845 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!dt_find_property(dump_node, &quot;dump-id&quot;))</span>
+<span class="lineNum">     846 </span>                :            :                 return;
+<span class="lineNum">     847 </span>                :            : 
+<span class="lineNum">     848 </span>                :<span class="lineCov">          1 :         dump_id = dt_prop_get_u32(dump_node, &quot;dump-id&quot;);</span>
+<span class="lineNum">     849 </span>                :<span class="lineCov">          1 :         dump_size = (uint32_t)dt_prop_get_u64(dump_node, &quot;total-size&quot;);</span>
+<span class="lineNum">     850 </span>                :            : 
+<span class="lineNum">     851 </span>                :<span class="lineCov">          1 :         printf(&quot;DUMP: Platform dump present during IPL.\n&quot;);</span>
+<span class="lineNum">     852 </span>                :<span class="lineCov">          1 :         printf(&quot;      ID = 0x%x [size: %d bytes]\n&quot;, dump_id, dump_size);</span>
+<span class="lineNum">     853 </span>                :            : 
+<span class="lineNum">     854 </span>                :<span class="lineCov">          1 :         add_dump_id_to_list(DUMP_TYPE_SYS, dump_id, dump_size);</span>
+<span class="lineNum">     855 </span>                :            : }
+<span class="lineNum">     856 </span>                :            : 
+<span class="lineNum">     857 </span>                :            : /*
+<a name="858"><span class="lineNum">     858 </span>                :            :  * Allocate and initialize dump list</a>
+<span class="lineNum">     859 </span>                :            :  */
+<span class="lineNum">     860 </span>                :<span class="lineCov">          1 : static int init_dump_free_list(void)</span>
+<span class="lineNum">     861 </span>                :            : {
+<span class="lineNum">     862 </span>                :            :         struct dump_record *entry;
+<span class="lineNum">     863 </span>                :            :         int i;
+<span class="lineNum">     864 </span>                :            : 
+<span class="lineNum">     865 </span>                :<span class="lineCov">          1 :         entry = zalloc(sizeof(struct dump_record) * MAX_DUMP_RECORD);</span>
+<span class="lineNum">     866 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!entry) {</span>
+<span class="lineNum">     867 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_DUMP_INIT),</span>
+<span class="lineNum">     868 </span>                :            :                                  &quot;DUMP: Out of memory\n&quot;);
+<span class="lineNum">     869 </span>                :<span class="lineNoCov">          0 :                 return -ENOMEM;</span>
+<span class="lineNum">     870 </span>                :            :         }
+<span class="lineNum">     871 </span>                :            : 
+<span class="lineNum">     872 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          5 :         for (i = 0; i &lt; MAX_DUMP_RECORD; i++) {</span>
+<span class="lineNum">     873 </span>                :<span class="lineCov">          4 :                 list_add_tail(&amp;dump_free, &amp;entry-&gt;link);</span>
+<span class="lineNum">     874 </span>                :<span class="lineCov">          4 :                 entry++;</span>
+<span class="lineNum">     875 </span>                :            :         }
+<span class="lineNum">     876 </span>                :            :         return 0;
+<span class="lineNum">     877 </span>                :            : }
+<span class="lineNum">     878 </span>                :            : 
+<span class="lineNum">     879 </span>                :            : static struct fsp_client fsp_sys_dump_client = {
+<span class="lineNum">     880 </span>                :            :         .message = fsp_sys_dump_notify,
+<span class="lineNum">     881 </span>                :            : };
+<span class="lineNum">     882 </span>                :            : 
+<span class="lineNum">     883 </span>                :            : static struct fsp_client fsp_dump_client_rr = {
+<span class="lineNum">     884 </span>                :            :         .message = fsp_dump_retrieve_rr,
+<span class="lineNum">     885 </span>                :            : };
+<span class="lineNum">     886 </span>                :            : 
+<span class="lineNum">     887 </span>                :<span class="lineCov">          1 : void fsp_dump_init(void)</span>
+<span class="lineNum">     888 </span>                :            : {
+<span class="lineNum">     889 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!fsp_present()) {</span>
+<span class="lineNum">     890 </span>                :            :                 update_dump_state(DUMP_STATE_ABSENT);
+<span class="lineNum">     891 </span>                :            :                 return;
+<span class="lineNum">     892 </span>                :            :         }
+<span class="lineNum">     893 </span>                :            : 
+<span class="lineNum">     894 </span>                :            :         /* Initialize list */
+<span class="lineNum">     895 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (init_dump_free_list() != 0) {</span>
+<span class="lineNum">     896 </span>                :            :                 update_dump_state(DUMP_STATE_ABSENT);
+<span class="lineNum">     897 </span>                :            :                 return;
+<span class="lineNum">     898 </span>                :            :         }
+<span class="lineNum">     899 </span>                :            : 
+<span class="lineNum">     900 </span>                :            :         /* Register for Class CE */
+<span class="lineNum">     901 </span>                :<span class="lineCov">          1 :         fsp_register_client(&amp;fsp_sys_dump_client, FSP_MCLASS_SERVICE);</span>
+<span class="lineNum">     902 </span>                :            :         /* Register for Class AA (FSP R/R) */
+<span class="lineNum">     903 </span>                :<span class="lineCov">          1 :         fsp_register_client(&amp;fsp_dump_client_rr, FSP_MCLASS_RR_EVENT);</span>
+<span class="lineNum">     904 </span>                :            : 
+<span class="lineNum">     905 </span>                :            :         /* Register for sync on host reboot call */
+<span class="lineNum">     906 </span>                :<span class="lineCov">          1 :         opal_add_host_sync_notifier(opal_kexec_dump_notify, NULL);</span>
+<span class="lineNum">     907 </span>                :            : 
+<span class="lineNum">     908 </span>                :            :         /* OPAL interface */
+<span class="lineNum">     909 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_DUMP_INIT, fsp_opal_dump_init, 1);</span>
+<span class="lineNum">     910 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_DUMP_INFO, fsp_opal_dump_info, 2);</span>
+<span class="lineNum">     911 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_DUMP_INFO2, fsp_opal_dump_info2, 3);</span>
+<span class="lineNum">     912 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_DUMP_READ, fsp_opal_dump_read, 2);</span>
+<span class="lineNum">     913 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_DUMP_ACK, fsp_opal_dump_ack, 1);</span>
+<span class="lineNum">     914 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_DUMP_RESEND, fsp_opal_dump_resend_notification, 0);</span>
+<span class="lineNum">     915 </span>                :            : 
+<span class="lineNum">     916 </span>                :            :         /* Check for platform dump presence during IPL time */
+<span class="lineNum">     917 </span>                :<span class="lineCov">          1 :         check_ipl_sys_dump();</span>
+<span class="lineNum">     918 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/fake-rtc.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">hw</a> - fake-rtc.c<span style="font-size: 80%;"> (source / <a href="fake-rtc.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;opal.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;opal-api.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;mem_region.h&gt;
+<span class="lineNum">      21 </span>                :            : 
+<span class="lineNum">      22 </span>                :            : uint32_t *fake_ymd;
+<a name="23"><span class="lineNum">      23 </span>                :            : uint64_t *fake_hmsm;</a>
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :<span class="lineNoCov">          0 : static int64_t fake_rtc_write(uint32_t ymd, uint64_t hmsm)</span>
+<span class="lineNum">      26 </span>                :            : {
+<span class="lineNum">      27 </span>                :<span class="lineNoCov">          0 :         *fake_ymd = ymd;</span>
+<span class="lineNum">      28 </span>                :<span class="lineNoCov">          0 :         *fake_hmsm = hmsm;</span>
+<span class="lineNum">      29 </span>                :            : 
+<span class="lineNum">      30 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<a name="31"><span class="lineNum">      31 </span>                :            : }</a>
+<span class="lineNum">      32 </span>                :            : 
+<span class="lineNum">      33 </span>                :<span class="lineNoCov">          0 : static int64_t fake_rtc_read(uint32_t *ymd, uint64_t *hmsm)</span>
+<span class="lineNum">      34 </span>                :            : {
+<span class="lineNum">      35 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!ymd || !hmsm)</span>
+<span class="lineNum">      36 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :<span class="lineNoCov">          0 :         *ymd = *fake_ymd;</span>
+<span class="lineNum">      39 </span>                :<span class="lineNoCov">          0 :         *hmsm = *fake_hmsm;</span>
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<a name="42"><span class="lineNum">      42 </span>                :            : }</a>
+<span class="lineNum">      43 </span>                :            : 
+<span class="lineNum">      44 </span>                :<span class="lineNoCov">          0 : void fake_rtc_init(void)</span>
+<span class="lineNum">      45 </span>                :            : {
+<span class="lineNum">      46 </span>                :<span class="lineNoCov">          0 :         struct mem_region *rtc_region = NULL;</span>
+<span class="lineNum">      47 </span>                :<span class="lineNoCov">          0 :         uint32_t *rtc = NULL;</span>
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :            :         /* Read initial values from reserved memory */
+<span class="lineNum">      50 </span>                :<span class="lineNoCov">          0 :         rtc_region = find_mem_region(&quot;ibm,fake-rtc&quot;);</span>
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :            :         /* Should we register anyway? */
+<span class="lineNum">      53 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!rtc_region) {</span>
+<span class="lineNum">      54 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_TRACE, &quot;No initial RTC value found\n&quot;);</span>
+<span class="lineNum">      55 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">      56 </span>                :            :         }
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :<span class="lineNoCov">          0 :         rtc = (uint32_t *) rtc_region-&gt;start;</span>
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :<span class="lineNoCov">          0 :         fake_ymd = rtc;</span>
+<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 :         fake_hmsm = ((uint64_t *) &amp;rtc[1]);</span>
+<span class="lineNum">      62 </span>                :            : 
+<span class="lineNum">      63 </span>                :<span class="lineNoCov">          0 :         prlog(PR_TRACE, &quot;Init fake RTC to 0x%x 0x%llx\n&quot;,</span>
+<span class="lineNum">      64 </span>                :            :               *fake_ymd, *fake_hmsm);
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :<span class="lineNoCov">          0 :         opal_register(OPAL_RTC_READ, fake_rtc_read, 2);</span>
+<span class="lineNum">      67 </span>                :<span class="lineNoCov">          0 :         opal_register(OPAL_RTC_WRITE, fake_rtc_write, 2);</span>
+<span class="lineNum">      68 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

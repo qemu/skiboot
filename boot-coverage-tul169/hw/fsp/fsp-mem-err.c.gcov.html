@@ -1,0 +1,500 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/fsp/fsp-mem-err.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">hw/fsp</a> - fsp-mem-err.c<span style="font-size: 80%;"> (source / <a href="fsp-mem-err.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntry">126</td>
+            <td class="headerCovTableEntryLo">8.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryLo">18.2 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">57</td>
+            <td class="headerCovTableEntryLo">8.8 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;opal.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;opal-msg.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;fsp.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;errorlog.h&gt;
+<span class="lineNum">      23 </span>                :            : 
+<span class="lineNum">      24 </span>                :            : /* debug message prefix */
+<span class="lineNum">      25 </span>                :            : #define PREFIX                  &quot;FSPMEMERR: &quot;
+<span class="lineNum">      26 </span>                :            : 
+<span class="lineNum">      27 </span>                :            : /* FSP sends real address of 4K memory page. */
+<span class="lineNum">      28 </span>                :            : #define MEM_ERR_PAGE_SIZE_4K    (1UL &lt;&lt; 12)
+<span class="lineNum">      29 </span>                :            : 
+<span class="lineNum">      30 </span>                :            : /* maximum number of error event to hold until linux consumes it. */
+<span class="lineNum">      31 </span>                :            : #define MERR_MAX_RECORD         1024
+<span class="lineNum">      32 </span>                :            : 
+<span class="lineNum">      33 </span>                :            : /* FSP response status */
+<span class="lineNum">      34 </span>                :            : #define FSP_RESP_STATUS_GENERIC_FAILURE         0xfe
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :            : struct fsp_mem_err_node {
+<span class="lineNum">      37 </span>                :            :         struct list_node list;
+<span class="lineNum">      38 </span>                :            :         struct OpalMemoryErrorData data;
+<span class="lineNum">      39 </span>                :            : };
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :            : static LIST_HEAD(merr_free_list);
+<span class="lineNum">      42 </span>                :            : static LIST_HEAD(mem_error_list);
+<span class="lineNum">      43 </span>                :            : /*
+<span class="lineNum">      44 </span>                :            :  * lock is used to protect overwriting of merr_free_list and mem_error_list
+<span class="lineNum">      45 </span>                :            :  * list.
+<span class="lineNum">      46 </span>                :            :  */
+<span class="lineNum">      47 </span>                :            : static struct lock mem_err_lock = LOCK_UNLOCKED;
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :            : static void mem_err_info_dump(struct errorlog *buf, void *data, uint16_t size);
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_MEM_ERR_RES, OPAL_PLATFORM_ERR_EVT, OPAL_MEM_ERR,
+<span class="lineNum">      52 </span>                :            :                         OPAL_MISC_SUBSYSTEM, OPAL_PREDICTIVE_ERR_GENERAL,
+<span class="lineNum">      53 </span>                :            :                         OPAL_NA, mem_err_info_dump);
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_MEM_ERR_DEALLOC, OPAL_PLATFORM_ERR_EVT, OPAL_MEM_ERR,
+<span class="lineNum">      56 </span>                :            :                         OPAL_MISC_SUBSYSTEM, OPAL_PREDICTIVE_ERR_GENERAL,
+<a name="57"><span class="lineNum">      57 </span>                :            :                         OPAL_NA, mem_err_info_dump);</a>
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 : static void mem_err_info_dump(struct errorlog *buf, void *data, uint16_t size)</span>
+<span class="lineNum">      60 </span>                :            : {
+<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 :         opal_elog_update_user_dump(buf, data, 0x44455350, size);</span>
+<a name="62"><span class="lineNum">      62 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :<span class="lineNoCov">          0 : static bool send_response_to_fsp(u32 cmd_sub_mod)</span>
+<span class="lineNum">      65 </span>                :            : {
+<span class="lineNum">      66 </span>                :            :         struct fsp_msg *rsp;
+<span class="lineNum">      67 </span>                :<span class="lineNoCov">          0 :         int rc = -ENOMEM;</span>
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 :         rsp = fsp_mkmsg(cmd_sub_mod, 0);</span>
+<span class="lineNum">      70 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rsp)</span>
+<span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 :                 rc = fsp_queue_msg(rsp, fsp_freemsg);</span>
+<span class="lineNum">      72 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">      73 </span>                :            :                 /* XXX Generate error logs */
+<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 :                 prerror(PREFIX &quot;Error %d queueing FSP memory error&quot;</span>
+<span class="lineNum">      75 </span>                :            :                         &quot; reply\n&quot;, rc);
+<span class="lineNum">      76 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">      77 </span>                :            :         }
+<span class="lineNum">      78 </span>                :            :         return true;
+<span class="lineNum">      79 </span>                :            : }
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :            : /*
+<span class="lineNum">      82 </span>                :            :  * Queue up the memory error message for delivery.
+<span class="lineNum">      83 </span>                :            :  *
+<span class="lineNum">      84 </span>                :            :  * queue_event_for_delivery get called from two places.
+<span class="lineNum">      85 </span>                :            :  * 1) from queue_mem_err_node when new fsp mem error is available and
+<span class="lineNum">      86 </span>                :            :  * 2) from completion callback indicating that linux has consumed an message.
+<span class="lineNum">      87 </span>                :            :  *
+<span class="lineNum">      88 </span>                :            :  * TODO:
+<span class="lineNum">      89 </span>                :            :  * There is a chance that, we may not get a free slot to queue our event
+<span class="lineNum">      90 </span>                :            :  * for delivery to linux during both the above invocations. In that case
+<span class="lineNum">      91 </span>                :            :  * we end up holding events with us until next fsp memory error comes in.
+<span class="lineNum">      92 </span>                :            :  * We need to address this case either here OR fix up messaging infrastructure
+<span class="lineNum">      93 </span>                :            :  * to make sure at least one slot will always be available per message type.
+<span class="lineNum">      94 </span>                :            :  *
+<span class="lineNum">      95 </span>                :            :  * XXX: BenH: I changed the msg infrastructure to attempt an allocation
+<span class="lineNum">      96 </span>                :            :  *            in that case, at least until we clarify a bit better how
+<a name="97"><span class="lineNum">      97 </span>                :            :  *            we want to handle things.</a>
+<span class="lineNum">      98 </span>                :            :  */
+<span class="lineNum">      99 </span>                :<span class="lineNoCov">          0 : static void queue_event_for_delivery(void *data __unused)</span>
+<span class="lineNum">     100 </span>                :            : {
+<span class="lineNum">     101 </span>                :            :         struct fsp_mem_err_node *entry;
+<span class="lineNum">     102 </span>                :            :         uint64_t *merr_data;
+<span class="lineNum">     103 </span>                :            :         int rc;
+<span class="lineNum">     104 </span>                :            : 
+<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 :         lock(&amp;mem_err_lock);</span>
+<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :         entry = list_pop(&amp;mem_error_list, struct fsp_mem_err_node, list);</span>
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;mem_err_lock);</span>
+<span class="lineNum">     108 </span>                :            : 
+<span class="lineNum">     109 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!entry)</span>
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :            :         /*
+<span class="lineNum">     113 </span>                :            :          * struct OpalMemoryErrorData is of (4 * 64 bits) size and well packed
+<span class="lineNum">     114 </span>                :            :          * structure. Hence use uint64_t pointer to pass entire structure
+<span class="lineNum">     115 </span>                :            :          * using 4 params in generic message format.
+<span class="lineNum">     116 </span>                :            :          */
+<span class="lineNum">     117 </span>                :<span class="lineNoCov">          0 :         merr_data = (uint64_t *)&amp;entry-&gt;data;</span>
+<span class="lineNum">     118 </span>                :            : 
+<span class="lineNum">     119 </span>                :            :         /* queue up for delivery */
+<span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 :         rc = opal_queue_msg(OPAL_MSG_MEM_ERR, NULL,</span>
+<span class="lineNum">     121 </span>                :            :                             queue_event_for_delivery,
+<span class="lineNum">     122 </span>                :            :                             merr_data[0], merr_data[1],
+<span class="lineNum">     123 </span>                :            :                             merr_data[2], merr_data[3]);
+<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :         lock(&amp;mem_err_lock);</span>
+<span class="lineNum">     125 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     126 </span>                :            :                 /*
+<span class="lineNum">     127 </span>                :            :                  * Failed to queue up the event for delivery. No free slot
+<span class="lineNum">     128 </span>                :            :                  * available. There is a chance that we are trying to queue
+<span class="lineNum">     129 </span>                :            :                  * up multiple event at the same time. We may already have
+<span class="lineNum">     130 </span>                :            :                  * at least one event queued up, in that case we will be
+<span class="lineNum">     131 </span>                :            :                  * called again through completion callback and we should
+<span class="lineNum">     132 </span>                :            :                  * be able to grab empty slot then.
+<span class="lineNum">     133 </span>                :            :                  *
+<span class="lineNum">     134 </span>                :            :                  * For now, put this node back on mem_error_list.
+<span class="lineNum">     135 </span>                :            :                  */
+<span class="lineNum">     136 </span>                :<span class="lineNoCov">          0 :                 list_add(&amp;mem_error_list, &amp;entry-&gt;list);</span>
+<span class="lineNum">     137 </span>                :            :         } else
+<span class="lineNum">     138 </span>                :<span class="lineNoCov">          0 :                 list_add(&amp;merr_free_list, &amp;entry-&gt;list);</span>
+<span class="lineNum">     139 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;mem_err_lock);</span>
+<a name="140"><span class="lineNum">     140 </span>                :            : }</a>
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 : static int queue_mem_err_node(struct OpalMemoryErrorData *merr_evt)</span>
+<span class="lineNum">     143 </span>                :            : {
+<span class="lineNum">     144 </span>                :            :         struct fsp_mem_err_node *entry;
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :         lock(&amp;mem_err_lock);</span>
+<span class="lineNum">     147 </span>                :<span class="lineNoCov">          0 :         entry = list_pop(&amp;merr_free_list, struct fsp_mem_err_node, list);</span>
+<span class="lineNum">     148 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!entry) {</span>
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :                 printf(PREFIX &quot;Failed to queue up memory error event.\n&quot;);</span>
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;mem_err_lock);</span>
+<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :                 return -ENOMEM;</span>
+<span class="lineNum">     152 </span>                :            :         }
+<span class="lineNum">     153 </span>                :            : 
+<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 :         entry-&gt;data = *merr_evt;</span>
+<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :         list_add(&amp;mem_error_list, &amp;entry-&gt;list);</span>
+<span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;mem_err_lock);</span>
+<span class="lineNum">     157 </span>                :            : 
+<span class="lineNum">     158 </span>                :            :         /* Queue up the event for delivery to OS. */
+<span class="lineNum">     159 </span>                :<span class="lineNoCov">          0 :         queue_event_for_delivery(NULL);</span>
+<span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     161 </span>                :            : }
+<a name="162"><span class="lineNum">     162 </span>                :            : </a>
+<span class="lineNum">     163 </span>                :            : /* Check if memory resilience event for same address already exists. */
+<span class="lineNum">     164 </span>                :<span class="lineNoCov">          0 : static bool is_resilience_event_exist(u64 paddr)</span>
+<span class="lineNum">     165 </span>                :            : {
+<span class="lineNum">     166 </span>                :            :         struct fsp_mem_err_node *entry;
+<span class="lineNum">     167 </span>                :            :         struct OpalMemoryErrorData *merr_evt;
+<span class="lineNum">     168 </span>                :<span class="lineNoCov">          0 :         int found = 0;</span>
+<span class="lineNum">     169 </span>                :            : 
+<span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 :         lock(&amp;mem_err_lock);</span>
+<span class="lineNum">     171 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         list_for_each(&amp;mem_error_list, entry, list) {</span>
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :                 merr_evt = &amp;entry-&gt;data;</span>
+<span class="lineNum">     173 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if ((merr_evt-&gt;type == OPAL_MEM_ERR_TYPE_RESILIENCE) &amp;&amp;</span>
+<span class="lineNum">     174 </span>                :<span class="lineNoCov">          0 :                     (merr_evt-&gt;u.resilience.physical_address_start</span>
+<span class="lineNum">     175 </span>                :            :                                                             == paddr)) {
+<span class="lineNum">     176 </span>                :            :                         found = 1;
+<span class="lineNum">     177 </span>                :            :                         break;
+<span class="lineNum">     178 </span>                :            :                 }
+<span class="lineNum">     179 </span>                :            :         }
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;mem_err_lock);</span>
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :         return !!found;</span>
+<span class="lineNum">     182 </span>                :            : }
+<span class="lineNum">     183 </span>                :            : 
+<span class="lineNum">     184 </span>                :            : /*
+<span class="lineNum">     185 </span>                :            :  * handle Memory Resilience error message.
+<span class="lineNum">     186 </span>                :            :  * Section 28.2 of Hypervisor to FSP Mailbox Interface Specification.
+<span class="lineNum">     187 </span>                :            :  *
+<span class="lineNum">     188 </span>                :            :  * The flow for Memory Resilence Event is:
+<span class="lineNum">     189 </span>                :            :  * 1. PRD component in FSP gets a recoverable attention from hardware when
+<span class="lineNum">     190 </span>                :            :  *    there is a corretable/uncorrectable memory error to free up a page.
+<span class="lineNum">     191 </span>                :            :  * 2. PRD sends Memory Resilence Command to hypervisor with the real address of
+<span class="lineNum">     192 </span>                :            :  *    the 4K memory page in which the error occurred.
+<span class="lineNum">     193 </span>                :            :  * 3. The hypervisor acknowledges with a status immediately. Immediate
+<a name="194"><span class="lineNum">     194 </span>                :            :  *    acknowledgment doesn’t require the freeing of the page to be completed.</a>
+<span class="lineNum">     195 </span>                :            :  */
+<span class="lineNum">     196 </span>                :<span class="lineNoCov">          0 : static bool handle_memory_resilience(u32 cmd_sub_mod, u64 paddr)</span>
+<span class="lineNum">     197 </span>                :            : {
+<span class="lineNum">     198 </span>                :<span class="lineNoCov">          0 :         int rc = 0;</span>
+<span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 :         u8 err = 0;</span>
+<span class="lineNum">     200 </span>                :            :         struct OpalMemoryErrorData mem_err_evt;
+<span class="lineNum">     201 </span>                :            : 
+<span class="lineNum">     202 </span>                :<span class="lineNoCov">          0 :         memset(&amp;mem_err_evt, 0, sizeof(struct OpalMemoryErrorData));</span>
+<span class="lineNum">     203 </span>                :            :         /* Check arguments */
+<span class="lineNum">     204 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (paddr == 0) {</span>
+<span class="lineNum">     205 </span>                :<span class="lineNoCov">          0 :                 prerror(PREFIX &quot;memory resilience: Invalid real address.\n&quot;);</span>
+<span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :                 err = FSP_RESP_STATUS_GENERIC_FAILURE;</span>
+<span class="lineNum">     207 </span>                :            :         }
+<span class="lineNum">     208 </span>                :            : 
+<span class="lineNum">     209 </span>                :            :         /* If we had an error, send response to fsp and return */
+<span class="lineNum">     210 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (err)</span>
+<span class="lineNum">     211 </span>                :<span class="lineNoCov">          0 :                 return send_response_to_fsp(FSP_RSP_MEM_RES | err);</span>
+<span class="lineNum">     212 </span>                :            : 
+<span class="lineNum">     213 </span>                :            :         /* Check if event already exist for same address. */
+<span class="lineNum">     214 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (is_resilience_event_exist(paddr))</span>
+<span class="lineNum">     215 </span>                :            :                 goto send_response;
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>                :            :         /* Populate an event. */
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :         mem_err_evt.version = OpalMemErr_V1;</span>
+<span class="lineNum">     219 </span>                :<span class="lineNoCov">          0 :         mem_err_evt.type = OPAL_MEM_ERR_TYPE_RESILIENCE;</span>
+<span class="lineNum">     220 </span>                :            : 
+<span class="lineNum">     221 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (cmd_sub_mod) {</span>
+<span class="lineNum">     222 </span>                :            :         case FSP_CMD_MEM_RES_CE:
+<span class="lineNum">     223 </span>                :            :                 /*
+<span class="lineNum">     224 </span>                :            :                  * Should we keep counter for corrected errors in
+<span class="lineNum">     225 </span>                :            :                  * sapphire OR let linux (PowerNV) handle it?
+<span class="lineNum">     226 </span>                :            :                  *
+<span class="lineNum">     227 </span>                :            :                  * For now, send corrected errors to linux and let
+<span class="lineNum">     228 </span>                :            :                  * linux handle corrected errors thresholding.
+<span class="lineNum">     229 </span>                :            :                  */
+<span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 :                 mem_err_evt.flags |= OPAL_MEM_CORRECTED_ERROR;</span>
+<span class="lineNum">     231 </span>                :<span class="lineNoCov">          0 :                 mem_err_evt.u.resilience.resil_err_type =</span>
+<span class="lineNum">     232 </span>                :            :                                         OPAL_MEM_RESILIENCE_CE;
+<span class="lineNum">     233 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     234 </span>                :            :         case FSP_CMD_MEM_RES_UE:
+<span class="lineNum">     235 </span>                :<span class="lineNoCov">          0 :                 mem_err_evt.u.resilience.resil_err_type =</span>
+<span class="lineNum">     236 </span>                :            :                                         OPAL_MEM_RESILIENCE_UE;
+<span class="lineNum">     237 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     238 </span>                :            :         case FSP_CMD_MEM_RES_UE_SCRB:
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :                 mem_err_evt.u.resilience.resil_err_type =</span>
+<span class="lineNum">     240 </span>                :            :                                         OPAL_MEM_RESILIENCE_UE_SCRUB;
+<span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     242 </span>                :            :         }
+<span class="lineNum">     243 </span>                :<span class="lineNoCov">          0 :         mem_err_evt.u.resilience.physical_address_start = paddr;</span>
+<span class="lineNum">     244 </span>                :<span class="lineNoCov">          0 :         mem_err_evt.u.resilience.physical_address_end =</span>
+<span class="lineNum">     245 </span>                :<span class="lineNoCov">          0 :                                         paddr + MEM_ERR_PAGE_SIZE_4K;</span>
+<span class="lineNum">     246 </span>                :            : 
+<span class="lineNum">     247 </span>                :            :         /* Queue up the event and inform OS about it. */
+<span class="lineNum">     248 </span>                :<span class="lineNoCov">          0 :         rc = queue_mem_err_node(&amp;mem_err_evt);</span>
+<span class="lineNum">     249 </span>                :            : 
+<span class="lineNum">     250 </span>                :            : send_response:
+<span class="lineNum">     251 </span>                :            :         /* Queue up an OK response to the resilience message itself */
+<span class="lineNum">     252 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!rc)</span>
+<span class="lineNum">     253 </span>                :<span class="lineNoCov">          0 :                 return send_response_to_fsp(FSP_RSP_MEM_RES);</span>
+<span class="lineNum">     254 </span>                :            :         else {
+<span class="lineNum">     255 </span>                :<span class="lineNoCov">          0 :                 log_error(&amp;e_info(OPAL_RC_MEM_ERR_RES),</span>
+<span class="lineNum">     256 </span>                :            :                         &amp;mem_err_evt, sizeof(struct OpalMemoryErrorData),
+<span class="lineNum">     257 </span>                :            :                         &quot;OPAL_MEM_ERR: Cannot queue up memory &quot;
+<span class="lineNum">     258 </span>                :            :                         &quot;resilience error event to the OS&quot;);
+<span class="lineNum">     259 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     260 </span>                :            :         }
+<span class="lineNum">     261 </span>                :            : }
+<a name="262"><span class="lineNum">     262 </span>                :            : </a>
+<span class="lineNum">     263 </span>                :            : /* update existing event entry if match is found. */
+<span class="lineNum">     264 </span>                :<span class="lineNoCov">          0 : static bool update_memory_deallocation_event(u64 paddr_start, u64 paddr_end)</span>
+<span class="lineNum">     265 </span>                :            : {
+<span class="lineNum">     266 </span>                :            :         struct fsp_mem_err_node *entry;
+<span class="lineNum">     267 </span>                :            :         struct OpalMemoryErrorData *merr_evt;
+<span class="lineNum">     268 </span>                :<span class="lineNoCov">          0 :         int found = 0;</span>
+<span class="lineNum">     269 </span>                :            : 
+<span class="lineNum">     270 </span>                :<span class="lineNoCov">          0 :         lock(&amp;mem_err_lock);</span>
+<span class="lineNum">     271 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         list_for_each(&amp;mem_error_list, entry, list) {</span>
+<span class="lineNum">     272 </span>                :<span class="lineNoCov">          0 :                 merr_evt = &amp;entry-&gt;data;</span>
+<span class="lineNum">     273 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if ((merr_evt-&gt;type == OPAL_MEM_ERR_TYPE_DYN_DALLOC) &amp;&amp;</span>
+<span class="lineNum">     274 </span>                :<span class="lineNoCov">          0 :                     (merr_evt-&gt;u.dyn_dealloc.physical_address_start</span>
+<span class="lineNum">     275 </span>                :            :                                                             == paddr_start)) {
+<span class="lineNum">     276 </span>                :<span class="lineNoCov">          0 :                         found = 1;</span>
+<span class="lineNum">     277 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (merr_evt-&gt;u.dyn_dealloc.physical_address_end</span>
+<span class="lineNum">     278 </span>                :            :                                                                 &lt; paddr_end)
+<span class="lineNum">     279 </span>                :            :                                 merr_evt-&gt;u.dyn_dealloc.physical_address_end
+<span class="lineNum">     280 </span>                :<span class="lineNoCov">          0 :                                                                 = paddr_end;</span>
+<span class="lineNum">     281 </span>                :            :                         break;
+<span class="lineNum">     282 </span>                :            :                 }
+<span class="lineNum">     283 </span>                :            :         }
+<span class="lineNum">     284 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;mem_err_lock);</span>
+<span class="lineNum">     285 </span>                :<span class="lineNoCov">          0 :         return !!found;</span>
+<span class="lineNum">     286 </span>                :            : }
+<span class="lineNum">     287 </span>                :            : 
+<span class="lineNum">     288 </span>                :            : /*
+<span class="lineNum">     289 </span>                :            :  * Handle dynamic memory deallocation message.
+<span class="lineNum">     290 </span>                :            :  *
+<span class="lineNum">     291 </span>                :            :  * When a condition occurs in which we need to do a large scale memory
+<span class="lineNum">     292 </span>                :            :  * deallocation, PRD will send a starting and ending address of an area of
+<span class="lineNum">     293 </span>                :            :  * memory to Hypervisor. Hypervisor then need to use this to deallocate all
+<span class="lineNum">     294 </span>                :            :  * pages between and including the addresses.
+<a name="295"><span class="lineNum">     295 </span>                :            :  *</a>
+<span class="lineNum">     296 </span>                :            :  */
+<span class="lineNum">     297 </span>                :<span class="lineNoCov">          0 : static bool handle_memory_deallocation(u64 paddr_start, u64 paddr_end)</span>
+<span class="lineNum">     298 </span>                :            : {
+<span class="lineNum">     299 </span>                :<span class="lineNoCov">          0 :         int rc = 0;</span>
+<span class="lineNum">     300 </span>                :<span class="lineNoCov">          0 :         u8 err = 0;</span>
+<span class="lineNum">     301 </span>                :            :         struct OpalMemoryErrorData mem_err_evt;
+<span class="lineNum">     302 </span>                :            : 
+<span class="lineNum">     303 </span>                :<span class="lineNoCov">          0 :         memset(&amp;mem_err_evt, 0, sizeof(struct OpalMemoryErrorData));</span>
+<span class="lineNum">     304 </span>                :            :         /* Check arguments */
+<span class="lineNum">     305 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((paddr_start == 0) || (paddr_end == 0)) {</span>
+<span class="lineNum">     306 </span>                :<span class="lineNoCov">          0 :                 prerror(PREFIX &quot;memory deallocation: Invalid &quot;</span>
+<span class="lineNum">     307 </span>                :            :                         &quot;starting/ending real address.\n&quot;);
+<span class="lineNum">     308 </span>                :<span class="lineNoCov">          0 :                 err = FSP_RESP_STATUS_GENERIC_FAILURE;</span>
+<span class="lineNum">     309 </span>                :            :         }
+<span class="lineNum">     310 </span>                :            : 
+<span class="lineNum">     311 </span>                :            :         /* If we had an error, send response to fsp and return */
+<span class="lineNum">     312 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (err)</span>
+<span class="lineNum">     313 </span>                :<span class="lineNoCov">          0 :                 return send_response_to_fsp(FSP_RSP_MEM_DYN_DEALLOC | err);</span>
+<span class="lineNum">     314 </span>                :            : 
+<span class="lineNum">     315 </span>                :            :         /*
+<span class="lineNum">     316 </span>                :            :          * FSP can send dynamic memory deallocation multiple times for the
+<span class="lineNum">     317 </span>                :            :          * same address/address ranges. Hence check and update if we already
+<span class="lineNum">     318 </span>                :            :          * have sam event queued.
+<span class="lineNum">     319 </span>                :            :          */
+<span class="lineNum">     320 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (update_memory_deallocation_event(paddr_start, paddr_end))</span>
+<span class="lineNum">     321 </span>                :            :                 goto send_response;
+<span class="lineNum">     322 </span>                :            : 
+<span class="lineNum">     323 </span>                :            :         /* Populate an new event. */
+<span class="lineNum">     324 </span>                :<span class="lineNoCov">          0 :         mem_err_evt.version = OpalMemErr_V1;</span>
+<span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 :         mem_err_evt.type = OPAL_MEM_ERR_TYPE_DYN_DALLOC;</span>
+<span class="lineNum">     326 </span>                :<span class="lineNoCov">          0 :         mem_err_evt.u.dyn_dealloc.dyn_err_type =</span>
+<span class="lineNum">     327 </span>                :            :                                         OPAL_MEM_DYNAMIC_DEALLOC;
+<span class="lineNum">     328 </span>                :<span class="lineNoCov">          0 :         mem_err_evt.u.dyn_dealloc.physical_address_start = paddr_start;</span>
+<span class="lineNum">     329 </span>                :<span class="lineNoCov">          0 :         mem_err_evt.u.dyn_dealloc.physical_address_end = paddr_end;</span>
+<span class="lineNum">     330 </span>                :            : 
+<span class="lineNum">     331 </span>                :            :         /* Queue up the event and inform OS about it. */
+<span class="lineNum">     332 </span>                :<span class="lineNoCov">          0 :         rc = queue_mem_err_node(&amp;mem_err_evt);</span>
+<span class="lineNum">     333 </span>                :            : 
+<span class="lineNum">     334 </span>                :            : send_response:
+<span class="lineNum">     335 </span>                :            :         /* Queue up an OK response to the memory deallocation message itself */
+<span class="lineNum">     336 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!rc)</span>
+<span class="lineNum">     337 </span>                :<span class="lineNoCov">          0 :                 return send_response_to_fsp(FSP_RSP_MEM_DYN_DEALLOC);</span>
+<span class="lineNum">     338 </span>                :            :         else {
+<span class="lineNum">     339 </span>                :<span class="lineNoCov">          0 :                 log_error(&amp;e_info(OPAL_RC_MEM_ERR_DEALLOC),</span>
+<span class="lineNum">     340 </span>                :            :                         &amp;mem_err_evt, sizeof(struct OpalMemoryErrorData),
+<span class="lineNum">     341 </span>                :            :                         &quot;OPAL_MEM_ERR: Cannot queue up memory &quot;
+<span class="lineNum">     342 </span>                :            :                         &quot;deallocation error event to the OS&quot;);
+<span class="lineNum">     343 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     344 </span>                :            :         }
+<span class="lineNum">     345 </span>                :            : }
+<a name="346"><span class="lineNum">     346 </span>                :            : </a>
+<span class="lineNum">     347 </span>                :            : /* Receive a memory error mesages and handle it. */
+<span class="lineNum">     348 </span>                :<span class="lineNoCov">          0 : static bool fsp_mem_err_msg(u32 cmd_sub_mod, struct fsp_msg *msg)</span>
+<span class="lineNum">     349 </span>                :            : {
+<span class="lineNum">     350 </span>                :            :         u64 paddr_start, paddr_end;
+<span class="lineNum">     351 </span>                :            : 
+<span class="lineNum">     352 </span>                :<span class="lineNoCov">          0 :         printf(PREFIX &quot;Received 0x%08ux command\n&quot;, cmd_sub_mod);</span>
+<span class="lineNum">     353 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (cmd_sub_mod) {</span>
+<span class="lineNum">     354 </span>                :            :         case FSP_CMD_MEM_RES_CE:
+<span class="lineNum">     355 </span>                :            :         case FSP_CMD_MEM_RES_UE:
+<span class="lineNum">     356 </span>                :            :         case FSP_CMD_MEM_RES_UE_SCRB:
+<span class="lineNum">     357 </span>                :            :                 /*
+<span class="lineNum">     358 </span>                :            :                  * We get the memory relilence command from FSP for
+<span class="lineNum">     359 </span>                :            :                  * correctable/Uncorrectable/scrub UE errors with real
+<span class="lineNum">     360 </span>                :            :                  * address of 4K memory page in which the error occured.
+<span class="lineNum">     361 </span>                :            :                  */
+<span class="lineNum">     362 </span>                :<span class="lineNoCov">          0 :                 paddr_start = *((u64 *)&amp;msg-&gt;data.words[0]);</span>
+<span class="lineNum">     363 </span>                :<span class="lineNoCov">          0 :                 printf(PREFIX &quot;Got memory resilience error message for &quot;</span>
+<span class="lineNum">     364 </span>                :            :                        &quot;paddr=0x%016llux\n&quot;, paddr_start);
+<span class="lineNum">     365 </span>                :<span class="lineNoCov">          0 :                 return handle_memory_resilience(cmd_sub_mod, paddr_start);</span>
+<span class="lineNum">     366 </span>                :            :         case FSP_CMD_MEM_DYN_DEALLOC:
+<span class="lineNum">     367 </span>                :<span class="lineNoCov">          0 :                 paddr_start = *((u64 *)&amp;msg-&gt;data.words[0]);</span>
+<span class="lineNum">     368 </span>                :<span class="lineNoCov">          0 :                 paddr_end = *((u64 *)&amp;msg-&gt;data.words[2]);</span>
+<span class="lineNum">     369 </span>                :<span class="lineNoCov">          0 :                 printf(PREFIX &quot;Got dynamic memory deallocation message: &quot;</span>
+<span class="lineNum">     370 </span>                :            :                        &quot;paddr_start=0x%016llux, paddr_end=0x%016llux\n&quot;,
+<span class="lineNum">     371 </span>                :            :                        paddr_start, paddr_end);
+<span class="lineNum">     372 </span>                :<span class="lineNoCov">          0 :                 return handle_memory_deallocation(paddr_start, paddr_end);</span>
+<span class="lineNum">     373 </span>                :            :         }
+<span class="lineNum">     374 </span>                :            :         return false;
+<span class="lineNum">     375 </span>                :            : }
+<span class="lineNum">     376 </span>                :            : 
+<span class="lineNum">     377 </span>                :            : /*
+<span class="lineNum">     378 </span>                :            :  * pre allocate memory to hold maximum of 128 memory error event until linux
+<a name="379"><span class="lineNum">     379 </span>                :            :  * consumes it.</a>
+<span class="lineNum">     380 </span>                :            :  */
+<span class="lineNum">     381 </span>                :<span class="lineCov">          1 : static int init_merr_free_list(uint32_t num_entries)</span>
+<span class="lineNum">     382 </span>                :            : {
+<span class="lineNum">     383 </span>                :            :         struct fsp_mem_err_node *entry;
+<span class="lineNum">     384 </span>                :            :         int i;
+<span class="lineNum">     385 </span>                :            : 
+<span class="lineNum">     386 </span>                :<span class="lineCov">          1 :         entry = zalloc(sizeof(struct fsp_mem_err_node) * num_entries);</span>
+<span class="lineNum">     387 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!entry)</span>
+<span class="lineNum">     388 </span>                :            :                 return -ENOMEM;
+<span class="lineNum">     389 </span>                :            : 
+<span class="lineNum">     390 </span>        [<span class="branchCov" title="Branch 0 was taken 1024 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">       1025 :         for (i = 0; i &lt; num_entries; ++i, entry++)</span>
+<span class="lineNum">     391 </span>                :<span class="lineCov">       1024 :                 list_add_tail(&amp;merr_free_list, &amp;entry-&gt;list);</span>
+<span class="lineNum">     392 </span>                :            : 
+<span class="lineNum">     393 </span>                :            :         return 0;
+<span class="lineNum">     394 </span>                :            : }
+<span class="lineNum">     395 </span>                :            : 
+<span class="lineNum">     396 </span>                :            : static struct fsp_client fsp_mem_err_client = {
+<span class="lineNum">     397 </span>                :            :         .message = fsp_mem_err_msg,
+<a name="398"><span class="lineNum">     398 </span>                :            : };</a>
+<span class="lineNum">     399 </span>                :            : 
+<span class="lineNum">     400 </span>                :<span class="lineCov">          1 : void fsp_memory_err_init(void)</span>
+<span class="lineNum">     401 </span>                :            : {
+<span class="lineNum">     402 </span>                :            :         int rc;
+<span class="lineNum">     403 </span>                :            : 
+<span class="lineNum">     404 </span>                :<span class="lineCov">          1 :         printf(PREFIX &quot;Intializing fsp memory handling.\n&quot;);</span>
+<span class="lineNum">     405 </span>                :            :         /* If we have an FSP, register for notifications */
+<span class="lineNum">     406 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!fsp_present())</span>
+<span class="lineNum">     407 </span>                :            :                 return;
+<span class="lineNum">     408 </span>                :            : 
+<span class="lineNum">     409 </span>                :            :         /* pre allocate memory for 128 record */
+<span class="lineNum">     410 </span>                :<span class="lineCov">          1 :         rc = init_merr_free_list(MERR_MAX_RECORD);</span>
+<span class="lineNum">     411 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (rc &lt; 0)</span>
+<span class="lineNum">     412 </span>                :            :                 return;
+<span class="lineNum">     413 </span>                :            : 
+<span class="lineNum">     414 </span>                :<span class="lineCov">          1 :         fsp_register_client(&amp;fsp_mem_err_client, FSP_MCLASS_MEMORY_ERR);</span>
+<span class="lineNum">     415 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - libc/stdio/vfscanf.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">libc/stdio</a> - vfscanf.c<span style="font-size: 80%;"> (source / <a href="vfscanf.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">129</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">132</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) 2004, 2008 IBM Corporation
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * This program and the accompanying materials
+<span class="lineNum">       5 </span>                :            :  * are made available under the terms of the BSD License
+<span class="lineNum">       6 </span>                :            :  * which accompanies this distribution, and is available at
+<span class="lineNum">       7 </span>                :            :  * http://www.opensource.org/licenses/bsd-license.php
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Contributors:
+<span class="lineNum">      10 </span>                :            :  *     IBM Corporation - initial implementation
+<span class="lineNum">      11 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      12 </span>                :            : 
+<span class="lineNum">      13 </span>                :            : #include &quot;string.h&quot;
+<span class="lineNum">      14 </span>                :            : #include &quot;ctype.h&quot;
+<span class="lineNum">      15 </span>                :            : #include &quot;stdlib.h&quot;
+<span class="lineNum">      16 </span>                :            : #include &quot;stdio.h&quot;
+<span class="lineNum">      17 </span>                :            : #include &quot;unistd.h&quot;
+<span class="lineNum">      18 </span>                :            : 
+<a name="19"><span class="lineNum">      19 </span>                :            : </a>
+<span class="lineNum">      20 </span>                :            : static int
+<span class="lineNum">      21 </span>                :<span class="lineNoCov">          0 : _getc(FILE * stream)</span>
+<span class="lineNum">      22 </span>                :            : {
+<span class="lineNum">      23 </span>                :            :         int count;
+<span class="lineNum">      24 </span>                :            :         char c;
+<span class="lineNum">      25 </span>                :            : 
+<span class="lineNum">      26 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (stream-&gt;mode == _IONBF || stream-&gt;buf == NULL) {</span>
+<span class="lineNum">      27 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (read(stream-&gt;fd, &amp;c, 1) == 1)</span>
+<span class="lineNum">      28 </span>                :<span class="lineNoCov">          0 :                         return (int) c;</span>
+<span class="lineNum">      29 </span>                :            :                 else
+<span class="lineNum">      30 </span>                :            :                         return EOF;
+<span class="lineNum">      31 </span>                :            :         }
+<span class="lineNum">      32 </span>                :            : 
+<span class="lineNum">      33 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (stream-&gt;pos == 0 || stream-&gt;pos &gt;= BUFSIZ ||</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">      34 </span>                :<span class="lineNoCov">          0 :             stream-&gt;buf[stream-&gt;pos] == '\0') {</span>
+<span class="lineNum">      35 </span>                :<span class="lineNoCov">          0 :                 count = read(stream-&gt;fd, stream-&gt;buf, BUFSIZ);</span>
+<span class="lineNum">      36 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (count &lt; 0)</span>
+<span class="lineNum">      37 </span>                :<span class="lineNoCov">          0 :                         count = 0;</span>
+<span class="lineNum">      38 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (count &lt; BUFSIZ)</span>
+<span class="lineNum">      39 </span>                :<span class="lineNoCov">          0 :                         stream-&gt;buf[count] = '\0';</span>
+<span class="lineNum">      40 </span>                :<span class="lineNoCov">          0 :                 stream-&gt;pos = 0;</span>
+<span class="lineNum">      41 </span>                :            :         }
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :<span class="lineNoCov">          0 :         return stream-&gt;buf[stream-&gt;pos++];</span>
+<span class="lineNum">      44 </span>                :            : }
+<a name="45"><span class="lineNum">      45 </span>                :            : </a>
+<span class="lineNum">      46 </span>                :            : static void
+<span class="lineNum">      47 </span>                :<span class="lineNoCov">          0 : _ungetc(int ch, FILE * stream)</span>
+<span class="lineNum">      48 </span>                :            : {
+<span class="lineNum">      49 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (stream-&gt;mode != _IONBF &amp;&amp; stream-&gt;pos &gt; 0) {</span>
+<span class="lineNum">      50 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (stream-&gt;pos &lt; BUFSIZ)</span>
+<span class="lineNum">      51 </span>                :<span class="lineNoCov">          0 :                         stream-&gt;buf[stream-&gt;pos] = ch;</span>
+<span class="lineNum">      52 </span>                :<span class="lineNoCov">          0 :                 stream-&gt;pos--;</span>
+<span class="lineNum">      53 </span>                :            :         }
+<span class="lineNum">      54 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="55"><span class="lineNum">      55 </span>                :            : </a>
+<span class="lineNum">      56 </span>                :            : static int
+<span class="lineNum">      57 </span>                :<span class="lineNoCov">          0 : _is_voidage(int ch)</span>
+<span class="lineNum">      58 </span>                :            : {
+<span class="lineNum">      59 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ch == ' ' || ch == '\t' || ch == '\n' || ch == '\r' || ch == '\0')</span>
+<span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 8 was not executed"> # </span><span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">      60 </span>                :            :                 return 1;
+<span class="lineNum">      61 </span>                :            :         else
+<span class="lineNum">      62 </span>                :<span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">      63 </span>                :            : }
+<span class="lineNum">      64 </span>                :            : 
+<a name="65"><span class="lineNum">      65 </span>                :            : </a>
+<span class="lineNum">      66 </span>                :            : static int
+<span class="lineNum">      67 </span>                :<span class="lineNoCov">          0 : _scanf(FILE * stream, const char *fmt, va_list * ap)</span>
+<span class="lineNum">      68 </span>                :            : {
+<span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 :         int i = 0;</span>
+<span class="lineNum">      70 </span>                :<span class="lineNoCov">          0 :         int length = 0;</span>
+<span class="lineNum">      71 </span>                :            : 
+<span class="lineNum">      72 </span>                :<span class="lineNoCov">          0 :         fmt++;</span>
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while (*fmt != '\0') {</span>
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :            :                 char tbuf[256];
+<span class="lineNum">      77 </span>                :            :                 char ch;
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span> :<span class="lineNoCov">          0 :                 switch (*fmt) {</span>
+<span class="lineNum">         </span>         <span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">      80 </span>                :            :                 case 'd':
+<span class="lineNum">      81 </span>                :            :                 case 'i':
+<span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 :                         ch = _getc(stream);</span>
+<span class="lineNum">      83 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (length == 0) {</span>
+<span class="lineNum">      84 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                 while (!_is_voidage(ch) &amp;&amp; isdigit(ch)) {</span>
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 :                                         tbuf[i] = ch;</span>
+<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 :                                         ch = _getc(stream);</span>
+<span class="lineNum">      87 </span>                :<span class="lineNoCov">          0 :                                         i++;</span>
+<span class="lineNum">      88 </span>                :            :                                 }
+<span class="lineNum">      89 </span>                :            :                         } else {
+<span class="lineNum">      90 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                 while (!_is_voidage(ch) &amp;&amp; i &lt; length</span>
+<span class="lineNum">      91 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                        &amp;&amp; isdigit(ch)) {</span>
+<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 :                                         tbuf[i] = ch;</span>
+<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 :                                         ch = _getc(stream);</span>
+<span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 :                                         i++;</span>
+<span class="lineNum">      95 </span>                :            :                                 }
+<span class="lineNum">      96 </span>                :            :                         }
+<span class="lineNum">      97 </span>                :            :                         /* We tried to understand what this is good for...
+<span class="lineNum">      98 </span>                :            :                          * but we did not. We know for sure that it does not
+<span class="lineNum">      99 </span>                :            :                          * work on SLOF if this is active. */
+<span class="lineNum">     100 </span>                :            :                         /* _ungetc(ch, stream); */
+<span class="lineNum">     101 </span>                :<span class="lineNoCov">          0 :                         tbuf[i] = '\0';</span>
+<span class="lineNum">     102 </span>                :            : 
+<span class="lineNum">     103 </span>                :            :                         /* ch = _getc(stream); */
+<span class="lineNum">     104 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (!_is_voidage(ch))</span>
+<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 :                                 _ungetc(ch, stream);</span>
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (strlen(tbuf) == 0)</span>
+<span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 :                                 return 0;</span>
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :                         *(va_arg(*ap, int *)) = strtol(tbuf, NULL, 10);</span>
+<span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     112 </span>                :            :                 case 'X':
+<span class="lineNum">     113 </span>                :            :                 case 'x':
+<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :                         ch = _getc(stream);</span>
+<span class="lineNum">     115 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (length == 0) {</span>
+<span class="lineNum">     116 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                 while (!_is_voidage(ch) &amp;&amp; isxdigit(ch)) {</span>
+<span class="lineNum">     117 </span>                :<span class="lineNoCov">          0 :                                         tbuf[i] = ch;</span>
+<span class="lineNum">     118 </span>                :<span class="lineNoCov">          0 :                                         ch = _getc(stream);</span>
+<span class="lineNum">     119 </span>                :<span class="lineNoCov">          0 :                                         i++;</span>
+<span class="lineNum">     120 </span>                :            :                                 }
+<span class="lineNum">     121 </span>                :            :                         } else {
+<span class="lineNum">     122 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                 while (!_is_voidage(ch) &amp;&amp; i &lt; length</span>
+<span class="lineNum">     123 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                        &amp;&amp; isxdigit(ch)) {</span>
+<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :                                         tbuf[i] = ch;</span>
+<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :                                         ch = _getc(stream);</span>
+<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 :                                         i++;</span>
+<span class="lineNum">     127 </span>                :            :                                 }
+<span class="lineNum">     128 </span>                :            :                         }
+<span class="lineNum">     129 </span>                :            :                         /* _ungetc(ch, stream); */
+<span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :                         tbuf[i] = '\0';</span>
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :            :                         /* ch = _getc(stream); */
+<span class="lineNum">     133 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (!_is_voidage(ch))</span>
+<span class="lineNum">     134 </span>                :<span class="lineNoCov">          0 :                                 _ungetc(ch, stream);</span>
+<span class="lineNum">     135 </span>                :            : 
+<span class="lineNum">     136 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (strlen(tbuf) == 0)</span>
+<span class="lineNum">     137 </span>                :            :                                 return 0;
+<span class="lineNum">     138 </span>                :            : 
+<span class="lineNum">     139 </span>                :<span class="lineNoCov">          0 :                         *(va_arg(*ap, int *)) = strtol(tbuf, NULL, 16);</span>
+<span class="lineNum">     140 </span>                :<span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     141 </span>                :            :                 case 'O':
+<span class="lineNum">     142 </span>                :            :                 case 'o':
+<span class="lineNum">     143 </span>                :<span class="lineNoCov">          0 :                         ch = _getc(stream);</span>
+<span class="lineNum">     144 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (length == 0) {</span>
+<span class="lineNum">     145 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                 while (!_is_voidage(ch)</span>
+<span class="lineNum">     146 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                        &amp;&amp; !(ch &lt; '0' || ch &gt; '7')) {</span>
+<span class="lineNum">     147 </span>                :<span class="lineNoCov">          0 :                                         tbuf[i] = ch;</span>
+<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 :                                         ch = _getc(stream);</span>
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :                                         i++;</span>
+<span class="lineNum">     150 </span>                :            :                                 }
+<span class="lineNum">     151 </span>                :            :                         } else {
+<span class="lineNum">     152 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                 while (!_is_voidage(ch) &amp;&amp; i &lt; length</span>
+<span class="lineNum">     153 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                        &amp;&amp; !(ch &lt; '0' || ch &gt; '7')) {</span>
+<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 :                                         tbuf[i] = ch;</span>
+<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :                                         ch = _getc(stream);</span>
+<span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 :                                         i++;</span>
+<span class="lineNum">     157 </span>                :            :                                 }
+<span class="lineNum">     158 </span>                :            :                         }
+<span class="lineNum">     159 </span>                :            :                         /* _ungetc(ch, stream); */
+<span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 :                         tbuf[i] = '\0';</span>
+<span class="lineNum">     161 </span>                :            : 
+<span class="lineNum">     162 </span>                :            :                         /* ch = _getc(stream); */
+<span class="lineNum">     163 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (!_is_voidage(ch))</span>
+<span class="lineNum">     164 </span>                :<span class="lineNoCov">          0 :                                 _ungetc(ch, stream);</span>
+<span class="lineNum">     165 </span>                :            : 
+<span class="lineNum">     166 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (strlen(tbuf) == 0)</span>
+<span class="lineNum">     167 </span>                :            :                                 return 0;
+<span class="lineNum">     168 </span>                :            : 
+<span class="lineNum">     169 </span>                :<span class="lineNoCov">          0 :                         *(va_arg(*ap, int *)) = strtol(tbuf, NULL, 8);</span>
+<span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     171 </span>                :            :                 case 'c':
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :                         ch = _getc(stream);</span>
+<span class="lineNum">     173 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         while (_is_voidage(ch))</span>
+<span class="lineNum">     174 </span>                :<span class="lineNoCov">          0 :                                 ch = _getc(stream);</span>
+<span class="lineNum">     175 </span>                :            : 
+<span class="lineNum">     176 </span>                :<span class="lineNoCov">          0 :                         *(va_arg(*ap, char *)) = ch;</span>
+<span class="lineNum">     177 </span>                :            : 
+<span class="lineNum">     178 </span>                :<span class="lineNoCov">          0 :                         ch = _getc(stream);</span>
+<span class="lineNum">     179 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (!_is_voidage(ch))</span>
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :                                 _ungetc(ch, stream);</span>
+<span class="lineNum">     181 </span>                :            : 
+<span class="lineNum">     182 </span>                :            :                         break;
+<span class="lineNum">     183 </span>                :            :                 case 's':
+<span class="lineNum">     184 </span>                :<span class="lineNoCov">          0 :                         ch = _getc(stream);</span>
+<span class="lineNum">     185 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (length == 0) {</span>
+<span class="lineNum">     186 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                 while (!_is_voidage(ch)) {</span>
+<span class="lineNum">     187 </span>                :<span class="lineNoCov">          0 :                                         tbuf[i] = ch;</span>
+<span class="lineNum">     188 </span>                :<span class="lineNoCov">          0 :                                         ch = _getc(stream);</span>
+<span class="lineNum">     189 </span>                :<span class="lineNoCov">          0 :                                         i++;</span>
+<span class="lineNum">     190 </span>                :            :                                 }
+<span class="lineNum">     191 </span>                :            :                         } else {
+<span class="lineNum">     192 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                 while (!_is_voidage(ch) &amp;&amp; i &lt; length) {</span>
+<span class="lineNum">     193 </span>                :<span class="lineNoCov">          0 :                                         tbuf[i] = ch;</span>
+<span class="lineNum">     194 </span>                :<span class="lineNoCov">          0 :                                         ch = _getc(stream);</span>
+<span class="lineNum">     195 </span>                :<span class="lineNoCov">          0 :                                         i++;</span>
+<span class="lineNum">     196 </span>                :            :                                 }
+<span class="lineNum">     197 </span>                :            :                         }
+<span class="lineNum">     198 </span>                :            :                         /* _ungetc(ch, stream); */
+<span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 :                         tbuf[i] = '\0';</span>
+<span class="lineNum">     200 </span>                :            : 
+<span class="lineNum">     201 </span>                :            :                         /* ch = _getc(stream); */
+<span class="lineNum">     202 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (!_is_voidage(ch))</span>
+<span class="lineNum">     203 </span>                :<span class="lineNoCov">          0 :                                 _ungetc(ch, stream);</span>
+<span class="lineNum">     204 </span>                :            : 
+<span class="lineNum">     205 </span>                :<span class="lineNoCov">          0 :                         strcpy(va_arg(*ap, char *), tbuf);</span>
+<span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     207 </span>                :            :                 default:
+<span class="lineNum">     208 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (*fmt &gt;= '0' &amp;&amp; *fmt &lt;= '9')</span>
+<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 :                                 length += *fmt - '0';</span>
+<span class="lineNum">     210 </span>                :            :                         break;
+<span class="lineNum">     211 </span>                :            :                 }
+<span class="lineNum">     212 </span>                :<span class="lineNoCov">          0 :                 fmt++;</span>
+<span class="lineNum">     213 </span>                :            :         }
+<span class="lineNum">     214 </span>                :            : 
+<span class="lineNum">     215 </span>                :            :         return 1;
+<span class="lineNum">     216 </span>                :            : }
+<span class="lineNum">     217 </span>                :            : 
+<span class="lineNum">     218 </span>                :            : 
+<a name="219"><span class="lineNum">     219 </span>                :            : </a>
+<span class="lineNum">     220 </span>                :            : int
+<span class="lineNum">     221 </span>                :<span class="lineNoCov">          0 : vfscanf(FILE * stream, const char *fmt, va_list ap)</span>
+<span class="lineNum">     222 </span>                :            : {
+<span class="lineNum">     223 </span>                :<span class="lineNoCov">          0 :         int args = 0;</span>
+<span class="lineNum">     224 </span>                :            : 
+<span class="lineNum">     225 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while (*fmt != '\0') {</span>
+<span class="lineNum">     226 </span>                :            : 
+<span class="lineNum">     227 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (*fmt == '%') {</span>
+<span class="lineNum">     228 </span>                :            : 
+<span class="lineNum">     229 </span>                :            :                         char formstr[20];
+<span class="lineNum">     230 </span>                :            :                         int i = 0;
+<span class="lineNum">     231 </span>                :            : 
+<span class="lineNum">     232 </span>                :            :                         do {
+<span class="lineNum">     233 </span>                :<span class="lineNoCov">          0 :                                 formstr[i] = *fmt;</span>
+<span class="lineNum">     234 </span>                :<span class="lineNoCov">          0 :                                 fmt++;</span>
+<span class="lineNum">     235 </span>                :<span class="lineNoCov">          0 :                                 i++;</span>
+<span class="lineNum">     236 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         } while (!</span>
+<span class="lineNum">     237 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                  (*fmt == 'd' || *fmt == 'i' || *fmt == 'x'</span>
+<span class="lineNum">     238 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                   || *fmt == 'X' || *fmt == 'p' || *fmt == 'c'</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     239 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                   || *fmt == 's' || *fmt == '%' || *fmt == 'O'</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     240 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                   || *fmt == 'o'));</span>
+<span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 :                         formstr[i++] = *fmt;</span>
+<span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 :                         formstr[i] = '\0';</span>
+<span class="lineNum">     243 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (*fmt != '%') {</span>
+<span class="lineNum">     244 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                 if (_scanf(stream, formstr, &amp;ap) &lt;= 0)</span>
+<span class="lineNum">     245 </span>                :<span class="lineNoCov">          0 :                                         return args;</span>
+<span class="lineNum">     246 </span>                :            :                                 else
+<span class="lineNum">     247 </span>                :<span class="lineNoCov">          0 :                                         args++;</span>
+<span class="lineNum">     248 </span>                :            :                         }
+<span class="lineNum">     249 </span>                :            : 
+<span class="lineNum">     250 </span>                :            :                 }
+<span class="lineNum">     251 </span>                :            : 
+<span class="lineNum">     252 </span>                :<span class="lineNoCov">          0 :                 fmt++;</span>
+<span class="lineNum">     253 </span>                :            : 
+<span class="lineNum">     254 </span>                :            :         }
+<span class="lineNum">     255 </span>                :            : 
+<span class="lineNum">     256 </span>                :            :         return args;
+<span class="lineNum">     257 </span>                :            : }
+<a name="258"><span class="lineNum">     258 </span>                :            : </a>
+<span class="lineNum">     259 </span>                :            : int
+<span class="lineNum">     260 </span>                :<span class="lineNoCov">          0 : getc(FILE * stream)</span>
+<span class="lineNum">     261 </span>                :            : {
+<span class="lineNum">     262 </span>                :<span class="lineNoCov">          0 :         return _getc(stream);</span>
+<span class="lineNum">     263 </span>                :            : }
+<a name="264"><span class="lineNum">     264 </span>                :            : </a>
+<span class="lineNum">     265 </span>                :            : int
+<span class="lineNum">     266 </span>                :<span class="lineNoCov">          0 : getchar(void)</span>
+<span class="lineNum">     267 </span>                :            : {
+<span class="lineNum">     268 </span>                :<span class="lineNoCov">          0 :         return _getc(stdin);</span>
+<span class="lineNum">     269 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

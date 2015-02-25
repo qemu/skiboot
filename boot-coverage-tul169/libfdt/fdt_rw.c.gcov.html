@@ -1,0 +1,550 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - libfdt/fdt_rw.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">libfdt</a> - fdt_rw.c<span style="font-size: 80%;"> (source / <a href="fdt_rw.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">191</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">104</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*</a>
+<span class="lineNum">       2 </span>                :            :  * libfdt - Flat Device Tree manipulation
+<span class="lineNum">       3 </span>                :            :  * Copyright (C) 2006 David Gibson, IBM Corporation.
+<span class="lineNum">       4 </span>                :            :  *
+<span class="lineNum">       5 </span>                :            :  * libfdt is dual licensed: you can use it either under the terms of
+<span class="lineNum">       6 </span>                :            :  * the GPL, or the BSD license, at your option.
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  *  a) This library is free software; you can redistribute it and/or
+<span class="lineNum">       9 </span>                :            :  *     modify it under the terms of the GNU General Public License as
+<span class="lineNum">      10 </span>                :            :  *     published by the Free Software Foundation; either version 2 of the
+<span class="lineNum">      11 </span>                :            :  *     License, or (at your option) any later version.
+<span class="lineNum">      12 </span>                :            :  *
+<span class="lineNum">      13 </span>                :            :  *     This library is distributed in the hope that it will be useful,
+<span class="lineNum">      14 </span>                :            :  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      15 </span>                :            :  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      16 </span>                :            :  *     GNU General Public License for more details.
+<span class="lineNum">      17 </span>                :            :  *
+<span class="lineNum">      18 </span>                :            :  *     You should have received a copy of the GNU General Public
+<span class="lineNum">      19 </span>                :            :  *     License along with this library; if not, write to the Free
+<span class="lineNum">      20 </span>                :            :  *     Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+<span class="lineNum">      21 </span>                :            :  *     MA 02110-1301 USA
+<span class="lineNum">      22 </span>                :            :  *
+<span class="lineNum">      23 </span>                :            :  * Alternatively,
+<span class="lineNum">      24 </span>                :            :  *
+<span class="lineNum">      25 </span>                :            :  *  b) Redistribution and use in source and binary forms, with or
+<span class="lineNum">      26 </span>                :            :  *     without modification, are permitted provided that the following
+<span class="lineNum">      27 </span>                :            :  *     conditions are met:
+<span class="lineNum">      28 </span>                :            :  *
+<span class="lineNum">      29 </span>                :            :  *     1. Redistributions of source code must retain the above
+<span class="lineNum">      30 </span>                :            :  *        copyright notice, this list of conditions and the following
+<span class="lineNum">      31 </span>                :            :  *        disclaimer.
+<span class="lineNum">      32 </span>                :            :  *     2. Redistributions in binary form must reproduce the above
+<span class="lineNum">      33 </span>                :            :  *        copyright notice, this list of conditions and the following
+<span class="lineNum">      34 </span>                :            :  *        disclaimer in the documentation and/or other materials
+<span class="lineNum">      35 </span>                :            :  *        provided with the distribution.
+<span class="lineNum">      36 </span>                :            :  *
+<span class="lineNum">      37 </span>                :            :  *     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+<span class="lineNum">      38 </span>                :            :  *     CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES,
+<span class="lineNum">      39 </span>                :            :  *     INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+<span class="lineNum">      40 </span>                :            :  *     MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+<span class="lineNum">      41 </span>                :            :  *     DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+<span class="lineNum">      42 </span>                :            :  *     CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+<span class="lineNum">      43 </span>                :            :  *     SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+<span class="lineNum">      44 </span>                :            :  *     NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+<span class="lineNum">      45 </span>                :            :  *     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+<span class="lineNum">      46 </span>                :            :  *     HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+<span class="lineNum">      47 </span>                :            :  *     CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      48 </span>                :            :  *     OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+<span class="lineNum">      49 </span>                :            :  *     EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      50 </span>                :            :  */
+<span class="lineNum">      51 </span>                :            : #include &quot;libfdt_env.h&quot;
+<span class="lineNum">      52 </span>                :            : 
+<span class="lineNum">      53 </span>                :            : #include &lt;fdt.h&gt;
+<span class="lineNum">      54 </span>                :            : #include &lt;libfdt.h&gt;
+<span class="lineNum">      55 </span>                :            : 
+<a name="56"><span class="lineNum">      56 </span>                :            : #include &quot;libfdt_internal.h&quot;</a>
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :<span class="lineNoCov">          0 : static int _fdt_blocks_misordered(const void *fdt,</span>
+<span class="lineNum">      59 </span>                :            :                               int mem_rsv_size, int struct_size)
+<span class="lineNum">      60 </span>                :            : {
+<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 :         return (fdt_off_mem_rsvmap(fdt) &lt; FDT_ALIGN(sizeof(struct fdt_header), 8))</span>
+<span class="lineNum">      62 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 || (fdt_off_dt_struct(fdt) &lt;</span>
+<span class="lineNum">      63 </span>                :<span class="lineNoCov">          0 :                     (fdt_off_mem_rsvmap(fdt) + mem_rsv_size))</span>
+<span class="lineNum">      64 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 || (fdt_off_dt_strings(fdt) &lt;</span>
+<span class="lineNum">      65 </span>                :<span class="lineNoCov">          0 :                     (fdt_off_dt_struct(fdt) + struct_size))</span>
+<span class="lineNum">      66 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 || (fdt_totalsize(fdt) &lt;</span>
+<span class="lineNum">      67 </span>                :<span class="lineNoCov">          0 :                     (fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt)));</span>
+<a name="68"><span class="lineNum">      68 </span>                :            : }</a>
+<span class="lineNum">      69 </span>                :            : 
+<span class="lineNum">      70 </span>                :<span class="lineNoCov">          0 : static int _fdt_rw_check_header(void *fdt)</span>
+<span class="lineNum">      71 </span>                :            : {
+<span class="lineNum">      72 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         FDT_CHECK_HEADER(fdt);</span>
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fdt_version(fdt) &lt; 17)</span>
+<span class="lineNum">      75 </span>                :            :                 return -FDT_ERR_BADVERSION;
+<span class="lineNum">      76 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (_fdt_blocks_misordered(fdt, sizeof(struct fdt_reserve_entry),</span>
+<span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 :                                    fdt_size_dt_struct(fdt)))</span>
+<span class="lineNum">      78 </span>                :            :                 return -FDT_ERR_BADLAYOUT;
+<span class="lineNum">      79 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fdt_version(fdt) &gt; 17)</span>
+<span class="lineNum">      80 </span>                :<span class="lineNoCov">          0 :                 fdt_set_version(fdt, 17);</span>
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>                :            :         return 0;
+<span class="lineNum">      83 </span>                :            : }
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :            : #define FDT_RW_CHECK_HEADER(fdt) \
+<span class="lineNum">      86 </span>                :            :         { \
+<span class="lineNum">      87 </span>                :            :                 int err; \
+<span class="lineNum">      88 </span>                :            :                 if ((err = _fdt_rw_check_header(fdt)) != 0) \
+<span class="lineNum">      89 </span>                :            :                         return err; \
+<a name="90"><span class="lineNum">      90 </span>                :            :         }</a>
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 : static inline int _fdt_data_size(void *fdt)</span>
+<span class="lineNum">      93 </span>                :            : {
+<span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 :         return fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt);</span>
+<a name="95"><span class="lineNum">      95 </span>                :            : }</a>
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>                :<span class="lineNoCov">          0 : static int _fdt_splice(void *fdt, void *splicepoint, int oldlen, int newlen)</span>
+<span class="lineNum">      98 </span>                :            : {
+<span class="lineNum">      99 </span>                :<span class="lineNoCov">          0 :         char *p = splicepoint;</span>
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 :         char *end = (char *)fdt + _fdt_data_size(fdt);</span>
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (((p + oldlen) &lt; p) || ((p + oldlen) &gt; end))</span>
+<span class="lineNum">     103 </span>                :            :                 return -FDT_ERR_BADOFFSET;
+<span class="lineNum">     104 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((end - oldlen + newlen) &gt; ((char *)fdt + fdt_totalsize(fdt)))</span>
+<span class="lineNum">     105 </span>                :            :                 return -FDT_ERR_NOSPACE;
+<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :         memmove(p + newlen, p + oldlen, end - p - oldlen);</span>
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<a name="108"><span class="lineNum">     108 </span>                :            : }</a>
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 : static int _fdt_splice_mem_rsv(void *fdt, struct fdt_reserve_entry *p,</span>
+<span class="lineNum">     111 </span>                :            :                                int oldn, int newn)
+<span class="lineNum">     112 </span>                :            : {
+<span class="lineNum">     113 </span>                :<span class="lineNoCov">          0 :         int delta = (newn - oldn) * sizeof(*p);</span>
+<span class="lineNum">     114 </span>                :            :         int err;
+<span class="lineNum">     115 </span>                :<span class="lineNoCov">          0 :         err = _fdt_splice(fdt, p, oldn * sizeof(*p), newn * sizeof(*p));</span>
+<span class="lineNum">     116 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (err)</span>
+<span class="lineNum">     117 </span>                :            :                 return err;
+<span class="lineNum">     118 </span>                :<span class="lineNoCov">          0 :         fdt_set_off_dt_struct(fdt, fdt_off_dt_struct(fdt) + delta);</span>
+<span class="lineNum">     119 </span>                :<span class="lineNoCov">          0 :         fdt_set_off_dt_strings(fdt, fdt_off_dt_strings(fdt) + delta);</span>
+<span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<a name="121"><span class="lineNum">     121 </span>                :            : }</a>
+<span class="lineNum">     122 </span>                :            : 
+<span class="lineNum">     123 </span>                :<span class="lineNoCov">          0 : static int _fdt_splice_struct(void *fdt, void *p,</span>
+<span class="lineNum">     124 </span>                :            :                               int oldlen, int newlen)
+<span class="lineNum">     125 </span>                :            : {
+<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 :         int delta = newlen - oldlen;</span>
+<span class="lineNum">     127 </span>                :            :         int err;
+<span class="lineNum">     128 </span>                :            : 
+<span class="lineNum">     129 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((err = _fdt_splice(fdt, p, oldlen, newlen)))</span>
+<span class="lineNum">     130 </span>                :            :                 return err;
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :         fdt_set_size_dt_struct(fdt, fdt_size_dt_struct(fdt) + delta);</span>
+<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 :         fdt_set_off_dt_strings(fdt, fdt_off_dt_strings(fdt) + delta);</span>
+<span class="lineNum">     134 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<a name="135"><span class="lineNum">     135 </span>                :            : }</a>
+<span class="lineNum">     136 </span>                :            : 
+<span class="lineNum">     137 </span>                :<span class="lineNoCov">          0 : static int _fdt_splice_string(void *fdt, int newlen)</span>
+<span class="lineNum">     138 </span>                :            : {
+<span class="lineNum">     139 </span>                :<span class="lineNoCov">          0 :         void *p = (char *)fdt</span>
+<span class="lineNum">     140 </span>                :<span class="lineNoCov">          0 :                 + fdt_off_dt_strings(fdt) + fdt_size_dt_strings(fdt);</span>
+<span class="lineNum">     141 </span>                :            :         int err;
+<span class="lineNum">     142 </span>                :            : 
+<span class="lineNum">     143 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((err = _fdt_splice(fdt, p, 0, newlen)))</span>
+<span class="lineNum">     144 </span>                :            :                 return err;
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :         fdt_set_size_dt_strings(fdt, fdt_size_dt_strings(fdt) + newlen);</span>
+<span class="lineNum">     147 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<a name="148"><span class="lineNum">     148 </span>                :            : }</a>
+<span class="lineNum">     149 </span>                :            : 
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 : static int _fdt_find_add_string(void *fdt, const char *s)</span>
+<span class="lineNum">     151 </span>                :            : {
+<span class="lineNum">     152 </span>                :<span class="lineNoCov">          0 :         char *strtab = (char *)fdt + fdt_off_dt_strings(fdt);</span>
+<span class="lineNum">     153 </span>                :            :         const char *p;
+<span class="lineNum">     154 </span>                :            :         char *new;
+<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :         int len = strlen(s) + 1;</span>
+<span class="lineNum">     156 </span>                :            :         int err;
+<span class="lineNum">     157 </span>                :            : 
+<span class="lineNum">     158 </span>                :<span class="lineNoCov">          0 :         p = _fdt_find_string(strtab, fdt_size_dt_strings(fdt), s);</span>
+<span class="lineNum">     159 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (p)</span>
+<span class="lineNum">     160 </span>                :            :                 /* found it */
+<span class="lineNum">     161 </span>                :<span class="lineNoCov">          0 :                 return (p - strtab);</span>
+<span class="lineNum">     162 </span>                :            : 
+<span class="lineNum">     163 </span>                :<span class="lineNoCov">          0 :         new = strtab + fdt_size_dt_strings(fdt);</span>
+<span class="lineNum">     164 </span>                :<span class="lineNoCov">          0 :         err = _fdt_splice_string(fdt, len);</span>
+<span class="lineNum">     165 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (err)</span>
+<span class="lineNum">     166 </span>                :            :                 return err;
+<span class="lineNum">     167 </span>                :            : 
+<span class="lineNum">     168 </span>                :<span class="lineNoCov">          0 :         memcpy(new, s, len);</span>
+<span class="lineNum">     169 </span>                :<span class="lineNoCov">          0 :         return (new - strtab);</span>
+<a name="170"><span class="lineNum">     170 </span>                :            : }</a>
+<span class="lineNum">     171 </span>                :            : 
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 : int fdt_add_mem_rsv(void *fdt, uint64_t address, uint64_t size)</span>
+<span class="lineNum">     173 </span>                :            : {
+<span class="lineNum">     174 </span>                :            :         struct fdt_reserve_entry *re;
+<span class="lineNum">     175 </span>                :            :         int err;
+<span class="lineNum">     176 </span>                :            : 
+<span class="lineNum">     177 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         FDT_RW_CHECK_HEADER(fdt);</span>
+<span class="lineNum">     178 </span>                :            : 
+<span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :         re = _fdt_mem_rsv_w(fdt, fdt_num_mem_rsv(fdt));</span>
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :         err = _fdt_splice_mem_rsv(fdt, re, 0, 1);</span>
+<span class="lineNum">     181 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (err)</span>
+<span class="lineNum">     182 </span>                :            :                 return err;
+<span class="lineNum">     183 </span>                :            : 
+<span class="lineNum">     184 </span>                :<span class="lineNoCov">          0 :         re-&gt;address = cpu_to_fdt64(address);</span>
+<span class="lineNum">     185 </span>                :<span class="lineNoCov">          0 :         re-&gt;size = cpu_to_fdt64(size);</span>
+<span class="lineNum">     186 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<a name="187"><span class="lineNum">     187 </span>                :            : }</a>
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :<span class="lineNoCov">          0 : int fdt_del_mem_rsv(void *fdt, int n)</span>
+<span class="lineNum">     190 </span>                :            : {
+<span class="lineNum">     191 </span>                :<span class="lineNoCov">          0 :         struct fdt_reserve_entry *re = _fdt_mem_rsv_w(fdt, n);</span>
+<span class="lineNum">     192 </span>                :            :         int err;
+<span class="lineNum">     193 </span>                :            : 
+<span class="lineNum">     194 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         FDT_RW_CHECK_HEADER(fdt);</span>
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (n &gt;= fdt_num_mem_rsv(fdt))</span>
+<span class="lineNum">     197 </span>                :            :                 return -FDT_ERR_NOTFOUND;
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 :         err = _fdt_splice_mem_rsv(fdt, re, 1, 0);</span>
+<span class="lineNum">     200 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (err)</span>
+<span class="lineNum">     201 </span>                :<span class="lineNoCov">          0 :                 return err;</span>
+<span class="lineNum">     202 </span>                :            :         return 0;
+<a name="203"><span class="lineNum">     203 </span>                :            : }</a>
+<span class="lineNum">     204 </span>                :            : 
+<span class="lineNum">     205 </span>                :<span class="lineNoCov">          0 : static int _fdt_resize_property(void *fdt, int nodeoffset, const char *name,</span>
+<span class="lineNum">     206 </span>                :            :                                 int len, struct fdt_property **prop)
+<span class="lineNum">     207 </span>                :            : {
+<span class="lineNum">     208 </span>                :            :         int oldlen;
+<span class="lineNum">     209 </span>                :            :         int err;
+<span class="lineNum">     210 </span>                :            : 
+<span class="lineNum">     211 </span>                :<span class="lineNoCov">          0 :         *prop = fdt_get_property_w(fdt, nodeoffset, name, &amp;oldlen);</span>
+<span class="lineNum">     212 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (! (*prop))</span>
+<span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 :                 return oldlen;</span>
+<span class="lineNum">     214 </span>                :            : 
+<span class="lineNum">     215 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((err = _fdt_splice_struct(fdt, (*prop)-&gt;data, FDT_TAGALIGN(oldlen),</span>
+<span class="lineNum">     216 </span>                :            :                                       FDT_TAGALIGN(len))))
+<span class="lineNum">     217 </span>                :            :                 return err;
+<span class="lineNum">     218 </span>                :            : 
+<span class="lineNum">     219 </span>                :<span class="lineNoCov">          0 :         (*prop)-&gt;len = cpu_to_fdt32(len);</span>
+<span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<a name="221"><span class="lineNum">     221 </span>                :            : }</a>
+<span class="lineNum">     222 </span>                :            : 
+<span class="lineNum">     223 </span>                :<span class="lineNoCov">          0 : static int _fdt_add_property(void *fdt, int nodeoffset, const char *name,</span>
+<span class="lineNum">     224 </span>                :            :                              int len, struct fdt_property **prop)
+<span class="lineNum">     225 </span>                :            : {
+<span class="lineNum">     226 </span>                :            :         int proplen;
+<span class="lineNum">     227 </span>                :            :         int nextoffset;
+<span class="lineNum">     228 </span>                :            :         int namestroff;
+<span class="lineNum">     229 </span>                :            :         int err;
+<span class="lineNum">     230 </span>                :            : 
+<span class="lineNum">     231 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((nextoffset = _fdt_check_node_offset(fdt, nodeoffset)) &lt; 0)</span>
+<span class="lineNum">     232 </span>                :            :                 return nextoffset;
+<span class="lineNum">     233 </span>                :            : 
+<span class="lineNum">     234 </span>                :<span class="lineNoCov">          0 :         namestroff = _fdt_find_add_string(fdt, name);</span>
+<span class="lineNum">     235 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (namestroff &lt; 0)</span>
+<span class="lineNum">     236 </span>                :            :                 return namestroff;
+<span class="lineNum">     237 </span>                :            : 
+<span class="lineNum">     238 </span>                :<span class="lineNoCov">          0 :         *prop = _fdt_offset_ptr_w(fdt, nextoffset);</span>
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :         proplen = sizeof(**prop) + FDT_TAGALIGN(len);</span>
+<span class="lineNum">     240 </span>                :            : 
+<span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 :         err = _fdt_splice_struct(fdt, *prop, 0, proplen);</span>
+<span class="lineNum">     242 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (err)</span>
+<span class="lineNum">     243 </span>                :            :                 return err;
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>                :<span class="lineNoCov">          0 :         (*prop)-&gt;tag = cpu_to_fdt32(FDT_PROP);</span>
+<span class="lineNum">     246 </span>                :<span class="lineNoCov">          0 :         (*prop)-&gt;nameoff = cpu_to_fdt32(namestroff);</span>
+<span class="lineNum">     247 </span>                :<span class="lineNoCov">          0 :         (*prop)-&gt;len = cpu_to_fdt32(len);</span>
+<span class="lineNum">     248 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<a name="249"><span class="lineNum">     249 </span>                :            : }</a>
+<span class="lineNum">     250 </span>                :            : 
+<span class="lineNum">     251 </span>                :<span class="lineNoCov">          0 : int fdt_set_name(void *fdt, int nodeoffset, const char *name)</span>
+<span class="lineNum">     252 </span>                :            : {
+<span class="lineNum">     253 </span>                :            :         char *namep;
+<span class="lineNum">     254 </span>                :            :         int oldlen, newlen;
+<span class="lineNum">     255 </span>                :            :         int err;
+<span class="lineNum">     256 </span>                :            : 
+<span class="lineNum">     257 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         FDT_RW_CHECK_HEADER(fdt);</span>
+<span class="lineNum">     258 </span>                :            : 
+<span class="lineNum">     259 </span>                :<span class="lineNoCov">          0 :         namep = (char *)(uintptr_t)fdt_get_name(fdt, nodeoffset, &amp;oldlen);</span>
+<span class="lineNum">     260 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!namep)</span>
+<span class="lineNum">     261 </span>                :<span class="lineNoCov">          0 :                 return oldlen;</span>
+<span class="lineNum">     262 </span>                :            : 
+<span class="lineNum">     263 </span>                :<span class="lineNoCov">          0 :         newlen = strlen(name);</span>
+<span class="lineNum">     264 </span>                :            : 
+<span class="lineNum">     265 </span>                :<span class="lineNoCov">          0 :         err = _fdt_splice_struct(fdt, namep, FDT_TAGALIGN(oldlen+1),</span>
+<span class="lineNum">     266 </span>                :            :                                  FDT_TAGALIGN(newlen+1));
+<span class="lineNum">     267 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (err)</span>
+<span class="lineNum">     268 </span>                :            :                 return err;
+<span class="lineNum">     269 </span>                :            : 
+<span class="lineNum">     270 </span>                :<span class="lineNoCov">          0 :         memcpy(namep, name, newlen+1);</span>
+<span class="lineNum">     271 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<a name="272"><span class="lineNum">     272 </span>                :            : }</a>
+<span class="lineNum">     273 </span>                :            : 
+<span class="lineNum">     274 </span>                :<span class="lineNoCov">          0 : int fdt_setprop(void *fdt, int nodeoffset, const char *name,</span>
+<span class="lineNum">     275 </span>                :            :                 const void *val, int len)
+<span class="lineNum">     276 </span>                :            : {
+<span class="lineNum">     277 </span>                :            :         struct fdt_property *prop;
+<span class="lineNum">     278 </span>                :            :         int err;
+<span class="lineNum">     279 </span>                :            : 
+<span class="lineNum">     280 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         FDT_RW_CHECK_HEADER(fdt);</span>
+<span class="lineNum">     281 </span>                :            : 
+<span class="lineNum">     282 </span>                :<span class="lineNoCov">          0 :         err = _fdt_resize_property(fdt, nodeoffset, name, len, &amp;prop);</span>
+<span class="lineNum">     283 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (err == -FDT_ERR_NOTFOUND)</span>
+<span class="lineNum">     284 </span>                :<span class="lineNoCov">          0 :                 err = _fdt_add_property(fdt, nodeoffset, name, len, &amp;prop);</span>
+<span class="lineNum">     285 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (err)</span>
+<span class="lineNum">     286 </span>                :            :                 return err;
+<span class="lineNum">     287 </span>                :            : 
+<span class="lineNum">     288 </span>                :<span class="lineNoCov">          0 :         memcpy(prop-&gt;data, val, len);</span>
+<span class="lineNum">     289 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<a name="290"><span class="lineNum">     290 </span>                :            : }</a>
+<span class="lineNum">     291 </span>                :            : 
+<span class="lineNum">     292 </span>                :<span class="lineNoCov">          0 : int fdt_delprop(void *fdt, int nodeoffset, const char *name)</span>
+<span class="lineNum">     293 </span>                :            : {
+<span class="lineNum">     294 </span>                :            :         struct fdt_property *prop;
+<span class="lineNum">     295 </span>                :            :         int len, proplen;
+<span class="lineNum">     296 </span>                :            : 
+<span class="lineNum">     297 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         FDT_RW_CHECK_HEADER(fdt);</span>
+<span class="lineNum">     298 </span>                :            : 
+<span class="lineNum">     299 </span>                :<span class="lineNoCov">          0 :         prop = fdt_get_property_w(fdt, nodeoffset, name, &amp;len);</span>
+<span class="lineNum">     300 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (! prop)</span>
+<span class="lineNum">     301 </span>                :<span class="lineNoCov">          0 :                 return len;</span>
+<span class="lineNum">     302 </span>                :            : 
+<span class="lineNum">     303 </span>                :<span class="lineNoCov">          0 :         proplen = sizeof(*prop) + FDT_TAGALIGN(len);</span>
+<span class="lineNum">     304 </span>                :<span class="lineNoCov">          0 :         return _fdt_splice_struct(fdt, prop, proplen, 0);</span>
+<a name="305"><span class="lineNum">     305 </span>                :            : }</a>
+<span class="lineNum">     306 </span>                :            : 
+<span class="lineNum">     307 </span>                :<span class="lineNoCov">          0 : int fdt_add_subnode_namelen(void *fdt, int parentoffset,</span>
+<span class="lineNum">     308 </span>                :            :                             const char *name, int namelen)
+<span class="lineNum">     309 </span>                :            : {
+<span class="lineNum">     310 </span>                :            :         struct fdt_node_header *nh;
+<span class="lineNum">     311 </span>                :            :         int offset, nextoffset;
+<span class="lineNum">     312 </span>                :            :         int nodelen;
+<span class="lineNum">     313 </span>                :            :         int err;
+<span class="lineNum">     314 </span>                :            :         uint32_t tag;
+<span class="lineNum">     315 </span>                :            :         uint32_t *endtag;
+<span class="lineNum">     316 </span>                :            : 
+<span class="lineNum">     317 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         FDT_RW_CHECK_HEADER(fdt);</span>
+<span class="lineNum">     318 </span>                :            : 
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :         offset = fdt_subnode_offset_namelen(fdt, parentoffset, name, namelen);</span>
+<span class="lineNum">     320 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (offset &gt;= 0)</span>
+<span class="lineNum">     321 </span>                :            :                 return -FDT_ERR_EXISTS;
+<span class="lineNum">     322 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (offset != -FDT_ERR_NOTFOUND)</span>
+<span class="lineNum">     323 </span>                :            :                 return offset;
+<span class="lineNum">     324 </span>                :            : 
+<span class="lineNum">     325 </span>                :            :         /* Try to place the new node after the parent's properties */
+<span class="lineNum">     326 </span>                :<span class="lineNoCov">          0 :         fdt_next_tag(fdt, parentoffset, &amp;nextoffset); /* skip the BEGIN_NODE */</span>
+<span class="lineNum">     327 </span>                :            :         do {
+<span class="lineNum">     328 </span>                :<span class="lineNoCov">          0 :                 offset = nextoffset;</span>
+<span class="lineNum">     329 </span>                :<span class="lineNoCov">          0 :                 tag = fdt_next_tag(fdt, offset, &amp;nextoffset);</span>
+<span class="lineNum">     330 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         } while ((tag == FDT_PROP) || (tag == FDT_NOP));</span>
+<span class="lineNum">     331 </span>                :            : 
+<span class="lineNum">     332 </span>                :<span class="lineNoCov">          0 :         nh = _fdt_offset_ptr_w(fdt, offset);</span>
+<span class="lineNum">     333 </span>                :<span class="lineNoCov">          0 :         nodelen = sizeof(*nh) + FDT_TAGALIGN(namelen+1) + FDT_TAGSIZE;</span>
+<span class="lineNum">     334 </span>                :            : 
+<span class="lineNum">     335 </span>                :<span class="lineNoCov">          0 :         err = _fdt_splice_struct(fdt, nh, 0, nodelen);</span>
+<span class="lineNum">     336 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (err)</span>
+<span class="lineNum">     337 </span>                :            :                 return err;
+<span class="lineNum">     338 </span>                :            : 
+<span class="lineNum">     339 </span>                :<span class="lineNoCov">          0 :         nh-&gt;tag = cpu_to_fdt32(FDT_BEGIN_NODE);</span>
+<span class="lineNum">     340 </span>                :<span class="lineNoCov">          0 :         memset(nh-&gt;name, 0, FDT_TAGALIGN(namelen+1));</span>
+<span class="lineNum">     341 </span>                :<span class="lineNoCov">          0 :         memcpy(nh-&gt;name, name, namelen);</span>
+<span class="lineNum">     342 </span>                :<span class="lineNoCov">          0 :         endtag = (uint32_t *)((char *)nh + nodelen - FDT_TAGSIZE);</span>
+<span class="lineNum">     343 </span>                :<span class="lineNoCov">          0 :         *endtag = cpu_to_fdt32(FDT_END_NODE);</span>
+<span class="lineNum">     344 </span>                :            : 
+<span class="lineNum">     345 </span>                :<span class="lineNoCov">          0 :         return offset;</span>
+<a name="346"><span class="lineNum">     346 </span>                :            : }</a>
+<span class="lineNum">     347 </span>                :            : 
+<span class="lineNum">     348 </span>                :<span class="lineNoCov">          0 : int fdt_add_subnode(void *fdt, int parentoffset, const char *name)</span>
+<span class="lineNum">     349 </span>                :            : {
+<span class="lineNum">     350 </span>                :<span class="lineNoCov">          0 :         return fdt_add_subnode_namelen(fdt, parentoffset, name, strlen(name));</span>
+<a name="351"><span class="lineNum">     351 </span>                :            : }</a>
+<span class="lineNum">     352 </span>                :            : 
+<span class="lineNum">     353 </span>                :<span class="lineNoCov">          0 : int fdt_del_node(void *fdt, int nodeoffset)</span>
+<span class="lineNum">     354 </span>                :            : {
+<span class="lineNum">     355 </span>                :            :         int endoffset;
+<span class="lineNum">     356 </span>                :            : 
+<span class="lineNum">     357 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         FDT_RW_CHECK_HEADER(fdt);</span>
+<span class="lineNum">     358 </span>                :            : 
+<span class="lineNum">     359 </span>                :<span class="lineNoCov">          0 :         endoffset = _fdt_node_end_offset(fdt, nodeoffset);</span>
+<span class="lineNum">     360 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (endoffset &lt; 0)</span>
+<span class="lineNum">     361 </span>                :            :                 return endoffset;
+<span class="lineNum">     362 </span>                :            : 
+<span class="lineNum">     363 </span>                :<span class="lineNoCov">          0 :         return _fdt_splice_struct(fdt, _fdt_offset_ptr_w(fdt, nodeoffset),</span>
+<span class="lineNum">     364 </span>                :            :                                   endoffset - nodeoffset, 0);
+<a name="365"><span class="lineNum">     365 </span>                :            : }</a>
+<span class="lineNum">     366 </span>                :            : 
+<span class="lineNum">     367 </span>                :<span class="lineNoCov">          0 : static void _fdt_packblocks(const char *old, char *new,</span>
+<span class="lineNum">     368 </span>                :            :                             int mem_rsv_size, int struct_size)
+<span class="lineNum">     369 </span>                :            : {
+<span class="lineNum">     370 </span>                :            :         int mem_rsv_off, struct_off, strings_off;
+<span class="lineNum">     371 </span>                :            : 
+<span class="lineNum">     372 </span>                :<span class="lineNoCov">          0 :         mem_rsv_off = FDT_ALIGN(sizeof(struct fdt_header), 8);</span>
+<span class="lineNum">     373 </span>                :<span class="lineNoCov">          0 :         struct_off = mem_rsv_off + mem_rsv_size;</span>
+<span class="lineNum">     374 </span>                :<span class="lineNoCov">          0 :         strings_off = struct_off + struct_size;</span>
+<span class="lineNum">     375 </span>                :            : 
+<span class="lineNum">     376 </span>                :<span class="lineNoCov">          0 :         memmove(new + mem_rsv_off, old + fdt_off_mem_rsvmap(old), mem_rsv_size);</span>
+<span class="lineNum">     377 </span>                :<span class="lineNoCov">          0 :         fdt_set_off_mem_rsvmap(new, mem_rsv_off);</span>
+<span class="lineNum">     378 </span>                :            : 
+<span class="lineNum">     379 </span>                :<span class="lineNoCov">          0 :         memmove(new + struct_off, old + fdt_off_dt_struct(old), struct_size);</span>
+<span class="lineNum">     380 </span>                :<span class="lineNoCov">          0 :         fdt_set_off_dt_struct(new, struct_off);</span>
+<span class="lineNum">     381 </span>                :<span class="lineNoCov">          0 :         fdt_set_size_dt_struct(new, struct_size);</span>
+<span class="lineNum">     382 </span>                :            : 
+<span class="lineNum">     383 </span>                :<span class="lineNoCov">          0 :         memmove(new + strings_off, old + fdt_off_dt_strings(old),</span>
+<span class="lineNum">     384 </span>                :<span class="lineNoCov">          0 :                 fdt_size_dt_strings(old));</span>
+<span class="lineNum">     385 </span>                :<span class="lineNoCov">          0 :         fdt_set_off_dt_strings(new, strings_off);</span>
+<span class="lineNum">     386 </span>                :<span class="lineNoCov">          0 :         fdt_set_size_dt_strings(new, fdt_size_dt_strings(old));</span>
+<a name="387"><span class="lineNum">     387 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     388 </span>                :            : 
+<span class="lineNum">     389 </span>                :<span class="lineNoCov">          0 : int fdt_open_into(const void *fdt, void *buf, int bufsize)</span>
+<span class="lineNum">     390 </span>                :            : {
+<span class="lineNum">     391 </span>                :            :         int err;
+<span class="lineNum">     392 </span>                :            :         int mem_rsv_size, struct_size;
+<span class="lineNum">     393 </span>                :            :         int newsize;
+<span class="lineNum">     394 </span>                :<span class="lineNoCov">          0 :         const char *fdtstart = fdt;</span>
+<span class="lineNum">     395 </span>                :<span class="lineNoCov">          0 :         const char *fdtend = fdtstart + fdt_totalsize(fdt);</span>
+<span class="lineNum">     396 </span>                :            :         char *tmp;
+<span class="lineNum">     397 </span>                :            : 
+<span class="lineNum">     398 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         FDT_CHECK_HEADER(fdt);</span>
+<span class="lineNum">     399 </span>                :            : 
+<span class="lineNum">     400 </span>                :<span class="lineNoCov">          0 :         mem_rsv_size = (fdt_num_mem_rsv(fdt)+1)</span>
+<span class="lineNum">     401 </span>                :            :                 * sizeof(struct fdt_reserve_entry);
+<span class="lineNum">     402 </span>                :            : 
+<span class="lineNum">     403 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fdt_version(fdt) &gt;= 17) {</span>
+<span class="lineNum">     404 </span>                :<span class="lineNoCov">          0 :                 struct_size = fdt_size_dt_struct(fdt);</span>
+<span class="lineNum">     405 </span>                :            :         } else {
+<span class="lineNum">     406 </span>                :<span class="lineNoCov">          0 :                 struct_size = 0;</span>
+<span class="lineNum">     407 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 while (fdt_next_tag(fdt, struct_size, &amp;struct_size) != FDT_END)</span>
+<span class="lineNum">     408 </span>                :            :                         ;
+<span class="lineNum">     409 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (struct_size &lt; 0)</span>
+<span class="lineNum">     410 </span>                :            :                         return struct_size;
+<span class="lineNum">     411 </span>                :            :         }
+<span class="lineNum">     412 </span>                :            : 
+<span class="lineNum">     413 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!_fdt_blocks_misordered(fdt, mem_rsv_size, struct_size)) {</span>
+<span class="lineNum">     414 </span>                :            :                 /* no further work necessary */
+<span class="lineNum">     415 </span>                :<span class="lineNoCov">          0 :                 err = fdt_move(fdt, buf, bufsize);</span>
+<span class="lineNum">     416 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (err)</span>
+<span class="lineNum">     417 </span>                :            :                         return err;
+<span class="lineNum">     418 </span>                :<span class="lineNoCov">          0 :                 fdt_set_version(buf, 17);</span>
+<span class="lineNum">     419 </span>                :<span class="lineNoCov">          0 :                 fdt_set_size_dt_struct(buf, struct_size);</span>
+<span class="lineNum">     420 </span>                :<span class="lineNoCov">          0 :                 fdt_set_totalsize(buf, bufsize);</span>
+<span class="lineNum">     421 </span>                :<span class="lineNoCov">          0 :                 return 0;</span>
+<span class="lineNum">     422 </span>                :            :         }
+<span class="lineNum">     423 </span>                :            : 
+<span class="lineNum">     424 </span>                :            :         /* Need to reorder */
+<span class="lineNum">     425 </span>                :<span class="lineNoCov">          0 :         newsize = FDT_ALIGN(sizeof(struct fdt_header), 8) + mem_rsv_size</span>
+<span class="lineNum">     426 </span>                :<span class="lineNoCov">          0 :                 + struct_size + fdt_size_dt_strings(fdt);</span>
+<span class="lineNum">     427 </span>                :            : 
+<span class="lineNum">     428 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (bufsize &lt; newsize)</span>
+<span class="lineNum">     429 </span>                :            :                 return -FDT_ERR_NOSPACE;
+<span class="lineNum">     430 </span>                :            : 
+<span class="lineNum">     431 </span>                :            :         /* First attempt to build converted tree at beginning of buffer */
+<span class="lineNum">     432 </span>                :<span class="lineNoCov">          0 :         tmp = buf;</span>
+<span class="lineNum">     433 </span>                :            :         /* But if that overlaps with the old tree... */
+<span class="lineNum">     434 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (((tmp + newsize) &gt; fdtstart) &amp;&amp; (tmp &lt; fdtend)) {</span>
+<span class="lineNum">     435 </span>                :            :                 /* Try right after the old tree instead */
+<span class="lineNum">     436 </span>                :<span class="lineNoCov">          0 :                 tmp = (char *)(uintptr_t)fdtend;</span>
+<span class="lineNum">     437 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if ((tmp + newsize) &gt; ((char *)buf + bufsize))</span>
+<span class="lineNum">     438 </span>                :            :                         return -FDT_ERR_NOSPACE;
+<span class="lineNum">     439 </span>                :            :         }
+<span class="lineNum">     440 </span>                :            : 
+<span class="lineNum">     441 </span>                :<span class="lineNoCov">          0 :         _fdt_packblocks(fdt, tmp, mem_rsv_size, struct_size);</span>
+<span class="lineNum">     442 </span>                :<span class="lineNoCov">          0 :         memmove(buf, tmp, newsize);</span>
+<span class="lineNum">     443 </span>                :            : 
+<span class="lineNum">     444 </span>                :<span class="lineNoCov">          0 :         fdt_set_magic(buf, FDT_MAGIC);</span>
+<span class="lineNum">     445 </span>                :<span class="lineNoCov">          0 :         fdt_set_totalsize(buf, bufsize);</span>
+<span class="lineNum">     446 </span>                :<span class="lineNoCov">          0 :         fdt_set_version(buf, 17);</span>
+<span class="lineNum">     447 </span>                :<span class="lineNoCov">          0 :         fdt_set_last_comp_version(buf, 16);</span>
+<span class="lineNum">     448 </span>                :<span class="lineNoCov">          0 :         fdt_set_boot_cpuid_phys(buf, fdt_boot_cpuid_phys(fdt));</span>
+<span class="lineNum">     449 </span>                :            : 
+<span class="lineNum">     450 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<a name="451"><span class="lineNum">     451 </span>                :            : }</a>
+<span class="lineNum">     452 </span>                :            : 
+<span class="lineNum">     453 </span>                :<span class="lineNoCov">          0 : int fdt_pack(void *fdt)</span>
+<span class="lineNum">     454 </span>                :            : {
+<span class="lineNum">     455 </span>                :            :         int mem_rsv_size;
+<span class="lineNum">     456 </span>                :            : 
+<span class="lineNum">     457 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         FDT_RW_CHECK_HEADER(fdt);</span>
+<span class="lineNum">     458 </span>                :            : 
+<span class="lineNum">     459 </span>                :<span class="lineNoCov">          0 :         mem_rsv_size = (fdt_num_mem_rsv(fdt)+1)</span>
+<span class="lineNum">     460 </span>                :            :                 * sizeof(struct fdt_reserve_entry);
+<span class="lineNum">     461 </span>                :<span class="lineNoCov">          0 :         _fdt_packblocks(fdt, fdt, mem_rsv_size, fdt_size_dt_struct(fdt));</span>
+<span class="lineNum">     462 </span>                :<span class="lineNoCov">          0 :         fdt_set_totalsize(fdt, _fdt_data_size(fdt));</span>
+<span class="lineNum">     463 </span>                :            : 
+<span class="lineNum">     464 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     465 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

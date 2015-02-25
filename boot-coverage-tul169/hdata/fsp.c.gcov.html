@@ -1,0 +1,285 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hdata/fsp.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">hdata</a> - fsp.c<span style="font-size: 80%;"> (source / <a href="fsp.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">60</td>
+            <td class="headerCovTableEntry">75</td>
+            <td class="headerCovTableEntryMed">80.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntry">40</td>
+            <td class="headerCovTableEntryLo">55.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;device.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &quot;spira.h&quot;
+<span class="lineNum">      19 </span>                :            : #include &lt;cpu.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;vpd.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;ccan/str/str.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;device_tree.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;interrupts.h&gt;
+<span class="lineNum">      24 </span>                :            : 
+<a name="25"><span class="lineNum">      25 </span>                :            : #include &quot;hdata.h&quot;</a>
+<span class="lineNum">      26 </span>                :            : 
+<span class="lineNum">      27 </span>                :<span class="lineCov">          1 : static struct dt_node *fsp_create_node(const void *spss, int i,</span>
+<span class="lineNum">      28 </span>                :            :                                        struct dt_node *parent)
+<span class="lineNum">      29 </span>                :            : {
+<span class="lineNum">      30 </span>                :            :         const struct spss_sp_impl *sp_impl;
+<span class="lineNum">      31 </span>                :            :         struct dt_node *node;
+<span class="lineNum">      32 </span>                :            :         unsigned int mask;
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            :         /* Find an check the SP Implementation structure */
+<span class="lineNum">      35 </span>                :<span class="lineCov">          1 :         sp_impl = HDIF_get_idata(spss, SPSS_IDATA_SP_IMPL, NULL);</span>
+<span class="lineNum">      36 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!CHECK_SPPTR(sp_impl)) {</span>
+<span class="lineNum">      37 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FSP #%d: SPSS/SP_Implementation not found !\n&quot;, i);</span>
+<span class="lineNum">      38 </span>                :<span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">      39 </span>                :            :         }
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :<span class="lineCov">          1 :         prlog(PR_INFO, &quot;FSP #%d: FSP HW version %d, SW version %d,&quot;</span>
+<span class="lineNum">      42 </span>                :            :               &quot; chip DD%d.%d\n&quot;,
+<span class="lineNum">      43 </span>                :<span class="lineCov">          2 :               i, sp_impl-&gt;hw_version, sp_impl-&gt;sw_version,</span>
+<span class="lineNum">      44 </span>                :<span class="lineCov">          1 :               sp_impl-&gt;chip_version &gt;&gt; 4, sp_impl-&gt;chip_version &amp; 0xf);</span>
+<span class="lineNum">      45 </span>                :<span class="lineCov">          1 :         mask = SPSS_SP_IMPL_FLAGS_INSTALLED | SPSS_SP_IMPL_FLAGS_FUNCTIONAL;</span>
+<span class="lineNum">      46 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if ((be16_to_cpu(sp_impl-&gt;func_flags) &amp; mask) != mask) {</span>
+<span class="lineNum">      47 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FSP #%d: FSP not installed or not functional\n&quot;, i);</span>
+<span class="lineNum">      48 </span>                :<span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">      49 </span>                :            :         }
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>                :<span class="lineCov">          1 :         node = dt_new_addr(parent, &quot;fsp&quot;, i);</span>
+<span class="lineNum">      52 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         assert(node);</span>
+<span class="lineNum">      53 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(node, &quot;reg&quot;, i);</span>
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (sp_impl-&gt;hw_version == 1) {</span>
+<span class="lineNum">      56 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_strings(node, &quot;compatible&quot;, &quot;ibm,fsp&quot;,</span>
+<span class="lineNum">      57 </span>                :            :                                 &quot;ibm,fsp1&quot;);
+<span class="lineNum">      58 </span>                :            :                 /* Offset into the FSP MMIO space where the mailbox
+<span class="lineNum">      59 </span>                :            :                  * registers are */
+<span class="lineNum">      60 </span>                :            :                 /* seen in the FSP1 spec */
+<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_cells(node, &quot;reg-offset&quot;, 0xb0016000);</span>
+<span class="lineNum">      62 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         } else if (sp_impl-&gt;hw_version == 2) {</span>
+<span class="lineNum">      63 </span>                :<span class="lineCov">          1 :                 dt_add_property_strings(node, &quot;compatible&quot;, &quot;ibm,fsp&quot;,</span>
+<span class="lineNum">      64 </span>                :            :                                 &quot;ibm,fsp2&quot;);
+<span class="lineNum">      65 </span>                :<span class="lineCov">          1 :                 dt_add_property_cells(node, &quot;reg-offset&quot;, 0xb0011000);</span>
+<span class="lineNum">      66 </span>                :            :         }
+<span class="lineNum">      67 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(node, &quot;hw-version&quot;, sp_impl-&gt;hw_version);</span>
+<span class="lineNum">      68 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(node, &quot;sw-version&quot;, sp_impl-&gt;sw_version);</span>
+<span class="lineNum">      69 </span>                :            : 
+<span class="lineNum">      70 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (be16_to_cpu(sp_impl-&gt;func_flags) &amp; SPSS_SP_IMPL_FLAGS_PRIMARY)</span>
+<span class="lineNum">      71 </span>                :<span class="lineCov">          1 :                 dt_add_property(node, &quot;primary&quot;, NULL, 0);</span>
+<span class="lineNum">      72 </span>                :            : 
+<span class="lineNum">      73 </span>                :<span class="lineCov">          1 :         return node;</span>
+<a name="74"><span class="lineNum">      74 </span>                :            : }</a>
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :<span class="lineCov">          1 : static uint32_t fsp_create_link(const struct spss_iopath *iopath, int index,</span>
+<span class="lineNum">      77 </span>                :            :                                 int fsp_index)
+<span class="lineNum">      78 </span>                :            : {
+<span class="lineNum">      79 </span>                :            :         struct dt_node *node;
+<span class="lineNum">      80 </span>                :            :         const char *ststr;
+<span class="lineNum">      81 </span>                :<span class="lineCov">          1 :         bool current = false;</span>
+<span class="lineNum">      82 </span>                :<span class="lineCov">          1 :         bool working = false;</span>
+<span class="lineNum">      83 </span>                :            :         uint32_t chip_id;
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         switch(iopath-&gt;psi.link_status) {</span>
+<span class="lineNum">      86 </span>                :            :         case SPSS_IO_PATH_PSI_LINK_BAD_FRU:
+<span class="lineNum">      87 </span>                :            :                 ststr = &quot;Broken&quot;;
+<span class="lineNum">      88 </span>                :            :                 break;
+<span class="lineNum">      89 </span>                :            :         case SPSS_IO_PATH_PSI_LINK_CURRENT:
+<span class="lineNum">      90 </span>                :            :                 ststr = &quot;Active&quot;;
+<span class="lineNum">      91 </span>                :            :                 current = working = true;
+<span class="lineNum">      92 </span>                :            :                 break;
+<span class="lineNum">      93 </span>                :            :         case SPSS_IO_PATH_PSI_LINK_BACKUP:
+<span class="lineNum">      94 </span>                :            :                 ststr = &quot;Backup&quot;;
+<span class="lineNum">      95 </span>                :            :                 working = true;
+<span class="lineNum">      96 </span>                :            :                 break;
+<span class="lineNum">      97 </span>                :            :         default:
+<span class="lineNum">      98 </span>                :            :                 ststr = &quot;Unknown&quot;;
+<span class="lineNum">      99 </span>                :            :         }
+<span class="lineNum">     100 </span>                :<span class="lineCov">          1 :         prlog(PR_DEBUG, &quot;FSP #%d: IO PATH %d is %s PSI Link, GXHB at %llx\n&quot;,</span>
+<span class="lineNum">     101 </span>                :<span class="lineCov">          1 :               fsp_index, index, ststr, (long long)iopath-&gt;psi.gxhb_base);</span>
+<span class="lineNum">     102 </span>                :            : 
+<span class="lineNum">     103 </span>                :<span class="lineCov">          1 :         chip_id = pcid_to_chip_id(iopath-&gt;psi.proc_chip_id);</span>
+<span class="lineNum">     104 </span>                :<span class="lineCov">          1 :         node = dt_find_compatible_node_on_chip(dt_root, NULL, &quot;ibm,psihb-x&quot;,</span>
+<span class="lineNum">     105 </span>                :            :                                                chip_id);
+<span class="lineNum">     106 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!node) {</span>
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FSP #%d: Can't find psihb node for link %d\n&quot;,</span>
+<span class="lineNum">     108 </span>                :            :                         fsp_index, index);
+<span class="lineNum">     109 </span>                :            :         } else {
+<span class="lineNum">     110 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :                 if (current)</span>
+<span class="lineNum">     111 </span>                :<span class="lineCov">          1 :                         dt_add_property(node, &quot;boot-link&quot;, NULL, 0);</span>
+<span class="lineNum">     112 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                 dt_add_property_strings(node, &quot;status&quot;, working ? &quot;ok&quot; : &quot;bad&quot;);</span>
+<span class="lineNum">     113 </span>                :            :         }
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>                :<span class="lineCov">          1 :         return chip_id;</span>
+<a name="116"><span class="lineNum">     116 </span>                :            : }</a>
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>                :<span class="lineCov">          1 : static void fsp_create_links(const void *spss, int index,</span>
+<span class="lineNum">     119 </span>                :            :                              struct dt_node *fsp_node)
+<span class="lineNum">     120 </span>                :            : {
+<span class="lineNum">     121 </span>                :<span class="lineCov">          1 :         uint32_t *links = NULL;</span>
+<span class="lineNum">     122 </span>                :<span class="lineCov">          1 :         unsigned int i, lp, lcount = 0;</span>
+<span class="lineNum">     123 </span>                :            :         int count;
+<span class="lineNum">     124 </span>                :            : 
+<span class="lineNum">     125 </span>                :<span class="lineCov">          1 :         count = HDIF_get_iarray_size(spss, SPSS_IDATA_SP_IOPATH);</span>
+<span class="lineNum">     126 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (count &lt; 0) {</span>
+<span class="lineNum">     127 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FSP #%d: Can't find IO PATH array size !\n&quot;, index);</span>
+<span class="lineNum">     128 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     129 </span>                :            :         }
+<span class="lineNum">     130 </span>                :<span class="lineCov">          1 :         prlog(PR_DEBUG, &quot;FSP #%d: Found %d IO PATH\n&quot;, index, count);</span>
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :            :         /* Iterate all links */
+<span class="lineNum">     133 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         for (i = 0; i &lt; count; i++) {</span>
+<span class="lineNum">     134 </span>                :            :                 const struct spss_iopath *iopath;
+<span class="lineNum">     135 </span>                :            :                 unsigned int iopath_sz;
+<span class="lineNum">     136 </span>                :            :                 uint32_t chip;
+<span class="lineNum">     137 </span>                :            : 
+<span class="lineNum">     138 </span>                :<span class="lineCov">          1 :                 iopath = HDIF_get_iarray_item(spss, SPSS_IDATA_SP_IOPATH,</span>
+<span class="lineNum">     139 </span>                :            :                                               i, &amp;iopath_sz);
+<span class="lineNum">     140 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                 if (!CHECK_SPPTR(iopath)) {</span>
+<span class="lineNum">     141 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;FSP #%d: Can't find IO PATH %d\n&quot;, index, i);</span>
+<span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     143 </span>                :            :                 }
+<span class="lineNum">     144 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                 if (iopath-&gt;iopath_type != SPSS_IOPATH_TYPE_PSI) {</span>
+<span class="lineNum">     145 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;FSP #%d: Unsupported IO PATH %d type 0x%04x\n&quot;,</span>
+<span class="lineNum">     146 </span>                :            :                                 index, i, iopath-&gt;iopath_type);
+<span class="lineNum">     147 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     148 </span>                :            :                 }
+<span class="lineNum">     149 </span>                :            : 
+<span class="lineNum">     150 </span>                :<span class="lineCov">          1 :                 chip = fsp_create_link(iopath, i, index);</span>
+<span class="lineNum">     151 </span>                :<span class="lineCov">          1 :                 lp = lcount++;</span>
+<span class="lineNum">     152 </span>                :<span class="lineCov">          1 :                 links = realloc(links, 4 * lcount);</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">          1 :                 links[lp] = chip;</span>
+<span class="lineNum">     154 </span>                :            :         }
+<span class="lineNum">     155 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (links)</span>
+<span class="lineNum">     156 </span>                :<span class="lineCov">          1 :                 dt_add_property(fsp_node, &quot;ibm,psi-links&quot;, links, lcount * 4);</span>
+<a name="157"><span class="lineNum">     157 </span>                :            : }</a>
+<span class="lineNum">     158 </span>                :            : 
+<span class="lineNum">     159 </span>                :<span class="lineCov">          1 : void fsp_parse(void)</span>
+<span class="lineNum">     160 </span>                :            : {
+<span class="lineNum">     161 </span>                :            :         const void *base_spss, *spss;
+<span class="lineNum">     162 </span>                :            :         struct dt_node *fsp_root, *fsp_node;
+<span class="lineNum">     163 </span>                :            :         int i;
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :            :         /*
+<span class="lineNum">     166 </span>                :            :          * Note on DT representation of the PSI links and FSPs:
+<span class="lineNum">     167 </span>                :            :          *
+<span class="lineNum">     168 </span>                :            :          * We create a XSCOM node for each PSI host bridge(one per chip),
+<span class="lineNum">     169 </span>                :            :          *
+<span class="lineNum">     170 </span>                :            :          * This is done in spira.c
+<span class="lineNum">     171 </span>                :            :          *
+<span class="lineNum">     172 </span>                :            :          * We do not create the /psi MMIO variant at this stage, it will
+<span class="lineNum">     173 </span>                :            :          * be added by the psi driver in skiboot.
+<span class="lineNum">     174 </span>                :            :          *
+<span class="lineNum">     175 </span>                :            :          * We do not put the FSP(s) as children of these. Instead, we create
+<span class="lineNum">     176 </span>                :            :          * a top-level /fsps node with the FSPs as children.
+<span class="lineNum">     177 </span>                :            :          *
+<span class="lineNum">     178 </span>                :            :          * Each FSP then has a &quot;links&quot; property which is an array of chip IDs
+<span class="lineNum">     179 </span>                :            :          */
+<span class="lineNum">     180 </span>                :            :         
+<span class="lineNum">     181 </span>                :            :         /* Find SPSS in SPIRA */
+<span class="lineNum">     182 </span>                :<span class="lineCov">          1 :         base_spss = get_hdif(&amp;spira.ntuples.sp_subsys, SPSS_HDIF_SIG);</span>
+<span class="lineNum">     183 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!base_spss) {</span>
+<span class="lineNum">     184 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_WARNING, &quot;FSP: No SPSS in SPIRA !\n&quot;);</span>
+<span class="lineNum">     185 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     186 </span>                :            :         }
+<span class="lineNum">     187 </span>                :            : 
+<span class="lineNum">     188 </span>                :<span class="lineCov">          1 :         fsp_root = dt_new(dt_root, &quot;fsps&quot;);</span>
+<span class="lineNum">     189 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         assert(fsp_root);</span>
+<span class="lineNum">     190 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(fsp_root, &quot;#address-cells&quot;, 1);</span>
+<span class="lineNum">     191 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(fsp_root, &quot;#size-cells&quot;, 0);</span>
+<span class="lineNum">     192 </span>                :            : 
+<span class="lineNum">     193 </span>                :            :         /* Iterate FSPs in SPIRA */
+<span class="lineNum">     194 </span>[<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 1 time"> + </span><span class="branchCov" title="Branch 4 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         for_each_ntuple_idx(&amp;spira.ntuples.sp_subsys, spss, i, SPSS_HDIF_SIG) {</span>
+<span class="lineNum">     195 </span>                :<span class="lineCov">          1 :                 fsp_node = fsp_create_node(spss, i, fsp_root);</span>
+<span class="lineNum">     196 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :                 if (fsp_node)</span>
+<span class="lineNum">     197 </span>                :<span class="lineCov">          1 :                         fsp_create_links(spss, i, fsp_node);</span>
+<span class="lineNum">     198 </span>                :            :         }       
+<span class="lineNum">     199 </span>                :            : }
+<span class="lineNum">     200 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

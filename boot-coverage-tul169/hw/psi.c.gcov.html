@@ -1,0 +1,1002 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/psi.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">hw</a> - psi.c<span style="font-size: 80%;"> (source / <a href="psi.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">178</td>
+            <td class="headerCovTableEntry">369</td>
+            <td class="headerCovTableEntryLo">48.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntry">30</td>
+            <td class="headerCovTableEntryLo">63.3 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">50</td>
+            <td class="headerCovTableEntry">162</td>
+            <td class="headerCovTableEntryLo">30.9 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : /*
+<span class="lineNum">      18 </span>                :            :  * Service Processor serial console handling code
+<span class="lineNum">      19 </span>                :            :  */
+<span class="lineNum">      20 </span>                :            : #include &lt;io.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;psi.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;fsp.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;opal.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;opal-api.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;gx.h&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;interrupts.h&gt;
+<span class="lineNum">      27 </span>                :            : #include &lt;cpu.h&gt;
+<span class="lineNum">      28 </span>                :            : #include &lt;trace.h&gt;
+<span class="lineNum">      29 </span>                :            : #include &lt;xscom.h&gt;
+<span class="lineNum">      30 </span>                :            : #include &lt;chip.h&gt;
+<span class="lineNum">      31 </span>                :            : #include &lt;lpc.h&gt;
+<span class="lineNum">      32 </span>                :            : #include &lt;i2c.h&gt;
+<span class="lineNum">      33 </span>                :            : #include &lt;timebase.h&gt;
+<span class="lineNum">      34 </span>                :            : #include &lt;platform.h&gt;
+<span class="lineNum">      35 </span>                :            : #include &lt;errorlog.h&gt;
+<span class="lineNum">      36 </span>                :            : 
+<span class="lineNum">      37 </span>                :            : static LIST_HEAD(psis);
+<span class="lineNum">      38 </span>                :            : static u64 psi_link_timer;
+<span class="lineNum">      39 </span>                :            : static u64 psi_link_timeout;
+<span class="lineNum">      40 </span>                :            : bool psi_link_poll_active;
+<span class="lineNum">      41 </span>                :            : static bool psi_ext_irq_policy = EXTERNAL_IRQ_POLICY_LINUX;
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :            : static void psi_register_interrupts(struct psi *psi);
+<span class="lineNum">      44 </span>                :            : static void psi_activate_phb(struct psi *psi);
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            : static struct lock psi_lock = LOCK_UNLOCKED;
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_PSI_TIMEOUT, OPAL_PLATFORM_ERR_EVT, OPAL_PSI,
+<span class="lineNum">      49 </span>                :            :                 OPAL_PLATFORM_FIRMWARE,
+<a name="50"><span class="lineNum">      50 </span>                :            :                 OPAL_UNRECOVERABLE_ERR_LOSS_OF_FUNCTION, OPAL_NA, NULL);</a>
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :<span class="lineNoCov">          0 : void psi_set_link_polling(bool active)</span>
+<span class="lineNum">      53 </span>                :            : {
+<span class="lineNum">      54 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         printf(&quot;PSI: %sing link polling\n&quot;,</span>
+<span class="lineNum">      55 </span>                :            :                active ? &quot;start&quot; : &quot;stopp&quot;);
+<span class="lineNum">      56 </span>                :<span class="lineNoCov">          0 :         psi_link_poll_active = active;</span>
+<a name="57"><span class="lineNum">      57 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 : void psi_disable_link(struct psi *psi)</span>
+<span class="lineNum">      60 </span>                :            : {
+<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 :         lock(&amp;psi_lock);</span>
+<span class="lineNum">      62 </span>                :            : 
+<span class="lineNum">      63 </span>                :            :         /*
+<span class="lineNum">      64 </span>                :            :          * Note: This can be called with the link already down but
+<span class="lineNum">      65 </span>                :            :          * not detected as such yet by this layer since psi_check_link_active()
+<span class="lineNum">      66 </span>                :            :          * operates locklessly and thus won't update the PSI structure. This
+<span class="lineNum">      67 </span>                :            :          * is a non-issue, the only consequence is the messages in the log
+<span class="lineNum">      68 </span>                :            :          * mentioning first the link having gone down then being disabled.
+<span class="lineNum">      69 </span>                :            :          */
+<span class="lineNum">      70 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (psi-&gt;active) {</span>
+<span class="lineNum">      71 </span>                :            :                 u64 reg;
+<span class="lineNum">      72 </span>                :<span class="lineNoCov">          0 :                 psi-&gt;active = false;</span>
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :            :                 /* Mask errors in SEMR */
+<span class="lineNum">      75 </span>                :<span class="lineNoCov">          0 :                 reg = in_be64(psi-&gt;regs + PSIHB_SEMR);</span>
+<span class="lineNum">      76 </span>                :<span class="lineNoCov">          0 :                 reg = ((0xfffull &lt;&lt; 36) | (0xfffull &lt;&lt; 20));</span>
+<span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 :                 out_be64(psi-&gt;regs + PSIHB_SEMR, reg);</span>
+<span class="lineNum">      78 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI: SEMR set to %llx\n&quot;, reg);</span>
+<span class="lineNum">      79 </span>                :            : 
+<span class="lineNum">      80 </span>                :            :                 /* Reset all the error bits in PSIHB_CR and
+<span class="lineNum">      81 </span>                :            :                  * disable FSP interrupts
+<span class="lineNum">      82 </span>                :            :                  */
+<span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 :                 reg = in_be64(psi-&gt;regs + PSIHB_CR);</span>
+<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :                 reg &amp;= ~(0x7ffull &lt;&lt; 20);</span>
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 :                 reg &amp;= ~PSIHB_CR_PSI_LINK_ENABLE;   /* flip link enable */</span>
+<span class="lineNum">      86 </span>                :            :                 /*
+<span class="lineNum">      87 </span>                :            :                  * Ensure no commands/spurious interrupts reach
+<span class="lineNum">      88 </span>                :            :                  * the processor, by flipping the command enable.
+<span class="lineNum">      89 </span>                :            :                  */
+<span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :                 reg &amp;= ~PSIHB_CR_FSP_CMD_ENABLE;</span>
+<span class="lineNum">      91 </span>                :<span class="lineNoCov">          0 :                 reg &amp;= ~PSIHB_CR_FSP_IRQ_ENABLE;</span>
+<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 :                 reg &amp;= ~PSIHB_CR_FSP_IRQ; /* Clear interrupt state too */</span>
+<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI[0x%03x]: Disabling link!\n&quot;, psi-&gt;chip_id);</span>
+<span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 :                 out_be64(psi-&gt;regs + PSIHB_CR, reg);</span>
+<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI: PSIHB_CR (error bits) set to %llx\n&quot;,</span>
+<span class="lineNum">      96 </span>                :<span class="lineNoCov">          0 :                                 in_be64(psi-&gt;regs + PSIHB_CR));</span>
+<span class="lineNum">      97 </span>                :<span class="lineNoCov">          0 :                 psi_set_link_polling(true);</span>
+<span class="lineNum">      98 </span>                :            :         }
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;psi_lock);</span>
+<span class="lineNum">     101 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     102 </span>                :            : 
+<span class="lineNum">     103 </span>                :            : /*
+<span class="lineNum">     104 </span>                :            :  * Resetting the FSP is a multi step sequence:
+<span class="lineNum">     105 </span>                :            :  * 1. Read the PSIHBCR
+<span class="lineNum">     106 </span>                :            :  * 2. Set the PSIHBCR[6] -- write register back.
+<span class="lineNum">     107 </span>                :            :  * 3. Read PSIHBCR again
+<a name="108"><span class="lineNum">     108 </span>                :            :  * 4. Reset PSIHBCR[6] -- write register back.</a>
+<span class="lineNum">     109 </span>                :            :  */
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 : void psi_reset_fsp(struct psi *psi)</span>
+<span class="lineNum">     111 </span>                :            : {
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :         lock(&amp;psi_lock);</span>
+<span class="lineNum">     113 </span>                :            : 
+<span class="lineNum">     114 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (psi-&gt;active) {</span>
+<span class="lineNum">     115 </span>                :            :                 u64 reg;
+<span class="lineNum">     116 </span>                :            : 
+<span class="lineNum">     117 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI: Driving FSP reset via PSI\n&quot;);</span>
+<span class="lineNum">     118 </span>                :<span class="lineNoCov">          0 :                 reg = in_be64(psi-&gt;regs + PSIHB_CR);</span>
+<span class="lineNum">     119 </span>                :<span class="lineNoCov">          0 :                 reg &amp;= ~(0xfffull &lt;&lt; 20);     /* Reset error bits */</span>
+<span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 :                 reg |= PSIHB_CR_FSP_RESET;      /* FSP reset trigger start */</span>
+<span class="lineNum">     121 </span>                :<span class="lineNoCov">          0 :                 out_be64(psi-&gt;regs + PSIHB_CR, reg);</span>
+<span class="lineNum">     122 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI[0x%03x]: FSP reset start PSIHBCR set to %llx\n&quot;,</span>
+<span class="lineNum">     123 </span>                :<span class="lineNoCov">          0 :                         psi-&gt;chip_id, in_be64(psi-&gt;regs + PSIHB_CR));</span>
+<span class="lineNum">     124 </span>                :            : 
+<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :                 reg = in_be64(psi-&gt;regs + PSIHB_CR);</span>
+<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 :                 reg &amp;= ~PSIHB_CR_FSP_RESET; /* Clear FSP reset bit */</span>
+<span class="lineNum">     127 </span>                :<span class="lineNoCov">          0 :                 out_be64(psi-&gt;regs + PSIHB_CR, reg); /* Complete reset */</span>
+<span class="lineNum">     128 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI[0x%03x]: FSP reset complete. PSIHBCR set to %llx\n&quot;,</span>
+<span class="lineNum">     129 </span>                :<span class="lineNoCov">          0 :                         psi-&gt;chip_id, in_be64(psi-&gt;regs + PSIHB_CR));</span>
+<span class="lineNum">     130 </span>                :            :         }
+<span class="lineNum">     131 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;psi_lock);</span>
+<span class="lineNum">     132 </span>                :            : 
+<span class="lineNum">     133 </span>                :            :         /* Now bring down the PSI link too... */
+<span class="lineNum">     134 </span>                :<span class="lineNoCov">          0 :         psi_disable_link(psi);</span>
+<a name="135"><span class="lineNum">     135 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     136 </span>                :            : 
+<span class="lineNum">     137 </span>                :<span class="lineCov">     224206 : bool psi_check_link_active(struct psi *psi)</span>
+<span class="lineNum">     138 </span>                :            : {
+<span class="lineNum">     139 </span>                :<span class="lineCov">     448412 :         u64 val = in_be64(psi-&gt;regs + PSIHB_CR);</span>
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>                :            :         /*
+<span class="lineNum">     142 </span>                :            :          * Unlocked, used during fsp_poke_msg so we really want
+<span class="lineNum">     143 </span>                :            :          * to avoid fancy link re-entrancy and deadlocks here
+<span class="lineNum">     144 </span>                :            :          */
+<span class="lineNum">     145 </span>        [<span class="branchCov" title="Branch 0 was taken 224206 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">     224206 :         if (!psi-&gt;active)</span>
+<span class="lineNum">     146 </span>                :            :                 return false;
+<span class="lineNum">     147 </span>                :<span class="lineCov">     224206 :         return (val &amp; PSIHB_CR_PSI_LINK_ENABLE) &amp;&amp;</span>
+<span class="lineNum">     148 </span>                :            :                 (val &amp; PSIHB_CR_FSP_LINK_ACTIVE);
+<a name="149"><span class="lineNum">     149 </span>                :            : }</a>
+<span class="lineNum">     150 </span>                :            : 
+<span class="lineNum">     151 </span>                :<span class="lineCov">          1 : struct psi *psi_find_link(uint32_t chip_id)</span>
+<span class="lineNum">     152 </span>                :            : {
+<span class="lineNum">     153 </span>                :            :         struct psi *psi;
+<span class="lineNum">     154 </span>                :            : 
+<span class="lineNum">     155 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         list_for_each(&amp;psis, psi, list) {</span>
+<span class="lineNum">     156 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                 if (psi-&gt;chip_id == chip_id)</span>
+<span class="lineNum">     157 </span>                :            :                         return psi;
+<span class="lineNum">     158 </span>                :            :         }
+<span class="lineNum">     159 </span>                :            :         return NULL;
+<span class="lineNum">     160 </span>                :            : }
+<span class="lineNum">     161 </span>                :            : 
+<span class="lineNum">     162 </span>                :            : #define PSI_LINK_CHECK_INTERVAL         10      /* Interval in secs */
+<a name="163"><span class="lineNum">     163 </span>                :            : #define PSI_LINK_RECOVERY_TIMEOUT       1800    /* 30 minutes */</a>
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :<span class="lineCov">     221272 : static void psi_link_poll(void *data __unused)</span>
+<span class="lineNum">     166 </span>                :            : {
+<span class="lineNum">     167 </span>                :            :         struct psi *psi;
+<span class="lineNum">     168 </span>                :            :         u64 now;
+<span class="lineNum">     169 </span>                :            : 
+<span class="lineNum">     170 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 221272 times"> + </span>]:<span class="lineCov">     221272 :         if (!psi_link_poll_active)</span>
+<span class="lineNum">     171 </span>                :            :                 return;
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>                :<span class="lineNoCov">          0 :         now = mftb();</span>
+<span class="lineNum">     174 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (psi_link_timer == 0 ||</span>
+<span class="lineNum">     175 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 (tb_compare(now, psi_link_timer) == TB_AAFTERB) ||</span>
+<span class="lineNum">     176 </span>                :            :                 (tb_compare(now, psi_link_timer) == TB_AEQUALB)) {
+<span class="lineNum">     177 </span>                :            : 
+<span class="lineNum">     178 </span>                :<span class="lineNoCov">          0 :                 lock(&amp;psi_lock);</span>
+<span class="lineNum">     179 </span>                :            : 
+<span class="lineNum">     180 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 list_for_each(&amp;psis, psi, list) {</span>
+<span class="lineNum">     181 </span>                :            :                         u64 val;
+<span class="lineNum">     182 </span>                :            : 
+<span class="lineNum">     183 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (psi-&gt;active || !psi-&gt;working)</span>
+<span class="lineNum">     184 </span>                :<span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">     185 </span>                :            : 
+<span class="lineNum">     186 </span>                :<span class="lineNoCov">          0 :                         val = in_be64(psi-&gt;regs + PSIHB_CR);</span>
+<span class="lineNum">     187 </span>                :            : 
+<span class="lineNum">     188 </span>                :<span class="lineNoCov">          0 :                         printf(&quot;PSI[0x%03x]: Poll CR=0x%016llx\n&quot;,</span>
+<span class="lineNum">     189 </span>                :            :                                psi-&gt;chip_id, val);
+<span class="lineNum">     190 </span>                :            : 
+<span class="lineNum">     191 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if ((val &amp; PSIHB_CR_PSI_LINK_ENABLE) &amp;&amp;</span>
+<span class="lineNum">     192 </span>                :            :                             (val &amp; PSIHB_CR_FSP_LINK_ACTIVE)) {
+<span class="lineNum">     193 </span>                :<span class="lineNoCov">          0 :                                 printf(&quot;PSI[0x%03x]: Found active link!\n&quot;,</span>
+<span class="lineNum">     194 </span>                :            :                                        psi-&gt;chip_id);
+<span class="lineNum">     195 </span>                :<span class="lineNoCov">          0 :                                 psi_link_timeout = 0;</span>
+<span class="lineNum">     196 </span>                :<span class="lineNoCov">          0 :                                 psi-&gt;active = true;</span>
+<span class="lineNum">     197 </span>                :<span class="lineNoCov">          0 :                                 psi_activate_phb(psi);</span>
+<span class="lineNum">     198 </span>                :<span class="lineNoCov">          0 :                                 psi_set_link_polling(false);</span>
+<span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 :                                 unlock(&amp;psi_lock);</span>
+<span class="lineNum">     200 </span>                :<span class="lineNoCov">          0 :                                 fsp_reinit_fsp();</span>
+<span class="lineNum">     201 </span>                :<span class="lineNoCov">          0 :                                 return;</span>
+<span class="lineNum">     202 </span>                :            :                         }
+<span class="lineNum">     203 </span>                :            :                 }
+<span class="lineNum">     204 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!psi_link_timeout)</span>
+<span class="lineNum">     205 </span>                :<span class="lineNoCov">          0 :                         psi_link_timeout =</span>
+<span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :                                 now + secs_to_tb(PSI_LINK_RECOVERY_TIMEOUT);</span>
+<span class="lineNum">     207 </span>                :            : 
+<span class="lineNum">     208 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (tb_compare(now, psi_link_timeout) == TB_AAFTERB) {</span>
+<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 :                         log_simple_error(&amp;e_info(OPAL_RC_PSI_TIMEOUT),</span>
+<span class="lineNum">     210 </span>                :            :                                 &quot;PSI: Link timeout -- loss of FSP\n&quot;);
+<span class="lineNum">     211 </span>                :            :                         /* Reset the link timeout and continue looking */
+<span class="lineNum">     212 </span>                :<span class="lineNoCov">          0 :                         psi_link_timeout = 0;</span>
+<span class="lineNum">     213 </span>                :            :                 }
+<span class="lineNum">     214 </span>                :            : 
+<span class="lineNum">     215 </span>                :            :                 /* Poll every 10 seconds */
+<span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 :                 psi_link_timer = now + secs_to_tb(PSI_LINK_CHECK_INTERVAL);</span>
+<span class="lineNum">     217 </span>                :            : 
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;psi_lock);</span>
+<span class="lineNum">     219 </span>                :            :         }
+<a name="220"><span class="lineNum">     220 </span>                :            : }</a>
+<span class="lineNum">     221 </span>                :            : 
+<span class="lineNum">     222 </span>                :<span class="lineCov">          1 : void psi_enable_fsp_interrupt(struct psi *psi)</span>
+<span class="lineNum">     223 </span>                :            : {
+<span class="lineNum">     224 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!psi-&gt;working)</span>
+<span class="lineNum">     225 </span>                :<span class="lineCov">          1 :                 return;</span>
+<span class="lineNum">     226 </span>                :            : 
+<span class="lineNum">     227 </span>                :            :         /* Enable FSP interrupts in the GXHB */
+<span class="lineNum">     228 </span>                :<span class="lineCov">          1 :         lock(&amp;psi_lock);</span>
+<span class="lineNum">     229 </span>                :<span class="lineCov">          2 :         out_be64(psi-&gt;regs + PSIHB_CR,</span>
+<span class="lineNum">     230 </span>                :<span class="lineCov">          1 :                  in_be64(psi-&gt;regs + PSIHB_CR) | PSIHB_CR_FSP_IRQ_ENABLE);</span>
+<span class="lineNum">     231 </span>                :<span class="lineCov">          1 :         unlock(&amp;psi_lock);</span>
+<span class="lineNum">     232 </span>                :            : }
+<a name="233"><span class="lineNum">     233 </span>                :            : </a>
+<span class="lineNum">     234 </span>                :            : /* Multiple bits can be set on errors */
+<span class="lineNum">     235 </span>                :<span class="lineNoCov">          0 : static void decode_psihb_error(u64 val)</span>
+<span class="lineNum">     236 </span>                :            : {
+<span class="lineNum">     237 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (val &amp; PSIHB_CR_PSI_ERROR)</span>
+<span class="lineNum">     238 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI: PSI Reported Error\n&quot;);</span>
+<span class="lineNum">     239 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (val &amp; PSIHB_CR_PSI_LINK_INACTIVE)</span>
+<span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI: PSI Link Inactive Transition\n&quot;);</span>
+<span class="lineNum">     241 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (val &amp; PSIHB_CR_FSP_ACK_TIMEOUT)</span>
+<span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI: FSP Ack Timeout\n&quot;);</span>
+<span class="lineNum">     243 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (val &amp; PSIHB_CR_MMIO_LOAD_TIMEOUT)</span>
+<span class="lineNum">     244 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI: MMIO Load Timeout\n&quot;);</span>
+<span class="lineNum">     245 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (val &amp; PSIHB_CR_MMIO_LENGTH_ERROR)</span>
+<span class="lineNum">     246 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI: MMIO Length Error\n&quot;);</span>
+<span class="lineNum">     247 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (val &amp; PSIHB_CR_MMIO_ADDRESS_ERROR)</span>
+<span class="lineNum">     248 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI: MMIO Address Error\n&quot;);</span>
+<span class="lineNum">     249 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (val &amp; PSIHB_CR_MMIO_TYPE_ERROR)</span>
+<span class="lineNum">     250 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI: MMIO Type Error\n&quot;);</span>
+<span class="lineNum">     251 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (val &amp; PSIHB_CR_UE)</span>
+<span class="lineNum">     252 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI: UE Detected\n&quot;);</span>
+<span class="lineNum">     253 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (val &amp; PSIHB_CR_PARITY_ERROR)</span>
+<span class="lineNum">     254 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI: Internal Parity Error\n&quot;);</span>
+<span class="lineNum">     255 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (val &amp; PSIHB_CR_SYNC_ERR_ALERT1)</span>
+<span class="lineNum">     256 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI: Sync Error Alert1\n&quot;);</span>
+<span class="lineNum">     257 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (val &amp; PSIHB_CR_SYNC_ERR_ALERT2)</span>
+<span class="lineNum">     258 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI: Sync Error Alert2\n&quot;);</span>
+<span class="lineNum">     259 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (val &amp; PSIHB_CR_FSP_COMMAND_ERROR)</span>
+<span class="lineNum">     260 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI: FSP Command Error\n&quot;);</span>
+<span class="lineNum">     261 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="262"><span class="lineNum">     262 </span>                :            : </a>
+<span class="lineNum">     263 </span>                :            : 
+<span class="lineNum">     264 </span>                :<span class="lineNoCov">          0 : static void handle_psi_interrupt(struct psi *psi, u64 val)</span>
+<span class="lineNum">     265 </span>                :            : {
+<span class="lineNum">     266 </span>                :<span class="lineNoCov">          0 :         printf(&quot;PSI[0x%03x]: PSI mgmnt interrupt CR=0x%016llx\n&quot;,</span>
+<span class="lineNum">     267 </span>                :            :                psi-&gt;chip_id, val);
+<span class="lineNum">     268 </span>                :            : 
+<span class="lineNum">     269 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (val &amp; (0xfffull &lt;&lt; 20)) {</span>
+<span class="lineNum">     270 </span>                :<span class="lineNoCov">          0 :                 decode_psihb_error(val);</span>
+<span class="lineNum">     271 </span>                :<span class="lineNoCov">          0 :                 psi_disable_link(psi);</span>
+<span class="lineNum">     272 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         } else if (val &amp; (0x1full &lt;&lt; 11))</span>
+<span class="lineNum">     273 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI: FSP error detected\n&quot;);</span>
+<span class="lineNum">     274 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="275"><span class="lineNum">     275 </span>                :            : </a>
+<span class="lineNum">     276 </span>                :            : /* TODO: Determine which of these needs to be handled by powernv */
+<span class="lineNum">     277 </span>                :<span class="lineCov">       1138 : static void handle_extra_interrupt(struct psi *psi)</span>
+<span class="lineNum">     278 </span>                :            : {
+<span class="lineNum">     279 </span>                :            :         u64 val;
+<span class="lineNum">     280 </span>                :            : 
+<span class="lineNum">     281 </span>                :<span class="lineCov">       2276 :         val = in_be64(psi-&gt;regs + PSIHB_IRQ_STATUS);</span>
+<span class="lineNum">     282 </span>                :            : 
+<span class="lineNum">     283 </span>                :            :         /*
+<span class="lineNum">     284 </span>                :            :          * Decode interrupt type, call appropriate handlers
+<span class="lineNum">     285 </span>                :            :          * when available.
+<span class="lineNum">     286 </span>                :            :          */
+<span class="lineNum">     287 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1137 times"> + </span>]:<span class="lineCov">       1138 :         if (val &amp; PSIHB_IRQ_STAT_OCC)</span>
+<span class="lineNum">     288 </span>                :<span class="lineCov">          1 :                 occ_interrupt(psi-&gt;chip_id);</span>
+<span class="lineNum">     289 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1138 times"> + </span>]:<span class="lineCov">       1138 :         if (val &amp; PSIHB_IRQ_STAT_FSI)</span>
+<span class="lineNum">     290 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI: FSI irq received\n&quot;);</span>
+<span class="lineNum">     291 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1138 times"> + </span>]:<span class="lineCov">       1138 :         if (val &amp; PSIHB_IRQ_STAT_LPC) {</span>
+<span class="lineNum">     292 </span>                :<span class="lineNoCov">          0 :                 lpc_interrupt(psi-&gt;chip_id);</span>
+<span class="lineNum">     293 </span>                :            : 
+<span class="lineNum">     294 </span>                :            :                 /*
+<span class="lineNum">     295 </span>                :            :                  * i2c interrupts are ORed with the LPC ones on
+<span class="lineNum">     296 </span>                :            :                  * Murano DD2.1 and Venice DD2.0
+<span class="lineNum">     297 </span>                :            :                  */
+<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 :                 p8_i2c_interrupt(psi-&gt;chip_id);</span>
+<span class="lineNum">     299 </span>                :            :         }
+<span class="lineNum">     300 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1138 times"> + </span>]:<span class="lineCov">       1138 :         if (val &amp; PSIHB_IRQ_STAT_LOCAL_ERR)</span>
+<span class="lineNum">     301 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI: ATTN irq received\n&quot;);</span>
+<span class="lineNum">     302 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1138 times"> + </span>]:<span class="lineCov">       1138 :         if (val &amp; PSIHB_IRQ_STAT_HOST_ERR) {</span>
+<span class="lineNum">     303 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (platform.external_irq)</span>
+<span class="lineNum">     304 </span>                :<span class="lineNoCov">          0 :                         platform.external_irq(psi-&gt;chip_id);</span>
+<span class="lineNum">     305 </span>                :            :         } else {
+<span class="lineNum">     306 </span>                :            :                 u64 xivr;
+<span class="lineNum">     307 </span>                :            : 
+<span class="lineNum">     308 </span>                :            :                 /*
+<span class="lineNum">     309 </span>                :            :                  * The way our FPGA &quot;pulses&quot; the external interrupt
+<span class="lineNum">     310 </span>                :            :                  * on BMC machines means we might not see it in the
+<span class="lineNum">     311 </span>                :            :                  * status register anymore, so look at the latch in
+<span class="lineNum">     312 </span>                :            :                  * the XIVR
+<span class="lineNum">     313 </span>                :            :                  */
+<span class="lineNum">     314 </span>                :<span class="lineCov">       2276 :                 xivr = in_be64(psi-&gt;regs + PSIHB_XIVR_HOST_ERR);</span>
+<span class="lineNum">     315 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1138 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">       1138 :                 if (xivr &amp; PPC_BIT(39) &amp;&amp; platform.external_irq)</span>
+<span class="lineNum">     316 </span>                :<span class="lineNoCov">          0 :                         platform.external_irq(psi-&gt;chip_id);</span>
+<span class="lineNum">     317 </span>                :            :         }
+<span class="lineNum">     318 </span>                :            : 
+<span class="lineNum">     319 </span>                :            :         /*
+<span class="lineNum">     320 </span>                :            :          * TODO: Per Vicente Chung, CRESPs don't generate interrupts,
+<span class="lineNum">     321 </span>                :            :          * and are just informational. Need to define the policy
+<span class="lineNum">     322 </span>                :            :          * to handle them.
+<span class="lineNum">     323 </span>                :            :          */
+<a name="324"><span class="lineNum">     324 </span>                :<span class="lineCov">       1138 : }</span></a>
+<span class="lineNum">     325 </span>                :            : 
+<span class="lineNum">     326 </span>                :<span class="lineNoCov">          0 : static void psi_spurious_fsp_irq(struct psi *psi)</span>
+<span class="lineNum">     327 </span>                :            : {
+<span class="lineNum">     328 </span>                :            :         u64 reg, bit;
+<span class="lineNum">     329 </span>                :            : 
+<span class="lineNum">     330 </span>                :<span class="lineNoCov">          0 :         prerror(&quot;PSI: Spurious interrupt, attempting clear\n&quot;);</span>
+<span class="lineNum">     331 </span>                :            : 
+<span class="lineNum">     332 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (proc_gen == proc_gen_p8) {</span>
+<span class="lineNum">     333 </span>                :            :                 reg = PSIHB_XSCOM_P8_HBCSR_CLR;
+<span class="lineNum">     334 </span>                :            :                 bit = PSIHB_XSCOM_P8_HBSCR_FSP_IRQ;
+<span class="lineNum">     335 </span>                :            :         } else {
+<span class="lineNum">     336 </span>                :<span class="lineNoCov">          0 :                 reg = PSIHB_XSCOM_P7_HBCSR_CLR;</span>
+<span class="lineNum">     337 </span>                :<span class="lineNoCov">          0 :                 bit = PSIHB_XSCOM_P7_HBSCR_FSP_IRQ;</span>
+<span class="lineNum">     338 </span>                :            :         }
+<span class="lineNum">     339 </span>                :<span class="lineNoCov">          0 :         xscom_write(psi-&gt;chip_id, psi-&gt;xscom_base + reg, bit);</span>
+<a name="340"><span class="lineNum">     340 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     341 </span>                :            : 
+<span class="lineNum">     342 </span>                :<span class="lineCov">     223536 : bool psi_poll_fsp_interrupt(struct psi *psi)</span>
+<span class="lineNum">     343 </span>                :            : {
+<span class="lineNum">     344 </span>                :<span class="lineCov">     447072 :         return !!(in_be64(psi-&gt;regs + PSIHB_CR) &amp; PSIHB_CR_FSP_IRQ);</span>
+<a name="345"><span class="lineNum">     345 </span>                :            : }</a>
+<span class="lineNum">     346 </span>                :            : 
+<span class="lineNum">     347 </span>                :<span class="lineCov">       1138 : static void psi_interrupt(void *data, uint32_t isn __unused)</span>
+<span class="lineNum">     348 </span>                :            : {
+<span class="lineNum">     349 </span>                :<span class="lineCov">       1138 :         struct psi *psi = data;</span>
+<span class="lineNum">     350 </span>                :            :         u64 val;
+<span class="lineNum">     351 </span>                :            : 
+<span class="lineNum">     352 </span>                :<span class="lineCov">       2276 :         val = in_be64(psi-&gt;regs + PSIHB_CR);</span>
+<span class="lineNum">     353 </span>                :            : 
+<span class="lineNum">     354 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1138 times"> + </span>]:<span class="lineCov">       1138 :         if (psi_link_poll_active) {</span>
+<span class="lineNum">     355 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI[0x%03x]: PSI interrupt CR=0x%016llx (A=%d)\n&quot;,</span>
+<span class="lineNum">     356 </span>                :<span class="lineNoCov">          0 :                        psi-&gt;chip_id, val, psi-&gt;active);</span>
+<span class="lineNum">     357 </span>                :            :         }
+<span class="lineNum">     358 </span>                :            : 
+<span class="lineNum">     359 </span>                :            :         /* Handle PSI interrupts first in case it's a link down */
+<span class="lineNum">     360 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1138 times"> + </span>]:<span class="lineCov">       1138 :         if (val &amp; PSIHB_CR_PSI_IRQ) {</span>
+<span class="lineNum">     361 </span>                :<span class="lineNoCov">          0 :                 handle_psi_interrupt(psi, val);</span>
+<span class="lineNum">     362 </span>                :            : 
+<span class="lineNum">     363 </span>                :            :                 /*
+<span class="lineNum">     364 </span>                :            :                  * If the link went down, re-read PSIHB_CR as
+<span class="lineNum">     365 </span>                :            :                  * the FSP interrupt might have been cleared.
+<span class="lineNum">     366 </span>                :            :                  */
+<span class="lineNum">     367 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!psi-&gt;active)</span>
+<span class="lineNum">     368 </span>                :<span class="lineNoCov">          0 :                         val = in_be64(psi-&gt;regs + PSIHB_CR);</span>
+<span class="lineNum">     369 </span>                :            :         }
+<span class="lineNum">     370 </span>                :            : 
+<span class="lineNum">     371 </span>                :            : 
+<span class="lineNum">     372 </span>                :            :         /*
+<span class="lineNum">     373 </span>                :            :          * We avoid forwarding FSP interrupts if the link isn't
+<span class="lineNum">     374 </span>                :            :          * active. They should be masked anyway but it looks
+<span class="lineNum">     375 </span>                :            :          * like the CR bit can remain set.
+<span class="lineNum">     376 </span>                :            :          */
+<span class="lineNum">     377 </span>        [<span class="branchCov" title="Branch 0 was taken 1138 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       1138 :         if (val &amp; PSIHB_CR_FSP_IRQ) {</span>
+<span class="lineNum">     378 </span>                :            :                 /*
+<span class="lineNum">     379 </span>                :            :                  * We have a case a flood with FSP mailbox interrupts
+<span class="lineNum">     380 </span>                :            :                  * when the link is down, see if we manage to clear
+<span class="lineNum">     381 </span>                :            :                  * the condition
+<span class="lineNum">     382 </span>                :            :                  */
+<span class="lineNum">     383 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1138 times"> + </span>]:<span class="lineCov">       1138 :                 if (!psi-&gt;active)</span>
+<span class="lineNum">     384 </span>                :<span class="lineNoCov">          0 :                         psi_spurious_fsp_irq(psi);</span>
+<span class="lineNum">     385 </span>                :            :                 else
+<span class="lineNum">     386 </span>                :<span class="lineCov">       1138 :                         fsp_interrupt();</span>
+<span class="lineNum">     387 </span>                :            :         }
+<span class="lineNum">     388 </span>                :            : 
+<span class="lineNum">     389 </span>                :            :          /* P8 additional interrupt? */
+<span class="lineNum">     390 </span>        [<span class="branchCov" title="Branch 0 was taken 1138 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       1138 :         if (proc_gen == proc_gen_p8)</span>
+<span class="lineNum">     391 </span>                :<span class="lineCov">       1138 :                 handle_extra_interrupt(psi);</span>
+<span class="lineNum">     392 </span>                :            : 
+<span class="lineNum">     393 </span>                :            :         /* Poll the console buffers on any interrupt since we don't
+<span class="lineNum">     394 </span>                :            :          * get send notifications
+<span class="lineNum">     395 </span>                :            :          */
+<span class="lineNum">     396 </span>                :<span class="lineCov">       1138 :         fsp_console_poll(NULL);</span>
+<a name="397"><span class="lineNum">     397 </span>                :<span class="lineCov">       1138 : }</span></a>
+<span class="lineNum">     398 </span>                :            : 
+<span class="lineNum">     399 </span>                :<span class="lineNoCov">          0 : static int64_t psi_p7_set_xive(void *data, uint32_t isn __unused,</span>
+<span class="lineNum">     400 </span>                :            :                                    uint16_t server, uint8_t priority)
+<span class="lineNum">     401 </span>                :            : {
+<span class="lineNum">     402 </span>                :<span class="lineNoCov">          0 :         struct psi *psi = data;</span>
+<span class="lineNum">     403 </span>                :            :         uint64_t xivr;
+<span class="lineNum">     404 </span>                :            : 
+<span class="lineNum">     405 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!psi-&gt;working)</span>
+<span class="lineNum">     406 </span>                :            :                 return OPAL_HARDWARE;
+<span class="lineNum">     407 </span>                :            : 
+<span class="lineNum">     408 </span>                :            :         /* Populate the XIVR */
+<span class="lineNum">     409 </span>                :<span class="lineNoCov">          0 :         xivr  = (uint64_t)server &lt;&lt; 40;</span>
+<span class="lineNum">     410 </span>                :<span class="lineNoCov">          0 :         xivr |= (uint64_t)priority &lt;&lt; 32;</span>
+<span class="lineNum">     411 </span>                :<span class="lineNoCov">          0 :         xivr |= P7_IRQ_BUID(psi-&gt;interrupt) &lt;&lt; 16;</span>
+<span class="lineNum">     412 </span>                :            : 
+<span class="lineNum">     413 </span>                :<span class="lineNoCov">          0 :         out_be64(psi-&gt;regs + PSIHB_XIVR, xivr);</span>
+<span class="lineNum">     414 </span>                :            : 
+<span class="lineNum">     415 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<a name="416"><span class="lineNum">     416 </span>                :            : }</a>
+<span class="lineNum">     417 </span>                :            : 
+<span class="lineNum">     418 </span>                :<span class="lineNoCov">          0 : static int64_t psi_p7_get_xive(void *data, uint32_t isn __unused,</span>
+<span class="lineNum">     419 </span>                :            :                                 uint16_t *server, uint8_t *priority)
+<span class="lineNum">     420 </span>                :            : {
+<span class="lineNum">     421 </span>                :<span class="lineNoCov">          0 :         struct psi *psi = data;</span>
+<span class="lineNum">     422 </span>                :            :         uint64_t xivr;
+<span class="lineNum">     423 </span>                :            : 
+<span class="lineNum">     424 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!psi-&gt;working)</span>
+<span class="lineNum">     425 </span>                :            :                 return OPAL_HARDWARE;
+<span class="lineNum">     426 </span>                :            : 
+<span class="lineNum">     427 </span>                :            :         /* Read &amp; decode the XIVR */
+<span class="lineNum">     428 </span>                :<span class="lineNoCov">          0 :         xivr = in_be64(psi-&gt;regs + PSIHB_XIVR);</span>
+<span class="lineNum">     429 </span>                :            : 
+<span class="lineNum">     430 </span>                :<span class="lineNoCov">          0 :         *server = (xivr &gt;&gt; 40) &amp; 0x7ff;</span>
+<span class="lineNum">     431 </span>                :<span class="lineNoCov">          0 :         *priority = (xivr &gt;&gt; 32) &amp; 0xff;</span>
+<span class="lineNum">     432 </span>                :            : 
+<span class="lineNum">     433 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<a name="434"><span class="lineNum">     434 </span>                :            : }</a>
+<span class="lineNum">     435 </span>                :            : 
+<span class="lineNum">     436 </span>                :<span class="lineCov">         10 : static int64_t psi_p8_set_xive(void *data, uint32_t isn,</span>
+<span class="lineNum">     437 </span>                :            :                                    uint16_t server, uint8_t priority)
+<span class="lineNum">     438 </span>                :            : {
+<span class="lineNum">     439 </span>                :<span class="lineCov">         10 :         struct psi *psi = data;</span>
+<span class="lineNum">     440 </span>                :            :         uint64_t xivr_p, xivr;
+<span class="lineNum">     441 </span>                :            : 
+<span class="lineNum">     442 </span>  [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span> :<span class="lineCov">         10 :         switch(isn &amp; 7) {</span>
+<span class="lineNum">         </span>      <span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]
+<span class="lineNum">     443 </span>                :            :         case P8_IRQ_PSI_FSP:
+<span class="lineNum">     444 </span>                :            :                 xivr_p = PSIHB_XIVR_FSP;
+<span class="lineNum">     445 </span>                :            :                 break;
+<span class="lineNum">     446 </span>                :            :         case P8_IRQ_PSI_OCC:
+<span class="lineNum">     447 </span>                :<span class="lineCov">          2 :                 xivr_p = PSIHB_XIVR_OCC;</span>
+<span class="lineNum">     448 </span>                :<span class="lineCov">          2 :                 break;</span>
+<span class="lineNum">     449 </span>                :            :         case P8_IRQ_PSI_FSI:
+<span class="lineNum">     450 </span>                :<span class="lineCov">          2 :                 xivr_p = PSIHB_XIVR_FSI;</span>
+<span class="lineNum">     451 </span>                :<span class="lineCov">          2 :                 break;</span>
+<span class="lineNum">     452 </span>                :            :         case P8_IRQ_PSI_LPC:
+<span class="lineNum">     453 </span>                :<span class="lineCov">          2 :                 xivr_p = PSIHB_XIVR_LPC;</span>
+<span class="lineNum">     454 </span>                :<span class="lineCov">          2 :                 break;</span>
+<span class="lineNum">     455 </span>                :            :         case P8_IRQ_PSI_LOCAL_ERR:
+<span class="lineNum">     456 </span>                :<span class="lineCov">          2 :                 xivr_p = PSIHB_XIVR_LOCAL_ERR;</span>
+<span class="lineNum">     457 </span>                :<span class="lineCov">          2 :                 break;</span>
+<span class="lineNum">     458 </span>                :            :         case P8_IRQ_PSI_HOST_ERR:
+<span class="lineNum">     459 </span>                :<span class="lineNoCov">          0 :                 xivr_p = PSIHB_XIVR_HOST_ERR;</span>
+<span class="lineNum">     460 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     461 </span>                :            :         default:
+<span class="lineNum">     462 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     463 </span>                :            :         }
+<span class="lineNum">     464 </span>                :            : 
+<span class="lineNum">     465 </span>                :            :         /* Populate the XIVR */
+<span class="lineNum">     466 </span>                :<span class="lineCov">         10 :         xivr  = (uint64_t)server &lt;&lt; 40;</span>
+<span class="lineNum">     467 </span>                :<span class="lineCov">         10 :         xivr |= (uint64_t)priority &lt;&lt; 32;</span>
+<span class="lineNum">     468 </span>                :<span class="lineCov">         10 :         xivr |= (uint64_t)(isn &amp; 7) &lt;&lt; 29;</span>
+<span class="lineNum">     469 </span>                :            : 
+<span class="lineNum">     470 </span>                :<span class="lineCov">         10 :         out_be64(psi-&gt;regs + xivr_p, xivr);</span>
+<span class="lineNum">     471 </span>                :            : 
+<span class="lineNum">     472 </span>                :<span class="lineCov">         10 :         return OPAL_SUCCESS;</span>
+<a name="473"><span class="lineNum">     473 </span>                :            : }</a>
+<span class="lineNum">     474 </span>                :            : 
+<span class="lineNum">     475 </span>                :<span class="lineCov">         10 : static int64_t psi_p8_get_xive(void *data, uint32_t isn __unused,</span>
+<span class="lineNum">     476 </span>                :            :                                    uint16_t *server, uint8_t *priority)
+<span class="lineNum">     477 </span>                :            : {
+<span class="lineNum">     478 </span>                :<span class="lineCov">         10 :         struct psi *psi = data;</span>
+<span class="lineNum">     479 </span>                :            :         uint64_t xivr_p, xivr;
+<span class="lineNum">     480 </span>                :            : 
+<span class="lineNum">     481 </span>  [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span> :<span class="lineCov">         10 :         switch(isn &amp; 7) {</span>
+<span class="lineNum">         </span>      <span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchCov" title="Branch 5 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 6 was not taken"> - </span>]
+<span class="lineNum">     482 </span>                :            :         case P8_IRQ_PSI_FSP:
+<span class="lineNum">     483 </span>                :            :                 xivr_p = PSIHB_XIVR_FSP;
+<span class="lineNum">     484 </span>                :            :                 break;
+<span class="lineNum">     485 </span>                :            :         case P8_IRQ_PSI_OCC:
+<span class="lineNum">     486 </span>                :<span class="lineCov">          2 :                 xivr_p = PSIHB_XIVR_OCC;</span>
+<span class="lineNum">     487 </span>                :<span class="lineCov">          2 :                 break;</span>
+<span class="lineNum">     488 </span>                :            :         case P8_IRQ_PSI_FSI:
+<span class="lineNum">     489 </span>                :<span class="lineCov">          2 :                 xivr_p = PSIHB_XIVR_FSI;</span>
+<span class="lineNum">     490 </span>                :<span class="lineCov">          2 :                 break;</span>
+<span class="lineNum">     491 </span>                :            :         case P8_IRQ_PSI_LPC:
+<span class="lineNum">     492 </span>                :<span class="lineCov">          2 :                 xivr_p = PSIHB_XIVR_LPC;</span>
+<span class="lineNum">     493 </span>                :<span class="lineCov">          2 :                 break;</span>
+<span class="lineNum">     494 </span>                :            :         case P8_IRQ_PSI_LOCAL_ERR:
+<span class="lineNum">     495 </span>                :<span class="lineCov">          2 :                 xivr_p = PSIHB_XIVR_LOCAL_ERR;</span>
+<span class="lineNum">     496 </span>                :<span class="lineCov">          2 :                 break;</span>
+<span class="lineNum">     497 </span>                :            :         case P8_IRQ_PSI_HOST_ERR:
+<span class="lineNum">     498 </span>                :<span class="lineNoCov">          0 :                 xivr_p = PSIHB_XIVR_HOST_ERR;</span>
+<span class="lineNum">     499 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     500 </span>                :            :         default:
+<span class="lineNum">     501 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     502 </span>                :            :         }
+<span class="lineNum">     503 </span>                :            : 
+<span class="lineNum">     504 </span>                :            :         /* Read &amp; decode the XIVR */
+<span class="lineNum">     505 </span>                :<span class="lineCov">         20 :         xivr = in_be64(psi-&gt;regs + xivr_p);</span>
+<span class="lineNum">     506 </span>                :            : 
+<span class="lineNum">     507 </span>                :<span class="lineCov">         10 :         *server = (xivr &gt;&gt; 40) &amp; 0xffff;</span>
+<span class="lineNum">     508 </span>                :<span class="lineCov">         10 :         *priority = (xivr &gt;&gt; 32) &amp; 0xff;</span>
+<span class="lineNum">     509 </span>                :            : 
+<span class="lineNum">     510 </span>                :<span class="lineCov">         10 :         return OPAL_SUCCESS;</span>
+<span class="lineNum">     511 </span>                :            : }
+<span class="lineNum">     512 </span>                :            : 
+<span class="lineNum">     513 </span>                :            : /* Called on a fast reset, make sure we aren't stuck with
+<a name="514"><span class="lineNum">     514 </span>                :            :  * an accepted and never EOId PSI interrupt</a>
+<span class="lineNum">     515 </span>                :            :  */
+<span class="lineNum">     516 </span>                :<span class="lineNoCov">          0 : void psi_irq_reset(void)</span>
+<span class="lineNum">     517 </span>                :            : {
+<span class="lineNum">     518 </span>                :            :         struct psi *psi;
+<span class="lineNum">     519 </span>                :            :         uint64_t xivr;
+<span class="lineNum">     520 </span>                :            : 
+<span class="lineNum">     521 </span>                :<span class="lineNoCov">          0 :         printf(&quot;PSI: Hot reset!\n&quot;);</span>
+<span class="lineNum">     522 </span>                :            : 
+<span class="lineNum">     523 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(proc_gen == proc_gen_p7);</span>
+<span class="lineNum">     524 </span>                :            : 
+<span class="lineNum">     525 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         list_for_each(&amp;psis, psi, list) {</span>
+<span class="lineNum">     526 </span>                :            :                 /* Mask the interrupt &amp; clean the XIVR */
+<span class="lineNum">     527 </span>                :<span class="lineNoCov">          0 :                 xivr = 0x000000ff00000000;</span>
+<span class="lineNum">     528 </span>                :<span class="lineNoCov">          0 :                 xivr |= P7_IRQ_BUID(psi-&gt;interrupt) &lt;&lt; 16;</span>
+<span class="lineNum">     529 </span>                :<span class="lineNoCov">          0 :                 out_be64(psi-&gt;regs + PSIHB_XIVR, xivr);</span>
+<span class="lineNum">     530 </span>                :            : 
+<span class="lineNum">     531 </span>                :            : #if 0 /* Seems to checkstop ... */
+<span class="lineNum">     532 </span>                :            :                 /*
+<span class="lineNum">     533 </span>                :            :                  * Maybe not anymore; we were just blindly sending
+<span class="lineNum">     534 </span>                :            :                  * this on all iopaths, not just the active one;
+<span class="lineNum">     535 </span>                :            :                  * We don't even know if those psis are even correct.
+<span class="lineNum">     536 </span>                :            :                  */
+<span class="lineNum">     537 </span>                :            :                 /* Send a dummy EOI to make sure the ICP is clear */
+<span class="lineNum">     538 </span>                :            :                 icp_send_eoi(psi-&gt;interrupt);
+<span class="lineNum">     539 </span>                :            : #endif
+<span class="lineNum">     540 </span>                :            :         }
+<span class="lineNum">     541 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     542 </span>                :            : 
+<span class="lineNum">     543 </span>                :            : static const struct irq_source_ops psi_p7_irq_ops = {
+<span class="lineNum">     544 </span>                :            :         .get_xive = psi_p7_get_xive,
+<span class="lineNum">     545 </span>                :            :         .set_xive = psi_p7_set_xive,
+<span class="lineNum">     546 </span>                :            :         .interrupt = psi_interrupt,
+<span class="lineNum">     547 </span>                :            : };
+<span class="lineNum">     548 </span>                :            : 
+<span class="lineNum">     549 </span>                :            : static const struct irq_source_ops psi_p8_irq_ops = {
+<span class="lineNum">     550 </span>                :            :         .get_xive = psi_p8_get_xive,
+<span class="lineNum">     551 </span>                :            :         .set_xive = psi_p8_set_xive,
+<span class="lineNum">     552 </span>                :            :         .interrupt = psi_interrupt,
+<span class="lineNum">     553 </span>                :            : };
+<span class="lineNum">     554 </span>                :            : 
+<span class="lineNum">     555 </span>                :            : static const struct irq_source_ops psi_p8_host_err_ops = {
+<span class="lineNum">     556 </span>                :            :         .get_xive = psi_p8_get_xive,
+<span class="lineNum">     557 </span>                :            :         .set_xive = psi_p8_set_xive,
+<a name="558"><span class="lineNum">     558 </span>                :            : };</a>
+<span class="lineNum">     559 </span>                :            : 
+<span class="lineNum">     560 </span>                :<span class="lineCov">          4 : static void psi_tce_enable(struct psi *psi, bool enable)</span>
+<span class="lineNum">     561 </span>                :            : {
+<span class="lineNum">     562 </span>                :            :         void *addr;
+<span class="lineNum">     563 </span>                :            :         u64 val;
+<span class="lineNum">     564 </span>                :            : 
+<span class="lineNum">     565 </span>     [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         switch (proc_gen) {</span>
+<span class="lineNum">     566 </span>                :            :         case proc_gen_p7:
+<span class="lineNum">     567 </span>                :<span class="lineNoCov">          0 :                 addr = psi-&gt;regs + PSIHB_CR;</span>
+<span class="lineNum">     568 </span>                :            :                 break;
+<span class="lineNum">     569 </span>                :            :         case proc_gen_p8:
+<span class="lineNum">     570 </span>                :<span class="lineCov">          2 :                 addr = psi-&gt;regs + PSIHB_PHBSCR;</span>
+<span class="lineNum">     571 </span>                :            :                 break;
+<span class="lineNum">     572 </span>                :            :         default:
+<span class="lineNum">     573 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;%s: Unknown CPU type\n&quot;, __func__);</span>
+<span class="lineNum">     574 </span>                :<span class="lineCov">          2 :                 return;</span>
+<span class="lineNum">     575 </span>                :            :         }
+<span class="lineNum">     576 </span>                :            : 
+<span class="lineNum">     577 </span>                :<span class="lineCov">          2 :         val = in_be64(addr);</span>
+<span class="lineNum">     578 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if (enable)</span>
+<span class="lineNum">     579 </span>                :<span class="lineCov">          1 :                 val |=  PSIHB_CR_TCE_ENABLE;</span>
+<span class="lineNum">     580 </span>                :            :         else
+<span class="lineNum">     581 </span>                :<span class="lineCov">          1 :                 val &amp;= ~PSIHB_CR_TCE_ENABLE;</span>
+<span class="lineNum">     582 </span>                :            :         out_be64(addr, val);
+<span class="lineNum">     583 </span>                :            : }
+<span class="lineNum">     584 </span>                :            : 
+<span class="lineNum">     585 </span>                :            : /*
+<span class="lineNum">     586 </span>                :            :  * Configure the PSI interface for communicating with
+<span class="lineNum">     587 </span>                :            :  * an FSP, such as enabling the TCEs, FSP commands,
+<a name="588"><span class="lineNum">     588 </span>                :            :  * etc...</a>
+<span class="lineNum">     589 </span>                :            :  */
+<span class="lineNum">     590 </span>                :<span class="lineCov">          1 : void psi_init_for_fsp(struct psi *psi)</span>
+<span class="lineNum">     591 </span>                :            : {
+<span class="lineNum">     592 </span>                :            :         uint64_t reg;
+<span class="lineNum">     593 </span>                :<span class="lineCov">          1 :         bool enable_tce = true;</span>
+<span class="lineNum">     594 </span>                :            : 
+<span class="lineNum">     595 </span>                :<span class="lineCov">          1 :         lock(&amp;psi_lock);</span>
+<span class="lineNum">     596 </span>                :            : 
+<span class="lineNum">     597 </span>                :            :         /* Disable and setup TCE base address */
+<span class="lineNum">     598 </span>                :<span class="lineCov">          1 :         psi_tce_enable(psi, false);</span>
+<span class="lineNum">     599 </span>                :            : 
+<span class="lineNum">     600 </span>     [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         switch (proc_gen) {</span>
+<span class="lineNum">     601 </span>                :            :         case proc_gen_p7:
+<span class="lineNum">     602 </span>                :<span class="lineNoCov">          0 :                 out_be64(psi-&gt;regs + PSIHB_TAR, PSI_TCE_TABLE_BASE |</span>
+<span class="lineNum">     603 </span>                :            :                          PSIHB_TAR_16K_ENTRIES);
+<span class="lineNum">     604 </span>                :            :                 break;
+<span class="lineNum">     605 </span>                :            :         case proc_gen_p8:
+<span class="lineNum">     606 </span>                :<span class="lineCov">          1 :                 out_be64(psi-&gt;regs + PSIHB_TAR, PSI_TCE_TABLE_BASE |</span>
+<span class="lineNum">     607 </span>                :            :                          PSIHB_TAR_256K_ENTRIES);
+<span class="lineNum">     608 </span>                :            :                 break;
+<span class="lineNum">     609 </span>                :            :         default:
+<span class="lineNum">     610 </span>                :            :                 enable_tce = false;
+<span class="lineNum">     611 </span>                :            :         };
+<span class="lineNum">     612 </span>                :            : 
+<span class="lineNum">     613 </span>                :            :         /* Enable various other configuration register bits based
+<span class="lineNum">     614 </span>                :            :          * on what pHyp does. We keep interrupts disabled until
+<span class="lineNum">     615 </span>                :            :          * after the mailbox has been properly configured. We assume
+<span class="lineNum">     616 </span>                :            :          * basic stuff such as PSI link enable is already there.
+<span class="lineNum">     617 </span>                :            :          *
+<span class="lineNum">     618 </span>                :            :          *  - FSP CMD Enable
+<span class="lineNum">     619 </span>                :            :          *  - FSP MMIO Enable
+<span class="lineNum">     620 </span>                :            :          *  - TCE Enable
+<span class="lineNum">     621 </span>                :            :          *  - Error response enable
+<span class="lineNum">     622 </span>                :            :          *
+<span class="lineNum">     623 </span>                :            :          * Clear all other error bits
+<span class="lineNum">     624 </span>                :            :          */
+<span class="lineNum">     625 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!psi-&gt;active) {</span>
+<span class="lineNum">     626 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;PSI: psi_init_for_fsp() called on inactive link!\n&quot;);</span>
+<span class="lineNum">     627 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;psi_lock);</span>
+<span class="lineNum">     628 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     629 </span>                :            :         }
+<span class="lineNum">     630 </span>                :            : 
+<span class="lineNum">     631 </span>                :<span class="lineCov">          2 :         reg = in_be64(psi-&gt;regs + PSIHB_CR);</span>
+<span class="lineNum">     632 </span>                :<span class="lineCov">          1 :         reg |= PSIHB_CR_FSP_CMD_ENABLE;</span>
+<span class="lineNum">     633 </span>                :<span class="lineCov">          1 :         reg |= PSIHB_CR_FSP_MMIO_ENABLE;</span>
+<span class="lineNum">     634 </span>                :<span class="lineCov">          1 :         reg |= PSIHB_CR_FSP_ERR_RSP_ENABLE;</span>
+<span class="lineNum">     635 </span>                :<span class="lineCov">          1 :         reg &amp;= ~0x00000000ffffffffull;</span>
+<span class="lineNum">     636 </span>                :<span class="lineCov">          1 :         out_be64(psi-&gt;regs + PSIHB_CR, reg);</span>
+<span class="lineNum">     637 </span>                :<span class="lineCov">          1 :         psi_tce_enable(psi, enable_tce);</span>
+<span class="lineNum">     638 </span>                :            : 
+<span class="lineNum">     639 </span>                :<span class="lineCov">          1 :         unlock(&amp;psi_lock);</span>
+<a name="640"><span class="lineNum">     640 </span>                :            : }</a>
+<span class="lineNum">     641 </span>                :            : 
+<span class="lineNum">     642 </span>                :<span class="lineNoCov">          0 : void psi_set_external_irq_policy(bool policy)</span>
+<span class="lineNum">     643 </span>                :            : {
+<span class="lineNum">     644 </span>                :<span class="lineNoCov">          0 :         psi_ext_irq_policy = policy;</span>
+<span class="lineNum">     645 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     646 </span>                :            : 
+<span class="lineNum">     647 </span>                :            : /*
+<span class="lineNum">     648 </span>                :            :  * Register interrupt sources for all working links, not just the active ones.
+<a name="649"><span class="lineNum">     649 </span>                :            :  * This is a one time activity.</a>
+<span class="lineNum">     650 </span>                :            :  */
+<span class="lineNum">     651 </span>                :<span class="lineCov">          1 : static void psi_register_interrupts(struct psi *psi)</span>
+<span class="lineNum">     652 </span>                :            : {
+<span class="lineNum">     653 </span>                :            :         /* Configure the interrupt BUID and mask it */
+<span class="lineNum">     654 </span>     [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         switch (proc_gen) {</span>
+<span class="lineNum">     655 </span>                :            :         case proc_gen_p7:
+<span class="lineNum">     656 </span>                :            :                 /* On P7, we get a single interrupt */
+<span class="lineNum">     657 </span>                :<span class="lineNoCov">          0 :                 out_be64(psi-&gt;regs + PSIHB_XIVR,</span>
+<span class="lineNum">     658 </span>                :<span class="lineNoCov">          0 :                          P7_IRQ_BUID(psi-&gt;interrupt) &lt;&lt; 16 |</span>
+<span class="lineNum">     659 </span>                :            :                          0xffull &lt;&lt; 32);
+<span class="lineNum">     660 </span>                :            : 
+<span class="lineNum">     661 </span>                :            :                 /* Configure it in the GX controller as well */
+<span class="lineNum">     662 </span>                :<span class="lineNoCov">          0 :                 gx_configure_psi_buid(psi-&gt;chip_id,</span>
+<span class="lineNum">     663 </span>                :<span class="lineNoCov">          0 :                                       P7_IRQ_BUID(psi-&gt;interrupt));</span>
+<span class="lineNum">     664 </span>                :            : 
+<span class="lineNum">     665 </span>                :            :                 /* Register the IRQ source */
+<span class="lineNum">     666 </span>                :<span class="lineNoCov">          0 :                 register_irq_source(&amp;psi_p7_irq_ops,</span>
+<span class="lineNum">     667 </span>                :            :                                     psi, psi-&gt;interrupt, 1);
+<span class="lineNum">     668 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     669 </span>                :            :         case proc_gen_p8:
+<span class="lineNum">     670 </span>                :            :                 /* On P8 we get a block of 8, set up the base/mask
+<span class="lineNum">     671 </span>                :            :                  * and mask all the sources for now
+<span class="lineNum">     672 </span>                :            :                  */
+<span class="lineNum">     673 </span>                :<span class="lineCov">          1 :                 out_be64(psi-&gt;regs + PSIHB_ISRN,</span>
+<span class="lineNum">     674 </span>                :<span class="lineCov">          1 :                          SETFIELD(PSIHB_ISRN_COMP, 0ul, psi-&gt;interrupt) |</span>
+<span class="lineNum">     675 </span>                :            :                          SETFIELD(PSIHB_ISRN_MASK, 0ul, 0x7fff8ul) |
+<span class="lineNum">     676 </span>                :<span class="lineCov">          1 :                          PSIHB_ISRN_DOWNSTREAM_EN |</span>
+<span class="lineNum">     677 </span>                :            :                          PSIHB_ISRN_UPSTREAM_EN);
+<span class="lineNum">     678 </span>                :<span class="lineCov">          1 :                 out_be64(psi-&gt;regs + PSIHB_XIVR_FSP,</span>
+<span class="lineNum">     679 </span>                :            :                          (0xffull &lt;&lt; 32) | (P8_IRQ_PSI_FSP &lt;&lt; 29));
+<span class="lineNum">     680 </span>                :<span class="lineCov">          1 :                 out_be64(psi-&gt;regs + PSIHB_XIVR_OCC,</span>
+<span class="lineNum">     681 </span>                :            :                          (0xffull &lt;&lt; 32) | (P8_IRQ_PSI_OCC &lt;&lt; 29));
+<span class="lineNum">     682 </span>                :<span class="lineCov">          1 :                 out_be64(psi-&gt;regs + PSIHB_XIVR_FSI,</span>
+<span class="lineNum">     683 </span>                :            :                          (0xffull &lt;&lt; 32) | (P8_IRQ_PSI_FSI &lt;&lt; 29));
+<span class="lineNum">     684 </span>                :<span class="lineCov">          1 :                 out_be64(psi-&gt;regs + PSIHB_XIVR_LPC,</span>
+<span class="lineNum">     685 </span>                :            :                          (0xffull &lt;&lt; 32) | (P8_IRQ_PSI_LPC &lt;&lt; 29));
+<span class="lineNum">     686 </span>                :<span class="lineCov">          1 :                 out_be64(psi-&gt;regs + PSIHB_XIVR_LOCAL_ERR,</span>
+<span class="lineNum">     687 </span>                :            :                          (0xffull &lt;&lt; 32) | (P8_IRQ_PSI_LOCAL_ERR &lt;&lt; 29));
+<span class="lineNum">     688 </span>                :<span class="lineCov">          1 :                 out_be64(psi-&gt;regs + PSIHB_XIVR_HOST_ERR,</span>
+<span class="lineNum">     689 </span>                :            :                          (0xffull &lt;&lt; 32) | (P8_IRQ_PSI_HOST_ERR &lt;&lt; 29));
+<span class="lineNum">     690 </span>                :            : 
+<span class="lineNum">     691 </span>                :            :                 /*
+<span class="lineNum">     692 </span>                :            :                  * Register the IRQ sources FSP, OCC, FSI, LPC
+<span class="lineNum">     693 </span>                :            :                  * and Local Error. Host Error is actually the
+<span class="lineNum">     694 </span>                :            :                  * external interrupt and the policy for that comes
+<span class="lineNum">     695 </span>                :            :                  * from the platform
+<span class="lineNum">     696 </span>                :            :                  */
+<span class="lineNum">     697 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                 if (psi_ext_irq_policy == EXTERNAL_IRQ_POLICY_SKIBOOT) {</span>
+<span class="lineNum">     698 </span>                :<span class="lineNoCov">          0 :                         register_irq_source(&amp;psi_p8_irq_ops,</span>
+<span class="lineNum">     699 </span>                :            :                                             psi,
+<span class="lineNum">     700 </span>                :            :                                             psi-&gt;interrupt + P8_IRQ_PSI_SKIBOOT_BASE,
+<span class="lineNum">     701 </span>                :            :                                             P8_IRQ_PSI_ALL_COUNT);
+<span class="lineNum">     702 </span>                :            :                 } else {
+<span class="lineNum">     703 </span>                :<span class="lineCov">          1 :                         register_irq_source(&amp;psi_p8_irq_ops,</span>
+<span class="lineNum">     704 </span>                :            :                                             psi,
+<span class="lineNum">     705 </span>                :            :                                             psi-&gt;interrupt + P8_IRQ_PSI_SKIBOOT_BASE,
+<span class="lineNum">     706 </span>                :            :                                             P8_IRQ_PSI_LOCAL_COUNT);
+<span class="lineNum">     707 </span>                :            :                         /*
+<span class="lineNum">     708 </span>                :            :                          * Host Error is handled by powernv; host error
+<span class="lineNum">     709 </span>                :            :                          * is at offset 5 from the PSI base.
+<span class="lineNum">     710 </span>                :            :                          */
+<span class="lineNum">     711 </span>                :<span class="lineCov">          1 :                         register_irq_source(&amp;psi_p8_host_err_ops,</span>
+<span class="lineNum">     712 </span>                :            :                                             psi,
+<span class="lineNum">     713 </span>                :<span class="lineCov">          1 :                                             psi-&gt;interrupt + P8_IRQ_PSI_LINUX_BASE,</span>
+<span class="lineNum">     714 </span>                :            :                                             P8_IRQ_PSI_LINUX_COUNT);
+<span class="lineNum">     715 </span>                :            :                 }
+<span class="lineNum">     716 </span>                :            :                 break;
+<span class="lineNum">     717 </span>                :            :         default:
+<span class="lineNum">     718 </span>                :            :                 /* Unknown: just no interrupts */
+<span class="lineNum">     719 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;PSI: Unknown interrupt type\n&quot;);</span>
+<span class="lineNum">     720 </span>                :            :         }
+<a name="721"><span class="lineNum">     721 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     722 </span>                :            : 
+<span class="lineNum">     723 </span>                :<span class="lineCov">          2 : static void psi_activate_phb(struct psi *psi)</span>
+<span class="lineNum">     724 </span>                :            : {
+<span class="lineNum">     725 </span>                :            :         u64 reg;
+<span class="lineNum">     726 </span>                :            : 
+<span class="lineNum">     727 </span>                :            :         /*
+<span class="lineNum">     728 </span>                :            :          * Disable interrupt emission in the control register,
+<span class="lineNum">     729 </span>                :            :          * it will be re-enabled later, after the mailbox one
+<span class="lineNum">     730 </span>                :            :          * will have been enabled.
+<span class="lineNum">     731 </span>                :            :          */
+<span class="lineNum">     732 </span>                :<span class="lineCov">          2 :         reg = in_be64(psi-&gt;regs + PSIHB_CR);</span>
+<span class="lineNum">     733 </span>                :<span class="lineCov">          1 :         reg &amp;= ~PSIHB_CR_FSP_IRQ_ENABLE;</span>
+<span class="lineNum">     734 </span>                :<span class="lineCov">          1 :         out_be64(psi-&gt;regs + PSIHB_CR, reg);</span>
+<span class="lineNum">     735 </span>                :            : 
+<span class="lineNum">     736 </span>                :            :         /* Enable interrupts in the mask register. We enable everything
+<span class="lineNum">     737 </span>                :            :          * except for bit &quot;FSP command error detected&quot; which the doc
+<span class="lineNum">     738 </span>                :            :          * (P7 BookIV) says should be masked for normal ops. It also
+<span class="lineNum">     739 </span>                :            :          * seems to be masked under OPAL.
+<span class="lineNum">     740 </span>                :            :          */
+<span class="lineNum">     741 </span>                :<span class="lineCov">          1 :         reg = 0x0000010000100000ull;</span>
+<span class="lineNum">     742 </span>                :<span class="lineCov">          1 :         out_be64(psi-&gt;regs + PSIHB_SEMR, reg);</span>
+<span class="lineNum">     743 </span>                :            : 
+<span class="lineNum">     744 </span>                :            : #if 0
+<span class="lineNum">     745 </span>                :            :         /* Dump the GXHB registers */
+<span class="lineNum">     746 </span>                :            :         printf(&quot;  PSIHB_BBAR   : %llx\n&quot;,
+<span class="lineNum">     747 </span>                :            :                in_be64(psi-&gt;regs + PSIHB_BBAR));
+<span class="lineNum">     748 </span>                :            :         printf(&quot;  PSIHB_FSPBAR : %llx\n&quot;,
+<span class="lineNum">     749 </span>                :            :                in_be64(psi-&gt;regs + PSIHB_FSPBAR));
+<span class="lineNum">     750 </span>                :            :         printf(&quot;  PSIHB_FSPMMR : %llx\n&quot;,
+<span class="lineNum">     751 </span>                :            :                in_be64(psi-&gt;regs + PSIHB_FSPMMR));
+<span class="lineNum">     752 </span>                :            :         printf(&quot;  PSIHB_TAR    : %llx\n&quot;,
+<span class="lineNum">     753 </span>                :            :                in_be64(psi-&gt;regs + PSIHB_TAR));
+<span class="lineNum">     754 </span>                :            :         printf(&quot;  PSIHB_CR     : %llx\n&quot;,
+<span class="lineNum">     755 </span>                :            :                in_be64(psi-&gt;regs + PSIHB_CR));
+<span class="lineNum">     756 </span>                :            :         printf(&quot;  PSIHB_SEMR   : %llx\n&quot;,
+<span class="lineNum">     757 </span>                :            :                in_be64(psi-&gt;regs + PSIHB_SEMR));
+<span class="lineNum">     758 </span>                :            :         printf(&quot;  PSIHB_XIVR   : %llx\n&quot;,
+<span class="lineNum">     759 </span>                :            :                in_be64(psi-&gt;regs + PSIHB_XIVR));
+<span class="lineNum">     760 </span>                :            : #endif
+<a name="761"><span class="lineNum">     761 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     762 </span>                :            : 
+<span class="lineNum">     763 </span>                :<span class="lineCov">          1 : static void psi_create_mm_dtnode(struct psi *psi)</span>
+<span class="lineNum">     764 </span>                :            : {
+<span class="lineNum">     765 </span>                :            :         struct dt_node *np;
+<span class="lineNum">     766 </span>                :<span class="lineCov">          1 :         uint64_t addr = (uint64_t)psi-&gt;regs;</span>
+<span class="lineNum">     767 </span>                :            : 
+<span class="lineNum">     768 </span>                :<span class="lineCov">          1 :         np = dt_new_addr(dt_root, &quot;psi&quot;, addr);</span>
+<span class="lineNum">     769 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!np)</span>
+<span class="lineNum">     770 </span>                :<span class="lineCov">          1 :                 return;</span>
+<span class="lineNum">     771 </span>                :            : 
+<span class="lineNum">     772 </span>                :            :         /* Hard wire size to 4G */
+<span class="lineNum">     773 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(np, &quot;reg&quot;, hi32(addr), lo32(addr), 1, 0);</span>
+<span class="lineNum">     774 </span>     [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         switch (proc_gen) {</span>
+<span class="lineNum">     775 </span>                :            :         case proc_gen_p7:
+<span class="lineNum">     776 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_strings(np, &quot;compatible&quot;, &quot;ibm,psi&quot;,</span>
+<span class="lineNum">     777 </span>                :            :                                         &quot;ibm,power7-psi&quot;);
+<span class="lineNum">     778 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     779 </span>                :            :         case proc_gen_p8:
+<span class="lineNum">     780 </span>                :<span class="lineCov">          1 :                 dt_add_property_strings(np, &quot;compatible&quot;, &quot;ibm,psi&quot;,</span>
+<span class="lineNum">     781 </span>                :            :                                         &quot;ibm,power8-psi&quot;);
+<span class="lineNum">     782 </span>                :<span class="lineCov">          1 :                 break;</span>
+<span class="lineNum">     783 </span>                :            :         default:
+<span class="lineNum">     784 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_strings(np, &quot;compatible&quot;, &quot;ibm,psi&quot;);</span>
+<span class="lineNum">     785 </span>                :            :         }
+<span class="lineNum">     786 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(np, &quot;interrupt-parent&quot;, get_ics_phandle());</span>
+<span class="lineNum">     787 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(np, &quot;interrupts&quot;, psi-&gt;interrupt);</span>
+<span class="lineNum">     788 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(np, &quot;ibm,chip-id&quot;, psi-&gt;chip_id);</span>
+<a name="789"><span class="lineNum">     789 </span>                :            : }</a>
+<span class="lineNum">     790 </span>                :            : 
+<span class="lineNum">     791 </span>                :<span class="lineCov">          1 : static struct psi *alloc_psi(uint64_t base)</span>
+<span class="lineNum">     792 </span>                :            : {
+<span class="lineNum">     793 </span>                :            :         struct psi *psi;
+<span class="lineNum">     794 </span>                :            : 
+<span class="lineNum">     795 </span>                :<span class="lineCov">          1 :         psi = zalloc(sizeof(struct psi));</span>
+<span class="lineNum">     796 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!psi) {</span>
+<span class="lineNum">     797 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;PSI: Could not allocate memory\n&quot;);</span>
+<span class="lineNum">     798 </span>                :<span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     799 </span>                :            :         }
+<span class="lineNum">     800 </span>                :<span class="lineCov">          1 :         psi-&gt;xscom_base = base;</span>
+<span class="lineNum">     801 </span>                :<span class="lineCov">          1 :         return psi;</span>
+<a name="802"><span class="lineNum">     802 </span>                :            : }</a>
+<span class="lineNum">     803 </span>                :            : 
+<span class="lineNum">     804 </span>                :<span class="lineNoCov">          0 : static struct psi *psi_probe_p7(struct proc_chip *chip, u64 base)</span>
+<span class="lineNum">     805 </span>                :            : {
+<span class="lineNum">     806 </span>                :<span class="lineNoCov">          0 :         struct psi *psi = NULL;</span>
+<span class="lineNum">     807 </span>                :            :         uint64_t rc, val;
+<span class="lineNum">     808 </span>                :            : 
+<span class="lineNum">     809 </span>                :<span class="lineNoCov">          0 :         rc = xscom_read(chip-&gt;id, base + PSIHB_XSCOM_P7_HBBAR, &amp;val);</span>
+<span class="lineNum">     810 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     811 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;PSI: Error %llx reading PSIHB BAR on chip %d\n&quot;,</span>
+<span class="lineNum">     812 </span>                :            :                                 rc, chip-&gt;id);
+<span class="lineNum">     813 </span>                :            :                 return NULL;
+<span class="lineNum">     814 </span>                :            :         }
+<span class="lineNum">     815 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (val &amp; PSIHB_XSCOM_P7_HBBAR_EN) {</span>
+<span class="lineNum">     816 </span>                :<span class="lineNoCov">          0 :                 psi = alloc_psi(base);</span>
+<span class="lineNum">     817 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!psi)</span>
+<span class="lineNum">     818 </span>                :            :                         return NULL;
+<span class="lineNum">     819 </span>                :<span class="lineNoCov">          0 :                 psi-&gt;working = true;</span>
+<span class="lineNum">     820 </span>                :<span class="lineNoCov">          0 :                 rc = val &gt;&gt; 36;   /* Bits 0:1 = 0x00; 2:27 Bridge BAR... */</span>
+<span class="lineNum">     821 </span>                :<span class="lineNoCov">          0 :                 rc &lt;&lt;= 20;        /* ... corresponds to bits 18:43 of base addr */</span>
+<span class="lineNum">     822 </span>                :<span class="lineNoCov">          0 :                 psi-&gt;regs = (void *)rc;</span>
+<span class="lineNum">     823 </span>                :            :         } else
+<span class="lineNum">     824 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;PSI[0x%03x]: Working link not found\n&quot;, chip-&gt;id);</span>
+<span class="lineNum">     825 </span>                :            : 
+<span class="lineNum">     826 </span>                :            :         return psi;
+<a name="827"><span class="lineNum">     827 </span>                :            : }</a>
+<span class="lineNum">     828 </span>                :            : 
+<span class="lineNum">     829 </span>                :<span class="lineCov">          4 : static struct psi *psi_probe_p8(struct proc_chip *chip, u64 base)</span>
+<span class="lineNum">     830 </span>                :            : {
+<span class="lineNum">     831 </span>                :<span class="lineCov">          2 :         struct psi *psi = NULL;</span>
+<span class="lineNum">     832 </span>                :            :         uint64_t rc, val;
+<span class="lineNum">     833 </span>                :            : 
+<span class="lineNum">     834 </span>                :<span class="lineCov">          2 :         rc = xscom_read(chip-&gt;id, base + PSIHB_XSCOM_P8_BASE, &amp;val);</span>
+<span class="lineNum">     835 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (rc) {</span>
+<span class="lineNum">     836 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;PSI[0x%03x]: Error %llx reading PSIHB BAR\n&quot;,</span>
+<span class="lineNum">     837 </span>                :            :                         chip-&gt;id, rc);
+<span class="lineNum">     838 </span>                :            :                 return NULL;
+<span class="lineNum">     839 </span>                :            :         }
+<span class="lineNum">     840 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if (val &amp; PSIHB_XSCOM_P8_HBBAR_EN) {</span>
+<span class="lineNum">     841 </span>                :<span class="lineCov">          1 :                 psi = alloc_psi(base);</span>
+<span class="lineNum">     842 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :                 if (!psi)</span>
+<span class="lineNum">     843 </span>                :            :                         return NULL;
+<span class="lineNum">     844 </span>                :<span class="lineCov">          1 :                 psi-&gt;working = true;</span>
+<span class="lineNum">     845 </span>                :<span class="lineCov">          1 :                 psi-&gt;regs = (void *)(val &amp; ~PSIHB_XSCOM_P8_HBBAR_EN);</span>
+<span class="lineNum">     846 </span>                :            :         } else
+<span class="lineNum">     847 </span>                :<span class="lineCov">          2 :                 printf(&quot;PSI[0x%03x]: Working link not found\n&quot;, chip-&gt;id);</span>
+<span class="lineNum">     848 </span>                :            : 
+<span class="lineNum">     849 </span>                :            :         return psi;
+<a name="850"><span class="lineNum">     850 </span>                :            : }</a>
+<span class="lineNum">     851 </span>                :            : 
+<span class="lineNum">     852 </span>                :<span class="lineCov">          2 : static bool psi_init_psihb(struct dt_node *psihb)</span>
+<span class="lineNum">     853 </span>                :            : {
+<span class="lineNum">     854 </span>                :<span class="lineCov">          2 :         uint32_t chip_id = dt_get_chip_id(psihb);</span>
+<span class="lineNum">     855 </span>                :<span class="lineCov">          2 :         struct proc_chip *chip = get_chip(chip_id);</span>
+<span class="lineNum">     856 </span>                :<span class="lineCov">          2 :         struct psi *psi = NULL;</span>
+<span class="lineNum">     857 </span>                :            :         u64 base, val;
+<span class="lineNum">     858 </span>                :            : 
+<span class="lineNum">     859 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!chip) {</span>
+<span class="lineNum">     860 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;PSI: Can't find chip!\n&quot;);</span>
+<span class="lineNum">     861 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     862 </span>                :            :         }
+<span class="lineNum">     863 </span>                :            : 
+<span class="lineNum">     864 </span>                :<span class="lineCov">          2 :         base = dt_get_address(psihb, 0, NULL);</span>
+<span class="lineNum">     865 </span>                :            : 
+<span class="lineNum">     866 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (dt_node_is_compatible(psihb, &quot;ibm,power7-psihb-x&quot;))</span>
+<span class="lineNum">     867 </span>                :<span class="lineNoCov">          0 :                 psi = psi_probe_p7(chip, base);</span>
+<span class="lineNum">     868 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         else if (dt_node_is_compatible(psihb, &quot;ibm,power8-psihb-x&quot;))</span>
+<span class="lineNum">     869 </span>                :<span class="lineCov">          2 :                 psi = psi_probe_p8(chip, base);</span>
+<span class="lineNum">     870 </span>                :            :         else {
+<span class="lineNum">     871 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;PSI: Unknown processor type\n&quot;);</span>
+<span class="lineNum">     872 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     873 </span>                :            :         }
+<span class="lineNum">     874 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if (!psi)</span>
+<span class="lineNum">     875 </span>                :            :                 return false;
+<span class="lineNum">     876 </span>                :            : 
+<span class="lineNum">     877 </span>                :<span class="lineCov">          1 :         list_add(&amp;psis, &amp;psi-&gt;list);</span>
+<span class="lineNum">     878 </span>                :            : 
+<span class="lineNum">     879 </span>                :<span class="lineCov">          2 :         val = in_be64(psi-&gt;regs + PSIHB_CR);</span>
+<span class="lineNum">     880 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (val &amp; PSIHB_CR_FSP_LINK_ACTIVE) {</span>
+<span class="lineNum">     881 </span>                :<span class="lineCov">          1 :                 lock(&amp;psi_lock);</span>
+<span class="lineNum">     882 </span>                :<span class="lineCov">          1 :                 psi-&gt;active = true;</span>
+<span class="lineNum">     883 </span>                :<span class="lineCov">          1 :                 unlock(&amp;psi_lock);</span>
+<span class="lineNum">     884 </span>                :            :         }
+<span class="lineNum">     885 </span>                :            : 
+<span class="lineNum">     886 </span>                :<span class="lineCov">          1 :         psi-&gt;chip_id = chip-&gt;id;</span>
+<span class="lineNum">     887 </span>                :<span class="lineCov">          1 :         psi-&gt;interrupt = get_psi_interrupt(chip-&gt;id);</span>
+<span class="lineNum">     888 </span>                :            : 
+<span class="lineNum">     889 </span>                :<span class="lineCov">          1 :         psi_create_mm_dtnode(psi);</span>
+<span class="lineNum">     890 </span>                :<span class="lineCov">          1 :         psi_register_interrupts(psi);</span>
+<span class="lineNum">     891 </span>                :<span class="lineCov">          1 :         psi_activate_phb(psi);</span>
+<span class="lineNum">     892 </span>                :            : 
+<span class="lineNum">     893 </span>                :<span class="lineCov">          1 :         printf(&quot;PSI[0x%03x]: Found PSI bridge [working=%d, active=%d]\n&quot;,</span>
+<span class="lineNum">     894 </span>                :<span class="lineCov">          2 :                         psi-&gt;chip_id, psi-&gt;working, psi-&gt;active);</span>
+<span class="lineNum">     895 </span>                :<span class="lineCov">          1 :         return true;</span>
+<a name="896"><span class="lineNum">     896 </span>                :            : }</a>
+<span class="lineNum">     897 </span>                :            : 
+<span class="lineNum">     898 </span>                :<span class="lineCov">          1 : void psi_fsp_link_in_use(struct psi *psi __unused)</span>
+<span class="lineNum">     899 </span>                :            : {
+<span class="lineNum">     900 </span>                :            :         static bool poller_created = false;
+<span class="lineNum">     901 </span>                :            : 
+<span class="lineNum">     902 </span>                :            :         /* Do this once only */
+<span class="lineNum">     903 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!poller_created) {</span>
+<span class="lineNum">     904 </span>                :<span class="lineCov">          1 :                 poller_created = true;</span>
+<span class="lineNum">     905 </span>                :<span class="lineCov">          1 :                 opal_add_poller(psi_link_poll, NULL);</span>
+<span class="lineNum">     906 </span>                :            :         }
+<a name="907"><span class="lineNum">     907 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     908 </span>                :            : 
+<span class="lineNum">     909 </span>                :<span class="lineCov">          1 : void psi_init(void)</span>
+<span class="lineNum">     910 </span>                :            : {
+<span class="lineNum">     911 </span>                :            :         struct dt_node *np;
+<span class="lineNum">     912 </span>                :            : 
+<span class="lineNum">     913 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         dt_for_each_compatible(dt_root, np, &quot;ibm,psihb-x&quot;)</span>
+<span class="lineNum">     914 </span>                :<span class="lineCov">          2 :                 psi_init_psihb(np);</span>
+<span class="lineNum">     915 </span>                :<span class="lineCov">          1 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,587 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/lpc.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">hw</a> - lpc.c<span style="font-size: 80%;"> (source / <a href="lpc.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">188</td>
+            <td class="headerCovTableEntryLo">3.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntryLo">6.7 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">117</td>
+            <td class="headerCovTableEntryLo">2.6 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;xscom.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;io.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;chip.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;lpc.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;timebase.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;errorlog.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;opal-api.h&gt;
+<span class="lineNum">      26 </span>                :            : 
+<span class="lineNum">      27 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_LPC_READ, OPAL_PLATFORM_ERR_EVT, OPAL_LPC,
+<span class="lineNum">      28 </span>                :            :                  OPAL_MISC_SUBSYSTEM, OPAL_PREDICTIVE_ERR_GENERAL,
+<span class="lineNum">      29 </span>                :            :                  OPAL_NA, NULL);
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_LPC_WRITE, OPAL_PLATFORM_ERR_EVT, OPAL_LPC,
+<span class="lineNum">      32 </span>                :            :                  OPAL_MISC_SUBSYSTEM, OPAL_PREDICTIVE_ERR_GENERAL,
+<span class="lineNum">      33 </span>                :            :                  OPAL_NA, NULL);
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : #define ECCB_CTL        0 /* b0020 -&gt; b00200 */
+<span class="lineNum">      36 </span>                :            : #define ECCB_STAT       2 /* b0022 -&gt; b00210 */
+<span class="lineNum">      37 </span>                :            : #define ECCB_DATA       3 /* b0023 -&gt; b00218 */
+<span class="lineNum">      38 </span>                :            : 
+<span class="lineNum">      39 </span>                :            : #define ECCB_CTL_MAGIC          0xd000000000000000ul
+<span class="lineNum">      40 </span>                :            : #define ECCB_CTL_DATASZ         PPC_BITMASK(4,7)
+<span class="lineNum">      41 </span>                :            : #define ECCB_CTL_READ           PPC_BIT(15)
+<span class="lineNum">      42 </span>                :            : #define ECCB_CTL_ADDRLEN        PPC_BITMASK(23,25)
+<span class="lineNum">      43 </span>                :            : #define         ECCB_ADDRLEN_4B 0x4
+<span class="lineNum">      44 </span>                :            : #define ECCB_CTL_ADDR           PPC_BITMASK(32,63)
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            : #define ECCB_STAT_PIB_ERR       PPC_BITMASK(0,5)
+<span class="lineNum">      47 </span>                :            : #define ECCB_STAT_RD_DATA       PPC_BITMASK(6,37)
+<span class="lineNum">      48 </span>                :            : #define ECCB_STAT_BUSY          PPC_BIT(44)
+<span class="lineNum">      49 </span>                :            : #define ECCB_STAT_ERRORS1       PPC_BITMASK(45,51)
+<span class="lineNum">      50 </span>                :            : #define ECCB_STAT_OP_DONE       PPC_BIT(52)
+<span class="lineNum">      51 </span>                :            : #define ECCB_STAT_ERRORS2       PPC_BITMASK(53,55)
+<span class="lineNum">      52 </span>                :            : 
+<span class="lineNum">      53 </span>                :            : #define ECCB_STAT_ERR_MASK      (ECCB_STAT_PIB_ERR | \
+<span class="lineNum">      54 </span>                :            :                                  ECCB_STAT_ERRORS1 | \
+<span class="lineNum">      55 </span>                :            :                                  ECCB_STAT_ERRORS2)
+<span class="lineNum">      56 </span>                :            : 
+<span class="lineNum">      57 </span>                :            : #define ECCB_TIMEOUT    1000000
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :            : /* LPC HC registers */
+<span class="lineNum">      60 </span>                :            : #define LPC_HC_FW_SEG_IDSEL     0x24
+<span class="lineNum">      61 </span>                :            : #define LPC_HC_FW_RD_ACC_SIZE   0x28
+<span class="lineNum">      62 </span>                :            : #define   LPC_HC_FW_RD_1B       0x00000000
+<span class="lineNum">      63 </span>                :            : #define   LPC_HC_FW_RD_2B       0x01000000
+<span class="lineNum">      64 </span>                :            : #define   LPC_HC_FW_RD_4B       0x02000000
+<span class="lineNum">      65 </span>                :            : #define   LPC_HC_FW_RD_16B      0x04000000
+<span class="lineNum">      66 </span>                :            : #define   LPC_HC_FW_RD_128B     0x07000000
+<span class="lineNum">      67 </span>                :            : 
+<span class="lineNum">      68 </span>                :            : /* Default LPC bus */
+<span class="lineNum">      69 </span>                :            : static int32_t lpc_default_chip_id = -1;
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>                :            : /*
+<span class="lineNum">      72 </span>                :            :  * These are expected to be the same on all chips and should probably
+<span class="lineNum">      73 </span>                :            :  * be read (or configured) dynamically. This is how things are configured
+<span class="lineNum">      74 </span>                :            :  * today on Tuletta.
+<span class="lineNum">      75 </span>                :            :  */
+<span class="lineNum">      76 </span>                :            : static uint32_t lpc_io_opb_base         = 0xd0010000;
+<span class="lineNum">      77 </span>                :            : static uint32_t lpc_mem_opb_base        = 0xe0000000;
+<span class="lineNum">      78 </span>                :            : static uint32_t lpc_fw_opb_base         = 0xf0000000;
+<a name="79"><span class="lineNum">      79 </span>                :            : static uint32_t lpc_reg_opb_base        = 0xc0012000;</a>
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :<span class="lineNoCov">          0 : static int64_t opb_write(struct proc_chip *chip, uint32_t addr, uint32_t data,</span>
+<span class="lineNum">      82 </span>                :            :                          uint32_t sz)
+<span class="lineNum">      83 </span>                :            : {
+<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :         uint64_t ctl = ECCB_CTL_MAGIC, stat;</span>
+<span class="lineNum">      85 </span>                :            :         int64_t rc, tout;
+<span class="lineNum">      86 </span>                :            :         uint64_t data_reg;
+<span class="lineNum">      87 </span>                :            : 
+<span class="lineNum">      88 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch(sz) {</span>
+<span class="lineNum">      89 </span>                :            :         case 1:
+<span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :                 data_reg = ((uint64_t)data) &lt;&lt; 56;</span>
+<span class="lineNum">      91 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">      92 </span>                :            :         case 2:
+<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 :                 data_reg = ((uint64_t)data) &lt;&lt; 48;</span>
+<span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">      95 </span>                :            :         case 4:
+<span class="lineNum">      96 </span>                :<span class="lineNoCov">          0 :                 data_reg = ((uint64_t)data) &lt;&lt; 32;</span>
+<span class="lineNum">      97 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">      98 </span>                :            :         default:
+<span class="lineNum">      99 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;LPC: Invalid data size %d\n&quot;, sz);</span>
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 :                 return OPAL_PARAMETER;</span>
+<span class="lineNum">     101 </span>                :            :         }
+<span class="lineNum">     102 </span>                :            : 
+<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :         rc = xscom_write(chip-&gt;id, chip-&gt;lpc_xbase + ECCB_DATA, data_reg);</span>
+<span class="lineNum">     104 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_LPC_WRITE),</span>
+<span class="lineNum">     106 </span>                :            :                         &quot;LPC: XSCOM write to ECCB DATA error %lld\n&quot;, rc);
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
+<span class="lineNum">     108 </span>                :            :         }
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :         ctl = SETFIELD(ECCB_CTL_DATASZ, ctl, sz);</span>
+<span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 :         ctl = SETFIELD(ECCB_CTL_ADDRLEN, ctl, ECCB_ADDRLEN_4B);</span>
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :         ctl = SETFIELD(ECCB_CTL_ADDR, ctl, addr);</span>
+<span class="lineNum">     113 </span>                :<span class="lineNoCov">          0 :         rc = xscom_write(chip-&gt;id, chip-&gt;lpc_xbase + ECCB_CTL, ctl);</span>
+<span class="lineNum">     114 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     115 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_LPC_WRITE),</span>
+<span class="lineNum">     116 </span>                :            :                         &quot;LPC: XSCOM write to ECCB CTL error %lld\n&quot;, rc);
+<span class="lineNum">     117 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
+<span class="lineNum">     118 </span>                :            :         }
+<span class="lineNum">     119 </span>                :            : 
+<span class="lineNum">     120 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (tout = 0; tout &lt; ECCB_TIMEOUT; tout++) {</span>
+<span class="lineNum">     121 </span>                :<span class="lineNoCov">          0 :                 rc = xscom_read(chip-&gt;id, chip-&gt;lpc_xbase + ECCB_STAT, &amp;stat);</span>
+<span class="lineNum">     122 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc) {</span>
+<span class="lineNum">     123 </span>                :<span class="lineNoCov">          0 :                         log_simple_error(&amp;e_info(OPAL_RC_LPC_WRITE),</span>
+<span class="lineNum">     124 </span>                :            :                                 &quot;LPC: XSCOM read from ECCB STAT err %lld\n&quot;,
+<span class="lineNum">     125 </span>                :            :                                                                         rc);
+<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 :                         return rc;</span>
+<span class="lineNum">     127 </span>                :            :                 }
+<span class="lineNum">     128 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (stat &amp; ECCB_STAT_OP_DONE) {</span>
+<span class="lineNum">     129 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (stat &amp; ECCB_STAT_ERR_MASK) {</span>
+<span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :                                 log_simple_error(&amp;e_info(OPAL_RC_LPC_WRITE),</span>
+<span class="lineNum">     131 </span>                :            :                                         &quot;LPC: Error status: 0x%llx\n&quot;, stat);
+<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :                                 return OPAL_HARDWARE;</span>
+<span class="lineNum">     133 </span>                :            :                         }
+<span class="lineNum">     134 </span>                :            :                         return OPAL_SUCCESS;
+<span class="lineNum">     135 </span>                :            :                 }
+<span class="lineNum">     136 </span>                :<span class="lineNoCov">          0 :                 time_wait_nopoll(100);</span>
+<span class="lineNum">     137 </span>                :            :         }
+<span class="lineNum">     138 </span>                :<span class="lineNoCov">          0 :         log_simple_error(&amp;e_info(OPAL_RC_LPC_WRITE), &quot;LPC: Write timeout !\n&quot;);</span>
+<span class="lineNum">     139 </span>                :<span class="lineNoCov">          0 :         return OPAL_HARDWARE;</span>
+<a name="140"><span class="lineNum">     140 </span>                :            : }</a>
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 : static int64_t opb_read(struct proc_chip *chip, uint32_t addr, uint32_t *data,</span>
+<span class="lineNum">     143 </span>                :            :                         uint32_t sz)
+<span class="lineNum">     144 </span>                :            : {
+<span class="lineNum">     145 </span>                :<span class="lineNoCov">          0 :         uint64_t ctl = ECCB_CTL_MAGIC | ECCB_CTL_READ, stat;</span>
+<span class="lineNum">     146 </span>                :            :         int64_t rc, tout;
+<span class="lineNum">     147 </span>                :            : 
+<span class="lineNum">     148 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (sz != 1 &amp;&amp; sz != 2 &amp;&amp; sz != 4) {</span>
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;LPC: Invalid data size %d\n&quot;, sz);</span>
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :                 return OPAL_PARAMETER;</span>
+<span class="lineNum">     151 </span>                :            :         }
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 :         ctl = SETFIELD(ECCB_CTL_DATASZ, ctl, sz);</span>
+<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 :         ctl = SETFIELD(ECCB_CTL_ADDRLEN, ctl, ECCB_ADDRLEN_4B);</span>
+<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :         ctl = SETFIELD(ECCB_CTL_ADDR, ctl, addr);</span>
+<span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 :         rc = xscom_write(chip-&gt;id, chip-&gt;lpc_xbase + ECCB_CTL, ctl);</span>
+<span class="lineNum">     157 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     158 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_LPC_READ),</span>
+<span class="lineNum">     159 </span>                :            :                         &quot;LPC: XSCOM write to ECCB CTL error %lld\n&quot;, rc);
+<span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
+<span class="lineNum">     161 </span>                :            :         }
+<span class="lineNum">     162 </span>                :            : 
+<span class="lineNum">     163 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (tout = 0; tout &lt; ECCB_TIMEOUT; tout++) {</span>
+<span class="lineNum">     164 </span>                :<span class="lineNoCov">          0 :                 rc = xscom_read(chip-&gt;id, chip-&gt;lpc_xbase + ECCB_STAT, &amp;stat);</span>
+<span class="lineNum">     165 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc) {</span>
+<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :                         log_simple_error(&amp;e_info(OPAL_RC_LPC_READ),</span>
+<span class="lineNum">     167 </span>                :            :                                 &quot;LPC: XSCOM read from ECCB STAT err %lld\n&quot;,
+<span class="lineNum">     168 </span>                :            :                                                                         rc);
+<span class="lineNum">     169 </span>                :<span class="lineNoCov">          0 :                         return rc;</span>
+<span class="lineNum">     170 </span>                :            :                 }
+<span class="lineNum">     171 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (stat &amp; ECCB_STAT_OP_DONE) {</span>
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :                         uint32_t rdata = GETFIELD(ECCB_STAT_RD_DATA, stat);</span>
+<span class="lineNum">     173 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (stat &amp; ECCB_STAT_ERR_MASK) {</span>
+<span class="lineNum">     174 </span>                :<span class="lineNoCov">          0 :                                 log_simple_error(&amp;e_info(OPAL_RC_LPC_READ),</span>
+<span class="lineNum">     175 </span>                :            :                                         &quot;LPC: Error status: 0x%llx\n&quot;, stat);
+<span class="lineNum">     176 </span>                :<span class="lineNoCov">          0 :                                 return OPAL_HARDWARE;</span>
+<span class="lineNum">     177 </span>                :            :                         }
+<span class="lineNum">     178 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         switch(sz) {</span>
+<span class="lineNum">     179 </span>                :            :                         case 1:
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :                                 *data = rdata &gt;&gt; 24;</span>
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     182 </span>                :            :                         case 2:
+<span class="lineNum">     183 </span>                :<span class="lineNoCov">          0 :                                 *data = rdata &gt;&gt; 16;</span>
+<span class="lineNum">     184 </span>                :<span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     185 </span>                :            :                         default:
+<span class="lineNum">     186 </span>                :<span class="lineNoCov">          0 :                                 *data = rdata;</span>
+<span class="lineNum">     187 </span>                :<span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     188 </span>                :            :                         }
+<span class="lineNum">     189 </span>                :            :                         return 0;
+<span class="lineNum">     190 </span>                :            :                 }
+<span class="lineNum">     191 </span>                :<span class="lineNoCov">          0 :                 time_wait_nopoll(100);</span>
+<span class="lineNum">     192 </span>                :            :         }
+<span class="lineNum">     193 </span>                :<span class="lineNoCov">          0 :         log_simple_error(&amp;e_info(OPAL_RC_LPC_READ), &quot;LPC: Read timeout !\n&quot;);</span>
+<span class="lineNum">     194 </span>                :<span class="lineNoCov">          0 :         return OPAL_HARDWARE;</span>
+<a name="195"><span class="lineNum">     195 </span>                :            : }</a>
+<span class="lineNum">     196 </span>                :            : 
+<span class="lineNum">     197 </span>                :<span class="lineNoCov">          0 : static int64_t lpc_set_fw_idsel(struct proc_chip *chip, uint8_t idsel)</span>
+<span class="lineNum">     198 </span>                :            : {
+<span class="lineNum">     199 </span>                :            :         uint32_t val;
+<span class="lineNum">     200 </span>                :            :         int64_t rc;
+<span class="lineNum">     201 </span>                :            : 
+<span class="lineNum">     202 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (idsel == chip-&gt;lpc_fw_idsel)</span>
+<span class="lineNum">     203 </span>                :            :                 return OPAL_SUCCESS;
+<span class="lineNum">     204 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (idsel &gt; 0xf)</span>
+<span class="lineNum">     205 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     206 </span>                :            : 
+<span class="lineNum">     207 </span>                :<span class="lineNoCov">          0 :         rc = opb_read(chip, lpc_reg_opb_base + LPC_HC_FW_SEG_IDSEL,</span>
+<span class="lineNum">     208 </span>                :            :                       &amp;val, 4);
+<span class="lineNum">     209 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;LPC: Failed to read HC_FW_SEG_IDSEL register !\n&quot;);</span>
+<span class="lineNum">     211 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
+<span class="lineNum">     212 </span>                :            :         }
+<span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 :         val = (val &amp; 0xfffffff0) | idsel;</span>
+<span class="lineNum">     214 </span>                :<span class="lineNoCov">          0 :         rc = opb_write(chip, lpc_reg_opb_base + LPC_HC_FW_SEG_IDSEL,</span>
+<span class="lineNum">     215 </span>                :            :                        val, 4);
+<span class="lineNum">     216 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;LPC: Failed to write HC_FW_SEG_IDSEL register !\n&quot;);</span>
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
+<span class="lineNum">     219 </span>                :            :         }
+<span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 :         chip-&gt;lpc_fw_idsel = idsel;</span>
+<span class="lineNum">     221 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<a name="222"><span class="lineNum">     222 </span>                :            : }</a>
+<span class="lineNum">     223 </span>                :            : 
+<span class="lineNum">     224 </span>                :<span class="lineNoCov">          0 : static int64_t lpc_set_fw_rdsz(struct proc_chip *chip, uint8_t rdsz)</span>
+<span class="lineNum">     225 </span>                :            : {
+<span class="lineNum">     226 </span>                :            :         uint32_t val;
+<span class="lineNum">     227 </span>                :            :         int64_t rc;
+<span class="lineNum">     228 </span>                :            : 
+<span class="lineNum">     229 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rdsz == chip-&gt;lpc_fw_rdsz)</span>
+<span class="lineNum">     230 </span>                :            :                 return OPAL_SUCCESS;
+<span class="lineNum">     231 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch(rdsz) {</span>
+<span class="lineNum">     232 </span>                :            :         case 1:
+<span class="lineNum">     233 </span>                :            :                 val = LPC_HC_FW_RD_1B;
+<span class="lineNum">     234 </span>                :            :                 break;
+<span class="lineNum">     235 </span>                :            :         case 2:
+<span class="lineNum">     236 </span>                :<span class="lineNoCov">          0 :                 val = LPC_HC_FW_RD_2B;</span>
+<span class="lineNum">     237 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     238 </span>                :            :         case 4:
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :                 val = LPC_HC_FW_RD_4B;</span>
+<span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     241 </span>                :            :         default:
+<span class="lineNum">     242 </span>                :            :                 /*
+<span class="lineNum">     243 </span>                :            :                  * The HW supports 16 and 128 via a buffer/cache
+<span class="lineNum">     244 </span>                :            :                  * but I have never exprimented with it and am not
+<span class="lineNum">     245 </span>                :            :                  * sure it works the way we expect so let's leave it
+<span class="lineNum">     246 </span>                :            :                  * at that for now
+<span class="lineNum">     247 </span>                :            :                  */
+<span class="lineNum">     248 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     249 </span>                :            :         }
+<span class="lineNum">     250 </span>                :<span class="lineNoCov">          0 :         rc = opb_write(chip, lpc_reg_opb_base + LPC_HC_FW_RD_ACC_SIZE,</span>
+<span class="lineNum">     251 </span>                :            :                        val, 4);
+<span class="lineNum">     252 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     253 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;LPC: Failed to write LPC_HC_FW_RD_ACC_SIZE !\n&quot;);</span>
+<span class="lineNum">     254 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
+<span class="lineNum">     255 </span>                :            :         }
+<span class="lineNum">     256 </span>                :<span class="lineNoCov">          0 :         chip-&gt;lpc_fw_rdsz = rdsz;</span>
+<span class="lineNum">     257 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<a name="258"><span class="lineNum">     258 </span>                :            : }</a>
+<span class="lineNum">     259 </span>                :            : 
+<span class="lineNum">     260 </span>                :<span class="lineNoCov">          0 : static int64_t lpc_opb_prepare(struct proc_chip *chip,</span>
+<span class="lineNum">     261 </span>                :            :                                enum OpalLPCAddressType addr_type,
+<span class="lineNum">     262 </span>                :            :                                uint32_t addr, uint32_t sz,
+<span class="lineNum">     263 </span>                :            :                                uint32_t *opb_base, bool is_write)
+<span class="lineNum">     264 </span>                :            : {
+<span class="lineNum">     265 </span>                :<span class="lineNoCov">          0 :         uint32_t top = addr + sz;</span>
+<span class="lineNum">     266 </span>                :            :         uint8_t fw_idsel;
+<span class="lineNum">     267 </span>                :            :         int64_t rc;
+<span class="lineNum">     268 </span>                :            : 
+<span class="lineNum">     269 </span>                :            :         /* Address wraparound */
+<span class="lineNum">     270 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (top &lt; addr)</span>
+<span class="lineNum">     271 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     272 </span>                :            : 
+<span class="lineNum">     273 </span>                :            :         /*
+<span class="lineNum">     274 </span>                :            :          * Bound check access and get the OPB base address for
+<span class="lineNum">     275 </span>                :            :          * the window corresponding to the access type
+<span class="lineNum">     276 </span>                :            :          */
+<span class="lineNum">     277 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch(addr_type) {</span>
+<span class="lineNum">     278 </span>                :            :         case OPAL_LPC_IO:
+<span class="lineNum">     279 </span>                :            :                 /* IO space is 64K */
+<span class="lineNum">     280 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (top &gt; 0x10000)</span>
+<span class="lineNum">     281 </span>                :            :                         return OPAL_PARAMETER;
+<span class="lineNum">     282 </span>                :            :                 /* And only supports byte accesses */
+<span class="lineNum">     283 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (sz != 1)</span>
+<span class="lineNum">     284 </span>                :            :                         return OPAL_PARAMETER;
+<span class="lineNum">     285 </span>                :<span class="lineNoCov">          0 :                 *opb_base = lpc_io_opb_base;</span>
+<span class="lineNum">     286 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     287 </span>                :            :         case OPAL_LPC_MEM:
+<span class="lineNum">     288 </span>                :            :                 /* MEM space is 256M */
+<span class="lineNum">     289 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (top &gt; 0x10000000)</span>
+<span class="lineNum">     290 </span>                :            :                         return OPAL_PARAMETER;
+<span class="lineNum">     291 </span>                :            :                 /* And only supports byte accesses */
+<span class="lineNum">     292 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (sz != 1)</span>
+<span class="lineNum">     293 </span>                :            :                         return OPAL_PARAMETER;
+<span class="lineNum">     294 </span>                :<span class="lineNoCov">          0 :                 *opb_base = lpc_mem_opb_base;</span>
+<span class="lineNum">     295 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     296 </span>                :            :         case OPAL_LPC_FW:
+<span class="lineNum">     297 </span>                :            :                 /*
+<span class="lineNum">     298 </span>                :            :                  * FW space is in segments of 256M controlled
+<span class="lineNum">     299 </span>                :            :                  * by IDSEL, make sure we don't cross segments
+<span class="lineNum">     300 </span>                :            :                  */
+<span class="lineNum">     301 </span>                :<span class="lineNoCov">          0 :                 *opb_base = lpc_fw_opb_base;</span>
+<span class="lineNum">     302 </span>                :<span class="lineNoCov">          0 :                 fw_idsel = (addr &gt;&gt; 28);</span>
+<span class="lineNum">     303 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (((top - 1) &gt;&gt; 28) != fw_idsel)</span>
+<span class="lineNum">     304 </span>                :            :                         return OPAL_PARAMETER;
+<span class="lineNum">     305 </span>                :            : 
+<span class="lineNum">     306 </span>                :            :                 /* Set segment */
+<span class="lineNum">     307 </span>                :<span class="lineNoCov">          0 :                 rc = lpc_set_fw_idsel(chip, fw_idsel);</span>
+<span class="lineNum">     308 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     309 </span>                :            :                         return rc;
+<span class="lineNum">     310 </span>                :            :                 /* Set read access size */
+<span class="lineNum">     311 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!is_write) {</span>
+<span class="lineNum">     312 </span>                :<span class="lineNoCov">          0 :                         rc = lpc_set_fw_rdsz(chip, sz);</span>
+<span class="lineNum">     313 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (rc)</span>
+<span class="lineNum">     314 </span>                :<span class="lineNoCov">          0 :                                 return rc;</span>
+<span class="lineNum">     315 </span>                :            :                 }
+<span class="lineNum">     316 </span>                :            :                 break;
+<span class="lineNum">     317 </span>                :            :         default:
+<span class="lineNum">     318 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     319 </span>                :            :         }
+<span class="lineNum">     320 </span>                :            :         return OPAL_SUCCESS;
+<a name="321"><span class="lineNum">     321 </span>                :            : }</a>
+<span class="lineNum">     322 </span>                :            : 
+<span class="lineNum">     323 </span>                :<span class="lineNoCov">          0 : static int64_t __lpc_write(uint32_t chip_id, enum OpalLPCAddressType addr_type,</span>
+<span class="lineNum">     324 </span>                :            :                            uint32_t addr, uint32_t data, uint32_t sz)
+<span class="lineNum">     325 </span>                :            : {
+<span class="lineNum">     326 </span>                :<span class="lineNoCov">          0 :         struct proc_chip *chip = get_chip(chip_id);</span>
+<span class="lineNum">     327 </span>                :            :         uint32_t opb_base;
+<span class="lineNum">     328 </span>                :            :         int64_t rc;
+<span class="lineNum">     329 </span>                :            : 
+<span class="lineNum">     330 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!chip || !chip-&gt;lpc_xbase)</span>
+<span class="lineNum">     331 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     332 </span>                :            : 
+<span class="lineNum">     333 </span>                :<span class="lineNoCov">          0 :         lock(&amp;chip-&gt;lpc_lock);</span>
+<span class="lineNum">     334 </span>                :            : 
+<span class="lineNum">     335 </span>                :            :         /*
+<span class="lineNum">     336 </span>                :            :          * Convert to an OPB access and handle LPC HC configuration
+<span class="lineNum">     337 </span>                :            :          * for FW accesses (IDSEL)
+<span class="lineNum">     338 </span>                :            :          */
+<span class="lineNum">     339 </span>                :<span class="lineNoCov">          0 :         rc = lpc_opb_prepare(chip, addr_type, addr, sz, &amp;opb_base, true);</span>
+<span class="lineNum">     340 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     341 </span>                :            :                 goto bail;
+<span class="lineNum">     342 </span>                :            : 
+<span class="lineNum">     343 </span>                :            :         /* Perform OPB access */
+<span class="lineNum">     344 </span>                :<span class="lineNoCov">          0 :         rc = opb_write(chip, opb_base + addr, data, sz);</span>
+<span class="lineNum">     345 </span>                :            : 
+<span class="lineNum">     346 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;chip-&gt;lpc_lock);</span>
+<span class="lineNum">     347 </span>                :            : 
+<span class="lineNum">     348 </span>                :            :         /* XXX Add LPC error handling/recovery */
+<span class="lineNum">     349 </span>                :            :  bail:
+<span class="lineNum">     350 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="351"><span class="lineNum">     351 </span>                :            : }</a>
+<span class="lineNum">     352 </span>                :            : 
+<span class="lineNum">     353 </span>                :<span class="lineNoCov">          0 : int64_t lpc_write(enum OpalLPCAddressType addr_type, uint32_t addr,</span>
+<span class="lineNum">     354 </span>                :            :                   uint32_t data, uint32_t sz)
+<span class="lineNum">     355 </span>                :            : {
+<span class="lineNum">     356 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (lpc_default_chip_id &lt; 0)</span>
+<span class="lineNum">     357 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     358 </span>                :<span class="lineNoCov">          0 :         return __lpc_write(lpc_default_chip_id, addr_type, addr, data, sz);</span>
+<span class="lineNum">     359 </span>                :            : }
+<span class="lineNum">     360 </span>                :            : 
+<span class="lineNum">     361 </span>                :            : /*
+<span class="lineNum">     362 </span>                :            :  * The &quot;OPAL&quot; variant add the emulation of 2 and 4 byte accesses using
+<span class="lineNum">     363 </span>                :            :  * byte accesses for IO and MEM space in order to be compatible with
+<a name="364"><span class="lineNum">     364 </span>                :            :  * existing Linux expectations</a>
+<span class="lineNum">     365 </span>                :            :  */
+<span class="lineNum">     366 </span>                :<span class="lineNoCov">          0 : static int64_t opal_lpc_write(uint32_t chip_id, enum OpalLPCAddressType addr_type,</span>
+<span class="lineNum">     367 </span>                :            :                               uint32_t addr, uint32_t data, uint32_t sz)
+<span class="lineNum">     368 </span>                :            : {
+<span class="lineNum">     369 </span>                :            :         int64_t rc;
+<span class="lineNum">     370 </span>                :            : 
+<span class="lineNum">     371 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (addr_type == OPAL_LPC_FW || sz == 1)</span>
+<span class="lineNum">     372 </span>                :<span class="lineNoCov">          0 :                 return __lpc_write(chip_id, addr_type, addr, data, sz);</span>
+<span class="lineNum">     373 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while(sz--) {</span>
+<span class="lineNum">     374 </span>                :<span class="lineNoCov">          0 :                 rc = __lpc_write(chip_id, addr_type, addr, data &amp; 0xff, 1);</span>
+<span class="lineNum">     375 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     376 </span>                :            :                         return rc;
+<span class="lineNum">     377 </span>                :<span class="lineNoCov">          0 :                 addr++;</span>
+<span class="lineNum">     378 </span>                :<span class="lineNoCov">          0 :                 data &gt;&gt;= 8;</span>
+<span class="lineNum">     379 </span>                :            :         }
+<span class="lineNum">     380 </span>                :            :         return OPAL_SUCCESS;
+<a name="381"><span class="lineNum">     381 </span>                :            : }</a>
+<span class="lineNum">     382 </span>                :            : 
+<span class="lineNum">     383 </span>                :<span class="lineNoCov">          0 : static int64_t __lpc_read(uint32_t chip_id, enum OpalLPCAddressType addr_type,</span>
+<span class="lineNum">     384 </span>                :            :                           uint32_t addr, uint32_t *data, uint32_t sz)
+<span class="lineNum">     385 </span>                :            : {
+<span class="lineNum">     386 </span>                :<span class="lineNoCov">          0 :         struct proc_chip *chip = get_chip(chip_id);</span>
+<span class="lineNum">     387 </span>                :            :         uint32_t opb_base;
+<span class="lineNum">     388 </span>                :            :         int64_t rc;
+<span class="lineNum">     389 </span>                :            : 
+<span class="lineNum">     390 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!chip || !chip-&gt;lpc_xbase)</span>
+<span class="lineNum">     391 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     392 </span>                :            : 
+<span class="lineNum">     393 </span>                :<span class="lineNoCov">          0 :         lock(&amp;chip-&gt;lpc_lock);</span>
+<span class="lineNum">     394 </span>                :            : 
+<span class="lineNum">     395 </span>                :            :         /*
+<span class="lineNum">     396 </span>                :            :          * Convert to an OPB access and handle LPC HC configuration
+<span class="lineNum">     397 </span>                :            :          * for FW accesses (IDSEL and read size)
+<span class="lineNum">     398 </span>                :            :          */
+<span class="lineNum">     399 </span>                :<span class="lineNoCov">          0 :         rc = lpc_opb_prepare(chip, addr_type, addr, sz, &amp;opb_base, false);</span>
+<span class="lineNum">     400 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     401 </span>                :            :                 goto bail;
+<span class="lineNum">     402 </span>                :            : 
+<span class="lineNum">     403 </span>                :            :         /* Perform OPB access */
+<span class="lineNum">     404 </span>                :<span class="lineNoCov">          0 :         rc = opb_read(chip, opb_base + addr, data, sz);</span>
+<span class="lineNum">     405 </span>                :            : 
+<span class="lineNum">     406 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;chip-&gt;lpc_lock);</span>
+<span class="lineNum">     407 </span>                :            : 
+<span class="lineNum">     408 </span>                :            :         /* XXX Add LPC error handling/recovery */
+<span class="lineNum">     409 </span>                :            :  bail:
+<span class="lineNum">     410 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="411"><span class="lineNum">     411 </span>                :            : }</a>
+<span class="lineNum">     412 </span>                :            : 
+<span class="lineNum">     413 </span>                :<span class="lineNoCov">          0 : int64_t lpc_read(enum OpalLPCAddressType addr_type, uint32_t addr,</span>
+<span class="lineNum">     414 </span>                :            :                  uint32_t *data, uint32_t sz)
+<span class="lineNum">     415 </span>                :            : {
+<span class="lineNum">     416 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (lpc_default_chip_id &lt; 0)</span>
+<span class="lineNum">     417 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     418 </span>                :<span class="lineNoCov">          0 :         return __lpc_read(lpc_default_chip_id, addr_type, addr, data, sz);</span>
+<span class="lineNum">     419 </span>                :            : }
+<span class="lineNum">     420 </span>                :            : 
+<span class="lineNum">     421 </span>                :            : /*
+<span class="lineNum">     422 </span>                :            :  * The &quot;OPAL&quot; variant add the emulation of 2 and 4 byte accesses using
+<span class="lineNum">     423 </span>                :            :  * byte accesses for IO and MEM space in order to be compatible with
+<a name="424"><span class="lineNum">     424 </span>                :            :  * existing Linux expectations</a>
+<span class="lineNum">     425 </span>                :            :  */
+<span class="lineNum">     426 </span>                :<span class="lineNoCov">          0 : static int64_t opal_lpc_read(uint32_t chip_id, enum OpalLPCAddressType addr_type,</span>
+<span class="lineNum">     427 </span>                :            :                              uint32_t addr, uint32_t *data, uint32_t sz)
+<span class="lineNum">     428 </span>                :            : {
+<span class="lineNum">     429 </span>                :            :         int64_t rc;
+<span class="lineNum">     430 </span>                :            : 
+<span class="lineNum">     431 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (addr_type == OPAL_LPC_FW || sz == 1)</span>
+<span class="lineNum">     432 </span>                :<span class="lineNoCov">          0 :                 return __lpc_read(chip_id, addr_type, addr, data, sz);</span>
+<span class="lineNum">     433 </span>                :<span class="lineNoCov">          0 :         *data = 0;</span>
+<span class="lineNum">     434 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while(sz--) {</span>
+<span class="lineNum">     435 </span>                :            :                 uint32_t byte;
+<span class="lineNum">     436 </span>                :            : 
+<span class="lineNum">     437 </span>                :<span class="lineNoCov">          0 :                 rc = __lpc_read(chip_id, addr_type, addr, &amp;byte, 1);</span>
+<span class="lineNum">     438 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     439 </span>                :<span class="lineNoCov">          0 :                         return rc;</span>
+<span class="lineNum">     440 </span>                :<span class="lineNoCov">          0 :                 *data = *data | (byte &lt;&lt; (8 * sz));</span>
+<span class="lineNum">     441 </span>                :<span class="lineNoCov">          0 :                 addr++;</span>
+<span class="lineNum">     442 </span>                :            :         }
+<span class="lineNum">     443 </span>                :            :         return OPAL_SUCCESS;
+<a name="444"><span class="lineNum">     444 </span>                :            : }</a>
+<span class="lineNum">     445 </span>                :            : 
+<span class="lineNum">     446 </span>                :<span class="lineNoCov">          0 : bool lpc_present(void)</span>
+<span class="lineNum">     447 </span>                :            : {
+<span class="lineNum">     448 </span>                :<span class="lineNoCov">          0 :         return lpc_default_chip_id &gt;= 0;</span>
+<a name="449"><span class="lineNum">     449 </span>                :            : }</a>
+<span class="lineNum">     450 </span>                :            : 
+<span class="lineNum">     451 </span>                :<span class="lineNoCov">          0 : void __attrconst lpc_interrupt(uint32_t chip_id __unused)</span>
+<span class="lineNum">     452 </span>                :            : {
+<span class="lineNum">     453 </span>                :            :         /* Handle the lpc interrupt source (errors etc...) TODO... */
+<a name="454"><span class="lineNum">     454 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     455 </span>                :            : 
+<span class="lineNum">     456 </span>                :<span class="lineCov">          1 : void lpc_init(void)</span>
+<span class="lineNum">     457 </span>                :            : {
+<span class="lineNum">     458 </span>                :            :         struct dt_node *xn;
+<span class="lineNum">     459 </span>                :<span class="lineCov">          1 :         bool has_lpc = false;</span>
+<span class="lineNum">     460 </span>                :            : 
+<span class="lineNum">     461 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         dt_for_each_compatible(dt_root, xn, &quot;ibm,power8-lpc&quot;) {</span>
+<span class="lineNum">     462 </span>                :<span class="lineNoCov">          0 :                 uint32_t gcid = dt_get_chip_id(xn);</span>
+<span class="lineNum">     463 </span>                :            :                 struct proc_chip *chip;
+<span class="lineNum">     464 </span>                :            : 
+<span class="lineNum">     465 </span>                :<span class="lineNoCov">          0 :                 chip = get_chip(gcid);</span>
+<span class="lineNum">     466 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 assert(chip);</span>
+<span class="lineNum">     467 </span>                :            : 
+<span class="lineNum">     468 </span>                :<span class="lineNoCov">          0 :                 chip-&gt;lpc_xbase = dt_get_address(xn, 0, NULL);</span>
+<span class="lineNum">     469 </span>                :<span class="lineNoCov">          0 :                 chip-&gt;lpc_fw_idsel = 0xff;</span>
+<span class="lineNum">     470 </span>                :<span class="lineNoCov">          0 :                 chip-&gt;lpc_fw_rdsz = 0xff;</span>
+<span class="lineNum">     471 </span>                :<span class="lineNoCov">          0 :                 init_lock(&amp;chip-&gt;lpc_lock);</span>
+<span class="lineNum">     472 </span>                :            : 
+<span class="lineNum">     473 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (lpc_default_chip_id &lt; 0 ||</span>
+<span class="lineNum">     474 </span>                :<span class="lineNoCov">          0 :                     dt_has_node_property(xn, &quot;primary&quot;, NULL)) {</span>
+<span class="lineNum">     475 </span>                :<span class="lineNoCov">          0 :                         lpc_default_chip_id = chip-&gt;id;</span>
+<span class="lineNum">     476 </span>                :            :                 }
+<span class="lineNum">     477 </span>                :            : 
+<span class="lineNum">     478 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;LPC: Bus on chip %d PCB_Addr=0x%x\n&quot;,</span>
+<span class="lineNum">     479 </span>                :            :                        chip-&gt;id, chip-&gt;lpc_xbase);
+<span class="lineNum">     480 </span>                :<span class="lineNoCov">          0 :                 has_lpc = true;</span>
+<span class="lineNum">     481 </span>                :            :         }
+<span class="lineNum">     482 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (lpc_default_chip_id &gt;= 0)</span>
+<span class="lineNum">     483 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;LPC: Default bus on chip %d\n&quot;, lpc_default_chip_id);</span>
+<span class="lineNum">     484 </span>                :            : 
+<span class="lineNum">     485 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (has_lpc) {</span>
+<span class="lineNum">     486 </span>                :<span class="lineNoCov">          0 :                 opal_register(OPAL_LPC_WRITE, opal_lpc_write, 5);</span>
+<span class="lineNum">     487 </span>                :<span class="lineNoCov">          0 :                 opal_register(OPAL_LPC_READ, opal_lpc_read, 5);</span>
+<span class="lineNum">     488 </span>                :            :         }
+<a name="489"><span class="lineNum">     489 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     490 </span>                :            : 
+<span class="lineNum">     491 </span>                :<span class="lineNoCov">          0 : void lpc_used_by_console(void)</span>
+<span class="lineNum">     492 </span>                :            : {
+<span class="lineNum">     493 </span>                :            :         struct proc_chip *chip;
+<span class="lineNum">     494 </span>                :            : 
+<span class="lineNum">     495 </span>                :<span class="lineNoCov">          0 :         xscom_used_by_console();</span>
+<span class="lineNum">     496 </span>                :            : 
+<span class="lineNum">     497 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for_each_chip(chip) {</span>
+<span class="lineNum">     498 </span>                :<span class="lineNoCov">          0 :                 chip-&gt;lpc_lock.in_con_path = true;</span>
+<span class="lineNum">     499 </span>                :<span class="lineNoCov">          0 :                 lock(&amp;chip-&gt;lpc_lock);</span>
+<span class="lineNum">     500 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;chip-&gt;lpc_lock);</span>
+<span class="lineNum">     501 </span>                :            :         }
+<span class="lineNum">     502 </span>                :<span class="lineNoCov">          0 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

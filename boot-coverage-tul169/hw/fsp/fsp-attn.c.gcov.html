@@ -1,0 +1,211 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/fsp/fsp-attn.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">hw/fsp</a> - fsp-attn.c<span style="font-size: 80%;"> (source / <a href="fsp-attn.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntryLo">56.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryLo">66.7 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryLo">25.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            : *
+<span class="lineNum">       3 </span>                :            : * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            : * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            : * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            : *
+<span class="lineNum">       7 </span>                :            : * http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            : *
+<span class="lineNum">       9 </span>                :            : * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            : * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            : * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            : * implied.
+<span class="lineNum">      13 </span>                :            : * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            : * limitations under the License.
+<span class="lineNum">      15 </span>                :            : */
+<span class="lineNum">      16 </span>                :            : #include &lt;fsp.h&gt;
+<span class="lineNum">      17 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;fsp-elog.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;fsp-attn.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;hdata/spira.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;stack.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;processor.h&gt;
+<span class="lineNum">      23 </span>                :            : 
+<span class="lineNum">      24 </span>                :            : #define TI_CMD_VALID    0x1     /* Command valid */
+<span class="lineNum">      25 </span>                :            : #define TI_CMD          0xA1    /* Terminate Immediate command */
+<span class="lineNum">      26 </span>                :            : #define TI_DATA_LEN     0x0400  /* Data length */
+<span class="lineNum">      27 </span>                :            : /* Controls dump actions
+<span class="lineNum">      28 </span>                :            :  *      - Non-destructive hardware dump (bit 0)
+<span class="lineNum">      29 </span>                :            :  *      - memory dump (bit 1)
+<span class="lineNum">      30 </span>                :            :  *      - Destructive hardware dump (bit 2)
+<span class="lineNum">      31 </span>                :            :  */
+<span class="lineNum">      32 </span>                :            : #define TI_DMP_CTL      0x6
+<span class="lineNum">      33 </span>                :            : /* Dump type
+<span class="lineNum">      34 </span>                :            :  * 0 - Abbreviated hardware dump
+<span class="lineNum">      35 </span>                :            :  * 1 - Complete hardware dump
+<span class="lineNum">      36 </span>                :            :  * 2 - No hardware dump
+<span class="lineNum">      37 </span>                :            :  */
+<span class="lineNum">      38 </span>                :            : #define TI_DUMP_TYPE    0x1
+<span class="lineNum">      39 </span>                :            : #define TI_FORMAT       0x02    /* SRC format */
+<span class="lineNum">      40 </span>                :            : #define TI_SRC_FLAGS    0x0     /* SRC flags */
+<span class="lineNum">      41 </span>                :            : #define TI_ASCII_WORDS  0x0     /* Number of ASCII words */
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :            : /* HEX words: Number of hex words of data added, up to 8 total
+<span class="lineNum">      44 </span>                :            :  * this value is one more.
+<span class="lineNum">      45 </span>                :            :  */
+<span class="lineNum">      46 </span>                :            : #define TI_HEX_WORDS    0x02
+<span class="lineNum">      47 </span>                :            : /* SRC length : 8 byte header, 8 hex words of data and
+<span class="lineNum">      48 </span>                :            :  * 32 byte ASCII SRC
+<span class="lineNum">      49 </span>                :            :  */
+<span class="lineNum">      50 </span>                :            : #define TI_SRC_LEN      0x48
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :            : static struct ti_attn *ti_attn;
+<a name="53"><span class="lineNum">      53 </span>                :            : </a>
+<span class="lineNum">      54 </span>                :            : /* Initialises SP attention area with default values */
+<span class="lineNum">      55 </span>                :<span class="lineCov">          1 : static void init_sp_attn_area(void)</span>
+<span class="lineNum">      56 </span>                :            : {
+<span class="lineNum">      57 </span>                :            :         /* Already done */
+<span class="lineNum">      58 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (ti_attn)</span>
+<span class="lineNum">      59 </span>                :<span class="lineCov">          1 :                 return;</span>
+<span class="lineNum">      60 </span>                :            : 
+<span class="lineNum">      61 </span>                :            :         /* We are just enabling attention area 1 */
+<span class="lineNum">      62 </span>                :<span class="lineCov">          1 :         ti_attn = (struct ti_attn *)&amp;cpu_ctl_sp_attn_area1;</span>
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :            :         /* Attention component checks Attn area 2  first, if its NULL
+<span class="lineNum">      65 </span>                :            :          * it will check for Attn area 1.
+<span class="lineNum">      66 </span>                :            :          */
+<span class="lineNum">      67 </span>                :<span class="lineCov">          1 :         memset(&amp;cpu_ctl_sp_attn_area1, 0, sizeof(struct sp_attn_area));</span>
+<span class="lineNum">      68 </span>                :<span class="lineCov">          1 :         memset(&amp;cpu_ctl_sp_attn_area2, 0, sizeof(struct sp_attn_area));</span>
+<span class="lineNum">      69 </span>                :            : 
+<span class="lineNum">      70 </span>                :<span class="lineCov">          1 :         ti_attn-&gt;cmd_valid = TI_CMD_VALID;</span>
+<span class="lineNum">      71 </span>                :<span class="lineCov">          1 :         ti_attn-&gt;attn_cmd = TI_CMD;</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">          1 :         ti_attn-&gt;data_len = CPU_TO_BE16(TI_DATA_LEN);</span>
+<span class="lineNum">      73 </span>                :            :         /* Dump control byte not used as of now */
+<span class="lineNum">      74 </span>                :<span class="lineCov">          1 :         ti_attn-&gt;dump_ctrl =TI_DMP_CTL;</span>
+<span class="lineNum">      75 </span>                :<span class="lineCov">          1 :         ti_attn-&gt;dump_type = CPU_TO_BE16(TI_DUMP_TYPE);</span>
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>                :            :         /* SRC format */
+<span class="lineNum">      78 </span>                :<span class="lineCov">          1 :         ti_attn-&gt;src_fmt = TI_FORMAT;</span>
+<span class="lineNum">      79 </span>                :            :         /* SRC flags */
+<span class="lineNum">      80 </span>                :<span class="lineCov">          1 :         ti_attn-&gt;src_flags = TI_SRC_FLAGS;</span>
+<span class="lineNum">      81 </span>                :            :         /* #ASCII words */
+<span class="lineNum">      82 </span>                :<span class="lineCov">          1 :         ti_attn-&gt;ascii_cnt = TI_ASCII_WORDS;</span>
+<span class="lineNum">      83 </span>                :            :         /* #HEX words */
+<span class="lineNum">      84 </span>                :<span class="lineCov">          1 :         ti_attn-&gt;hex_cnt = TI_HEX_WORDS;</span>
+<span class="lineNum">      85 </span>                :<span class="lineCov">          1 :         ti_attn-&gt;src_len = CPU_TO_BE16(TI_SRC_LEN);</span>
+<span class="lineNum">      86 </span>                :<span class="lineCov">          1 :         snprintf(ti_attn-&gt;src, SRC_LEN, &quot;%X&quot;, generate_src_from_comp(OPAL_RC_ATTN));</span>
+<span class="lineNum">      87 </span>                :            : }
+<span class="lineNum">      88 </span>                :            : 
+<a name="89"><span class="lineNum">      89 </span>                :            : /* Updates src in sp attention area</a>
+<span class="lineNum">      90 </span>                :            :  */
+<span class="lineNum">      91 </span>                :<span class="lineNoCov">          0 : void update_sp_attn_area(const char *msg)</span>
+<span class="lineNum">      92 </span>                :            : {
+<span class="lineNum">      93 </span>                :            : #define STACK_BUF_ENTRIES       20
+<span class="lineNum">      94 </span>                :            :         struct bt_entry bt_buf[STACK_BUF_ENTRIES];
+<span class="lineNum">      95 </span>                :            :         unsigned int ent_cnt, len;
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fsp_present())</span>
+<span class="lineNum">      98 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :            :         /* This can be called early */
+<span class="lineNum">     101 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!ti_attn)</span>
+<span class="lineNum">     102 </span>                :<span class="lineNoCov">          0 :                 init_sp_attn_area();</span>
+<span class="lineNum">     103 </span>                :            : 
+<span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 :         ti_attn-&gt;src_word[0] =</span>
+<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 :                 (uint32_t)((uint64_t)__builtin_return_address(0) &amp; 0xffffffff);</span>
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 :         snprintf(ti_attn-&gt;msg.version, VERSION_LEN, &quot;%s&quot;, version);</span>
+<span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 :         ent_cnt = STACK_BUF_ENTRIES;</span>
+<span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 :         __backtrace(bt_buf, &amp;ent_cnt);</span>
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :         len = BT_FRAME_LEN;</span>
+<span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 :         __print_backtrace(mfspr(SPR_PIR), bt_buf, ent_cnt,</span>
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :                           ti_attn-&gt;msg.bt_buf, &amp;len, false);</span>
+<span class="lineNum">     113 </span>                :<span class="lineNoCov">          0 :         snprintf(ti_attn-&gt;msg.file_info, FILE_INFO_LEN, &quot;%s&quot;, msg);</span>
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>                :<span class="lineNoCov">          0 :         ti_attn-&gt;msg_len = VERSION_LEN + BT_FRAME_LEN +</span>
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :                                    strlen(ti_attn-&gt;msg.file_info);</span>
+<span class="lineNum">     117 </span>                :            : }
+<a name="118"><span class="lineNum">     118 </span>                :            : </a>
+<span class="lineNum">     119 </span>                :            : /* Intialises SP attention area */
+<span class="lineNum">     120 </span>                :<span class="lineCov">          1 : void fsp_attn_init(void)</span>
+<span class="lineNum">     121 </span>                :            : {
+<span class="lineNum">     122 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!fsp_present())</span>
+<span class="lineNum">     123 </span>                :<span class="lineCov">          1 :                 return;</span>
+<span class="lineNum">     124 </span>                :            : 
+<span class="lineNum">     125 </span>                :<span class="lineCov">          1 :         init_sp_attn_area();</span>
+<span class="lineNum">     126 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,184 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/nx-rng.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">hw</a> - nx-rng.c<span style="font-size: 80%;"> (source / <a href="nx-rng.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntryMed">81.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2015 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : 
+<span class="lineNum">      18 </span>                :            : 
+<span class="lineNum">      19 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;xscom.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;io.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;cpu.h&gt;
+<a name="23"><span class="lineNum">      23 </span>                :            : #include &lt;nx.h&gt;</a>
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :<span class="lineCov">          2 : void nx_create_rng_node(struct dt_node *node)</span>
+<span class="lineNum">      26 </span>                :            : {
+<span class="lineNum">      27 </span>                :            :         u64 bar, cfg;
+<span class="lineNum">      28 </span>                :            :         u64 xbar, xcfg;
+<span class="lineNum">      29 </span>                :            :         u32 pb_base;
+<span class="lineNum">      30 </span>                :            :         u32 gcid;
+<span class="lineNum">      31 </span>                :            :         u64 rng_addr, rng_len, len;
+<span class="lineNum">      32 </span>                :            :         struct dt_node *rng;
+<span class="lineNum">      33 </span>                :            :         int rc;
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :<span class="lineCov">          2 :         gcid = dt_get_chip_id(node);</span>
+<span class="lineNum">      36 </span>                :<span class="lineCov">          2 :         pb_base = dt_get_address(node, 0, NULL);</span>
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (dt_node_is_compatible(node, &quot;ibm,power7-nx&quot;)) {</span>
+<span class="lineNum">      39 </span>                :<span class="lineNoCov">          0 :                 xbar = pb_base + NX_P7_RNG_BAR;</span>
+<span class="lineNum">      40 </span>                :<span class="lineNoCov">          0 :                 xcfg = pb_base + NX_P7_RNG_CFG;</span>
+<span class="lineNum">      41 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         } else if (dt_node_is_compatible(node, &quot;ibm,power8-nx&quot;)) {</span>
+<span class="lineNum">      42 </span>                :<span class="lineCov">          2 :                 xbar = pb_base + NX_P8_RNG_BAR;</span>
+<span class="lineNum">      43 </span>                :<span class="lineCov">          2 :                 xcfg = pb_base + NX_P8_RNG_CFG;</span>
+<span class="lineNum">      44 </span>                :            :         } else {
+<span class="lineNum">      45 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;NX%d: Unknown NX type!\n&quot;, gcid);</span>
+<span class="lineNum">      46 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">      47 </span>                :            :         }
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :<span class="lineCov">          2 :         rc = xscom_read(gcid, xbar, &amp;bar); /* Get RNG BAR */</span>
+<span class="lineNum">      50 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (rc)</span>
+<span class="lineNum">      51 </span>                :            :                 return; /* Hope xscom always prints error message */
+<span class="lineNum">      52 </span>                :            : 
+<span class="lineNum">      53 </span>                :<span class="lineCov">          2 :         rc = xscom_read(gcid, xcfg, &amp;cfg); /* Get RNG CFG */</span>
+<span class="lineNum">      54 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (rc)</span>
+<span class="lineNum">      55 </span>                :            :                 return;
+<span class="lineNum">      56 </span>                :            : 
+<span class="lineNum">      57 </span>                :            :         /*
+<span class="lineNum">      58 </span>                :            :          * We use the P8 BAR constants. The layout of the BAR is the
+<span class="lineNum">      59 </span>                :            :          * same, with more bits at the top of P8 which are hard wired to
+<span class="lineNum">      60 </span>                :            :          * 0 on P7. We also mask in-place rather than using GETFIELD
+<span class="lineNum">      61 </span>                :            :          * for the base address as we happen to *know* that it's properly
+<span class="lineNum">      62 </span>                :            :          * aligned in the register.
+<span class="lineNum">      63 </span>                :            :          *
+<span class="lineNum">      64 </span>                :            :          * FIXME? Always assusme BAR gets a valid address from FSP
+<span class="lineNum">      65 </span>                :            :          */
+<span class="lineNum">      66 </span>                :<span class="lineCov">          2 :         rng_addr = bar &amp; NX_P8_RNG_BAR_ADDR;</span>
+<span class="lineNum">      67 </span>                :<span class="lineCov">          2 :         len  = GETFIELD(NX_P8_RNG_BAR_SIZE, bar);</span>
+<span class="lineNum">      68 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (len &gt; 4) {</span>
+<span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;NX%d: Corrupted bar size %lld\n&quot;, gcid, len);</span>
+<span class="lineNum">      70 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">      71 </span>                :            :         }
+<span class="lineNum">      72 </span>                :<span class="lineCov">          2 :         rng_len = (u64[]){  0x1000,         /* 4K */</span>
+<span class="lineNum">      73 </span>                :            :                             0x10000,        /* 64K */
+<span class="lineNum">      74 </span>                :            :                             0x400000000,    /* 16G*/
+<span class="lineNum">      75 </span>                :            :                             0x100000,       /* 1M */
+<span class="lineNum">      76 </span>                :            :                             0x1000000       /* 16M */} [len];
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>                :<span class="lineCov">          2 :         prlog(PR_INFO, &quot;NX%d: RNG BAR set to 0x%016llx..0x%016llx\n&quot;,</span>
+<span class="lineNum">      80 </span>                :<span class="lineCov">          2 :               gcid, rng_addr, rng_addr + rng_len - 1);</span>
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>                :            :         /* RNG must be enabled before MMIO is enabled */
+<span class="lineNum">      83 </span>                :<span class="lineCov">          2 :         rc = xscom_write(gcid, xcfg, cfg | NX_P8_RNG_CFG_ENABLE);</span>
+<span class="lineNum">      84 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (rc)</span>
+<span class="lineNum">      85 </span>                :            :                 return;
+<span class="lineNum">      86 </span>                :            : 
+<span class="lineNum">      87 </span>                :            :         /* The BAR needs to be enabled too */
+<span class="lineNum">      88 </span>                :<span class="lineCov">          2 :         rc = xscom_write(gcid, xbar, bar | NX_P8_RNG_BAR_ENABLE);</span>
+<span class="lineNum">      89 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (rc)</span>
+<span class="lineNum">      90 </span>                :            :                 return;
+<span class="lineNum">      91 </span>                :<span class="lineCov">          2 :         rng = dt_new_addr(dt_root, &quot;hwrng&quot;, rng_addr);</span>
+<span class="lineNum">      92 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!rng)</span>
+<span class="lineNum">      93 </span>                :            :                 return;
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :<span class="lineCov">          2 :         dt_add_property_strings(rng, &quot;compatible&quot;, &quot;ibm,power-rng&quot;);</span>
+<span class="lineNum">      96 </span>                :<span class="lineCov">          2 :         dt_add_property_cells(rng, &quot;reg&quot;, hi32(rng_addr), lo32(rng_addr),</span>
+<span class="lineNum">      97 </span>                :            :                               hi32(rng_len), lo32(rng_len));
+<span class="lineNum">      98 </span>                :<span class="lineCov">          2 :         dt_add_property_cells(rng, &quot;ibm,chip-id&quot;, gcid);</span>
+<span class="lineNum">      99 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

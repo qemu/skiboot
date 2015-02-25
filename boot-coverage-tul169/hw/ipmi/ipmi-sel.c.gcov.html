@@ -1,0 +1,337 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/ipmi/ipmi-sel.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">hw/ipmi</a> - ipmi-sel.c<span style="font-size: 80%;"> (source / <a href="ipmi-sel.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">93</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;string.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;ipmi.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;device.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;opal.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;errorlog.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;pel.h&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;opal-msg.h&gt;
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            : /* OEM SEL fields */
+<span class="lineNum">      29 </span>                :            : #define SEL_OEM_ID_0            0x55
+<span class="lineNum">      30 </span>                :            : #define SEL_OEM_ID_1            0x55
+<span class="lineNum">      31 </span>                :            : #define SEL_RECORD_TYPE_OEM     0xC0
+<span class="lineNum">      32 </span>                :            : #define SEL_RECORD_TYPE_EVENT   0x02
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            : #define SEL_NETFN_IBM           0x3a
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :            : /* OEM SEL Commands */
+<span class="lineNum">      37 </span>                :            : #define CMD_AMI_POWER           0x04
+<span class="lineNum">      38 </span>                :            : #define CMD_AMI_PNOR_ACCESS     0x07
+<span class="lineNum">      39 </span>                :            : 
+<span class="lineNum">      40 </span>                :            : #define SOFT_OFF                0x00
+<span class="lineNum">      41 </span>                :            : #define SOFT_REBOOT             0x01
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :            : struct oem_sel {
+<span class="lineNum">      44 </span>                :            :         /* SEL header */
+<span class="lineNum">      45 </span>                :            :         uint8_t id[2];
+<span class="lineNum">      46 </span>                :            :         uint8_t type;
+<span class="lineNum">      47 </span>                :            :         uint8_t manuf_id[3];
+<span class="lineNum">      48 </span>                :            :         uint8_t timestamp[4];
+<span class="lineNum">      49 </span>                :            :         /* OEM SEL data (6 bytes) follows */
+<span class="lineNum">      50 </span>                :            :         uint8_t netfun;
+<span class="lineNum">      51 </span>                :            :         uint8_t cmd;
+<span class="lineNum">      52 </span>                :            :         uint8_t data[4];
+<span class="lineNum">      53 </span>                :            : };
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            : /* As far as I can tell the size of PEL record is unbounded (due to
+<span class="lineNum">      56 </span>                :            :  * the possible presence of the user defined section). We chose this
+<span class="lineNum">      57 </span>                :            :  * size because it's what FSP uses, but we could probably reduce
+<span class="lineNum">      58 </span>                :            :  * it. */
+<span class="lineNum">      59 </span>                :            : #define MAX_PEL_SIZE 0x10000
+<span class="lineNum">      60 </span>                :            : 
+<a name="61"><span class="lineNum">      61 </span>                :            : #define ESEL_HDR_SIZE 7</a>
+<span class="lineNum">      62 </span>                :            : 
+<span class="lineNum">      63 </span>                :<span class="lineNoCov">          0 : static void ipmi_elog_error(struct ipmi_msg *msg)</span>
+<span class="lineNum">      64 </span>                :            : {
+<span class="lineNum">      65 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (msg-&gt;cc == IPMI_LOST_ARBITRATION_ERR)</span>
+<span class="lineNum">      66 </span>                :            :                 /* Retry due to SEL erase */
+<span class="lineNum">      67 </span>                :<span class="lineNoCov">          0 :                 ipmi_queue_msg(msg);</span>
+<span class="lineNum">      68 </span>                :            :         else
+<span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 :                 opal_elog_complete(msg-&gt;user_data, false);</span>
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 :         ipmi_free_msg(msg);</span>
+<span class="lineNum">      72 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :            : /* Goes through the required steps to add a complete eSEL:
+<span class="lineNum">      75 </span>                :            :  *
+<span class="lineNum">      76 </span>                :            :  *  1. Get a reservation
+<span class="lineNum">      77 </span>                :            :  *  2. Partially add data to the SEL
+<span class="lineNum">      78 </span>                :            :  *
+<span class="lineNum">      79 </span>                :            :  * Because a reservation is needed we need to ensure eSEL's are added
+<span class="lineNum">      80 </span>                :            :  * as a single transaction as concurrent/interleaved adds would cancel
+<span class="lineNum">      81 </span>                :            :  * the reservation. We guarantee this by always adding our messages to
+<span class="lineNum">      82 </span>                :            :  * the head of the transmission queue, blocking any other messages
+<span class="lineNum">      83 </span>                :            :  * being sent until we have completed sending this message.
+<span class="lineNum">      84 </span>                :            :  *
+<span class="lineNum">      85 </span>                :            :  * There is still a very small chance that we will accidentally
+<span class="lineNum">      86 </span>                :            :  * interleave a message if there is another one waiting at the head of
+<span class="lineNum">      87 </span>                :            :  * the ipmi queue and another cpu calls the ipmi poller before we
+<span class="lineNum">      88 </span>                :            :  * complete. However this should just cause a resevation cancelled
+<span class="lineNum">      89 </span>                :            :  * error which we have to deal with anyway (eg. because there may be a
+<a name="90"><span class="lineNum">      90 </span>                :            :  * SEL erase in progress) so it shouldn't cause any problems.</a>
+<span class="lineNum">      91 </span>                :            :  */
+<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 : static void ipmi_elog_poll(struct ipmi_msg *msg)</span>
+<span class="lineNum">      93 </span>                :            : {
+<span class="lineNum">      94 </span>                :            :         static char pel_buf[MAX_PEL_SIZE];
+<span class="lineNum">      95 </span>                :            :         static size_t pel_size;
+<span class="lineNum">      96 </span>                :            :         static int index = 0;
+<span class="lineNum">      97 </span>                :            :         static unsigned int reservation_id = 0;
+<span class="lineNum">      98 </span>                :            :         static unsigned int record_id = 0;
+<span class="lineNum">      99 </span>                :<span class="lineNoCov">          0 :         struct errorlog *elog_buf = (struct errorlog *) msg-&gt;user_data;</span>
+<span class="lineNum">     100 </span>                :            :         size_t req_size;
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (msg-&gt;cmd == IPMI_CMD(IPMI_RESERVE_SEL)) {</span>
+<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :                 reservation_id = msg-&gt;data[0];</span>
+<span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 :                 reservation_id |= msg-&gt;data[1] &lt;&lt; 8;</span>
+<span class="lineNum">     105 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!reservation_id) {</span>
+<span class="lineNum">     106 </span>                :            :                         /* According to specification we should never
+<span class="lineNum">     107 </span>                :            :                          * get here, but just in case we do we cancel
+<span class="lineNum">     108 </span>                :            :                          * sending the message. */
+<span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;Invalid reservation id&quot;);</span>
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :                         opal_elog_complete(elog_buf, false);</span>
+<span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 :                         ipmi_free_msg(msg);</span>
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     113 </span>                :            :                 }
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>                :<span class="lineNoCov">          0 :                 pel_size = create_pel_log(elog_buf, pel_buf, MAX_PEL_SIZE);</span>
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :                 index = 0;</span>
+<span class="lineNum">     117 </span>                :<span class="lineNoCov">          0 :                 record_id = 0;</span>
+<span class="lineNum">     118 </span>                :            :         } else {
+<span class="lineNum">     119 </span>                :<span class="lineNoCov">          0 :                 record_id = msg-&gt;data[0];</span>
+<span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 :                 record_id |= msg-&gt;data[1] &lt;&lt; 8;</span>
+<span class="lineNum">     121 </span>                :            :         }
+<span class="lineNum">     122 </span>                :            : 
+<span class="lineNum">     123 </span>                :            :         /* Start or continue the IPMI_PARTIAL_ADD_SEL */
+<span class="lineNum">     124 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (index &gt;= pel_size) {</span>
+<span class="lineNum">     125 </span>                :            :                 /* We're all done. Invalidate the resevation id to
+<span class="lineNum">     126 </span>                :            :                  * ensure we get an error if we cut in on another eSEL
+<span class="lineNum">     127 </span>                :            :                  * message. */
+<span class="lineNum">     128 </span>                :<span class="lineNoCov">          0 :                 reservation_id = 0;</span>
+<span class="lineNum">     129 </span>                :<span class="lineNoCov">          0 :                 index = 0;</span>
+<span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :                 opal_elog_complete(elog_buf, true);</span>
+<span class="lineNum">     131 </span>                :<span class="lineNoCov">          0 :                 ipmi_free_msg(msg);</span>
+<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     133 </span>                :            :         }
+<span class="lineNum">     134 </span>                :            : 
+<span class="lineNum">     135 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((pel_size - index) &lt; (IPMI_MAX_REQ_SIZE - ESEL_HDR_SIZE)) {</span>
+<span class="lineNum">     136 </span>                :            :                 /* Last data to send */
+<span class="lineNum">     137 </span>                :<span class="lineNoCov">          0 :                 msg-&gt;data[6] = 1;</span>
+<span class="lineNum">     138 </span>                :<span class="lineNoCov">          0 :                 req_size = pel_size - index + ESEL_HDR_SIZE;</span>
+<span class="lineNum">     139 </span>                :            :         } else {
+<span class="lineNum">     140 </span>                :<span class="lineNoCov">          0 :                 msg-&gt;data[6] = 0;</span>
+<span class="lineNum">     141 </span>                :<span class="lineNoCov">          0 :                 req_size = IPMI_MAX_REQ_SIZE;</span>
+<span class="lineNum">     142 </span>                :            :         }
+<span class="lineNum">     143 </span>                :            : 
+<span class="lineNum">     144 </span>                :<span class="lineNoCov">          0 :         ipmi_init_msg(msg, IPMI_DEFAULT_INTERFACE, IPMI_PARTIAL_ADD_ESEL,</span>
+<span class="lineNum">     145 </span>                :            :                       ipmi_elog_poll, elog_buf, req_size, 2);
+<span class="lineNum">     146 </span>                :            : 
+<span class="lineNum">     147 </span>                :<span class="lineNoCov">          0 :         msg-&gt;data[0] = reservation_id &amp; 0xff;</span>
+<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 :         msg-&gt;data[1] = (reservation_id &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :         msg-&gt;data[2] = record_id &amp; 0xff;</span>
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :         msg-&gt;data[3] = (record_id &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :         msg-&gt;data[4] = index &amp; 0xff;</span>
+<span class="lineNum">     152 </span>                :<span class="lineNoCov">          0 :         msg-&gt;data[5] = (index &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     153 </span>                :            : 
+<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 :         memcpy(&amp;msg-&gt;data[ESEL_HDR_SIZE], &amp;pel_buf[index], msg-&gt;req_size - ESEL_HDR_SIZE);</span>
+<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :         index += msg-&gt;req_size - ESEL_HDR_SIZE;</span>
+<span class="lineNum">     156 </span>                :            : 
+<span class="lineNum">     157 </span>                :<span class="lineNoCov">          0 :         ipmi_queue_msg_head(msg);</span>
+<span class="lineNum">     158 </span>                :<span class="lineNoCov">          0 :         return;</span>
+<a name="159"><span class="lineNum">     159 </span>                :            : }</a>
+<span class="lineNum">     160 </span>                :            : 
+<span class="lineNum">     161 </span>                :<span class="lineNoCov">          0 : int ipmi_elog_commit(struct errorlog *elog_buf)</span>
+<span class="lineNum">     162 </span>                :            : {
+<span class="lineNum">     163 </span>                :            :         struct ipmi_msg *msg;
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :            :         /* We pass a large request size in to mkmsg so that we have a
+<span class="lineNum">     166 </span>                :            :          * large enough allocation to reuse the message to pass the
+<span class="lineNum">     167 </span>                :            :          * PEL data via a series of partial add commands.  */
+<span class="lineNum">     168 </span>                :<span class="lineNoCov">          0 :         msg = ipmi_mkmsg(IPMI_DEFAULT_INTERFACE, IPMI_RESERVE_SEL, ipmi_elog_poll,</span>
+<span class="lineNum">     169 </span>                :            :                          elog_buf, NULL, IPMI_MAX_REQ_SIZE, 2);
+<span class="lineNum">     170 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!msg) {</span>
+<span class="lineNum">     171 </span>                :<span class="lineNoCov">          0 :                 opal_elog_complete(elog_buf, false);</span>
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :                 return OPAL_RESOURCE;</span>
+<span class="lineNum">     173 </span>                :            :         }
+<span class="lineNum">     174 </span>                :<span class="lineNoCov">          0 :         msg-&gt;error = ipmi_elog_error;</span>
+<span class="lineNum">     175 </span>                :            : 
+<span class="lineNum">     176 </span>                :<span class="lineNoCov">          0 :         msg-&gt;req_size = 0;</span>
+<span class="lineNum">     177 </span>                :<span class="lineNoCov">          0 :         ipmi_queue_msg(msg);</span>
+<span class="lineNum">     178 </span>                :            : 
+<span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<a name="180"><span class="lineNum">     180 </span>                :            : }</a>
+<span class="lineNum">     181 </span>                :            : 
+<span class="lineNum">     182 </span>                :<span class="lineNoCov">          0 : static void sel_power(uint8_t power)</span>
+<span class="lineNum">     183 </span>                :            : {
+<span class="lineNum">     184 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (power) {</span>
+<span class="lineNum">     185 </span>                :            :         case SOFT_OFF:
+<span class="lineNum">     186 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_NOTICE, &quot;IPMI: soft shutdown requested\n&quot;);</span>
+<span class="lineNum">     187 </span>                :<span class="lineNoCov">          0 :                 opal_queue_msg(OPAL_MSG_SHUTDOWN, NULL, NULL, SOFT_OFF);</span>
+<span class="lineNum">     188 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     189 </span>                :            :         case SOFT_REBOOT:
+<span class="lineNum">     190 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_NOTICE, &quot;IPMI: soft reboot rqeuested\n&quot;);</span>
+<span class="lineNum">     191 </span>                :<span class="lineNoCov">          0 :                 opal_queue_msg(OPAL_MSG_SHUTDOWN, NULL, NULL, SOFT_REBOOT);</span>
+<span class="lineNum">     192 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     193 </span>                :            :         default:
+<span class="lineNum">     194 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_WARNING, &quot;IPMI: requested bad power state: %02x\n&quot;,</span>
+<span class="lineNum">     195 </span>                :            :                       power);
+<span class="lineNum">     196 </span>                :            :         }
+<a name="197"><span class="lineNum">     197 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 : static void dump_sel(struct oem_sel *sel)</span>
+<span class="lineNum">     200 </span>                :            : {
+<span class="lineNum">     201 </span>                :<span class="lineNoCov">          0 :         const int level = PR_DEBUG;</span>
+<span class="lineNum">     202 </span>                :            : 
+<span class="lineNum">     203 </span>                :<span class="lineNoCov">          0 :         prlog(level, &quot;\tid %02x%02x\n&quot;, sel-&gt;id[0], sel-&gt;id[1]);</span>
+<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :         prlog(level, &quot;\ttype %02x\n&quot;, sel-&gt;type);</span>
+<span class="lineNum">     205 </span>                :<span class="lineNoCov">          0 :         prlog(level, &quot;\tmanuf %02x %02x %02x\n&quot;,</span>
+<span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :               sel-&gt;manuf_id[0], sel-&gt;manuf_id[1], sel-&gt;manuf_id[2]);</span>
+<span class="lineNum">     207 </span>                :<span class="lineNoCov">          0 :         prlog(level, &quot;\ttime %02x %02x %02x %02x\n&quot;,</span>
+<span class="lineNum">     208 </span>                :<span class="lineNoCov">          0 :               sel-&gt;timestamp[0], sel-&gt;timestamp[1],</span>
+<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 :               sel-&gt;timestamp[2], sel-&gt;timestamp[3]);</span>
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :         prlog(level, &quot;\tnetfun %02x\n&quot;, sel-&gt;netfun);</span>
+<span class="lineNum">     211 </span>                :<span class="lineNoCov">          0 :         prlog(level, &quot;\tcmd %02x\n&quot;, sel-&gt;cmd);</span>
+<span class="lineNum">     212 </span>                :<span class="lineNoCov">          0 :         prlog(level, &quot;\tdata %02x %02x %02x %02x\n&quot;, sel-&gt;data[0],</span>
+<span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 :               sel-&gt;data[1], sel-&gt;data[2], sel-&gt;data[3]);</span>
+<a name="214"><span class="lineNum">     214 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     215 </span>                :            : 
+<span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 : void ipmi_parse_sel(struct ipmi_msg *msg)</span>
+<span class="lineNum">     217 </span>                :            : {
+<span class="lineNum">     218 </span>                :            :         struct oem_sel sel;
+<span class="lineNum">     219 </span>                :            : 
+<span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 :         prlog(PR_INFO, &quot;SEL received (size: %d)\n&quot;, msg-&gt;resp_size);</span>
+<span class="lineNum">     221 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(msg-&gt;resp_size &lt;= 16);</span>
+<span class="lineNum">     222 </span>                :            : 
+<span class="lineNum">     223 </span>                :<span class="lineNoCov">          0 :         memcpy(&amp;sel, msg-&gt;data, msg-&gt;resp_size);</span>
+<span class="lineNum">     224 </span>                :            : 
+<span class="lineNum">     225 </span>                :<span class="lineNoCov">          0 :         dump_sel(&amp;sel);</span>
+<span class="lineNum">     226 </span>                :            : 
+<span class="lineNum">     227 </span>                :            :         /* We do not process system event records */
+<span class="lineNum">     228 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (sel.type == SEL_RECORD_TYPE_EVENT) {</span>
+<span class="lineNum">     229 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_INFO, &quot;IPMI: dropping System Event Record SEL\n&quot;);</span>
+<span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     231 </span>                :            :         }
+<span class="lineNum">     232 </span>                :            : 
+<span class="lineNum">     233 </span>                :            :         /* Only accept OEM SEL messages */
+<span class="lineNum">     234 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (sel.id[0] != SEL_OEM_ID_0 ||</span>
+<span class="lineNum">     235 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             sel.id[1] != SEL_OEM_ID_1 ||</span>
+<span class="lineNum">     236 </span>                :            :             sel.type != SEL_RECORD_TYPE_OEM) {
+<span class="lineNum">     237 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_WARNING, &quot;IPMI: unknown SEL %02x%02x (type %02x)\n&quot;,</span>
+<span class="lineNum">     238 </span>                :<span class="lineNoCov">          0 :                       sel.id[0], sel.id[1], sel.type);</span>
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     240 </span>                :            :         }
+<span class="lineNum">     241 </span>                :            : 
+<span class="lineNum">     242 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (sel.cmd) {</span>
+<span class="lineNum">     243 </span>                :            :         case CMD_AMI_POWER:
+<span class="lineNum">     244 </span>                :<span class="lineNoCov">          0 :                 sel_power(sel.data[0]);</span>
+<span class="lineNum">     245 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     246 </span>                :            :         case CMD_AMI_PNOR_ACCESS:
+<span class="lineNum">     247 </span>                :            :                 break;
+<span class="lineNum">     248 </span>                :            :         default:
+<span class="lineNum">     249 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;IPMI: unknown OEM SEL command %02x received\n&quot;,</span>
+<span class="lineNum">     250 </span>                :            :                        sel.cmd);
+<span class="lineNum">     251 </span>                :            :         }
+<span class="lineNum">     252 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

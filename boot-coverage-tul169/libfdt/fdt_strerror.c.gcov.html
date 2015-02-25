@@ -1,0 +1,181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - libfdt/fdt_strerror.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">libfdt</a> - fdt_strerror.c<span style="font-size: 80%;"> (source / <a href="fdt_strerror.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*</a>
+<span class="lineNum">       2 </span>                :            :  * libfdt - Flat Device Tree manipulation
+<span class="lineNum">       3 </span>                :            :  * Copyright (C) 2006 David Gibson, IBM Corporation.
+<span class="lineNum">       4 </span>                :            :  *
+<span class="lineNum">       5 </span>                :            :  * libfdt is dual licensed: you can use it either under the terms of
+<span class="lineNum">       6 </span>                :            :  * the GPL, or the BSD license, at your option.
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  *  a) This library is free software; you can redistribute it and/or
+<span class="lineNum">       9 </span>                :            :  *     modify it under the terms of the GNU General Public License as
+<span class="lineNum">      10 </span>                :            :  *     published by the Free Software Foundation; either version 2 of the
+<span class="lineNum">      11 </span>                :            :  *     License, or (at your option) any later version.
+<span class="lineNum">      12 </span>                :            :  *
+<span class="lineNum">      13 </span>                :            :  *     This library is distributed in the hope that it will be useful,
+<span class="lineNum">      14 </span>                :            :  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      15 </span>                :            :  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      16 </span>                :            :  *     GNU General Public License for more details.
+<span class="lineNum">      17 </span>                :            :  *
+<span class="lineNum">      18 </span>                :            :  *     You should have received a copy of the GNU General Public
+<span class="lineNum">      19 </span>                :            :  *     License along with this library; if not, write to the Free
+<span class="lineNum">      20 </span>                :            :  *     Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+<span class="lineNum">      21 </span>                :            :  *     MA 02110-1301 USA
+<span class="lineNum">      22 </span>                :            :  *
+<span class="lineNum">      23 </span>                :            :  * Alternatively,
+<span class="lineNum">      24 </span>                :            :  *
+<span class="lineNum">      25 </span>                :            :  *  b) Redistribution and use in source and binary forms, with or
+<span class="lineNum">      26 </span>                :            :  *     without modification, are permitted provided that the following
+<span class="lineNum">      27 </span>                :            :  *     conditions are met:
+<span class="lineNum">      28 </span>                :            :  *
+<span class="lineNum">      29 </span>                :            :  *     1. Redistributions of source code must retain the above
+<span class="lineNum">      30 </span>                :            :  *        copyright notice, this list of conditions and the following
+<span class="lineNum">      31 </span>                :            :  *        disclaimer.
+<span class="lineNum">      32 </span>                :            :  *     2. Redistributions in binary form must reproduce the above
+<span class="lineNum">      33 </span>                :            :  *        copyright notice, this list of conditions and the following
+<span class="lineNum">      34 </span>                :            :  *        disclaimer in the documentation and/or other materials
+<span class="lineNum">      35 </span>                :            :  *        provided with the distribution.
+<span class="lineNum">      36 </span>                :            :  *
+<span class="lineNum">      37 </span>                :            :  *     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+<span class="lineNum">      38 </span>                :            :  *     CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES,
+<span class="lineNum">      39 </span>                :            :  *     INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+<span class="lineNum">      40 </span>                :            :  *     MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+<span class="lineNum">      41 </span>                :            :  *     DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+<span class="lineNum">      42 </span>                :            :  *     CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+<span class="lineNum">      43 </span>                :            :  *     SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+<span class="lineNum">      44 </span>                :            :  *     NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+<span class="lineNum">      45 </span>                :            :  *     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+<span class="lineNum">      46 </span>                :            :  *     HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+<span class="lineNum">      47 </span>                :            :  *     CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      48 </span>                :            :  *     OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+<span class="lineNum">      49 </span>                :            :  *     EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      50 </span>                :            :  */
+<span class="lineNum">      51 </span>                :            : #include &lt;compiler.h&gt;
+<span class="lineNum">      52 </span>                :            : #include &quot;libfdt_env.h&quot;
+<span class="lineNum">      53 </span>                :            : #include &lt;fdt.h&gt;
+<span class="lineNum">      54 </span>                :            : #include &lt;libfdt.h&gt;
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :            : #include &quot;libfdt_internal.h&quot;
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :            : struct fdt_errtabent {
+<span class="lineNum">      59 </span>                :            :         const char *str;
+<span class="lineNum">      60 </span>                :            : };
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :            : #define FDT_ERRTABENT(val) \
+<span class="lineNum">      63 </span>                :            :         [(val)] = { .str = #val, }
+<span class="lineNum">      64 </span>                :            : 
+<span class="lineNum">      65 </span>                :            : static struct fdt_errtabent fdt_errtable[] = {
+<span class="lineNum">      66 </span>                :            :         FDT_ERRTABENT(FDT_ERR_NOTFOUND),
+<span class="lineNum">      67 </span>                :            :         FDT_ERRTABENT(FDT_ERR_EXISTS),
+<span class="lineNum">      68 </span>                :            :         FDT_ERRTABENT(FDT_ERR_NOSPACE),
+<span class="lineNum">      69 </span>                :            : 
+<span class="lineNum">      70 </span>                :            :         FDT_ERRTABENT(FDT_ERR_BADOFFSET),
+<span class="lineNum">      71 </span>                :            :         FDT_ERRTABENT(FDT_ERR_BADPATH),
+<span class="lineNum">      72 </span>                :            :         FDT_ERRTABENT(FDT_ERR_BADSTATE),
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :            :         FDT_ERRTABENT(FDT_ERR_TRUNCATED),
+<span class="lineNum">      75 </span>                :            :         FDT_ERRTABENT(FDT_ERR_BADMAGIC),
+<span class="lineNum">      76 </span>                :            :         FDT_ERRTABENT(FDT_ERR_BADVERSION),
+<span class="lineNum">      77 </span>                :            :         FDT_ERRTABENT(FDT_ERR_BADSTRUCTURE),
+<span class="lineNum">      78 </span>                :            :         FDT_ERRTABENT(FDT_ERR_BADLAYOUT),
+<span class="lineNum">      79 </span>                :            : };
+<a name="80"><span class="lineNum">      80 </span>                :            : #define FDT_ERRTABSIZE  (sizeof(fdt_errtable) / sizeof(fdt_errtable[0]))</a>
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 : const char __attrconst *fdt_strerror(int errval)</span>
+<span class="lineNum">      83 </span>                :            : {
+<span class="lineNum">      84 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (errval &gt; 0)</span>
+<span class="lineNum">      85 </span>                :            :                 return &quot;&lt;valid offset/length&gt;&quot;;
+<span class="lineNum">      86 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (errval == 0)</span>
+<span class="lineNum">      87 </span>                :            :                 return &quot;&lt;no error&gt;&quot;;
+<span class="lineNum">      88 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (errval &gt; -FDT_ERRTABSIZE) {</span>
+<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :                 const char *s = fdt_errtable[-errval].str;</span>
+<span class="lineNum">      90 </span>                :            : 
+<span class="lineNum">      91 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (s)</span>
+<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 :                         return s;</span>
+<span class="lineNum">      93 </span>                :            :         }
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :            :         return &quot;&lt;unknown error&gt;&quot;;
+<span class="lineNum">      96 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

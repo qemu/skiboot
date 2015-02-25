@@ -1,0 +1,298 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - libfdt/fdt.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">libfdt</a> - fdt.c<span style="font-size: 80%;"> (source / <a href="fdt.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">40</td>
+            <td class="headerCovTableEntry">62</td>
+            <td class="headerCovTableEntryLo">64.5 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryLo">71.4 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntry">68</td>
+            <td class="headerCovTableEntryLo">33.8 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /*</a>
+<span class="lineNum">       2 </span>                :            :  * libfdt - Flat Device Tree manipulation
+<span class="lineNum">       3 </span>                :            :  * Copyright (C) 2006 David Gibson, IBM Corporation.
+<span class="lineNum">       4 </span>                :            :  *
+<span class="lineNum">       5 </span>                :            :  * libfdt is dual licensed: you can use it either under the terms of
+<span class="lineNum">       6 </span>                :            :  * the GPL, or the BSD license, at your option.
+<span class="lineNum">       7 </span>                :            :  *
+<span class="lineNum">       8 </span>                :            :  *  a) This library is free software; you can redistribute it and/or
+<span class="lineNum">       9 </span>                :            :  *     modify it under the terms of the GNU General Public License as
+<span class="lineNum">      10 </span>                :            :  *     published by the Free Software Foundation; either version 2 of the
+<span class="lineNum">      11 </span>                :            :  *     License, or (at your option) any later version.
+<span class="lineNum">      12 </span>                :            :  *
+<span class="lineNum">      13 </span>                :            :  *     This library is distributed in the hope that it will be useful,
+<span class="lineNum">      14 </span>                :            :  *     but WITHOUT ANY WARRANTY; without even the implied warranty of
+<span class="lineNum">      15 </span>                :            :  *     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+<span class="lineNum">      16 </span>                :            :  *     GNU General Public License for more details.
+<span class="lineNum">      17 </span>                :            :  *
+<span class="lineNum">      18 </span>                :            :  *     You should have received a copy of the GNU General Public
+<span class="lineNum">      19 </span>                :            :  *     License along with this library; if not, write to the Free
+<span class="lineNum">      20 </span>                :            :  *     Software Foundation, Inc., 51 Franklin St, Fifth Floor, Boston,
+<span class="lineNum">      21 </span>                :            :  *     MA 02110-1301 USA
+<span class="lineNum">      22 </span>                :            :  *
+<span class="lineNum">      23 </span>                :            :  * Alternatively,
+<span class="lineNum">      24 </span>                :            :  *
+<span class="lineNum">      25 </span>                :            :  *  b) Redistribution and use in source and binary forms, with or
+<span class="lineNum">      26 </span>                :            :  *     without modification, are permitted provided that the following
+<span class="lineNum">      27 </span>                :            :  *     conditions are met:
+<span class="lineNum">      28 </span>                :            :  *
+<span class="lineNum">      29 </span>                :            :  *     1. Redistributions of source code must retain the above
+<span class="lineNum">      30 </span>                :            :  *        copyright notice, this list of conditions and the following
+<span class="lineNum">      31 </span>                :            :  *        disclaimer.
+<span class="lineNum">      32 </span>                :            :  *     2. Redistributions in binary form must reproduce the above
+<span class="lineNum">      33 </span>                :            :  *        copyright notice, this list of conditions and the following
+<span class="lineNum">      34 </span>                :            :  *        disclaimer in the documentation and/or other materials
+<span class="lineNum">      35 </span>                :            :  *        provided with the distribution.
+<span class="lineNum">      36 </span>                :            :  *
+<span class="lineNum">      37 </span>                :            :  *     THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+<span class="lineNum">      38 </span>                :            :  *     CONTRIBUTORS &quot;AS IS&quot; AND ANY EXPRESS OR IMPLIED WARRANTIES,
+<span class="lineNum">      39 </span>                :            :  *     INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+<span class="lineNum">      40 </span>                :            :  *     MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+<span class="lineNum">      41 </span>                :            :  *     DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+<span class="lineNum">      42 </span>                :            :  *     CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+<span class="lineNum">      43 </span>                :            :  *     SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+<span class="lineNum">      44 </span>                :            :  *     NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+<span class="lineNum">      45 </span>                :            :  *     LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+<span class="lineNum">      46 </span>                :            :  *     HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+<span class="lineNum">      47 </span>                :            :  *     CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+<span class="lineNum">      48 </span>                :            :  *     OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+<span class="lineNum">      49 </span>                :            :  *     EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+<span class="lineNum">      50 </span>                :            :  */
+<span class="lineNum">      51 </span>                :            : #include &quot;libfdt_env.h&quot;
+<span class="lineNum">      52 </span>                :            : 
+<span class="lineNum">      53 </span>                :            : #include &lt;fdt.h&gt;
+<span class="lineNum">      54 </span>                :            : #include &lt;libfdt.h&gt;
+<span class="lineNum">      55 </span>                :            : 
+<a name="56"><span class="lineNum">      56 </span>                :            : #include &quot;libfdt_internal.h&quot;</a>
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :<span class="lineCov">          2 : int fdt_check_header(const void *fdt)</span>
+<span class="lineNum">      59 </span>                :            : {
+<span class="lineNum">      60 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         if (fdt_magic(fdt) == FDT_MAGIC) {</span>
+<span class="lineNum">      61 </span>                :            :                 /* Complete tree */
+<span class="lineNum">      62 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :                 if (fdt_version(fdt) &lt; FDT_FIRST_SUPPORTED_VERSION)</span>
+<span class="lineNum">      63 </span>                :            :                         return -FDT_ERR_BADVERSION;
+<span class="lineNum">      64 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :                 if (fdt_last_comp_version(fdt) &gt; FDT_LAST_SUPPORTED_VERSION)</span>
+<span class="lineNum">      65 </span>                :            :                         return -FDT_ERR_BADVERSION;
+<span class="lineNum">      66 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         } else if (fdt_magic(fdt) == FDT_SW_MAGIC) {</span>
+<span class="lineNum">      67 </span>                :            :                 /* Unfinished sequential-write blob */
+<span class="lineNum">      68 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (fdt_size_dt_struct(fdt) == 0)</span>
+<span class="lineNum">      69 </span>                :            :                         return -FDT_ERR_BADSTATE;
+<span class="lineNum">      70 </span>                :            :         } else {
+<span class="lineNum">      71 </span>                :            :                 return -FDT_ERR_BADMAGIC;
+<span class="lineNum">      72 </span>                :            :         }
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :<span class="lineCov">          2 :         return 0;</span>
+<a name="75"><span class="lineNum">      75 </span>                :            : }</a>
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>                :<span class="lineCov">       7849 : const void *fdt_offset_ptr(const void *fdt, int offset, unsigned int len)</span>
+<span class="lineNum">      78 </span>                :            : {
+<span class="lineNum">      79 </span>                :            :         const char *p;
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>        [<span class="branchCov" title="Branch 1 was taken 7849 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       7849 :         if (fdt_version(fdt) &gt;= 0x11)</span>
+<span class="lineNum">      82 </span>        [<span class="branchCov" title="Branch 0 was taken 7849 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       7849 :                 if (((offset + len) &lt; offset)</span>
+<span class="lineNum">      83 </span>        [<span class="branchCov" title="Branch 1 was taken 7849 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       7849 :                     || ((offset + len) &gt; fdt_size_dt_struct(fdt)))</span>
+<span class="lineNum">      84 </span>                :            :                         return NULL;
+<span class="lineNum">      85 </span>                :            : 
+<span class="lineNum">      86 </span>                :<span class="lineCov">       7849 :         p = _fdt_offset_ptr(fdt, offset);</span>
+<span class="lineNum">      87 </span>                :            : 
+<span class="lineNum">      88 </span>                :            :         if (p + len &lt; p)
+<span class="lineNum">      89 </span>                :            :                 return NULL;
+<span class="lineNum">      90 </span>                :<span class="lineCov">       7849 :         return p;</span>
+<a name="91"><span class="lineNum">      91 </span>                :            : }</a>
+<span class="lineNum">      92 </span>                :            : 
+<span class="lineNum">      93 </span>                :<span class="lineCov">       1912 : uint32_t fdt_next_tag(const void *fdt, int startoffset, int *nextoffset)</span>
+<span class="lineNum">      94 </span>                :            : {
+<span class="lineNum">      95 </span>                :            :         const uint32_t *tagp, *lenp;
+<span class="lineNum">      96 </span>                :            :         uint32_t tag;
+<span class="lineNum">      97 </span>                :<span class="lineCov">       1912 :         int offset = startoffset;</span>
+<span class="lineNum">      98 </span>                :            :         const char *p;
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :<span class="lineCov">       1912 :         *nextoffset = -FDT_ERR_TRUNCATED;</span>
+<span class="lineNum">     101 </span>                :<span class="lineCov">       1912 :         tagp = fdt_offset_ptr(fdt, offset, FDT_TAGSIZE);</span>
+<span class="lineNum">     102 </span>        [<span class="branchCov" title="Branch 0 was taken 1912 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       1912 :         if (!tagp)</span>
+<span class="lineNum">     103 </span>                :            :                 return FDT_END; /* premature end */
+<span class="lineNum">     104 </span>                :<span class="lineCov">       1912 :         tag = fdt32_to_cpu(*tagp);</span>
+<span class="lineNum">     105 </span>                :<span class="lineCov">       1912 :         offset += FDT_TAGSIZE;</span>
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :<span class="lineCov">       1912 :         *nextoffset = -FDT_ERR_BADSTRUCTURE;</span>
+<span class="lineNum">     108 </span>  [<span class="branchCov" title="Branch 0 was taken 158 times"> + </span><span class="branchCov" title="Branch 1 was taken 1595 times"> + </span><span class="branchCov" title="Branch 2 was taken 159 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">       1912 :         switch (tag) {</span>
+<span class="lineNum">     109 </span>                :            :         case FDT_BEGIN_NODE:
+<span class="lineNum">     110 </span>                :            :                 /* skip name */
+<span class="lineNum">     111 </span>                :            :                 do {
+<span class="lineNum">     112 </span>                :<span class="lineCov">       2430 :                         p = fdt_offset_ptr(fdt, offset++, 1);</span>
+<span class="lineNum">     113 </span>[<span class="branchCov" title="Branch 0 was taken 2430 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 2272 times"> + </span><span class="branchCov" title="Branch 3 was taken 158 times"> + </span>]:<span class="lineCov">       2430 :                 } while (p &amp;&amp; (*p != '\0'));</span>
+<span class="lineNum">     114 </span>        [<span class="branchCov" title="Branch 0 was taken 158 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        158 :                 if (!p)</span>
+<span class="lineNum">     115 </span>                :            :                         return FDT_END; /* premature end */
+<span class="lineNum">     116 </span>                :            :                 break;
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>                :            :         case FDT_PROP:
+<span class="lineNum">     119 </span>                :<span class="lineCov">       1595 :                 lenp = fdt_offset_ptr(fdt, offset, sizeof(*lenp));</span>
+<span class="lineNum">     120 </span>        [<span class="branchCov" title="Branch 0 was taken 1595 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       1595 :                 if (!lenp)</span>
+<span class="lineNum">     121 </span>                :            :                         return FDT_END; /* premature end */
+<span class="lineNum">     122 </span>                :            :                 /* skip-name offset, length and value */
+<span class="lineNum">     123 </span>                :<span class="lineCov">       1595 :                 offset += sizeof(struct fdt_property) - FDT_TAGSIZE</span>
+<span class="lineNum">     124 </span>                :<span class="lineCov">       1595 :                         + fdt32_to_cpu(*lenp);</span>
+<span class="lineNum">     125 </span>                :<span class="lineCov">       1595 :                 break;</span>
+<span class="lineNum">     126 </span>                :            : 
+<span class="lineNum">     127 </span>                :            :         case FDT_END:
+<span class="lineNum">     128 </span>                :            :         case FDT_END_NODE:
+<span class="lineNum">     129 </span>                :            :         case FDT_NOP:
+<span class="lineNum">     130 </span>                :            :                 break;
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :            :         default:
+<span class="lineNum">     133 </span>                :            :                 return FDT_END;
+<span class="lineNum">     134 </span>                :            :         }
+<span class="lineNum">     135 </span>                :            : 
+<span class="lineNum">     136 </span>        [<span class="branchCov" title="Branch 1 was taken 1912 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       1912 :         if (!fdt_offset_ptr(fdt, startoffset, offset - startoffset))</span>
+<span class="lineNum">     137 </span>                :            :                 return FDT_END; /* premature end */
+<span class="lineNum">     138 </span>                :            : 
+<span class="lineNum">     139 </span>                :<span class="lineCov">       1912 :         *nextoffset = FDT_TAGALIGN(offset);</span>
+<span class="lineNum">     140 </span>                :<span class="lineCov">       1912 :         return tag;</span>
+<a name="141"><span class="lineNum">     141 </span>                :            : }</a>
+<span class="lineNum">     142 </span>                :            : 
+<span class="lineNum">     143 </span>                :<span class="lineCov">          1 : int _fdt_check_node_offset(const void *fdt, int offset)</span>
+<span class="lineNum">     144 </span>                :            : {
+<span class="lineNum">     145 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if ((offset &lt; 0) || (offset % FDT_TAGSIZE)</span>
+<span class="lineNum">     146 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :             || (fdt_next_tag(fdt, offset, &amp;offset) != FDT_BEGIN_NODE))</span>
+<span class="lineNum">     147 </span>                :            :                 return -FDT_ERR_BADOFFSET;
+<span class="lineNum">     148 </span>                :            : 
+<span class="lineNum">     149 </span>                :<span class="lineCov">          1 :         return offset;</span>
+<a name="150"><span class="lineNum">     150 </span>                :            : }</a>
+<span class="lineNum">     151 </span>                :            : 
+<span class="lineNum">     152 </span>                :<span class="lineNoCov">          0 : int fdt_next_node(const void *fdt, int offset, int *depth)</span>
+<span class="lineNum">     153 </span>                :            : {
+<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 :         int nextoffset = 0;</span>
+<span class="lineNum">     155 </span>                :            :         uint32_t tag;
+<span class="lineNum">     156 </span>                :            : 
+<span class="lineNum">     157 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (offset &gt;= 0)</span>
+<span class="lineNum">     158 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if ((nextoffset = _fdt_check_node_offset(fdt, offset)) &lt; 0)</span>
+<span class="lineNum">     159 </span>                :            :                         return nextoffset;
+<span class="lineNum">     160 </span>                :            : 
+<span class="lineNum">     161 </span>                :            :         do {
+<span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :                 offset = nextoffset;</span>
+<span class="lineNum">     163 </span>                :<span class="lineNoCov">          0 :                 tag = fdt_next_tag(fdt, offset, &amp;nextoffset);</span>
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 switch (tag) {</span>
+<span class="lineNum">     166 </span>                :            :                 case FDT_PROP:
+<span class="lineNum">     167 </span>                :            :                 case FDT_NOP:
+<span class="lineNum">     168 </span>                :            :                         break;
+<span class="lineNum">     169 </span>                :            : 
+<span class="lineNum">     170 </span>                :            :                 case FDT_BEGIN_NODE:
+<span class="lineNum">     171 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (depth)</span>
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :                                 (*depth)++;</span>
+<span class="lineNum">     173 </span>                :            :                         break;
+<span class="lineNum">     174 </span>                :            : 
+<span class="lineNum">     175 </span>                :            :                 case FDT_END_NODE:
+<span class="lineNum">     176 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (depth &amp;&amp; ((--(*depth)) &lt; 0))</span>
+<span class="lineNum">     177 </span>                :<span class="lineNoCov">          0 :                                 return nextoffset;</span>
+<span class="lineNum">     178 </span>                :            :                         break;
+<span class="lineNum">     179 </span>                :            : 
+<span class="lineNum">     180 </span>                :            :                 case FDT_END:
+<span class="lineNum">     181 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if ((nextoffset &gt;= 0)</span>
+<span class="lineNum">     182 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                             || ((nextoffset == -FDT_ERR_TRUNCATED) &amp;&amp; !depth))</span>
+<span class="lineNum">     183 </span>                :            :                                 return -FDT_ERR_NOTFOUND;
+<span class="lineNum">     184 </span>                :            :                         else
+<span class="lineNum">     185 </span>                :<span class="lineNoCov">          0 :                                 return nextoffset;</span>
+<span class="lineNum">     186 </span>                :            :                 }
+<span class="lineNum">     187 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         } while (tag != FDT_BEGIN_NODE);</span>
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :            :         return offset;
+<a name="190"><span class="lineNum">     190 </span>                :            : }</a>
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>                :<span class="lineCov">       1589 : const char *_fdt_find_string(const char *strtab, int tabsize, const char *s)</span>
+<span class="lineNum">     193 </span>                :            : {
+<span class="lineNum">     194 </span>                :<span class="lineCov">       1589 :         int len = strlen(s) + 1;</span>
+<span class="lineNum">     195 </span>                :<span class="lineCov">       1589 :         const char *last = strtab + tabsize - len;</span>
+<span class="lineNum">     196 </span>                :            :         const char *p;
+<span class="lineNum">     197 </span>                :            : 
+<span class="lineNum">     198 </span>        [<span class="branchCov" title="Branch 0 was taken 1506349 times"> + </span><span class="branchCov" title="Branch 1 was taken 185 times"> + </span>]:<span class="lineCov">    1506534 :         for (p = strtab; p &lt;= last; p++)</span>
+<span class="lineNum">     199 </span>        [<span class="branchCov" title="Branch 1 was taken 1504945 times"> + </span><span class="branchCov" title="Branch 2 was taken 1404 times"> + </span>]:<span class="lineCov">    1506349 :                 if (memcmp(p, s, len) == 0)</span>
+<span class="lineNum">     200 </span>                :            :                         return p;
+<span class="lineNum">     201 </span>                :            :         return NULL;
+<a name="202"><span class="lineNum">     202 </span>                :            : }</a>
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 : int fdt_move(const void *fdt, void *buf, int bufsize)</span>
+<span class="lineNum">     205 </span>                :            : {
+<span class="lineNum">     206 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         FDT_CHECK_HEADER(fdt);</span>
+<span class="lineNum">     207 </span>                :            : 
+<span class="lineNum">     208 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fdt_totalsize(fdt) &gt; bufsize)</span>
+<span class="lineNum">     209 </span>                :            :                 return -FDT_ERR_NOSPACE;
+<span class="lineNum">     210 </span>                :            : 
+<span class="lineNum">     211 </span>                :<span class="lineNoCov">          0 :         memmove(buf, fdt, fdt_totalsize(fdt));</span>
+<span class="lineNum">     212 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     213 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

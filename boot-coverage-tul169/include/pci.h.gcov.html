@@ -1,0 +1,599 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - include/pci.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">include</a> - pci.h<span style="font-size: 80%;"> (source / <a href="pci.h.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntry">25</td>
+            <td class="headerCovTableEntryHi">96.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #ifndef __PCI_H
+<span class="lineNum">      18 </span>                :            : #define __PCI_H
+<span class="lineNum">      19 </span>                :            : 
+<span class="lineNum">      20 </span>                :            : #include &lt;opal.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;device.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;ccan/list/list.h&gt;
+<span class="lineNum">      23 </span>                :            : 
+<span class="lineNum">      24 </span>                :            : /* PCI Slot Info: Wired Lane Values
+<span class="lineNum">      25 </span>                :            :  *
+<span class="lineNum">      26 </span>                :            :  * Values 0 to 6 match slot map 1005. In case of *any* change here
+<span class="lineNum">      27 </span>                :            :  * make sure to keep the lxvpd.c parsing code in sync *and* the
+<span class="lineNum">      28 </span>                :            :  * corresponding label strings in pci.c
+<span class="lineNum">      29 </span>                :            :  */
+<span class="lineNum">      30 </span>                :            : #define PCI_SLOT_WIRED_LANES_UNKNOWN   0x00
+<span class="lineNum">      31 </span>                :            : #define PCI_SLOT_WIRED_LANES_PCIE_X1   0x01
+<span class="lineNum">      32 </span>                :            : #define PCI_SLOT_WIRED_LANES_PCIE_X2   0x02
+<span class="lineNum">      33 </span>                :            : #define PCI_SLOT_WIRED_LANES_PCIE_X4   0x03
+<span class="lineNum">      34 </span>                :            : #define PCI_SLOT_WIRED_LANES_PCIE_X8   0x04
+<span class="lineNum">      35 </span>                :            : #define PCI_SLOT_WIRED_LANES_PCIE_X16  0x05
+<span class="lineNum">      36 </span>                :            : #define PCI_SLOT_WIRED_LANES_PCIE_X32  0x06
+<span class="lineNum">      37 </span>                :            : #define PCI_SLOT_WIRED_LANES_PCIX_32   0x07
+<span class="lineNum">      38 </span>                :            : #define PCI_SLOT_WIRED_LANES_PCIX_64   0x08
+<span class="lineNum">      39 </span>                :            : 
+<span class="lineNum">      40 </span>                :            : /* PCI Slot Info: Bus Clock Values */
+<span class="lineNum">      41 </span>                :            : #define PCI_SLOT_BUS_CLK_RESERVED      0x00
+<span class="lineNum">      42 </span>                :            : #define PCI_SLOT_BUS_CLK_GEN_1         0x01
+<span class="lineNum">      43 </span>                :            : #define PCI_SLOT_BUS_CLK_GEN_2         0x02
+<span class="lineNum">      44 </span>                :            : #define PCI_SLOT_BUS_CLK_GEN_3         0x03
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            : /* PCI Slot Info: Connector Type Values */
+<span class="lineNum">      47 </span>                :            : #define PCI_SLOT_CONNECTOR_PCIE_EMBED  0x00
+<span class="lineNum">      48 </span>                :            : #define PCI_SLOT_CONNECTOR_PCIE_X1     0x01
+<span class="lineNum">      49 </span>                :            : #define PCI_SLOT_CONNECTOR_PCIE_X2     0x02
+<span class="lineNum">      50 </span>                :            : #define PCI_SLOT_CONNECTOR_PCIE_X4     0x03
+<span class="lineNum">      51 </span>                :            : #define PCI_SLOT_CONNECTOR_PCIE_X8     0x04
+<span class="lineNum">      52 </span>                :            : #define PCI_SLOT_CONNECTOR_PCIE_X16    0x05
+<span class="lineNum">      53 </span>                :            : #define PCI_SLOT_CONNECTOR_PCIE_NS     0x0E  /* Non-Standard */
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            : /* PCI Slot Info: Card Description Values */
+<span class="lineNum">      56 </span>                :            : #define PCI_SLOT_DESC_NON_STANDARD     0x00 /* Embed/Non-Standard Connector */
+<span class="lineNum">      57 </span>                :            : #define PCI_SLOT_DESC_PCIE_FH_FL       0x00 /* Full Height, Full Length */
+<span class="lineNum">      58 </span>                :            : #define PCI_SLOT_DESC_PCIE_FH_HL       0x01 /* Full Height, Half Length */
+<span class="lineNum">      59 </span>                :            : #define PCI_SLOT_DESC_PCIE_HH_FL       0x02 /* Half Height, Full Length */
+<span class="lineNum">      60 </span>                :            : #define PCI_SLOT_DESC_PCIE_HH_HL       0x03 /* Half Height, Half Length */
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :            : /* PCI Slot Info: Mechanicals Values */
+<span class="lineNum">      63 </span>                :            : #define PCI_SLOT_MECH_NONE             0x00
+<span class="lineNum">      64 </span>                :            : #define PCI_SLOT_MECH_RIGHT            0x01
+<span class="lineNum">      65 </span>                :            : #define PCI_SLOT_MECH_LEFT             0x02
+<span class="lineNum">      66 </span>                :            : #define PCI_SLOT_MECH_RIGHT_LEFT       0x03
+<span class="lineNum">      67 </span>                :            : 
+<span class="lineNum">      68 </span>                :            : /* PCI Slot Info: Power LED Control Values */
+<span class="lineNum">      69 </span>                :            : #define PCI_SLOT_PWR_LED_CTL_NONE      0x00 /* No Control        */
+<span class="lineNum">      70 </span>                :            : #define PCI_SLOT_PWR_LED_CTL_FSP       0x01 /* FSP Controlled    */
+<span class="lineNum">      71 </span>                :            : #define PCI_SLOT_PWR_LED_CTL_KERNEL    0x02 /* Kernel Controlled */
+<span class="lineNum">      72 </span>                :            : 
+<span class="lineNum">      73 </span>                :            : /* PCI Slot Info: ATTN LED Control Values */
+<span class="lineNum">      74 </span>                :            : #define PCI_SLOT_ATTN_LED_CTL_NONE     0x00 /* No Control        */
+<span class="lineNum">      75 </span>                :            : #define PCI_SLOT_ATTN_LED_CTL_FSP      0x01 /* FSP Controlled    */
+<span class="lineNum">      76 </span>                :            : #define PCI_SLOT_ATTN_LED_CTL_KERNEL   0x02 /* Kernel Controlled */
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :            : /* PCI Slot Entry Information */
+<span class="lineNum">      79 </span>                :            : struct pci_slot_info {
+<span class="lineNum">      80 </span>                :            :         uint8_t    switch_id;
+<span class="lineNum">      81 </span>                :            :         uint8_t    vswitch_id;
+<span class="lineNum">      82 </span>                :            :         uint8_t    dev_id;
+<span class="lineNum">      83 </span>                :            :         char       label[9];
+<span class="lineNum">      84 </span>                :            :         bool       pluggable;
+<span class="lineNum">      85 </span>                :            :         bool       power_ctl;
+<span class="lineNum">      86 </span>                :            :         uint8_t    wired_lanes;
+<span class="lineNum">      87 </span>                :            :         uint8_t    bus_clock;
+<span class="lineNum">      88 </span>                :            :         uint8_t    connector_type;
+<span class="lineNum">      89 </span>                :            :         uint8_t    card_desc;
+<span class="lineNum">      90 </span>                :            :         uint8_t    card_mech;
+<span class="lineNum">      91 </span>                :            :         uint8_t    pwr_led_ctl;
+<span class="lineNum">      92 </span>                :            :         uint8_t    attn_led_ctl;
+<span class="lineNum">      93 </span>                :            :         uint8_t    slot_index;
+<span class="lineNum">      94 </span>                :            : };
+<span class="lineNum">      95 </span>                :            : 
+<span class="lineNum">      96 </span>                :            : /*
+<span class="lineNum">      97 </span>                :            :  * While this might not be necessary in the long run, the existing
+<span class="lineNum">      98 </span>                :            :  * Linux kernels expect us to provide a device-tree that contains
+<span class="lineNum">      99 </span>                :            :  * a representation of all PCI devices below the host bridge. Thus
+<span class="lineNum">     100 </span>                :            :  * we need to perform a bus scan. We don't need to assign MMIO/IO
+<span class="lineNum">     101 </span>                :            :  * resources, but we do need to assign bus numbers in a way that
+<span class="lineNum">     102 </span>                :            :  * is going to be compatible with the HW constraints for PE filtering
+<span class="lineNum">     103 </span>                :            :  * that is naturally aligned power of twos for ranges below a bridge.
+<span class="lineNum">     104 </span>                :            :  *
+<span class="lineNum">     105 </span>                :            :  * Thus the structure pci_device is used for the tracking of the
+<span class="lineNum">     106 </span>                :            :  * detected devices and the later generation of the device-tree.
+<span class="lineNum">     107 </span>                :            :  *
+<span class="lineNum">     108 </span>                :            :  * We do not keep a separate structure for a bus, however a device
+<span class="lineNum">     109 </span>                :            :  * can have children in which case a device is a bridge.
+<span class="lineNum">     110 </span>                :            :  *
+<span class="lineNum">     111 </span>                :            :  * Because this is likely to change, we avoid putting too much
+<span class="lineNum">     112 </span>                :            :  * information in that structure nor relying on it for anything
+<span class="lineNum">     113 </span>                :            :  * else but the construction of the flat device-tree.
+<span class="lineNum">     114 </span>                :            :  */
+<span class="lineNum">     115 </span>                :            : struct pci_device {
+<span class="lineNum">     116 </span>                :            :         uint16_t                bdfn;
+<span class="lineNum">     117 </span>                :            :         bool                    is_bridge;
+<span class="lineNum">     118 </span>                :            :         bool                    is_multifunction;
+<span class="lineNum">     119 </span>                :            :         uint8_t                 dev_type; /* PCIE */
+<span class="lineNum">     120 </span>                :            :         uint8_t                 primary_bus;
+<span class="lineNum">     121 </span>                :            :         uint8_t                 secondary_bus;
+<span class="lineNum">     122 </span>                :            :         uint8_t                 subordinate_bus;
+<span class="lineNum">     123 </span>                :            :         uint32_t                scan_map;
+<span class="lineNum">     124 </span>                :            : 
+<span class="lineNum">     125 </span>                :            :         uint64_t                cap_list;
+<span class="lineNum">     126 </span>                :            :         uint32_t                cap[64];
+<span class="lineNum">     127 </span>                :            :         uint32_t                mps;            /* Max payload size capability */
+<span class="lineNum">     128 </span>                :            : 
+<span class="lineNum">     129 </span>                :            :         struct pci_slot_info    *slot_info;
+<span class="lineNum">     130 </span>                :            :         struct pci_device       *parent;
+<span class="lineNum">     131 </span>                :            :         struct list_head        children;
+<span class="lineNum">     132 </span>                :            :         struct list_node        link;
+<a name="133"><span class="lineNum">     133 </span>                :            : };</a>
+<span class="lineNum">     134 </span>                :            : 
+<span class="lineNum">     135 </span>                :<span class="lineCov">         56 : static inline void pci_set_cap(struct pci_device *pd,</span>
+<span class="lineNum">     136 </span>                :            :                                int id, int pos, bool ext)
+<span class="lineNum">     137 </span>                :            : {
+<span class="lineNum">     138 </span>        [<span class="branchCov" title="Branch 0 was taken 28 times"> + </span><span class="branchCov" title="Branch 1 was taken 28 times"> + </span>]:<span class="lineCov">         56 :         if (!ext) {</span>
+<span class="lineNum">     139 </span>                :<span class="lineCov">         28 :                 pd-&gt;cap_list |= (0x1ul &lt;&lt; id);</span>
+<span class="lineNum">     140 </span>                :<span class="lineCov">         28 :                 pd-&gt;cap[id] = pos;</span>
+<span class="lineNum">     141 </span>                :            :         } else {
+<span class="lineNum">     142 </span>                :<span class="lineCov">         28 :                 pd-&gt;cap_list |= (0x1ul &lt;&lt; (id + 32));</span>
+<span class="lineNum">     143 </span>                :<span class="lineCov">         28 :                 pd-&gt;cap[id + 32] = pos;</span>
+<span class="lineNum">     144 </span>                :            :         }
+<a name="145"><span class="lineNum">     145 </span>                :<span class="lineCov">         56 : }</span></a>
+<span class="lineNum">     146 </span>                :            : 
+<span class="lineNum">     147 </span>                :<span class="lineCov">        420 : static inline bool pci_has_cap(struct pci_device *pd,</span>
+<span class="lineNum">     148 </span>                :            :                                int id, bool ext)
+<span class="lineNum">     149 </span>                :            : {
+<span class="lineNum">     150 </span>        [<span class="branchCov" title="Branch 0 was taken 182 times"> + </span><span class="branchCov" title="Branch 1 was taken 28 times"> + </span>]:<span class="lineCov">        210 :         if (!ext)</span>
+<span class="lineNum">     151 </span>                :<span class="lineCov">        182 :                 return !!(pd-&gt;cap_list &amp; (0x1ul &lt;&lt; id));</span>
+<span class="lineNum">     152 </span>                :            :         else
+<span class="lineNum">     153 </span>                :<span class="lineCov">         28 :                 return !!(pd-&gt;cap_list &amp; (0x1ul &lt;&lt; (id + 32)));</span>
+<span class="lineNum">     154 </span>                :            : }
+<span class="lineNum">     155 </span>                :            : 
+<span class="lineNum">     156 </span>                :            : static inline int pci_cap(struct pci_device *pd,
+<span class="lineNum">     157 </span>                :            :                           int id, bool ext)
+<span class="lineNum">     158 </span>                :            : {
+<span class="lineNum">     159 </span>                :            :         if (!ext)
+<span class="lineNum">     160 </span>                :<span class="lineCov">         95 :                 return pd-&gt;cap[id];</span>
+<span class="lineNum">     161 </span>                :            :         else
+<span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :                 return pd-&gt;cap[id + 32];</span>
+<span class="lineNum">     163 </span>                :            : }
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :            : /*
+<span class="lineNum">     166 </span>                :            :  * When generating the device-tree, we need to keep track of
+<span class="lineNum">     167 </span>                :            :  * the LSI mapping &amp; swizzle it. This state structure is
+<span class="lineNum">     168 </span>                :            :  * passed by the PHB to pci_add_nodes() and will be used
+<span class="lineNum">     169 </span>                :            :  * internally.
+<span class="lineNum">     170 </span>                :            :  *
+<span class="lineNum">     171 </span>                :            :  * We assume that the interrupt parent (PIC) #address-cells
+<span class="lineNum">     172 </span>                :            :  * is 0 and #interrupt-cells has a max value of 2.
+<span class="lineNum">     173 </span>                :            :  */
+<span class="lineNum">     174 </span>                :            : struct pci_lsi_state {
+<span class="lineNum">     175 </span>                :            : #define MAX_INT_SIZE    2
+<span class="lineNum">     176 </span>                :            :         uint32_t int_size;                      /* #cells */
+<span class="lineNum">     177 </span>                :            :         uint32_t int_val[4][MAX_INT_SIZE];      /* INTA...INTD */
+<span class="lineNum">     178 </span>                :            :         uint32_t int_parent[4]; 
+<span class="lineNum">     179 </span>                :            : };
+<span class="lineNum">     180 </span>                :            : 
+<span class="lineNum">     181 </span>                :            : /*
+<span class="lineNum">     182 </span>                :            :  * NOTE: All PCI functions return negative OPAL error codes
+<span class="lineNum">     183 </span>                :            :  *
+<span class="lineNum">     184 </span>                :            :  * In addition, some functions may return a positive timeout
+<span class="lineNum">     185 </span>                :            :  * value or some other state information, see the description   
+<span class="lineNum">     186 </span>                :            :  * of individual functions. If nothing is specified, it's
+<span class="lineNum">     187 </span>                :            :  * just an error code or 0 (success).
+<span class="lineNum">     188 </span>                :            :  *
+<span class="lineNum">     189 </span>                :            :  * Functions that operate asynchronously will return a positive
+<span class="lineNum">     190 </span>                :            :  * delay value and will require the -&gt;poll() op to be called after
+<span class="lineNum">     191 </span>                :            :  * that delay. -&gt;poll() will then return success, a negative error
+<span class="lineNum">     192 </span>                :            :  * code, or another delay.
+<span class="lineNum">     193 </span>                :            :  *
+<span class="lineNum">     194 </span>                :            :  * Note: If an asynchronous function returns 0, it has completed
+<span class="lineNum">     195 </span>                :            :  * successfully and does not require a call to -&gt;poll(). Similarly
+<span class="lineNum">     196 </span>                :            :  * if -&gt;poll() is called while no operation is in progress, it will
+<span class="lineNum">     197 </span>                :            :  * simply return 0 (success)
+<span class="lineNum">     198 </span>                :            :  *
+<span class="lineNum">     199 </span>                :            :  * Note that all functions except -&gt;lock() itself assume that the
+<span class="lineNum">     200 </span>                :            :  * caller is holding the PHB lock.
+<span class="lineNum">     201 </span>                :            :  *
+<span class="lineNum">     202 </span>                :            :  * TODO: Add more interfaces to control things like link width
+<span class="lineNum">     203 </span>                :            :  *       reduction for power savings etc...
+<span class="lineNum">     204 </span>                :            :  */
+<span class="lineNum">     205 </span>                :            : 
+<span class="lineNum">     206 </span>                :            : struct phb;
+<span class="lineNum">     207 </span>                :            : 
+<span class="lineNum">     208 </span>                :            : struct phb_ops {
+<span class="lineNum">     209 </span>                :            :         /*
+<span class="lineNum">     210 </span>                :            :          * Locking. This is called around OPAL accesses
+<span class="lineNum">     211 </span>                :            :          */
+<span class="lineNum">     212 </span>                :            :         void (*lock)(struct phb *phb);
+<span class="lineNum">     213 </span>                :            :         void (*unlock)(struct phb *phb);
+<span class="lineNum">     214 </span>                :            : 
+<span class="lineNum">     215 </span>                :            :         /*
+<span class="lineNum">     216 </span>                :            :          * Config space ops
+<span class="lineNum">     217 </span>                :            :          */
+<span class="lineNum">     218 </span>                :            :         int64_t (*cfg_read8)(struct phb *phb, uint32_t bdfn,
+<span class="lineNum">     219 </span>                :            :                              uint32_t offset, uint8_t *data);
+<span class="lineNum">     220 </span>                :            :         int64_t (*cfg_read16)(struct phb *phb, uint32_t bdfn,
+<span class="lineNum">     221 </span>                :            :                               uint32_t offset, uint16_t *data);
+<span class="lineNum">     222 </span>                :            :         int64_t (*cfg_read32)(struct phb *phb, uint32_t bdfn,
+<span class="lineNum">     223 </span>                :            :                               uint32_t offset, uint32_t *data);
+<span class="lineNum">     224 </span>                :            :         int64_t (*cfg_write8)(struct phb *phb, uint32_t bdfn,
+<span class="lineNum">     225 </span>                :            :                               uint32_t offset, uint8_t data);
+<span class="lineNum">     226 </span>                :            :         int64_t (*cfg_write16)(struct phb *phb, uint32_t bdfn,
+<span class="lineNum">     227 </span>                :            :                                uint32_t offset, uint16_t data);
+<span class="lineNum">     228 </span>                :            :         int64_t (*cfg_write32)(struct phb *phb, uint32_t bdfn,
+<span class="lineNum">     229 </span>                :            :                                uint32_t offset, uint32_t data);
+<span class="lineNum">     230 </span>                :            : 
+<span class="lineNum">     231 </span>                :            :         /*
+<span class="lineNum">     232 </span>                :            :          * Bus number selection. See pci_scan() for a description
+<span class="lineNum">     233 </span>                :            :          */
+<span class="lineNum">     234 </span>                :            :         uint8_t (*choose_bus)(struct phb *phb, struct pci_device *bridge,
+<span class="lineNum">     235 </span>                :            :                               uint8_t candidate, uint8_t *max_bus,
+<span class="lineNum">     236 </span>                :            :                               bool *use_max);
+<span class="lineNum">     237 </span>                :            : 
+<span class="lineNum">     238 </span>                :            :         /*
+<span class="lineNum">     239 </span>                :            :          * Device init method is called after a device has been detected
+<span class="lineNum">     240 </span>                :            :          * and before probing further. It can alter things like scan_map
+<span class="lineNum">     241 </span>                :            :          * for bridge ports etc...
+<span class="lineNum">     242 </span>                :            :          */
+<span class="lineNum">     243 </span>                :            :         void (*device_init)(struct phb *phb, struct pci_device *device);
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>                :            :         /*
+<span class="lineNum">     246 </span>                :            :          * EEH methods
+<span class="lineNum">     247 </span>                :            :          *
+<span class="lineNum">     248 </span>                :            :          * The various arguments are identical to the corresponding
+<span class="lineNum">     249 </span>                :            :          * OPAL functions
+<span class="lineNum">     250 </span>                :            :          */
+<span class="lineNum">     251 </span>                :            :         int64_t (*eeh_freeze_status)(struct phb *phb, uint64_t pe_number,
+<span class="lineNum">     252 </span>                :            :                                      uint8_t *freeze_state,
+<span class="lineNum">     253 </span>                :            :                                      uint16_t *pci_error_type,
+<span class="lineNum">     254 </span>                :            :                                      uint16_t *severity,
+<span class="lineNum">     255 </span>                :            :                                      uint64_t *phb_status);
+<span class="lineNum">     256 </span>                :            :         int64_t (*eeh_freeze_clear)(struct phb *phb, uint64_t pe_number,
+<span class="lineNum">     257 </span>                :            :                                     uint64_t eeh_action_token);
+<span class="lineNum">     258 </span>                :            :         int64_t (*eeh_freeze_set)(struct phb *phb, uint64_t pe_number,
+<span class="lineNum">     259 </span>                :            :                                   uint64_t eeh_action_token);
+<span class="lineNum">     260 </span>                :            :         int64_t (*err_inject)(struct phb *phb, uint32_t pe_no, uint32_t type,
+<span class="lineNum">     261 </span>                :            :                               uint32_t func, uint64_t addr, uint64_t mask);
+<span class="lineNum">     262 </span>                :            :         int64_t (*get_diag_data)(struct phb *phb, void *diag_buffer,
+<span class="lineNum">     263 </span>                :            :                                  uint64_t diag_buffer_len);
+<span class="lineNum">     264 </span>                :            :         int64_t (*get_diag_data2)(struct phb *phb, void *diag_buffer,
+<span class="lineNum">     265 </span>                :            :                                   uint64_t diag_buffer_len);
+<span class="lineNum">     266 </span>                :            :         int64_t (*next_error)(struct phb *phb, uint64_t *first_frozen_pe,
+<span class="lineNum">     267 </span>                :            :                               uint16_t *pci_error_type, uint16_t *severity);
+<span class="lineNum">     268 </span>                :            : 
+<span class="lineNum">     269 </span>                :            :         /*
+<span class="lineNum">     270 </span>                :            :          * Other IODA methods
+<span class="lineNum">     271 </span>                :            :          *
+<span class="lineNum">     272 </span>                :            :          * The various arguments are identical to the corresponding
+<span class="lineNum">     273 </span>                :            :          * OPAL functions
+<span class="lineNum">     274 </span>                :            :          */
+<span class="lineNum">     275 </span>                :            :         int64_t (*pci_reinit)(struct phb *phb, uint64_t scope, uint64_t data);
+<span class="lineNum">     276 </span>                :            :         int64_t (*phb_mmio_enable)(struct phb *phb, uint16_t window_type,
+<span class="lineNum">     277 </span>                :            :                                    uint16_t window_num, uint16_t enable);
+<span class="lineNum">     278 </span>                :            : 
+<span class="lineNum">     279 </span>                :            :         int64_t (*set_phb_mem_window)(struct phb *phb, uint16_t window_type,
+<span class="lineNum">     280 </span>                :            :                                       uint16_t window_num, uint64_t addr,
+<span class="lineNum">     281 </span>                :            :                                       uint64_t pci_addr, uint64_t size);
+<span class="lineNum">     282 </span>                :            : 
+<span class="lineNum">     283 </span>                :            :         int64_t (*map_pe_mmio_window)(struct phb *phb, uint16_t pe_number,
+<span class="lineNum">     284 </span>                :            :                                       uint16_t window_type, uint16_t window_num,
+<span class="lineNum">     285 </span>                :            :                                       uint16_t segment_num);
+<span class="lineNum">     286 </span>                :            : 
+<span class="lineNum">     287 </span>                :            :         int64_t (*set_pe)(struct phb *phb, uint64_t pe_number,
+<span class="lineNum">     288 </span>                :            :                           uint64_t bus_dev_func, uint8_t bus_compare,
+<span class="lineNum">     289 </span>                :            :                           uint8_t dev_compare, uint8_t func_compare,
+<span class="lineNum">     290 </span>                :            :                           uint8_t pe_action);
+<span class="lineNum">     291 </span>                :            : 
+<span class="lineNum">     292 </span>                :            :         int64_t (*set_peltv)(struct phb *phb, uint32_t parent_pe,
+<span class="lineNum">     293 </span>                :            :                              uint32_t child_pe, uint8_t state);
+<span class="lineNum">     294 </span>                :            : 
+<span class="lineNum">     295 </span>                :            :         int64_t (*map_pe_dma_window)(struct phb *phb, uint16_t pe_number,
+<span class="lineNum">     296 </span>                :            :                                      uint16_t window_id, uint16_t tce_levels,
+<span class="lineNum">     297 </span>                :            :                                      uint64_t tce_table_addr,
+<span class="lineNum">     298 </span>                :            :                                      uint64_t tce_table_size,
+<span class="lineNum">     299 </span>                :            :                                      uint64_t tce_page_size);
+<span class="lineNum">     300 </span>                :            : 
+<span class="lineNum">     301 </span>                :            :         int64_t (*map_pe_dma_window_real)(struct phb *phb, uint16_t pe_number,
+<span class="lineNum">     302 </span>                :            :                                           uint16_t dma_window_number,
+<span class="lineNum">     303 </span>                :            :                                           uint64_t pci_start_addr,
+<span class="lineNum">     304 </span>                :            :                                           uint64_t pci_mem_size);
+<span class="lineNum">     305 </span>                :            : 
+<span class="lineNum">     306 </span>                :            :         int64_t (*set_mve)(struct phb *phb, uint32_t mve_number,
+<span class="lineNum">     307 </span>                :            :                            uint32_t pe_number);
+<span class="lineNum">     308 </span>                :            : 
+<span class="lineNum">     309 </span>                :            :         int64_t (*set_mve_enable)(struct phb *phb, uint32_t mve_number,
+<span class="lineNum">     310 </span>                :            :                                   uint32_t state);
+<span class="lineNum">     311 </span>                :            : 
+<span class="lineNum">     312 </span>                :            :         int64_t (*set_xive_pe)(struct phb *phb, uint32_t pe_number,
+<span class="lineNum">     313 </span>                :            :                                uint32_t xive_num);
+<span class="lineNum">     314 </span>                :            : 
+<span class="lineNum">     315 </span>                :            :         int64_t (*get_xive_source)(struct phb *phb, uint32_t xive_num,
+<span class="lineNum">     316 </span>                :            :                                    int32_t *interrupt_source_number);
+<span class="lineNum">     317 </span>                :            : 
+<span class="lineNum">     318 </span>                :            :         int64_t (*get_msi_32)(struct phb *phb, uint32_t mve_number,
+<span class="lineNum">     319 </span>                :            :                               uint32_t xive_num, uint8_t msi_range,
+<span class="lineNum">     320 </span>                :            :                               uint32_t *msi_address, uint32_t *message_data);
+<span class="lineNum">     321 </span>                :            : 
+<span class="lineNum">     322 </span>                :            :         int64_t (*get_msi_64)(struct phb *phb, uint32_t mve_number,
+<span class="lineNum">     323 </span>                :            :                               uint32_t xive_num, uint8_t msi_range,
+<span class="lineNum">     324 </span>                :            :                               uint64_t *msi_address, uint32_t *message_data);
+<span class="lineNum">     325 </span>                :            : 
+<span class="lineNum">     326 </span>                :            :         int64_t (*ioda_reset)(struct phb *phb, bool purge);
+<span class="lineNum">     327 </span>                :            : 
+<span class="lineNum">     328 </span>                :            :         int64_t (*papr_errinjct_reset)(struct phb *phb);
+<span class="lineNum">     329 </span>                :            : 
+<span class="lineNum">     330 </span>                :            :         /*
+<span class="lineNum">     331 </span>                :            :          * P5IOC2 only
+<span class="lineNum">     332 </span>                :            :          */
+<span class="lineNum">     333 </span>                :            :         int64_t (*set_phb_tce_memory)(struct phb *phb, uint64_t tce_mem_addr,
+<span class="lineNum">     334 </span>                :            :                                       uint64_t tce_mem_size);
+<span class="lineNum">     335 </span>                :            : 
+<span class="lineNum">     336 </span>                :            :         /*
+<span class="lineNum">     337 </span>                :            :          * IODA2 PCI interfaces
+<span class="lineNum">     338 </span>                :            :          */
+<span class="lineNum">     339 </span>                :            :         int64_t (*pci_msi_eoi)(struct phb *phb, uint32_t hwirq);
+<span class="lineNum">     340 </span>                :            : 
+<span class="lineNum">     341 </span>                :            :         /*
+<span class="lineNum">     342 </span>                :            :          * Slot control
+<span class="lineNum">     343 </span>                :            :          */
+<span class="lineNum">     344 </span>                :            : 
+<span class="lineNum">     345 </span>                :            :         /* presence_detect - Check for a present device
+<span class="lineNum">     346 </span>                :            :          *
+<span class="lineNum">     347 </span>                :            :          * Immediate return of:
+<span class="lineNum">     348 </span>                :            :          *
+<span class="lineNum">     349 </span>                :            :          * OPAL_SHPC_DEV_NOT_PRESENT = 0,
+<span class="lineNum">     350 </span>                :            :          * OPAL_SHPC_DEV_PRESENT = 1
+<span class="lineNum">     351 </span>                :            :          *
+<span class="lineNum">     352 </span>                :            :          * or a negative OPAL error code
+<span class="lineNum">     353 </span>                :            :          */
+<span class="lineNum">     354 </span>                :            :         int64_t (*presence_detect)(struct phb *phb);
+<span class="lineNum">     355 </span>                :            : 
+<span class="lineNum">     356 </span>                :            :         /* link_state - Check link state
+<span class="lineNum">     357 </span>                :            :          *
+<span class="lineNum">     358 </span>                :            :          * Immediate return of:
+<span class="lineNum">     359 </span>                :            :          *
+<span class="lineNum">     360 </span>                :            :          * OPAL_SHPC_LINK_DOWN = 0,
+<span class="lineNum">     361 </span>                :            :          * OPAL_SHPC_LINK_UP_x1 = 1,
+<span class="lineNum">     362 </span>                :            :          * OPAL_SHPC_LINK_UP_x2 = 2,
+<span class="lineNum">     363 </span>                :            :          * OPAL_SHPC_LINK_UP_x4 = 4,
+<span class="lineNum">     364 </span>                :            :          * OPAL_SHPC_LINK_UP_x8 = 8,
+<span class="lineNum">     365 </span>                :            :          * OPAL_SHPC_LINK_UP_x16 = 16,
+<span class="lineNum">     366 </span>                :            :          * OPAL_SHPC_LINK_UP_x32 = 32
+<span class="lineNum">     367 </span>                :            :          *
+<span class="lineNum">     368 </span>                :            :          * or a negative OPAL error code
+<span class="lineNum">     369 </span>                :            :          */
+<span class="lineNum">     370 </span>                :            :         int64_t (*link_state)(struct phb *phb);
+<span class="lineNum">     371 </span>                :            : 
+<span class="lineNum">     372 </span>                :            :         /* power_state - Check slot power state
+<span class="lineNum">     373 </span>                :            :          *
+<span class="lineNum">     374 </span>                :            :          * Immediate return of:
+<span class="lineNum">     375 </span>                :            :          *
+<span class="lineNum">     376 </span>                :            :          * OPAL_SLOT_POWER_OFF = 0,
+<span class="lineNum">     377 </span>                :            :          * OPAL_SLOT_POWER_ON = 1,
+<span class="lineNum">     378 </span>                :            :          *
+<span class="lineNum">     379 </span>                :            :          * or a negative OPAL error code
+<span class="lineNum">     380 </span>                :            :          */
+<span class="lineNum">     381 </span>                :            :         int64_t (*power_state)(struct phb *phb);
+<span class="lineNum">     382 </span>                :            : 
+<span class="lineNum">     383 </span>                :            :         /* slot_power_off - Start slot power off sequence
+<span class="lineNum">     384 </span>                :            :          *
+<span class="lineNum">     385 </span>                :            :          * Asynchronous function, returns a positive delay
+<span class="lineNum">     386 </span>                :            :          * or a negative error code
+<span class="lineNum">     387 </span>                :            :          */
+<span class="lineNum">     388 </span>                :            :         int64_t (*slot_power_off)(struct phb *phb);
+<span class="lineNum">     389 </span>                :            : 
+<span class="lineNum">     390 </span>                :            :         /* slot_power_on - Start slot power on sequence
+<span class="lineNum">     391 </span>                :            :          *
+<span class="lineNum">     392 </span>                :            :          * Asynchronous function, returns a positive delay
+<span class="lineNum">     393 </span>                :            :          * or a negative error code.
+<span class="lineNum">     394 </span>                :            :          */
+<span class="lineNum">     395 </span>                :            :         int64_t (*slot_power_on)(struct phb *phb);
+<span class="lineNum">     396 </span>                :            : 
+<span class="lineNum">     397 </span>                :            :         /* PHB power off and on after complete init */
+<span class="lineNum">     398 </span>                :            :         int64_t (*complete_reset)(struct phb *phb, uint8_t assert);
+<span class="lineNum">     399 </span>                :            : 
+<span class="lineNum">     400 </span>                :            :         /* hot_reset - Hot Reset sequence */
+<span class="lineNum">     401 </span>                :            :         int64_t (*hot_reset)(struct phb *phb);
+<span class="lineNum">     402 </span>                :            : 
+<span class="lineNum">     403 </span>                :            :         /* Fundamental reset */
+<span class="lineNum">     404 </span>                :            :         int64_t (*fundamental_reset)(struct phb *phb);
+<span class="lineNum">     405 </span>                :            : 
+<span class="lineNum">     406 </span>                :            :         /* poll - Poll and advance asynchronous operations
+<span class="lineNum">     407 </span>                :            :          *
+<span class="lineNum">     408 </span>                :            :          * Returns a positive delay, 0 for success or a
+<span class="lineNum">     409 </span>                :            :          * negative OPAL error code
+<span class="lineNum">     410 </span>                :            :          */
+<span class="lineNum">     411 </span>                :            :         int64_t (*poll)(struct phb *phb);
+<span class="lineNum">     412 </span>                :            : 
+<span class="lineNum">     413 </span>                :            :         /* Put phb in capi mode or pcie mode */
+<span class="lineNum">     414 </span>                :            :         int64_t (*set_capi_mode)(struct phb *phb, uint64_t mode, uint64_t pe_number);
+<span class="lineNum">     415 </span>                :            : 
+<span class="lineNum">     416 </span>                :            :         int64_t (*set_capp_recovery)(struct phb *phb);
+<span class="lineNum">     417 </span>                :            : };
+<span class="lineNum">     418 </span>                :            : 
+<span class="lineNum">     419 </span>                :            : enum phb_type {
+<span class="lineNum">     420 </span>                :            :         phb_type_pci,
+<span class="lineNum">     421 </span>                :            :         phb_type_pcix_v1,
+<span class="lineNum">     422 </span>                :            :         phb_type_pcix_v2,
+<span class="lineNum">     423 </span>                :            :         phb_type_pcie_v1,
+<span class="lineNum">     424 </span>                :            :         phb_type_pcie_v2,
+<span class="lineNum">     425 </span>                :            :         phb_type_pcie_v3,
+<span class="lineNum">     426 </span>                :            : };
+<span class="lineNum">     427 </span>                :            : 
+<span class="lineNum">     428 </span>                :            : struct phb {
+<span class="lineNum">     429 </span>                :            :         struct dt_node          *dt_node;
+<span class="lineNum">     430 </span>                :            :         int                     opal_id;
+<span class="lineNum">     431 </span>                :            :         uint32_t                scan_map;
+<span class="lineNum">     432 </span>                :            :         enum phb_type           phb_type;
+<span class="lineNum">     433 </span>                :            :         struct list_head        devices;
+<span class="lineNum">     434 </span>                :            :         const struct phb_ops    *ops;
+<span class="lineNum">     435 </span>                :            :         struct pci_lsi_state    lstate;
+<span class="lineNum">     436 </span>                :            :         uint32_t                mps;
+<span class="lineNum">     437 </span>                :            : 
+<span class="lineNum">     438 </span>                :            :         /* PCI-X only slot info, for PCI-E this is in the RC bridge */
+<span class="lineNum">     439 </span>                :            :         struct pci_slot_info    *slot_info;
+<span class="lineNum">     440 </span>                :            : 
+<span class="lineNum">     441 </span>                :            :         /* Base location code used to generate the children one */
+<span class="lineNum">     442 </span>                :            :         const char              *base_loc_code;
+<span class="lineNum">     443 </span>                :            : 
+<span class="lineNum">     444 </span>                :            :         /* Additional data the platform might need to attach */
+<span class="lineNum">     445 </span>                :            :         void                    *platform_data;
+<span class="lineNum">     446 </span>                :            : };
+<a name="447"><span class="lineNum">     447 </span>                :            : </a>
+<span class="lineNum">     448 </span>                :            : /* Config space ops wrappers */
+<span class="lineNum">     449 </span>                :<span class="lineCov">         88 : static inline int64_t pci_cfg_read8(struct phb *phb, uint32_t bdfn,</span>
+<span class="lineNum">     450 </span>                :            :                                     uint32_t offset, uint8_t *data)
+<span class="lineNum">     451 </span>                :            : {
+<span class="lineNum">     452 </span>                :<span class="lineCov">         88 :         return phb-&gt;ops-&gt;cfg_read8(phb, bdfn, offset, data);</span>
+<a name="453"><span class="lineNum">     453 </span>                :            : }</a>
+<span class="lineNum">     454 </span>                :            : 
+<span class="lineNum">     455 </span>                :<span class="lineCov">        431 : static inline int64_t pci_cfg_read16(struct phb *phb, uint32_t bdfn,</span>
+<span class="lineNum">     456 </span>                :            :                                      uint32_t offset, uint16_t *data)
+<span class="lineNum">     457 </span>                :            : {
+<span class="lineNum">     458 </span>                :<span class="lineCov">        431 :         return phb-&gt;ops-&gt;cfg_read16(phb, bdfn, offset, data);</span>
+<a name="459"><span class="lineNum">     459 </span>                :            : }</a>
+<span class="lineNum">     460 </span>                :            : 
+<span class="lineNum">     461 </span>                :<span class="lineCov">        342 : static inline int64_t pci_cfg_read32(struct phb *phb, uint32_t bdfn,</span>
+<span class="lineNum">     462 </span>                :            :                                      uint32_t offset, uint32_t *data)
+<span class="lineNum">     463 </span>                :            : {
+<span class="lineNum">     464 </span>                :<span class="lineCov">        342 :         return phb-&gt;ops-&gt;cfg_read32(phb, bdfn, offset, data);</span>
+<a name="465"><span class="lineNum">     465 </span>                :            : }</a>
+<span class="lineNum">     466 </span>                :            : 
+<span class="lineNum">     467 </span>                :<span class="lineCov">        107 : static inline int64_t pci_cfg_write8(struct phb *phb, uint32_t bdfn,</span>
+<span class="lineNum">     468 </span>                :            :                                      uint32_t offset, uint8_t data)
+<span class="lineNum">     469 </span>                :            : {
+<span class="lineNum">     470 </span>                :<span class="lineCov">        107 :         return phb-&gt;ops-&gt;cfg_write8(phb, bdfn, offset, data);</span>
+<a name="471"><span class="lineNum">     471 </span>                :            : }</a>
+<span class="lineNum">     472 </span>                :            : 
+<span class="lineNum">     473 </span>                :<span class="lineCov">        213 : static inline int64_t pci_cfg_write16(struct phb *phb, uint32_t bdfn,</span>
+<span class="lineNum">     474 </span>                :            :                                       uint32_t offset, uint16_t data)
+<span class="lineNum">     475 </span>                :            : {
+<span class="lineNum">     476 </span>                :<span class="lineCov">        213 :         return phb-&gt;ops-&gt;cfg_write16(phb, bdfn, offset, data);</span>
+<a name="477"><span class="lineNum">     477 </span>                :            : }</a>
+<span class="lineNum">     478 </span>                :            : 
+<span class="lineNum">     479 </span>                :<span class="lineCov">        118 : static inline int64_t pci_cfg_write32(struct phb *phb, uint32_t bdfn,</span>
+<span class="lineNum">     480 </span>                :            :                                       uint32_t offset, uint32_t data)
+<span class="lineNum">     481 </span>                :            : {
+<span class="lineNum">     482 </span>                :<span class="lineCov">        118 :         return phb-&gt;ops-&gt;cfg_write32(phb, bdfn, offset, data);</span>
+<span class="lineNum">     483 </span>                :            : }
+<span class="lineNum">     484 </span>                :            : 
+<span class="lineNum">     485 </span>                :            : /* Utilities */
+<span class="lineNum">     486 </span>                :            : extern int64_t pci_find_cap(struct phb *phb, uint16_t bdfn, uint8_t cap);
+<span class="lineNum">     487 </span>                :            : extern int64_t pci_find_ecap(struct phb *phb, uint16_t bdfn, uint16_t cap,
+<span class="lineNum">     488 </span>                :            :                              uint8_t *version);
+<span class="lineNum">     489 </span>                :            : extern void pci_device_init(struct phb *phb, struct pci_device *pd);
+<span class="lineNum">     490 </span>                :            : extern struct pci_device *pci_walk_dev(struct phb *phb,
+<span class="lineNum">     491 </span>                :            :                                        int (*cb)(struct phb *,
+<span class="lineNum">     492 </span>                :            :                                                  struct pci_device *,
+<span class="lineNum">     493 </span>                :            :                                                  void *),
+<span class="lineNum">     494 </span>                :            :                                        void *userdata);
+<span class="lineNum">     495 </span>                :            : extern struct pci_device *pci_find_dev(struct phb *phb, uint16_t bdfn);
+<span class="lineNum">     496 </span>                :            : extern void pci_restore_bridge_buses(struct phb *phb);
+<span class="lineNum">     497 </span>                :            : 
+<span class="lineNum">     498 </span>                :            : /* Manage PHBs */
+<span class="lineNum">     499 </span>                :            : extern int64_t pci_register_phb(struct phb *phb);
+<span class="lineNum">     500 </span>                :            : extern int64_t pci_unregister_phb(struct phb *phb);
+<span class="lineNum">     501 </span>                :            : extern struct phb *pci_get_phb(uint64_t phb_id);
+<span class="lineNum">     502 </span>                :            : static inline void pci_put_phb(struct phb *phb __unused) { }
+<span class="lineNum">     503 </span>                :            : 
+<span class="lineNum">     504 </span>                :            : /* Device tree */
+<span class="lineNum">     505 </span>                :            : extern void pci_std_swizzle_irq_map(struct dt_node *dt_node,
+<span class="lineNum">     506 </span>                :            :                                     struct pci_device *pd,
+<span class="lineNum">     507 </span>                :            :                                     struct pci_lsi_state *lstate,
+<span class="lineNum">     508 </span>                :            :                                     uint8_t swizzle);
+<span class="lineNum">     509 </span>                :            : 
+<span class="lineNum">     510 </span>                :            : /* Initialize all PCI slots */
+<span class="lineNum">     511 </span>                :            : extern void pci_init_slots(void);
+<span class="lineNum">     512 </span>                :            : extern void pci_reset(void);
+<span class="lineNum">     513 </span>                :            : 
+<span class="lineNum">     514 </span>                :            : #endif /* __PCI_H */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

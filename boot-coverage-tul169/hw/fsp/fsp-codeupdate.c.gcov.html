@@ -1,0 +1,1369 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/fsp/fsp-codeupdate.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">hw/fsp</a> - fsp-codeupdate.c<span style="font-size: 80%;"> (source / <a href="fsp-codeupdate.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">143</td>
+            <td class="headerCovTableEntry">505</td>
+            <td class="headerCovTableEntryLo">28.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntry">41</td>
+            <td class="headerCovTableEntryLo">46.3 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntry">245</td>
+            <td class="headerCovTableEntryLo">15.1 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : 
+<span class="lineNum">      18 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;fsp.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;fsp-sysparam.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;device.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;ccan/endian/endian.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;errorlog.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;opal-api.h&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;fsp-elog.h&gt;
+<span class="lineNum">      27 </span>                :            : #include &lt;timebase.h&gt;
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            : #include &quot;fsp-codeupdate.h&quot;
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : enum flash_state {
+<span class="lineNum">      32 </span>                :            :         FLASH_STATE_ABSENT,
+<span class="lineNum">      33 </span>                :            :         FLASH_STATE_INVALID, /* IPL side marker lid is invalid */
+<span class="lineNum">      34 </span>                :            :         FLASH_STATE_READING,
+<span class="lineNum">      35 </span>                :            :         FLASH_STATE_READ,
+<span class="lineNum">      36 </span>                :            :         FLASH_STATE_ABORT,
+<span class="lineNum">      37 </span>                :            : };
+<span class="lineNum">      38 </span>                :            : 
+<span class="lineNum">      39 </span>                :            : enum lid_fetch_side {
+<span class="lineNum">      40 </span>                :            :         FETCH_T_SIDE_ONLY,
+<span class="lineNum">      41 </span>                :            :         FETCH_P_SIDE_ONLY,
+<span class="lineNum">      42 </span>                :            :         FETCH_BOTH_SIDE,
+<span class="lineNum">      43 </span>                :            : };
+<span class="lineNum">      44 </span>                :            : 
+<span class="lineNum">      45 </span>                :            : static enum flash_state flash_state = FLASH_STATE_INVALID;
+<span class="lineNum">      46 </span>                :            : static enum lid_fetch_side lid_fetch_side = FETCH_BOTH_SIDE;
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :            : /* Image buffers */
+<span class="lineNum">      49 </span>                :            : static struct opal_sg_list *image_data;
+<span class="lineNum">      50 </span>                :            : static uint32_t tce_start;
+<span class="lineNum">      51 </span>                :            : static void *lid_data;
+<span class="lineNum">      52 </span>                :            : static char validate_buf[VALIDATE_BUF_SIZE];
+<span class="lineNum">      53 </span>                :            : 
+<span class="lineNum">      54 </span>                :            : /* TCE buffer lock */
+<span class="lineNum">      55 </span>                :            : static struct lock flash_lock = LOCK_UNLOCKED;
+<span class="lineNum">      56 </span>                :            : 
+<span class="lineNum">      57 </span>                :            : /* FW VPD data */
+<span class="lineNum">      58 </span>                :            : static struct fw_image_vpd fw_vpd[2];
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :            : /* Code update related sys parameters */
+<span class="lineNum">      61 </span>                :            : static uint32_t ipl_side;
+<span class="lineNum">      62 </span>                :            : static uint32_t hmc_managed;
+<span class="lineNum">      63 </span>                :            : static uint32_t update_policy;
+<span class="lineNum">      64 </span>                :            : static uint32_t in_flight_params;
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :            : /* If non-NULL, this gets called just before rebooting */
+<span class="lineNum">      67 </span>                :            : int (*fsp_flash_term_hook)(void);
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_CU_INIT, OPAL_PLATFORM_ERR_EVT, OPAL_CODEUPDATE,
+<span class="lineNum">      70 </span>                :            :                 OPAL_PLATFORM_FIRMWARE,
+<span class="lineNum">      71 </span>                :            :                 OPAL_PREDICTIVE_ERR_FAULT_RECTIFY_REBOOT, OPAL_NA, NULL);
+<span class="lineNum">      72 </span>                :            : 
+<span class="lineNum">      73 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_CU_FLASH, OPAL_PLATFORM_ERR_EVT, OPAL_CODEUPDATE,
+<span class="lineNum">      74 </span>                :            :                 OPAL_PLATFORM_FIRMWARE,
+<span class="lineNum">      75 </span>                :            :                 OPAL_PREDICTIVE_ERR_FAULT_RECTIFY_REBOOT, OPAL_NA, NULL);
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_CU_SG_LIST, OPAL_PLATFORM_ERR_EVT, OPAL_CODEUPDATE,
+<span class="lineNum">      78 </span>                :            :                 OPAL_PLATFORM_FIRMWARE,
+<span class="lineNum">      79 </span>                :            :                 OPAL_PREDICTIVE_ERR_FAULT_RECTIFY_REBOOT, OPAL_NA, NULL);
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_CU_COMMIT, OPAL_PLATFORM_ERR_EVT, OPAL_CODEUPDATE,
+<span class="lineNum">      82 </span>                :            :                 OPAL_PLATFORM_FIRMWARE,
+<span class="lineNum">      83 </span>                :            :                 OPAL_PREDICTIVE_ERR_FAULT_RECTIFY_REBOOT, OPAL_NA, NULL);
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_CU_MSG, OPAL_PLATFORM_ERR_EVT, OPAL_CODEUPDATE,
+<span class="lineNum">      86 </span>                :            :                 OPAL_PLATFORM_FIRMWARE,
+<span class="lineNum">      87 </span>                :            :                 OPAL_PREDICTIVE_ERR_FAULT_RECTIFY_REBOOT, OPAL_NA, NULL);
+<span class="lineNum">      88 </span>                :            : 
+<span class="lineNum">      89 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_CU_NOTIFY, OPAL_PLATFORM_ERR_EVT, OPAL_CODEUPDATE,
+<span class="lineNum">      90 </span>                :            :                 OPAL_PLATFORM_FIRMWARE,
+<span class="lineNum">      91 </span>                :            :                 OPAL_PREDICTIVE_ERR_FAULT_RECTIFY_REBOOT, OPAL_NA, NULL);
+<span class="lineNum">      92 </span>                :            : 
+<span class="lineNum">      93 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_CU_MARKER_LID, OPAL_PLATFORM_ERR_EVT, OPAL_CODEUPDATE,
+<span class="lineNum">      94 </span>                :            :                 OPAL_PLATFORM_FIRMWARE,
+<a name="95"><span class="lineNum">      95 </span>                :            :                 OPAL_PREDICTIVE_ERR_FAULT_RECTIFY_REBOOT, OPAL_NA, NULL);</a>
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>                :<span class="lineCov">          1 : static inline void code_update_tce_map(uint32_t tce_offset,</span>
+<span class="lineNum">      98 </span>                :            :                                        void *buffer, uint32_t size)
+<span class="lineNum">      99 </span>                :            : {
+<span class="lineNum">     100 </span>                :<span class="lineCov">          1 :         uint32_t tlen = ALIGN_UP(size, TCE_PSIZE);</span>
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :<span class="lineCov">          1 :         fsp_tce_map(PSI_DMA_CODE_UPD + tce_offset, buffer, tlen);</span>
+<a name="103"><span class="lineNum">     103 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     104 </span>                :            : 
+<span class="lineNum">     105 </span>                :<span class="lineCov">          1 : static inline void code_update_tce_unmap(uint32_t size)</span>
+<span class="lineNum">     106 </span>                :            : {
+<span class="lineNum">     107 </span>                :<span class="lineCov">          1 :         fsp_tce_unmap(PSI_DMA_CODE_UPD, size);</span>
+<a name="108"><span class="lineNum">     108 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>                :<span class="lineCov">          2 : static inline void set_def_fw_version(uint32_t side)</span>
+<span class="lineNum">     111 </span>                :            : {
+<span class="lineNum">     112 </span>                :<span class="lineCov">          2 :         strncpy(fw_vpd[side].MI_keyword, FW_VERSION_UNKNOWN, MI_KEYWORD_SIZE);</span>
+<span class="lineNum">     113 </span>                :<span class="lineCov">          2 :         strncpy(fw_vpd[side].ext_fw_id, FW_VERSION_UNKNOWN, ML_KEYWORD_SIZE);</span>
+<span class="lineNum">     114 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">     115 </span>                :            : 
+<span class="lineNum">     116 </span>                :            : /*
+<a name="117"><span class="lineNum">     117 </span>                :            :  * Get IPL side</a>
+<span class="lineNum">     118 </span>                :            :  */
+<span class="lineNum">     119 </span>                :<span class="lineCov">          1 : static void get_ipl_side(void)</span>
+<span class="lineNum">     120 </span>                :            : {
+<span class="lineNum">     121 </span>                :            :         struct dt_node *iplp;
+<span class="lineNum">     122 </span>                :<span class="lineCov">          1 :         const char *side = NULL;</span>
+<span class="lineNum">     123 </span>                :            : 
+<span class="lineNum">     124 </span>                :<span class="lineCov">          1 :         iplp = dt_find_by_path(dt_root, &quot;ipl-params/ipl-params&quot;);</span>
+<span class="lineNum">     125 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (iplp)</span>
+<span class="lineNum">     126 </span>                :<span class="lineCov">          1 :                 side = dt_prop_get_def(iplp, &quot;cec-ipl-side&quot;, NULL);</span>
+<span class="lineNum">     127 </span>                :<span class="lineCov">          1 :         prlog(PR_NOTICE, &quot;CUPD: IPL SIDE = %s\n&quot;, side);</span>
+<span class="lineNum">     128 </span>                :            : 
+<span class="lineNum">     129 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 3 was not taken"> - </span><span class="branchCov" title="Branch 4 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!side || !strcmp(side, &quot;temp&quot;))</span>
+<span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :                 ipl_side = FW_IPL_SIDE_TEMP;</span>
+<span class="lineNum">     131 </span>                :            :         else
+<span class="lineNum">     132 </span>                :<span class="lineCov">          1 :                 ipl_side = FW_IPL_SIDE_PERM;</span>
+<span class="lineNum">     133 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">     134 </span>                :            : 
+<span class="lineNum">     135 </span>                :            : 
+<span class="lineNum">     136 </span>                :            : /*
+<span class="lineNum">     137 </span>                :            :  * Helper routines to retrieve code update related
+<span class="lineNum">     138 </span>                :            :  * system parameters from FSP.
+<a name="139"><span class="lineNum">     139 </span>                :            :  */</a>
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>                :<span class="lineCov">          2 : static void inc_in_flight_param(void)</span>
+<span class="lineNum">     142 </span>                :            : {
+<span class="lineNum">     143 </span>                :<span class="lineCov">          2 :         lock(&amp;flash_lock);</span>
+<span class="lineNum">     144 </span>                :<span class="lineCov">          2 :         in_flight_params++;</span>
+<span class="lineNum">     145 </span>                :<span class="lineCov">          2 :         unlock(&amp;flash_lock);</span>
+<a name="146"><span class="lineNum">     146 </span>                :<span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     147 </span>                :            : 
+<span class="lineNum">     148 </span>                :<span class="lineCov">          2 : static void dec_in_flight_param(void)</span>
+<span class="lineNum">     149 </span>                :            : {
+<span class="lineNum">     150 </span>                :<span class="lineCov">          2 :         lock(&amp;flash_lock);</span>
+<span class="lineNum">     151 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         assert(in_flight_params &gt; 0);</span>
+<span class="lineNum">     152 </span>                :<span class="lineCov">          2 :         in_flight_params--;</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">          2 :         unlock(&amp;flash_lock);</span>
+<a name="154"><span class="lineNum">     154 </span>                :<span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     155 </span>                :            : 
+<span class="lineNum">     156 </span>                :<span class="lineCov">          1 : static void got_code_update_policy(uint32_t param_id __unused, int err_len,</span>
+<span class="lineNum">     157 </span>                :            :                                    void *data __unused)
+<span class="lineNum">     158 </span>                :            : {
+<span class="lineNum">     159 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (err_len != 4) {</span>
+<span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_INIT), &quot;CUPD: Error &quot;</span>
+<span class="lineNum">     161 </span>                :            :                         &quot;retrieving code update policy: %d\n&quot;, err_len);
+<span class="lineNum">     162 </span>                :            :         } else
+<span class="lineNum">     163 </span>                :<span class="lineCov">          1 :                 prlog(PR_NOTICE, &quot;CUPD: Code update policy from FSP: %d\n&quot;,</span>
+<span class="lineNum">     164 </span>                :            :                       update_policy);
+<span class="lineNum">     165 </span>                :            : 
+<span class="lineNum">     166 </span>                :<span class="lineCov">          1 :         dec_in_flight_param();</span>
+<a name="167"><span class="lineNum">     167 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     168 </span>                :            : 
+<span class="lineNum">     169 </span>                :<span class="lineCov">          1 : static void get_code_update_policy(void)</span>
+<span class="lineNum">     170 </span>                :            : {
+<span class="lineNum">     171 </span>                :            :         int rc;
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>                :<span class="lineCov">          1 :         inc_in_flight_param();</span>
+<span class="lineNum">     174 </span>                :<span class="lineCov">          1 :         rc = fsp_get_sys_param(SYS_PARAM_FLASH_POLICY, &amp;update_policy, 4,</span>
+<span class="lineNum">     175 </span>                :            :                                got_code_update_policy, NULL);
+<span class="lineNum">     176 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (rc) {</span>
+<span class="lineNum">     177 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_INIT),</span>
+<span class="lineNum">     178 </span>                :            :                         &quot;CUPD: Error %d queueing param request\n&quot;, rc);
+<span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :                 dec_in_flight_param();</span>
+<span class="lineNum">     180 </span>                :            :         }
+<a name="181"><span class="lineNum">     181 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     182 </span>                :            : 
+<span class="lineNum">     183 </span>                :<span class="lineCov">          1 : static void got_platform_hmc_managed(uint32_t param_id __unused, int err_len,</span>
+<span class="lineNum">     184 </span>                :            :                                      void *data __unused)
+<span class="lineNum">     185 </span>                :            : {
+<span class="lineNum">     186 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (err_len != 4) {</span>
+<span class="lineNum">     187 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_INIT), &quot;CUPD: Error &quot;</span>
+<span class="lineNum">     188 </span>                :            :                         &quot;retrieving hmc managed status: %d\n&quot;, err_len);
+<span class="lineNum">     189 </span>                :            :         } else
+<span class="lineNum">     190 </span>                :<span class="lineCov">          1 :                 prlog(PR_NOTICE, &quot;CUPD: HMC managed status from FSP: %d\n&quot;,</span>
+<span class="lineNum">     191 </span>                :            :                       hmc_managed);
+<span class="lineNum">     192 </span>                :            : 
+<span class="lineNum">     193 </span>                :<span class="lineCov">          1 :         dec_in_flight_param();</span>
+<a name="194"><span class="lineNum">     194 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>                :<span class="lineCov">          1 : static void get_platform_hmc_managed(void)</span>
+<span class="lineNum">     197 </span>                :            : {
+<span class="lineNum">     198 </span>                :            :         int rc;
+<span class="lineNum">     199 </span>                :            : 
+<span class="lineNum">     200 </span>                :<span class="lineCov">          1 :         inc_in_flight_param();</span>
+<span class="lineNum">     201 </span>                :<span class="lineCov">          1 :         rc = fsp_get_sys_param(SYS_PARAM_HMC_MANAGED, &amp;hmc_managed, 4,</span>
+<span class="lineNum">     202 </span>                :            :                                got_platform_hmc_managed, NULL);
+<span class="lineNum">     203 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (rc) {</span>
+<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_INIT),</span>
+<span class="lineNum">     205 </span>                :            :                         &quot;CUPD: Error %d queueing param request\n&quot;, rc);
+<span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :                 dec_in_flight_param();</span>
+<span class="lineNum">     207 </span>                :            :         }
+<a name="208"><span class="lineNum">     208 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     209 </span>                :            : 
+<span class="lineNum">     210 </span>                :<span class="lineCov">          1 : static int64_t code_update_check_state(void)</span>
+<span class="lineNum">     211 </span>                :            : {
+<span class="lineNum">     212 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         switch(flash_state) {</span>
+<span class="lineNum">     213 </span>                :            :         case FLASH_STATE_ABSENT:
+<span class="lineNum">     214 </span>                :            :                 return OPAL_HARDWARE;
+<span class="lineNum">     215 </span>                :            :         case FLASH_STATE_INVALID:
+<span class="lineNum">     216 </span>                :            :         case FLASH_STATE_ABORT:
+<span class="lineNum">     217 </span>                :            :                 return OPAL_INTERNAL_ERROR;
+<span class="lineNum">     218 </span>                :            :         case FLASH_STATE_READING:
+<span class="lineNum">     219 </span>                :            :                 return OPAL_BUSY;
+<span class="lineNum">     220 </span>                :            :         default:
+<span class="lineNum">     221 </span>                :            :                 break;
+<span class="lineNum">     222 </span>                :            :         }
+<span class="lineNum">     223 </span>                :            :         return OPAL_SUCCESS;
+<span class="lineNum">     224 </span>                :            : }
+<span class="lineNum">     225 </span>                :            : 
+<span class="lineNum">     226 </span>                :            : /*
+<a name="227"><span class="lineNum">     227 </span>                :            :  * Get common marker LID additional data section</a>
+<span class="lineNum">     228 </span>                :            :  */
+<span class="lineNum">     229 </span>                :<span class="lineCov">          1 : static void *get_adf_sec_data(struct com_marker_adf_sec *adf_sec,</span>
+<span class="lineNum">     230 </span>                :            :                               uint32_t name)
+<span class="lineNum">     231 </span>                :            : {
+<span class="lineNum">     232 </span>                :            :         struct com_marker_adf_header *adf_header;
+<span class="lineNum">     233 </span>                :            :         int i;
+<span class="lineNum">     234 </span>                :            : 
+<span class="lineNum">     235 </span>                :<span class="lineCov">          1 :         adf_header = (void *)adf_sec-&gt;adf_data;</span>
+<span class="lineNum">     236 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          3 :         for (i = 0; i &lt; be32_to_cpu(adf_sec-&gt;adf_cnt); i++) {</span>
+<span class="lineNum">     237 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :                 if (be32_to_cpu(adf_header-&gt;name) == name)</span>
+<span class="lineNum">     238 </span>                :            :                         return adf_header;
+<span class="lineNum">     239 </span>                :            : 
+<span class="lineNum">     240 </span>                :<span class="lineCov">          2 :                 adf_header = (void *)adf_header + be32_to_cpu(adf_header-&gt;size);</span>
+<span class="lineNum">     241 </span>                :            :         }
+<span class="lineNum">     242 </span>                :            :         return NULL;
+<span class="lineNum">     243 </span>                :            : }
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>                :            : /*
+<span class="lineNum">     246 </span>                :            :  * Parse common marker LID to get FW version details
+<span class="lineNum">     247 </span>                :            :  *
+<span class="lineNum">     248 </span>                :            :  * Note:
+<span class="lineNum">     249 </span>                :            :  *   At present, we are parsing &quot;Service Pack Nomenclature ADF&quot;
+<span class="lineNum">     250 </span>                :            :  *   section only. If we are adding FW IP support, then we have
+<a name="251"><span class="lineNum">     251 </span>                :            :  *   to parse &quot;Firmware IP Protection ADF&quot; as well.</a>
+<span class="lineNum">     252 </span>                :            :  */
+<span class="lineNum">     253 </span>                :<span class="lineCov">          2 : static void parse_marker_lid(uint32_t side)</span>
+<span class="lineNum">     254 </span>                :            : {
+<span class="lineNum">     255 </span>                :            :         struct com_marker_header *header;
+<span class="lineNum">     256 </span>                :            :         struct com_marker_mi_section *mi_sec;
+<span class="lineNum">     257 </span>                :            :         struct com_marker_adf_sec *adf_sec;
+<span class="lineNum">     258 </span>                :            :         struct com_marker_adf_sp *adf_sp;
+<span class="lineNum">     259 </span>                :            : 
+<span class="lineNum">     260 </span>                :<span class="lineCov">          2 :         header = (void *)lid_data;</span>
+<span class="lineNum">     261 </span>                :            : 
+<span class="lineNum">     262 </span>                :            :         /* Get MI details */
+<span class="lineNum">     263 </span>                :<span class="lineCov">          2 :         mi_sec = (void *)header + be32_to_cpu(header-&gt;MI_offset);</span>
+<span class="lineNum">     264 </span>                :            :         /*
+<span class="lineNum">     265 </span>                :            :          * If Marker LID is invalid, then FSP will return a Marker
+<span class="lineNum">     266 </span>                :            :          * LID with ASCII zeros for the entire MI keyword.
+<span class="lineNum">     267 </span>                :            :          */
+<span class="lineNum">     268 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if (mi_sec-&gt;MI_keyword[0] == '0')</span>
+<span class="lineNum">     269 </span>                :            :                 return;
+<span class="lineNum">     270 </span>                :            : 
+<span class="lineNum">     271 </span>                :<span class="lineCov">          1 :         strncpy(fw_vpd[side].MI_keyword, mi_sec-&gt;MI_keyword, MI_KEYWORD_SIZE);</span>
+<span class="lineNum">     272 </span>                :<span class="lineCov">          1 :         fw_vpd[side].MI_keyword[MI_KEYWORD_SIZE - 1] = '\0';</span>
+<span class="lineNum">     273 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         prlog(PR_NOTICE, &quot;CUPD: %s side MI Keyword = %s\n&quot;,</span>
+<span class="lineNum">     274 </span>                :            :               side == 0x00 ? &quot;P&quot; : &quot;T&quot;, fw_vpd[side].MI_keyword);
+<span class="lineNum">     275 </span>                :            : 
+<span class="lineNum">     276 </span>                :            :         /* Get ML details */
+<span class="lineNum">     277 </span>                :<span class="lineCov">          1 :         adf_sec = (void *)header + be32_to_cpu(mi_sec-&gt;adf_offset);</span>
+<span class="lineNum">     278 </span>                :<span class="lineCov">          1 :         adf_sp = get_adf_sec_data(adf_sec, ADF_NAME_SP);</span>
+<span class="lineNum">     279 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!adf_sp)</span>
+<span class="lineNum">     280 </span>                :            :                 return;
+<span class="lineNum">     281 </span>                :            : 
+<span class="lineNum">     282 </span>                :<span class="lineCov">          1 :         strncpy(fw_vpd[side].ext_fw_id,</span>
+<span class="lineNum">     283 </span>                :<span class="lineCov">          1 :                 (void *)adf_sp + be32_to_cpu(adf_sp-&gt;sp_name_offset),</span>
+<span class="lineNum">     284 </span>                :            :                 ML_KEYWORD_SIZE);
+<span class="lineNum">     285 </span>                :<span class="lineCov">          1 :         fw_vpd[side].ext_fw_id[ML_KEYWORD_SIZE - 1] = '\0';</span>
+<span class="lineNum">     286 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         prlog(PR_NOTICE, &quot;CUPD: %s side ML Keyword = %s\n&quot;,</span>
+<span class="lineNum">     287 </span>                :            :               side == 0x00 ? &quot;P&quot; : &quot;T&quot;, fw_vpd[side].ext_fw_id);
+<a name="288"><span class="lineNum">     288 </span>                :            : }</a>
+<span class="lineNum">     289 </span>                :            : 
+<span class="lineNum">     290 </span>                :<span class="lineCov">          1 : static void validate_com_marker_lid(void)</span>
+<span class="lineNum">     291 </span>                :            : {
+<span class="lineNum">     292 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!strncmp(fw_vpd[ipl_side].MI_keyword, FW_VERSION_UNKNOWN,</span>
+<span class="lineNum">     293 </span>                :            :                      sizeof(FW_VERSION_UNKNOWN))) {
+<span class="lineNum">     294 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_MARKER_LID),</span>
+<span class="lineNum">     295 </span>                :            :                         &quot;CUPD: IPL side Marker LID is not valid\n&quot;);
+<span class="lineNum">     296 </span>                :<span class="lineNoCov">          0 :                 flash_state = FLASH_STATE_INVALID;</span>
+<span class="lineNum">     297 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     298 </span>                :            :         }
+<span class="lineNum">     299 </span>                :            : 
+<span class="lineNum">     300 </span>                :<span class="lineCov">          1 :         flash_state = FLASH_STATE_READ;</span>
+<a name="301"><span class="lineNum">     301 </span>                :            : }</a>
+<span class="lineNum">     302 </span>                :            : 
+<span class="lineNum">     303 </span>                :<span class="lineCov">          2 : static void fetch_lid_data_complete(struct fsp_msg *msg)</span>
+<span class="lineNum">     304 </span>                :            : {
+<span class="lineNum">     305 </span>                :            :         void *buffer;
+<span class="lineNum">     306 </span>                :            :         size_t length, chunk;
+<span class="lineNum">     307 </span>                :            :         uint32_t lid_id, offset;
+<span class="lineNum">     308 </span>                :            :         uint16_t id;
+<span class="lineNum">     309 </span>                :            :         uint8_t flags, status;
+<span class="lineNum">     310 </span>                :            :         int rc;
+<span class="lineNum">     311 </span>                :            : 
+<span class="lineNum">     312 </span>                :<span class="lineCov">          2 :         status = (msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     313 </span>                :<span class="lineCov">          2 :         flags = (msg-&gt;data.words[0] &gt;&gt; 16) &amp; 0xff;</span>
+<span class="lineNum">     314 </span>                :<span class="lineCov">          2 :         id = msg-&gt;data.words[0] &amp; 0xffff;</span>
+<span class="lineNum">     315 </span>                :<span class="lineCov">          2 :         lid_id = msg-&gt;data.words[1];</span>
+<span class="lineNum">     316 </span>                :<span class="lineCov">          2 :         offset = msg-&gt;resp-&gt;data.words[1];</span>
+<span class="lineNum">     317 </span>                :<span class="lineCov">          2 :         length = msg-&gt;resp-&gt;data.words[2];</span>
+<span class="lineNum">     318 </span>                :            : 
+<span class="lineNum">     319 </span>                :<span class="lineCov">          2 :         prlog(PR_NOTICE, &quot;CUPD: Marker LID id : size : status = &quot;</span>
+<span class="lineNum">     320 </span>                :            :               &quot;0x%x : 0x%x : 0x%x\n&quot;,
+<span class="lineNum">     321 </span>                :            :               msg-&gt;data.words[1], msg-&gt;resp-&gt;data.words[2], status);
+<span class="lineNum">     322 </span>                :            : 
+<span class="lineNum">     323 </span>                :<span class="lineCov">          2 :         fsp_freemsg(msg);</span>
+<span class="lineNum">     324 </span>                :            : 
+<span class="lineNum">     325 </span>     [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         switch (status) {</span>
+<span class="lineNum">     326 </span>                :            :         case FSP_STATUS_SUCCESS: /* Read complete, parse VPD */
+<span class="lineNum">     327 </span>                :<span class="lineCov">          2 :                 parse_marker_lid(lid_id == P_COM_MARKER_LID_ID ? 0 : 1);</span>
+<span class="lineNum">     328 </span>                :<span class="lineCov">          2 :                 break;</span>
+<span class="lineNum">     329 </span>                :            :         case FSP_STATUS_MORE_DATA: /* More data left */
+<span class="lineNum">     330 </span>                :<span class="lineNoCov">          0 :                 offset += length;</span>
+<span class="lineNum">     331 </span>                :<span class="lineNoCov">          0 :                 chunk = MARKER_LID_SIZE - offset;</span>
+<span class="lineNum">     332 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (chunk &gt; 0) {</span>
+<span class="lineNum">     333 </span>                :<span class="lineNoCov">          0 :                         buffer = (void *)PSI_DMA_CODE_UPD + offset;</span>
+<span class="lineNum">     334 </span>                :<span class="lineNoCov">          0 :                         rc = fsp_fetch_data_queue(flags, id, lid_id,</span>
+<span class="lineNum">     335 </span>                :            :                                                   offset, buffer, &amp;chunk,
+<span class="lineNum">     336 </span>                :            :                                                   fetch_lid_data_complete);
+<span class="lineNum">     337 </span>                :            : 
+<span class="lineNum">     338 </span>                :            :                         /* If queue msg fails, then continue with marker LID
+<span class="lineNum">     339 </span>                :            :                          * validation hoping that we have at least boot side
+<span class="lineNum">     340 </span>                :            :                          * information.
+<span class="lineNum">     341 </span>                :            :                          */
+<span class="lineNum">     342 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (rc == OPAL_SUCCESS)</span>
+<span class="lineNum">     343 </span>                :<span class="lineCov">          1 :                                 return;</span>
+<span class="lineNum">     344 </span>                :            :                 }
+<span class="lineNum">     345 </span>                :            :                 break;
+<span class="lineNum">     346 </span>                :            :         default:        /* Fetch LID call failed */
+<span class="lineNum">     347 </span>                :            :                 break;
+<span class="lineNum">     348 </span>                :            :         }
+<span class="lineNum">     349 </span>                :            : 
+<span class="lineNum">     350 </span>                :            :         /* If required, fetch T side marker LID */
+<span class="lineNum">     351 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          2 :         if (lid_id == P_COM_MARKER_LID_ID &amp;&amp;</span>
+<span class="lineNum">     352 </span>                :<span class="lineCov">          1 :             lid_fetch_side == FETCH_BOTH_SIDE) {</span>
+<span class="lineNum">     353 </span>                :<span class="lineCov">          1 :                 length = MARKER_LID_SIZE;</span>
+<span class="lineNum">     354 </span>                :<span class="lineCov">          1 :                 rc = fsp_fetch_data_queue(flags, id, T_COM_MARKER_LID_ID,</span>
+<span class="lineNum">     355 </span>                :            :                                           0, (void *)PSI_DMA_CODE_UPD,
+<span class="lineNum">     356 </span>                :            :                                           &amp;length, fetch_lid_data_complete);
+<span class="lineNum">     357 </span>                :            : 
+<span class="lineNum">     358 </span>                :            :                 /* If queue msg fails, then continue with marker LID
+<span class="lineNum">     359 </span>                :            :                  * validation hoping that we have at least boot side
+<span class="lineNum">     360 </span>                :            :                  * information.
+<span class="lineNum">     361 </span>                :            :                  */
+<span class="lineNum">     362 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                 if (rc == OPAL_SUCCESS)</span>
+<span class="lineNum">     363 </span>                :            :                         return;
+<span class="lineNum">     364 </span>                :            :         }
+<span class="lineNum">     365 </span>                :            : 
+<span class="lineNum">     366 </span>                :<span class="lineCov">          1 :         lock(&amp;flash_lock);</span>
+<span class="lineNum">     367 </span>                :            : 
+<span class="lineNum">     368 </span>                :            :         /* Validate marker LID data */
+<span class="lineNum">     369 </span>                :<span class="lineCov">          1 :         validate_com_marker_lid();</span>
+<span class="lineNum">     370 </span>                :            :         /* TCE unmap */
+<span class="lineNum">     371 </span>                :<span class="lineCov">          1 :         code_update_tce_unmap(MARKER_LID_SIZE);</span>
+<span class="lineNum">     372 </span>                :            : 
+<span class="lineNum">     373 </span>                :<span class="lineCov">          1 :         unlock(&amp;flash_lock);</span>
+<a name="374"><span class="lineNum">     374 </span>                :            : }</a>
+<span class="lineNum">     375 </span>                :            : 
+<span class="lineNum">     376 </span>                :<span class="lineCov">          1 : static void fetch_com_marker_lid(void)</span>
+<span class="lineNum">     377 </span>                :            : {
+<span class="lineNum">     378 </span>                :<span class="lineCov">          1 :         size_t length = MARKER_LID_SIZE;</span>
+<span class="lineNum">     379 </span>                :            :         uint32_t lid_id;
+<span class="lineNum">     380 </span>                :            :         int rc;
+<span class="lineNum">     381 </span>                :            : 
+<span class="lineNum">     382 </span>                :            :         /* Read in progress? */
+<span class="lineNum">     383 </span>                :<span class="lineCov">          1 :         rc = code_update_check_state();</span>
+<span class="lineNum">     384 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         if (rc == OPAL_HARDWARE || rc == OPAL_BUSY)</span>
+<span class="lineNum">     385 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     386 </span>                :            : 
+<span class="lineNum">     387 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (lid_fetch_side == FETCH_T_SIDE_ONLY) {</span>
+<span class="lineNum">     388 </span>                :<span class="lineNoCov">          0 :                 lid_id = T_COM_MARKER_LID_ID;</span>
+<span class="lineNum">     389 </span>                :<span class="lineNoCov">          0 :                 set_def_fw_version(FW_IPL_SIDE_TEMP);</span>
+<span class="lineNum">     390 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         } else if (lid_fetch_side == FETCH_P_SIDE_ONLY) {</span>
+<span class="lineNum">     391 </span>                :<span class="lineNoCov">          0 :                 lid_id = P_COM_MARKER_LID_ID;</span>
+<span class="lineNum">     392 </span>                :<span class="lineNoCov">          0 :                 set_def_fw_version(FW_IPL_SIDE_PERM);</span>
+<span class="lineNum">     393 </span>                :            :         } else {
+<span class="lineNum">     394 </span>                :<span class="lineCov">          1 :                 lid_id = P_COM_MARKER_LID_ID;</span>
+<span class="lineNum">     395 </span>                :<span class="lineCov">          1 :                 set_def_fw_version(FW_IPL_SIDE_PERM);</span>
+<span class="lineNum">     396 </span>                :<span class="lineCov">          1 :                 set_def_fw_version(FW_IPL_SIDE_TEMP);</span>
+<span class="lineNum">     397 </span>                :            :         }
+<span class="lineNum">     398 </span>                :            : 
+<span class="lineNum">     399 </span>                :<span class="lineCov">          1 :         code_update_tce_map(0, lid_data, length);</span>
+<span class="lineNum">     400 </span>                :<span class="lineCov">          1 :         rc = fsp_fetch_data_queue(0x00, 0x05, lid_id, 0,</span>
+<span class="lineNum">     401 </span>                :            :                                   (void *)PSI_DMA_CODE_UPD, &amp;length,
+<span class="lineNum">     402 </span>                :            :                                   fetch_lid_data_complete);
+<span class="lineNum">     403 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!rc)</span>
+<span class="lineNum">     404 </span>                :<span class="lineCov">          1 :                 flash_state = FLASH_STATE_READING;</span>
+<span class="lineNum">     405 </span>                :            :         else
+<span class="lineNum">     406 </span>                :<span class="lineCov">          1 :                 flash_state = FLASH_STATE_INVALID;</span>
+<span class="lineNum">     407 </span>                :            : }
+<span class="lineNum">     408 </span>                :            : 
+<span class="lineNum">     409 </span>                :            : /*
+<span class="lineNum">     410 </span>                :            :  * Add MI and ML keyword details into DT
+<a name="411"><span class="lineNum">     411 </span>                :            :  */</a>
+<span class="lineNum">     412 </span>                :            : #define FW_VER_SIZE     64
+<span class="lineNum">     413 </span>                :<span class="lineCov">          1 : static void add_opal_firmware_version(void)</span>
+<span class="lineNum">     414 </span>                :            : {
+<span class="lineNum">     415 </span>                :            :         struct dt_node *dt_fw;
+<span class="lineNum">     416 </span>                :            :         char buffer[FW_VER_SIZE];
+<span class="lineNum">     417 </span>                :            :         int offset;
+<span class="lineNum">     418 </span>                :            : 
+<span class="lineNum">     419 </span>                :<span class="lineCov">          1 :         dt_fw = dt_find_by_path(dt_root, &quot;ibm,opal/firmware&quot;);</span>
+<span class="lineNum">     420 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!dt_fw)</span>
+<span class="lineNum">     421 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     422 </span>                :            : 
+<span class="lineNum">     423 </span>                :            :         /* MI version */
+<span class="lineNum">     424 </span>                :<span class="lineCov">          1 :         offset = snprintf(buffer, FW_VER_SIZE, &quot;MI %s %s&quot;,</span>
+<span class="lineNum">     425 </span>                :            :                           fw_vpd[FW_IPL_SIDE_TEMP].MI_keyword,
+<span class="lineNum">     426 </span>                :            :                           fw_vpd[FW_IPL_SIDE_PERM].MI_keyword);
+<span class="lineNum">     427 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (ipl_side == FW_IPL_SIDE_TEMP)</span>
+<span class="lineNum">     428 </span>                :<span class="lineNoCov">          0 :                 snprintf(buffer + offset, FW_VER_SIZE - offset,</span>
+<span class="lineNum">     429 </span>                :            :                          &quot; %s&quot;, fw_vpd[FW_IPL_SIDE_TEMP].MI_keyword);
+<span class="lineNum">     430 </span>                :            :         else
+<span class="lineNum">     431 </span>                :<span class="lineCov">          1 :                 snprintf(buffer + offset, FW_VER_SIZE - offset,</span>
+<span class="lineNum">     432 </span>                :            :                          &quot; %s&quot;, fw_vpd[FW_IPL_SIDE_PERM].MI_keyword);
+<span class="lineNum">     433 </span>                :            : 
+<span class="lineNum">     434 </span>                :<span class="lineCov">          1 :         dt_add_property(dt_fw, &quot;mi-version&quot;, buffer, strlen(buffer));</span>
+<span class="lineNum">     435 </span>                :            : 
+<span class="lineNum">     436 </span>                :            :         /* ML version */
+<span class="lineNum">     437 </span>                :<span class="lineCov">          1 :         offset = snprintf(buffer, FW_VER_SIZE, &quot;ML %s %s&quot;,</span>
+<span class="lineNum">     438 </span>                :            :                           fw_vpd[FW_IPL_SIDE_TEMP].ext_fw_id,
+<span class="lineNum">     439 </span>                :            :                           fw_vpd[FW_IPL_SIDE_PERM].ext_fw_id);
+<span class="lineNum">     440 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (ipl_side == FW_IPL_SIDE_TEMP)</span>
+<span class="lineNum">     441 </span>                :<span class="lineNoCov">          0 :                 snprintf(buffer + offset, FW_VER_SIZE - offset,</span>
+<span class="lineNum">     442 </span>                :            :                          &quot; %s&quot;, fw_vpd[FW_IPL_SIDE_TEMP].ext_fw_id);
+<span class="lineNum">     443 </span>                :            :         else
+<span class="lineNum">     444 </span>                :<span class="lineCov">          1 :                 snprintf(buffer + offset, FW_VER_SIZE - offset,</span>
+<span class="lineNum">     445 </span>                :            :                          &quot; %s&quot;, fw_vpd[FW_IPL_SIDE_PERM].ext_fw_id);
+<span class="lineNum">     446 </span>                :            : 
+<span class="lineNum">     447 </span>                :<span class="lineCov">          1 :         dt_add_property(dt_fw, &quot;ml-version&quot;, buffer, strlen(buffer));</span>
+<span class="lineNum">     448 </span>                :            : }
+<span class="lineNum">     449 </span>                :            : 
+<span class="lineNum">     450 </span>                :            : /*
+<span class="lineNum">     451 </span>                :            :  * This is called right before starting the payload (Linux) to
+<span class="lineNum">     452 </span>                :            :  * ensure the common marker LID read and parsing has happened
+<a name="453"><span class="lineNum">     453 </span>                :            :  * before we transfer control.</a>
+<span class="lineNum">     454 </span>                :            :  */
+<span class="lineNum">     455 </span>                :<span class="lineCov">          1 : void fsp_code_update_wait_vpd(bool is_boot)</span>
+<span class="lineNum">     456 </span>                :            : {
+<span class="lineNum">     457 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!fsp_present())</span>
+<span class="lineNum">     458 </span>                :<span class="lineCov">          1 :                 return;</span>
+<span class="lineNum">     459 </span>                :            : 
+<span class="lineNum">     460 </span>                :<span class="lineCov">          1 :         prlog(PR_NOTICE, &quot;CUPD: Waiting read marker LID&quot;</span>
+<span class="lineNum">     461 </span>                :            :               &quot; and in flight parsm completion...\n&quot;);
+<span class="lineNum">     462 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         while (flash_state == FLASH_STATE_READING || in_flight_params) {</span>
+<span class="lineNum">     463 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;flash_lock);</span>
+<span class="lineNum">     464 </span>                :<span class="lineNoCov">          0 :                 time_wait_ms(100);</span>
+<span class="lineNum">     465 </span>                :<span class="lineNoCov">          0 :                 lock(&amp;flash_lock);</span>
+<span class="lineNum">     466 </span>                :            :         }
+<span class="lineNum">     467 </span>                :            : 
+<span class="lineNum">     468 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (is_boot)</span>
+<span class="lineNum">     469 </span>                :<span class="lineCov">          1 :                 add_opal_firmware_version();</span>
+<a name="470"><span class="lineNum">     470 </span>                :            : }</a>
+<span class="lineNum">     471 </span>                :            : 
+<span class="lineNum">     472 </span>                :<span class="lineNoCov">          0 : static int code_update_start(void)</span>
+<span class="lineNum">     473 </span>                :            : {
+<span class="lineNum">     474 </span>                :            :         struct fsp_msg *msg;
+<span class="lineNum">     475 </span>                :            :         int rc;
+<span class="lineNum">     476 </span>                :<span class="lineNoCov">          0 :         uint16_t comp = 0x00;   /* All components */</span>
+<span class="lineNum">     477 </span>                :<span class="lineNoCov">          0 :         uint8_t side = OPAL_COMMIT_TMP_SIDE;    /* Temporary side */</span>
+<span class="lineNum">     478 </span>                :            : 
+<span class="lineNum">     479 </span>                :<span class="lineNoCov">          0 :         msg = fsp_mkmsg(FSP_CMD_FLASH_START, 1, side &lt;&lt; 16 | comp);</span>
+<span class="lineNum">     480 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!msg) {</span>
+<span class="lineNum">     481 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_MSG),</span>
+<span class="lineNum">     482 </span>                :            :                         &quot;CUPD: CMD_FLASH_START message allocation failed !\n&quot;);
+<span class="lineNum">     483 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     484 </span>                :            :         }
+<span class="lineNum">     485 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_sync_msg(msg, false)) {</span>
+<span class="lineNum">     486 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(msg);</span>
+<span class="lineNum">     487 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     488 </span>                :            :         }
+<span class="lineNum">     489 </span>                :<span class="lineNoCov">          0 :         rc = (msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     490 </span>                :<span class="lineNoCov">          0 :         fsp_freemsg(msg);</span>
+<span class="lineNum">     491 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="492"><span class="lineNum">     492 </span>                :            : }</a>
+<span class="lineNum">     493 </span>                :            : 
+<span class="lineNum">     494 </span>                :<span class="lineNoCov">          0 : static int code_update_write_lid(uint32_t lid_id, uint32_t size)</span>
+<span class="lineNum">     495 </span>                :            : {
+<span class="lineNum">     496 </span>                :            :         struct fsp_msg *msg;
+<span class="lineNum">     497 </span>                :<span class="lineNoCov">          0 :         int rc, n_pairs = 1;</span>
+<span class="lineNum">     498 </span>                :            : 
+<span class="lineNum">     499 </span>                :<span class="lineNoCov">          0 :         msg = fsp_mkmsg(FSP_CMD_FLASH_WRITE, 5, lid_id,</span>
+<span class="lineNum">     500 </span>                :            :                         n_pairs, 0, tce_start, size);
+<span class="lineNum">     501 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!msg) {</span>
+<span class="lineNum">     502 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_MSG),</span>
+<span class="lineNum">     503 </span>                :            :                         &quot;CUPD: CMD_FLASH_WRITE message allocation failed !\n&quot;);
+<span class="lineNum">     504 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     505 </span>                :            :         }
+<span class="lineNum">     506 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_sync_msg(msg, false)) {</span>
+<span class="lineNum">     507 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(msg);</span>
+<span class="lineNum">     508 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     509 </span>                :            :         }
+<span class="lineNum">     510 </span>                :<span class="lineNoCov">          0 :         rc = (msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     511 </span>                :<span class="lineNoCov">          0 :         fsp_freemsg(msg);</span>
+<span class="lineNum">     512 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="513"><span class="lineNum">     513 </span>                :            : }</a>
+<span class="lineNum">     514 </span>                :            : 
+<span class="lineNum">     515 </span>                :<span class="lineNoCov">          0 : static int code_update_del_lid(uint32_t lid_id)</span>
+<span class="lineNum">     516 </span>                :            : {
+<span class="lineNum">     517 </span>                :            :         struct fsp_msg *msg;
+<span class="lineNum">     518 </span>                :            :         int rc;
+<span class="lineNum">     519 </span>                :            : 
+<span class="lineNum">     520 </span>                :<span class="lineNoCov">          0 :         msg = fsp_mkmsg(FSP_CMD_FLASH_DEL, 1, lid_id);</span>
+<span class="lineNum">     521 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!msg) {</span>
+<span class="lineNum">     522 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_MSG),</span>
+<span class="lineNum">     523 </span>                :            :                         &quot;CUPD: CMD_FLASH_DEL message allocation failed !\n&quot;);
+<span class="lineNum">     524 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     525 </span>                :            :         }
+<span class="lineNum">     526 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_sync_msg(msg, false)) {</span>
+<span class="lineNum">     527 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(msg);</span>
+<span class="lineNum">     528 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     529 </span>                :            :         }
+<span class="lineNum">     530 </span>                :<span class="lineNoCov">          0 :         rc = (msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     531 </span>                :<span class="lineNoCov">          0 :         fsp_freemsg(msg);</span>
+<span class="lineNum">     532 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="533"><span class="lineNum">     533 </span>                :            : }</a>
+<span class="lineNum">     534 </span>                :            : 
+<span class="lineNum">     535 </span>                :<span class="lineNoCov">          0 : static int code_update_complete(uint32_t cmd)</span>
+<span class="lineNum">     536 </span>                :            : {
+<span class="lineNum">     537 </span>                :            :         struct fsp_msg *msg;
+<span class="lineNum">     538 </span>                :            :         int rc;
+<span class="lineNum">     539 </span>                :            : 
+<span class="lineNum">     540 </span>                :<span class="lineNoCov">          0 :         msg = fsp_mkmsg(cmd, 0);</span>
+<span class="lineNum">     541 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!msg) {</span>
+<span class="lineNum">     542 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_MSG),</span>
+<span class="lineNum">     543 </span>                :            :                         &quot;CUPD: CUPD COMPLETE message allocation failed !\n&quot;);
+<span class="lineNum">     544 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     545 </span>                :            :         }
+<span class="lineNum">     546 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_sync_msg(msg, false)) {</span>
+<span class="lineNum">     547 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(msg);</span>
+<span class="lineNum">     548 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     549 </span>                :            :         }
+<span class="lineNum">     550 </span>                :<span class="lineNoCov">          0 :         rc = (msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     551 </span>                :<span class="lineNoCov">          0 :         fsp_freemsg(msg);</span>
+<span class="lineNum">     552 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="553"><span class="lineNum">     553 </span>                :            : }</a>
+<span class="lineNum">     554 </span>                :            : 
+<span class="lineNum">     555 </span>                :<span class="lineNoCov">          0 : static int code_update_swap_side(void)</span>
+<span class="lineNum">     556 </span>                :            : {
+<span class="lineNum">     557 </span>                :            :         struct fsp_msg *msg;
+<span class="lineNum">     558 </span>                :            :         int rc;
+<span class="lineNum">     559 </span>                :            : 
+<span class="lineNum">     560 </span>                :<span class="lineNoCov">          0 :         msg = fsp_mkmsg(FSP_CMD_FLASH_SWAP, 0);</span>
+<span class="lineNum">     561 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!msg) {</span>
+<span class="lineNum">     562 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_MSG),</span>
+<span class="lineNum">     563 </span>                :            :                         &quot;CUPD: CMD_FLASH_SWAP message allocation failed !\n&quot;);
+<span class="lineNum">     564 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     565 </span>                :            :         }
+<span class="lineNum">     566 </span>                :            : 
+<span class="lineNum">     567 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_sync_msg(msg, false)) {</span>
+<span class="lineNum">     568 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(msg);</span>
+<span class="lineNum">     569 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     570 </span>                :            :         }
+<span class="lineNum">     571 </span>                :<span class="lineNoCov">          0 :         rc = (msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     572 </span>                :<span class="lineNoCov">          0 :         fsp_freemsg(msg);</span>
+<span class="lineNum">     573 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="574"><span class="lineNum">     574 </span>                :            : }</a>
+<span class="lineNum">     575 </span>                :            : 
+<span class="lineNum">     576 </span>                :<span class="lineNoCov">          0 : static int code_update_set_ipl_side(void)</span>
+<span class="lineNum">     577 </span>                :            : {
+<span class="lineNum">     578 </span>                :            :         struct fsp_msg *msg;
+<span class="lineNum">     579 </span>                :<span class="lineNoCov">          0 :         uint8_t side = FW_IPL_SIDE_TEMP; /* Next IPL side */</span>
+<span class="lineNum">     580 </span>                :            :         int rc;
+<span class="lineNum">     581 </span>                :            : 
+<span class="lineNum">     582 </span>                :<span class="lineNoCov">          0 :         msg = fsp_mkmsg(FSP_CMD_SET_IPL_SIDE, 1, side &lt;&lt; 16);</span>
+<span class="lineNum">     583 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!msg) {</span>
+<span class="lineNum">     584 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_MSG),</span>
+<span class="lineNum">     585 </span>                :            :                         &quot;CUPD: CMD_SET_IPL_SIDE message allocation failed!\n&quot;);
+<span class="lineNum">     586 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     587 </span>                :            :         }
+<span class="lineNum">     588 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_sync_msg(msg, false)) {</span>
+<span class="lineNum">     589 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(msg);</span>
+<span class="lineNum">     590 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_MSG),</span>
+<span class="lineNum">     591 </span>                :            :                         &quot;CUPD: Setting next IPL side failed!\n&quot;);
+<span class="lineNum">     592 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     593 </span>                :            :         }
+<span class="lineNum">     594 </span>                :<span class="lineNoCov">          0 :         rc = (msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     595 </span>                :<span class="lineNoCov">          0 :         fsp_freemsg(msg);</span>
+<span class="lineNum">     596 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="597"><span class="lineNum">     597 </span>                :            : }</a>
+<span class="lineNum">     598 </span>                :            : 
+<span class="lineNum">     599 </span>                :<span class="lineNoCov">          0 : static void code_update_commit_complete(struct fsp_msg *msg)</span>
+<span class="lineNum">     600 </span>                :            : {
+<span class="lineNum">     601 </span>                :            :         int rc;
+<span class="lineNum">     602 </span>                :            :         uint8_t type;
+<span class="lineNum">     603 </span>                :            : 
+<span class="lineNum">     604 </span>                :<span class="lineNoCov">          0 :         rc = (msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     605 </span>                :<span class="lineNoCov">          0 :         type = (msg-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     606 </span>                :<span class="lineNoCov">          0 :         fsp_freemsg(msg);</span>
+<span class="lineNum">     607 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     608 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_COMMIT),</span>
+<span class="lineNum">     609 </span>                :            :                         &quot;CUPD: Code update commit failed, err 0x%x\n&quot;, rc);
+<span class="lineNum">     610 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     611 </span>                :            :         }
+<span class="lineNum">     612 </span>                :            : 
+<span class="lineNum">     613 </span>                :            :         /* Reset cached VPD data */
+<span class="lineNum">     614 </span>                :<span class="lineNoCov">          0 :         lock(&amp;flash_lock);</span>
+<span class="lineNum">     615 </span>                :            : 
+<span class="lineNum">     616 </span>                :            :         /* Find commit type */
+<span class="lineNum">     617 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (type == 0x01) {</span>
+<span class="lineNum">     618 </span>                :<span class="lineNoCov">          0 :                 lid_fetch_side = FETCH_P_SIDE_ONLY;</span>
+<span class="lineNum">     619 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         } else if (type == 0x02)</span>
+<span class="lineNum">     620 </span>                :<span class="lineNoCov">          0 :                 lid_fetch_side = FETCH_T_SIDE_ONLY;</span>
+<span class="lineNum">     621 </span>                :            :         else
+<span class="lineNum">     622 </span>                :<span class="lineNoCov">          0 :                 lid_fetch_side = FETCH_BOTH_SIDE;</span>
+<span class="lineNum">     623 </span>                :            : 
+<span class="lineNum">     624 </span>                :<span class="lineNoCov">          0 :         fetch_com_marker_lid();</span>
+<span class="lineNum">     625 </span>                :            : 
+<span class="lineNum">     626 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;flash_lock);</span>
+<a name="627"><span class="lineNum">     627 </span>                :            : }</a>
+<span class="lineNum">     628 </span>                :            : 
+<span class="lineNum">     629 </span>                :<span class="lineNoCov">          0 : static int code_update_commit(uint32_t cmd)</span>
+<span class="lineNum">     630 </span>                :            : {
+<span class="lineNum">     631 </span>                :            :         struct fsp_msg *msg;
+<span class="lineNum">     632 </span>                :            : 
+<span class="lineNum">     633 </span>                :<span class="lineNoCov">          0 :         msg = fsp_mkmsg(cmd, 0);</span>
+<span class="lineNum">     634 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!msg) {</span>
+<span class="lineNum">     635 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_MSG),</span>
+<span class="lineNum">     636 </span>                :            :                         &quot;CUPD: COMMIT message allocation failed !\n&quot;);
+<span class="lineNum">     637 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     638 </span>                :            :         }
+<span class="lineNum">     639 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_queue_msg(msg, code_update_commit_complete)) {</span>
+<span class="lineNum">     640 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_COMMIT),</span>
+<span class="lineNum">     641 </span>                :            :                         &quot;CUPD: Failed to queue code update commit message\n&quot;);
+<span class="lineNum">     642 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(msg);</span>
+<span class="lineNum">     643 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     644 </span>                :            :         }
+<span class="lineNum">     645 </span>                :            :         return OPAL_SUCCESS;
+<span class="lineNum">     646 </span>                :            : }
+<span class="lineNum">     647 </span>                :            : 
+<span class="lineNum">     648 </span>                :            : /*
+<a name="649"><span class="lineNum">     649 </span>                :            :  * Inband code update is allowed?</a>
+<span class="lineNum">     650 </span>                :            :  */
+<span class="lineNum">     651 </span>                :<span class="lineNoCov">          0 : static int64_t validate_inband_policy(void)</span>
+<span class="lineNum">     652 </span>                :            : {
+<span class="lineNum">     653 </span>                :            :         /* Quirk:
+<span class="lineNum">     654 </span>                :            :          *  If the code update policy is out-of-band, but the system
+<span class="lineNum">     655 </span>                :            :          *  is not HMC-managed, then inband update is allowed.
+<span class="lineNum">     656 </span>                :            :          */
+<span class="lineNum">     657 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (hmc_managed != PLATFORM_HMC_MANAGED)</span>
+<span class="lineNum">     658 </span>                :            :                 return 0;
+<span class="lineNum">     659 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (update_policy == INBAND_UPDATE_ALLOWED)</span>
+<span class="lineNum">     660 </span>                :            :                 return 0;
+<span class="lineNum">     661 </span>                :            : 
+<span class="lineNum">     662 </span>                :<span class="lineNoCov">          0 :         return -1;</span>
+<span class="lineNum">     663 </span>                :            : }
+<span class="lineNum">     664 </span>                :            : 
+<span class="lineNum">     665 </span>                :            : /*
+<span class="lineNum">     666 </span>                :            :  * Validate magic Number
+<span class="lineNum">     667 </span>                :            :  */
+<a name="668"><span class="lineNum">     668 </span>                :            : static int64_t validate_magic_num(uint16_t magic)</a>
+<span class="lineNum">     669 </span>                :            : {
+<span class="lineNum">     670 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (magic != IMAGE_MAGIC_NUMBER)</span>
+<span class="lineNum">     671 </span>                :            :                 return -1;
+<span class="lineNum">     672 </span>                :            :         return 0;
+<span class="lineNum">     673 </span>                :            : }
+<span class="lineNum">     674 </span>                :            : 
+<span class="lineNum">     675 </span>                :            : /*
+<span class="lineNum">     676 </span>                :            :  * Compare MI keyword to make sure candidate image
+<a name="677"><span class="lineNum">     677 </span>                :            :  * is valid for this platform.</a>
+<span class="lineNum">     678 </span>                :            :  */
+<span class="lineNum">     679 </span>                :<span class="lineNoCov">          0 : static int64_t validate_image_version(struct update_image_header *header,</span>
+<span class="lineNum">     680 </span>                :            :                                       uint32_t *result)
+<span class="lineNum">     681 </span>                :            : {
+<span class="lineNum">     682 </span>                :            :         struct fw_image_vpd vpd;
+<span class="lineNum">     683 </span>                :<span class="lineNoCov">          0 :         int t_valid = 0, p_valid = 0, cton_ver = -1, ptot_ver = -1;</span>
+<span class="lineNum">     684 </span>                :            : 
+<span class="lineNum">     685 </span>                :            :         /* Valid flash image level? */
+<span class="lineNum">     686 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (strncmp(fw_vpd[0].MI_keyword, FW_VERSION_UNKNOWN,</span>
+<span class="lineNum">     687 </span>                :            :                     sizeof(FW_VERSION_UNKNOWN)) != 0)
+<span class="lineNum">     688 </span>                :<span class="lineNoCov">          0 :                 p_valid = 1;</span>
+<span class="lineNum">     689 </span>                :            : 
+<span class="lineNum">     690 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (strncmp(fw_vpd[1].MI_keyword, FW_VERSION_UNKNOWN,</span>
+<span class="lineNum">     691 </span>                :            :                     sizeof(FW_VERSION_UNKNOWN)) != 0)
+<span class="lineNum">     692 </span>                :<span class="lineNoCov">          0 :                 t_valid = 1;</span>
+<span class="lineNum">     693 </span>                :            : 
+<span class="lineNum">     694 </span>                :            :         /* Validate with IPL side image */
+<span class="lineNum">     695 </span>                :<span class="lineNoCov">          0 :         vpd = fw_vpd[ipl_side];</span>
+<span class="lineNum">     696 </span>                :            : 
+<span class="lineNum">     697 </span>                :            :         /* Validate platform identifier (first two char of MI keyword) */
+<span class="lineNum">     698 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (strncmp(vpd.MI_keyword, header-&gt;MI_keyword_data, 2) != 0) {</span>
+<span class="lineNum">     699 </span>                :<span class="lineNoCov">          0 :                 *result = VALIDATE_INVALID_IMG;</span>
+<span class="lineNum">     700 </span>                :<span class="lineNoCov">          0 :                 return OPAL_SUCCESS;</span>
+<span class="lineNum">     701 </span>                :            :         }
+<span class="lineNum">     702 </span>                :            : 
+<span class="lineNum">     703 </span>                :            :         /* Don't flash different FW series (like P7 image on P8) */
+<span class="lineNum">     704 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (vpd.MI_keyword[2] != header-&gt;MI_keyword_data[2]) {</span>
+<span class="lineNum">     705 </span>                :<span class="lineNoCov">          0 :                 *result = VALIDATE_INVALID_IMG;</span>
+<span class="lineNum">     706 </span>                :<span class="lineNoCov">          0 :                 return OPAL_SUCCESS;</span>
+<span class="lineNum">     707 </span>                :            :         }
+<span class="lineNum">     708 </span>                :            : 
+<span class="lineNum">     709 </span>                :            :         /* Get current to new version difference */
+<span class="lineNum">     710 </span>                :<span class="lineNoCov">          0 :         cton_ver = strncmp(vpd.MI_keyword + 3, header-&gt;MI_keyword_data + 3, 6);</span>
+<span class="lineNum">     711 </span>                :            : 
+<span class="lineNum">     712 </span>                :            :         /* Get P to T version difference */
+<span class="lineNum">     713 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (t_valid &amp;&amp; p_valid)</span>
+<span class="lineNum">     714 </span>                :<span class="lineNoCov">          0 :                 ptot_ver = strncmp(fw_vpd[0].MI_keyword + 3,</span>
+<span class="lineNum">     715 </span>                :            :                                    fw_vpd[1].MI_keyword + 3, 6);
+<span class="lineNum">     716 </span>                :            : 
+<span class="lineNum">     717 </span>                :            :         /* Update validation result */
+<span class="lineNum">     718 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ipl_side == FW_IPL_SIDE_TEMP) {</span>
+<span class="lineNum">     719 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!ptot_ver &amp;&amp; cton_ver &gt; 0) /* downgrade T side */</span>
+<span class="lineNum">     720 </span>                :<span class="lineNoCov">          0 :                         *result = VALIDATE_TMP_UPDATE_DL;</span>
+<span class="lineNum">     721 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 else if (!ptot_ver &amp;&amp; cton_ver &lt;= 0) /* upgrade T side */</span>
+<span class="lineNum">     722 </span>                :<span class="lineNoCov">          0 :                         *result = VALIDATE_TMP_UPDATE;</span>
+<span class="lineNum">     723 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 else if (cton_ver &gt; 0) /* Implied commit &amp; downgrade T side */</span>
+<span class="lineNum">     724 </span>                :<span class="lineNoCov">          0 :                         *result = VALIDATE_TMP_COMMIT_DL;</span>
+<span class="lineNum">     725 </span>                :            :                 else /* Implied commit &amp; upgrade T side */
+<span class="lineNum">     726 </span>                :<span class="lineNoCov">          0 :                         *result = VALIDATE_TMP_COMMIT;</span>
+<span class="lineNum">     727 </span>                :            :         } else {
+<span class="lineNum">     728 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!t_valid)   /* Current unknown */</span>
+<span class="lineNum">     729 </span>                :<span class="lineNoCov">          0 :                         *result = VALIDATE_CUR_UNKNOWN;</span>
+<span class="lineNum">     730 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 else if (cton_ver &gt; 0) /* downgrade FW version */</span>
+<span class="lineNum">     731 </span>                :<span class="lineNoCov">          0 :                         *result = VALIDATE_TMP_UPDATE_DL;</span>
+<span class="lineNum">     732 </span>                :            :                 else            /* upgrade FW version */
+<span class="lineNum">     733 </span>                :<span class="lineNoCov">          0 :                         *result = VALIDATE_TMP_UPDATE;</span>
+<span class="lineNum">     734 </span>                :            :         }
+<span class="lineNum">     735 </span>                :            :         return OPAL_SUCCESS;
+<span class="lineNum">     736 </span>                :            : }
+<span class="lineNum">     737 </span>                :            : 
+<span class="lineNum">     738 </span>                :            : /*
+<span class="lineNum">     739 </span>                :            :  * Validate candidate image
+<span class="lineNum">     740 </span>                :            :  */
+<span class="lineNum">     741 </span>                :<span class="lineNoCov">          0 : static int validate_candidate_image(uint64_t buffer,</span>
+<span class="lineNum">     742 </span>                :            :                                     uint32_t size, uint32_t *result)
+<span class="lineNum">     743 </span>                :            : {
+<span class="lineNum">     744 </span>                :            :         struct update_image_header *header;
+<span class="lineNum">     745 </span>                :<span class="lineNoCov">          0 :         int rc = OPAL_PARAMETER;</span>
+<span class="lineNum">     746 </span>                :            : 
+<span class="lineNum">     747 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (size &lt; VALIDATE_BUF_SIZE)</span>
+<span class="lineNum">     748 </span>                :            :                 goto out;
+<span class="lineNum">     749 </span>                :            : 
+<span class="lineNum">     750 </span>                :<span class="lineNoCov">          0 :         rc = code_update_check_state();</span>
+<span class="lineNum">     751 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc != OPAL_SUCCESS)</span>
+<span class="lineNum">     752 </span>                :            :                 goto out;
+<span class="lineNum">     753 </span>                :            : 
+<span class="lineNum">     754 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (validate_inband_policy() != 0) {</span>
+<span class="lineNum">     755 </span>                :<span class="lineNoCov">          0 :                 *result = VALIDATE_FLASH_AUTH;</span>
+<span class="lineNum">     756 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     757 </span>                :<span class="lineNoCov">          0 :                 goto out;</span>
+<span class="lineNum">     758 </span>                :            :         }
+<span class="lineNum">     759 </span>                :            : 
+<span class="lineNum">     760 </span>                :<span class="lineNoCov">          0 :         memcpy(validate_buf, (void *)buffer, VALIDATE_BUF_SIZE);</span>
+<span class="lineNum">     761 </span>                :<span class="lineNoCov">          0 :         header = (struct update_image_header *)validate_buf;</span>
+<span class="lineNum">     762 </span>                :            : 
+<span class="lineNum">     763 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (validate_magic_num(be32_to_cpu(header-&gt;magic)) != 0) {</span>
+<span class="lineNum">     764 </span>                :<span class="lineNoCov">          0 :                 *result = VALIDATE_INVALID_IMG;</span>
+<span class="lineNum">     765 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     766 </span>                :<span class="lineNoCov">          0 :                 goto out;</span>
+<span class="lineNum">     767 </span>                :            :         }
+<span class="lineNum">     768 </span>                :<span class="lineNoCov">          0 :         rc = validate_image_version(header, result);</span>
+<span class="lineNum">     769 </span>                :            : out:
+<span class="lineNum">     770 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="771"><span class="lineNum">     771 </span>                :            : }</a>
+<span class="lineNum">     772 </span>                :            : 
+<span class="lineNum">     773 </span>                :<span class="lineNoCov">          0 : static int validate_out_buf_mi_data(void *buffer, int offset, uint32_t result)</span>
+<span class="lineNum">     774 </span>                :            : {
+<span class="lineNum">     775 </span>                :<span class="lineNoCov">          0 :         struct update_image_header *header = (void *)validate_buf;</span>
+<span class="lineNum">     776 </span>                :            : 
+<span class="lineNum">     777 </span>                :            :         /* Current T &amp; P side MI data */
+<span class="lineNum">     778 </span>                :<span class="lineNoCov">          0 :         offset += snprintf(buffer + offset, VALIDATE_BUF_SIZE - offset,</span>
+<span class="lineNum">     779 </span>                :            :                            &quot;MI %s %s\n&quot;,
+<span class="lineNum">     780 </span>                :            :                            fw_vpd[1].MI_keyword, fw_vpd[0].MI_keyword);
+<span class="lineNum">     781 </span>                :            : 
+<span class="lineNum">     782 </span>                :            :         /* New T &amp; P side MI data */
+<span class="lineNum">     783 </span>                :<span class="lineNoCov">          0 :         offset += snprintf(buffer + offset, VALIDATE_BUF_SIZE - offset,</span>
+<span class="lineNum">     784 </span>                :            :                            &quot;MI %s&quot;, header-&gt;MI_keyword_data);
+<span class="lineNum">     785 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (result == VALIDATE_TMP_COMMIT_DL ||</span>
+<span class="lineNum">     786 </span>                :            :             result == VALIDATE_TMP_COMMIT)
+<span class="lineNum">     787 </span>                :<span class="lineNoCov">          0 :                 offset += snprintf(buffer + offset,</span>
+<span class="lineNum">     788 </span>                :<span class="lineNoCov">          0 :                                    VALIDATE_BUF_SIZE - offset,</span>
+<span class="lineNum">     789 </span>                :            :                                    &quot; %s\n&quot;, fw_vpd[1].MI_keyword);
+<span class="lineNum">     790 </span>                :            :         else
+<span class="lineNum">     791 </span>                :<span class="lineNoCov">          0 :                 offset += snprintf(buffer + offset,</span>
+<span class="lineNum">     792 </span>                :<span class="lineNoCov">          0 :                                    VALIDATE_BUF_SIZE - offset,</span>
+<span class="lineNum">     793 </span>                :            :                                    &quot; %s\n&quot;, fw_vpd[0].MI_keyword);
+<span class="lineNum">     794 </span>                :<span class="lineNoCov">          0 :         return offset;</span>
+<a name="795"><span class="lineNum">     795 </span>                :            : }</a>
+<span class="lineNum">     796 </span>                :            : 
+<span class="lineNum">     797 </span>                :<span class="lineNoCov">          0 : static int validate_out_buf_ml_data(void *buffer, int offset, uint32_t result)</span>
+<span class="lineNum">     798 </span>                :            : {
+<span class="lineNum">     799 </span>                :<span class="lineNoCov">          0 :         struct update_image_header *header = (void *)validate_buf;</span>
+<span class="lineNum">     800 </span>                :            :         /* Candidate image ML data */
+<span class="lineNum">     801 </span>                :<span class="lineNoCov">          0 :         char *ext_fw_id = (void *)header-&gt;data;</span>
+<span class="lineNum">     802 </span>                :            : 
+<span class="lineNum">     803 </span>                :            :         /* Current T &amp; P side ML data */
+<span class="lineNum">     804 </span>                :<span class="lineNoCov">          0 :         offset += snprintf(buffer + offset, VALIDATE_BUF_SIZE - offset,</span>
+<span class="lineNum">     805 </span>                :            :                            &quot;ML %s %s\n&quot;,
+<span class="lineNum">     806 </span>                :            :                            fw_vpd[1].ext_fw_id, fw_vpd[0].ext_fw_id);
+<span class="lineNum">     807 </span>                :            : 
+<span class="lineNum">     808 </span>                :            :         /* New T &amp; P side ML data */
+<span class="lineNum">     809 </span>                :<span class="lineNoCov">          0 :         offset += snprintf(buffer + offset, VALIDATE_BUF_SIZE - offset,</span>
+<span class="lineNum">     810 </span>                :            :                            &quot;ML %s&quot;, ext_fw_id);
+<span class="lineNum">     811 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (result == VALIDATE_TMP_COMMIT_DL ||</span>
+<span class="lineNum">     812 </span>                :            :             result == VALIDATE_TMP_COMMIT)
+<span class="lineNum">     813 </span>                :<span class="lineNoCov">          0 :                 offset += snprintf(buffer + offset,</span>
+<span class="lineNum">     814 </span>                :<span class="lineNoCov">          0 :                                    VALIDATE_BUF_SIZE - offset,</span>
+<span class="lineNum">     815 </span>                :            :                                    &quot; %s\n&quot;, fw_vpd[1].ext_fw_id);
+<span class="lineNum">     816 </span>                :            :         else
+<span class="lineNum">     817 </span>                :<span class="lineNoCov">          0 :                 offset += snprintf(buffer + offset,</span>
+<span class="lineNum">     818 </span>                :<span class="lineNoCov">          0 :                                    VALIDATE_BUF_SIZE - offset,</span>
+<span class="lineNum">     819 </span>                :            :                                    &quot; %s\n&quot;, fw_vpd[0].ext_fw_id);
+<span class="lineNum">     820 </span>                :            : 
+<span class="lineNum">     821 </span>                :<span class="lineNoCov">          0 :         return offset;</span>
+<span class="lineNum">     822 </span>                :            : }
+<span class="lineNum">     823 </span>                :            : 
+<span class="lineNum">     824 </span>                :            : /*
+<a name="825"><span class="lineNum">     825 </span>                :            :  * Copy LID data to TCE buffer</a>
+<span class="lineNum">     826 </span>                :            :  */
+<span class="lineNum">     827 </span>                :<span class="lineNoCov">          0 : static int get_lid_data(struct opal_sg_list *list,</span>
+<span class="lineNum">     828 </span>                :            :                         int lid_size, int lid_offset)
+<span class="lineNum">     829 </span>                :            : {
+<span class="lineNum">     830 </span>                :            :         struct opal_sg_list *sg;
+<span class="lineNum">     831 </span>                :            :         struct opal_sg_entry *entry;
+<span class="lineNum">     832 </span>                :<span class="lineNoCov">          0 :         int length, num_entries, i, buf_pos = 0;</span>
+<span class="lineNum">     833 </span>                :            :         int map_act, map_size;
+<span class="lineNum">     834 </span>                :<span class="lineNoCov">          0 :         bool last = false;</span>
+<span class="lineNum">     835 </span>                :            : 
+<span class="lineNum">     836 </span>                :            :         /* Reset TCE start address */
+<span class="lineNum">     837 </span>                :<span class="lineNoCov">          0 :         tce_start = 0;</span>
+<span class="lineNum">     838 </span>                :            : 
+<span class="lineNum">     839 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (sg = list; sg; sg = (struct opal_sg_list*)be64_to_cpu(sg-&gt;next)) {</span>
+<span class="lineNum">     840 </span>                :<span class="lineNoCov">          0 :                 length = (be64_to_cpu(sg-&gt;length) &amp; ~(SG_LIST_VERSION &lt;&lt; 56)) - 16;</span>
+<span class="lineNum">     841 </span>                :<span class="lineNoCov">          0 :                 num_entries = length / sizeof(struct opal_sg_entry);</span>
+<span class="lineNum">     842 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (num_entries &lt;= 0)</span>
+<span class="lineNum">     843 </span>                :            :                         return -1;
+<span class="lineNum">     844 </span>                :            : 
+<span class="lineNum">     845 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 for (i = 0; i &lt; num_entries; i++) {</span>
+<span class="lineNum">     846 </span>                :<span class="lineNoCov">          0 :                         entry = &amp;sg-&gt;entry[i];</span>
+<span class="lineNum">     847 </span>                :            : 
+<span class="lineNum">     848 </span>                :            :                         /*
+<span class="lineNum">     849 </span>                :            :                          * Continue until we get data block which
+<span class="lineNum">     850 </span>                :            :                          * contains LID data
+<span class="lineNum">     851 </span>                :            :                          */
+<span class="lineNum">     852 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (lid_offset &gt; be64_to_cpu(entry-&gt;length)) {</span>
+<span class="lineNum">     853 </span>                :<span class="lineNoCov">          0 :                                 lid_offset -= be64_to_cpu(entry-&gt;length);</span>
+<span class="lineNum">     854 </span>                :<span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">     855 </span>                :            :                         }
+<span class="lineNum">     856 </span>                :            : 
+<span class="lineNum">     857 </span>                :            :                         /*
+<span class="lineNum">     858 </span>                :            :                          * SG list entry size can be more than 4k.
+<span class="lineNum">     859 </span>                :            :                          * Map only required pages, instead of
+<span class="lineNum">     860 </span>                :            :                          * mapping entire entry.
+<span class="lineNum">     861 </span>                :            :                          */
+<span class="lineNum">     862 </span>                :<span class="lineNoCov">          0 :                         map_act = be64_to_cpu(entry-&gt;length);</span>
+<span class="lineNum">     863 </span>                :<span class="lineNoCov">          0 :                         map_size = be64_to_cpu(entry-&gt;length);</span>
+<span class="lineNum">     864 </span>                :            : 
+<span class="lineNum">     865 </span>                :            :                         /* First TCE mapping */
+<span class="lineNum">     866 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (!tce_start) {</span>
+<span class="lineNum">     867 </span>                :<span class="lineNoCov">          0 :                                 tce_start = PSI_DMA_CODE_UPD +</span>
+<span class="lineNum">     868 </span>                :<span class="lineNoCov">          0 :                                                 (lid_offset &amp; 0xfff);</span>
+<span class="lineNum">     869 </span>                :<span class="lineNoCov">          0 :                                 map_act = be64_to_cpu(entry-&gt;length) - lid_offset;</span>
+<span class="lineNum">     870 </span>                :<span class="lineNoCov">          0 :                                 lid_offset &amp;= ~0xfff;</span>
+<span class="lineNum">     871 </span>                :<span class="lineNoCov">          0 :                                 map_size = be64_to_cpu(entry-&gt;length) - lid_offset;</span>
+<span class="lineNum">     872 </span>                :            :                         }
+<span class="lineNum">     873 </span>                :            : 
+<span class="lineNum">     874 </span>                :            :                         /* Check pending LID size to map */
+<span class="lineNum">     875 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (lid_size &lt;= map_act) {</span>
+<span class="lineNum">     876 </span>                :            :                                 /* (map_size - map_act) gives page
+<span class="lineNum">     877 </span>                :            :                                  * start to tce offset difference.
+<span class="lineNum">     878 </span>                :            :                                  * This is required when LID size
+<span class="lineNum">     879 </span>                :            :                                  * is &lt;= 4k.
+<span class="lineNum">     880 </span>                :            :                                  */
+<span class="lineNum">     881 </span>                :<span class="lineNoCov">          0 :                                 map_size = (map_size - map_act) + lid_size;</span>
+<span class="lineNum">     882 </span>                :<span class="lineNoCov">          0 :                                 last = true;</span>
+<span class="lineNum">     883 </span>                :            :                         }
+<span class="lineNum">     884 </span>                :            : 
+<span class="lineNum">     885 </span>                :            :                         /* Ajust remaining size to map */
+<span class="lineNum">     886 </span>                :<span class="lineNoCov">          0 :                         lid_size -= map_act;</span>
+<span class="lineNum">     887 </span>                :            : 
+<span class="lineNum">     888 </span>                :            :                         /* TCE mapping */
+<span class="lineNum">     889 </span>                :<span class="lineNoCov">          0 :                         code_update_tce_map(buf_pos,</span>
+<span class="lineNum">     890 </span>                :<span class="lineNoCov">          0 :                                             (void*)(be64_to_cpu(entry-&gt;data)</span>
+<span class="lineNum">     891 </span>                :<span class="lineNoCov">          0 :                                                     + lid_offset),</span>
+<span class="lineNum">     892 </span>                :            :                                             map_size);
+<span class="lineNum">     893 </span>                :<span class="lineNoCov">          0 :                         buf_pos += map_size;</span>
+<span class="lineNum">     894 </span>                :            :                         /* Reset LID offset count */
+<span class="lineNum">     895 </span>                :<span class="lineNoCov">          0 :                         lid_offset = 0;</span>
+<span class="lineNum">     896 </span>                :            : 
+<span class="lineNum">     897 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (last)</span>
+<span class="lineNum">     898 </span>                :            :                                 return OPAL_SUCCESS;
+<span class="lineNum">     899 </span>                :            :                 }
+<span class="lineNum">     900 </span>                :            :         } /* outer loop */
+<span class="lineNum">     901 </span>                :            :         return -1;
+<span class="lineNum">     902 </span>                :            : }
+<span class="lineNum">     903 </span>                :            : 
+<span class="lineNum">     904 </span>                :            : /*
+<span class="lineNum">     905 </span>                :            :  * If IPL side is T, then swap P &amp; T sides to add
+<a name="906"><span class="lineNum">     906 </span>                :            :  * new fix to T side.</a>
+<span class="lineNum">     907 </span>                :            :  */
+<span class="lineNum">     908 </span>                :<span class="lineNoCov">          0 : static int validate_ipl_side(void)</span>
+<span class="lineNum">     909 </span>                :            : {
+<span class="lineNum">     910 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ipl_side == FW_IPL_SIDE_PERM)</span>
+<span class="lineNum">     911 </span>                :            :                 return 0;
+<span class="lineNum">     912 </span>                :<span class="lineNoCov">          0 :         return code_update_swap_side();</span>
+<a name="913"><span class="lineNum">     913 </span>                :            : }</a>
+<span class="lineNum">     914 </span>                :            : 
+<span class="lineNum">     915 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_opal_validate_flash(uint64_t buffer,</span>
+<span class="lineNum">     916 </span>                :            :                                        uint32_t *size, uint32_t *result)
+<span class="lineNum">     917 </span>                :            : {
+<span class="lineNum">     918 </span>                :<span class="lineNoCov">          0 :         int64_t rc = 0;</span>
+<span class="lineNum">     919 </span>                :            :         int offset;
+<span class="lineNum">     920 </span>                :            : 
+<span class="lineNum">     921 </span>                :<span class="lineNoCov">          0 :         lock(&amp;flash_lock);</span>
+<span class="lineNum">     922 </span>                :            : 
+<span class="lineNum">     923 </span>                :<span class="lineNoCov">          0 :         rc = validate_candidate_image(buffer, *size, result);</span>
+<span class="lineNum">     924 </span>                :            :         /* Fill output buffer
+<span class="lineNum">     925 </span>                :            :          *
+<span class="lineNum">     926 </span>                :            :          * Format:
+<span class="lineNum">     927 </span>                :            :          *   MI&lt;sp&gt;current-T-image&lt;sp&gt;current-P-image&lt;0x0A&gt;
+<span class="lineNum">     928 </span>                :            :          *   MI&lt;sp&gt;new-T-image&lt;sp&gt;new-P-image&lt;0x0A&gt;
+<span class="lineNum">     929 </span>                :            :          *   ML&lt;sp&gt;current-T-image&lt;sp&gt;current-P-image&lt;0x0A&gt;
+<span class="lineNum">     930 </span>                :            :          *   ML&lt;sp&gt;new-T-image&lt;sp&gt;new-P-image&lt;0x0A&gt;
+<span class="lineNum">     931 </span>                :            :          */
+<span class="lineNum">     932 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!rc &amp;&amp; (*result != VALIDATE_FLASH_AUTH &amp;&amp;</span>
+<span class="lineNum">     933 </span>                :            :                    *result != VALIDATE_INVALID_IMG)) {
+<span class="lineNum">     934 </span>                :            :                 /* Clear output buffer */
+<span class="lineNum">     935 </span>                :<span class="lineNoCov">          0 :                 memset((void *)buffer, 0, VALIDATE_BUF_SIZE);</span>
+<span class="lineNum">     936 </span>                :            : 
+<span class="lineNum">     937 </span>                :<span class="lineNoCov">          0 :                 offset = validate_out_buf_mi_data((void *)buffer, 0, *result);</span>
+<span class="lineNum">     938 </span>                :<span class="lineNoCov">          0 :                 offset += validate_out_buf_ml_data((void *)buffer,</span>
+<span class="lineNum">     939 </span>                :            :                                                    offset, *result);
+<span class="lineNum">     940 </span>                :<span class="lineNoCov">          0 :                 *size = offset;</span>
+<span class="lineNum">     941 </span>                :            :         }
+<span class="lineNum">     942 </span>                :            : 
+<span class="lineNum">     943 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;flash_lock);</span>
+<span class="lineNum">     944 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     945 </span>                :            : }
+<a name="946"><span class="lineNum">     946 </span>                :            : </a>
+<span class="lineNum">     947 </span>                :            : /* Commit/Reject T side image */
+<span class="lineNum">     948 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_opal_manage_flash(uint8_t op)</span>
+<span class="lineNum">     949 </span>                :            : {
+<span class="lineNum">     950 </span>                :            :         uint32_t cmd;
+<span class="lineNum">     951 </span>                :            :         int rc;
+<span class="lineNum">     952 </span>                :            : 
+<span class="lineNum">     953 </span>                :<span class="lineNoCov">          0 :         lock(&amp;flash_lock);</span>
+<span class="lineNum">     954 </span>                :<span class="lineNoCov">          0 :         rc = code_update_check_state();</span>
+<span class="lineNum">     955 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;flash_lock);</span>
+<span class="lineNum">     956 </span>                :            : 
+<span class="lineNum">     957 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc != OPAL_SUCCESS)</span>
+<span class="lineNum">     958 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
+<span class="lineNum">     959 </span>                :            : 
+<span class="lineNum">     960 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (op != OPAL_REJECT_TMP_SIDE &amp;&amp; op != OPAL_COMMIT_TMP_SIDE)</span>
+<span class="lineNum">     961 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     962 </span>                :            : 
+<span class="lineNum">     963 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((op == OPAL_COMMIT_TMP_SIDE &amp;&amp; ipl_side == FW_IPL_SIDE_PERM) ||</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     964 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             (op == OPAL_REJECT_TMP_SIDE &amp;&amp; ipl_side == FW_IPL_SIDE_TEMP))</span>
+<span class="lineNum">     965 </span>                :            :                 return OPAL_ACTIVE_SIDE_ERR;
+<span class="lineNum">     966 </span>                :            : 
+<span class="lineNum">     967 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (op == OPAL_COMMIT_TMP_SIDE)</span>
+<span class="lineNum">     968 </span>                :            :                 cmd = FSP_CMD_FLASH_NORMAL;
+<span class="lineNum">     969 </span>                :            :         else
+<span class="lineNum">     970 </span>                :<span class="lineNoCov">          0 :                 cmd = FSP_CMD_FLASH_REMOVE;</span>
+<span class="lineNum">     971 </span>                :            : 
+<span class="lineNum">     972 </span>                :<span class="lineNoCov">          0 :         return code_update_commit(cmd);</span>
+<a name="973"><span class="lineNum">     973 </span>                :            : }</a>
+<span class="lineNum">     974 </span>                :            : 
+<span class="lineNum">     975 </span>                :<span class="lineNoCov">          0 : static int fsp_flash_firmware(void)</span>
+<span class="lineNum">     976 </span>                :            : {
+<span class="lineNum">     977 </span>                :            :         struct update_image_header *header;
+<span class="lineNum">     978 </span>                :            :         struct lid_index_entry *idx_entry;
+<span class="lineNum">     979 </span>                :            :         struct opal_sg_list *list;
+<span class="lineNum">     980 </span>                :            :         struct opal_sg_entry *entry;
+<span class="lineNum">     981 </span>                :            :         int rc, i;
+<span class="lineNum">     982 </span>                :            : 
+<span class="lineNum">     983 </span>                :<span class="lineNoCov">          0 :         lock(&amp;flash_lock);</span>
+<span class="lineNum">     984 </span>                :            : 
+<span class="lineNum">     985 </span>                :            :         /* Make sure no outstanding LID read is in progress */
+<span class="lineNum">     986 </span>                :<span class="lineNoCov">          0 :         rc = code_update_check_state();</span>
+<span class="lineNum">     987 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc == OPAL_BUSY)</span>
+<span class="lineNum">     988 </span>                :<span class="lineNoCov">          0 :                 fsp_code_update_wait_vpd(false);</span>
+<span class="lineNum">     989 </span>                :            : 
+<span class="lineNum">     990 </span>                :            :         /* Get LID Index */
+<span class="lineNum">     991 </span>                :<span class="lineNoCov">          0 :         list = image_data;</span>
+<span class="lineNum">     992 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!list)</span>
+<span class="lineNum">     993 </span>                :            :                 goto out;
+<span class="lineNum">     994 </span>                :<span class="lineNoCov">          0 :         entry = &amp;list-&gt;entry[0];</span>
+<span class="lineNum">     995 </span>                :<span class="lineNoCov">          0 :         header = (struct update_image_header *)be64_to_cpu(entry-&gt;data);</span>
+<span class="lineNum">     996 </span>                :<span class="lineNoCov">          0 :         idx_entry = (void *)header + be16_to_cpu(header-&gt;lid_index_offset);</span>
+<span class="lineNum">     997 </span>                :            : 
+<span class="lineNum">     998 </span>                :            :         /* FIXME:
+<span class="lineNum">     999 </span>                :            :          *   At present we depend on FSP to validate CRC for
+<span class="lineNum">    1000 </span>                :            :          *   individual LIDs. Calculate and validate individual
+<span class="lineNum">    1001 </span>                :            :          *   LID CRC here.
+<span class="lineNum">    1002 </span>                :            :          */
+<span class="lineNum">    1003 </span>                :            : 
+<span class="lineNum">    1004 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (validate_ipl_side() != 0) {</span>
+<span class="lineNum">    1005 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_FLASH), &quot;CUPD: &quot;</span>
+<span class="lineNum">    1006 </span>                :            :                                  &quot;Rename (Swap T and P) failed!\n&quot;);
+<span class="lineNum">    1007 </span>                :<span class="lineNoCov">          0 :                 goto out;</span>
+<span class="lineNum">    1008 </span>                :            :         }
+<span class="lineNum">    1009 </span>                :            : 
+<span class="lineNum">    1010 </span>                :            :         /* Set next IPL side */
+<span class="lineNum">    1011 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (code_update_set_ipl_side() != 0) {</span>
+<span class="lineNum">    1012 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_FLASH), &quot;CUPD: &quot;</span>
+<span class="lineNum">    1013 </span>                :            :                                  &quot;Setting next IPL side failed!\n&quot;);
+<span class="lineNum">    1014 </span>                :<span class="lineNoCov">          0 :                 goto out;</span>
+<span class="lineNum">    1015 </span>                :            :         }
+<span class="lineNum">    1016 </span>                :            : 
+<span class="lineNum">    1017 </span>                :            :         /* Start code update process */
+<span class="lineNum">    1018 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (code_update_start() != 0) {</span>
+<span class="lineNum">    1019 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_FLASH), &quot;CUPD: &quot;</span>
+<span class="lineNum">    1020 </span>                :            :                                  &quot;Code update start failed!\n&quot;);
+<span class="lineNum">    1021 </span>                :<span class="lineNoCov">          0 :                 goto out;</span>
+<span class="lineNum">    1022 </span>                :            :         }
+<span class="lineNum">    1023 </span>                :            : 
+<span class="lineNum">    1024 </span>                :            :         /*
+<span class="lineNum">    1025 </span>                :            :          * Delete T side LIDs before writing.
+<span class="lineNum">    1026 </span>                :            :          *
+<span class="lineNum">    1027 </span>                :            :          * Note:
+<span class="lineNum">    1028 </span>                :            :          *   - Applicable for FWv &gt;= 760.
+<span class="lineNum">    1029 </span>                :            :          *   - Current Code Update design is to ignore
+<span class="lineNum">    1030 </span>                :            :          *     any delete lid failure, and continue with
+<span class="lineNum">    1031 </span>                :            :          *     the update.
+<span class="lineNum">    1032 </span>                :            :          */
+<span class="lineNum">    1033 </span>                :<span class="lineNoCov">          0 :         rc = code_update_del_lid(DEL_UPD_SIDE_LIDS);</span>
+<span class="lineNum">    1034 </span>                :            : 
+<span class="lineNum">    1035 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; be16_to_cpu(header-&gt;number_lids); i++) {</span>
+<span class="lineNum">    1036 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (be32_to_cpu(idx_entry-&gt;size) &gt; LID_MAX_SIZE) {</span>
+<span class="lineNum">    1037 </span>                :<span class="lineNoCov">          0 :                         log_simple_error(&amp;e_info(OPAL_RC_CU_FLASH), &quot;CUPD: LID&quot;</span>
+<span class="lineNum">    1038 </span>                :            :                                 &quot; (0x%x) size 0x%x is &gt; max LID size (0x%x).\n&quot;,
+<span class="lineNum">    1039 </span>                :            :                                  be32_to_cpu(idx_entry-&gt;id),
+<span class="lineNum">    1040 </span>                :            :                                  be32_to_cpu(idx_entry-&gt;size), LID_MAX_SIZE);
+<span class="lineNum">    1041 </span>                :<span class="lineNoCov">          0 :                         goto abort_update;</span>
+<span class="lineNum">    1042 </span>                :            :                 }
+<span class="lineNum">    1043 </span>                :            : 
+<span class="lineNum">    1044 </span>                :<span class="lineNoCov">          0 :                 rc = get_lid_data(list, be32_to_cpu(idx_entry-&gt;size),</span>
+<span class="lineNum">    1045 </span>                :<span class="lineNoCov">          0 :                                   be32_to_cpu(idx_entry-&gt;offset));</span>
+<span class="lineNum">    1046 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc) {</span>
+<span class="lineNum">    1047 </span>                :<span class="lineNoCov">          0 :                         log_simple_error(&amp;e_info(OPAL_RC_CU_FLASH), &quot;CUPD: &quot;</span>
+<span class="lineNum">    1048 </span>                :            :                                 &quot;Failed to parse LID from firmware image.&quot;
+<span class="lineNum">    1049 </span>                :            :                                 &quot; (rc : %d).\n&quot;, rc);
+<span class="lineNum">    1050 </span>                :<span class="lineNoCov">          0 :                         goto abort_update;</span>
+<span class="lineNum">    1051 </span>                :            :                 }
+<span class="lineNum">    1052 </span>                :            : 
+<span class="lineNum">    1053 </span>                :<span class="lineNoCov">          0 :                 rc = code_update_write_lid(be32_to_cpu(idx_entry-&gt;id),</span>
+<span class="lineNum">    1054 </span>                :            :                                            be32_to_cpu(idx_entry-&gt;size));
+<span class="lineNum">    1055 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc) {</span>
+<span class="lineNum">    1056 </span>                :<span class="lineNoCov">          0 :                         log_simple_error(&amp;e_info(OPAL_RC_CU_FLASH), &quot;CUPD: &quot;</span>
+<span class="lineNum">    1057 </span>                :            :                                 &quot;Failed to write LID to FSP. (rc : %d).\n&quot;, rc);
+<span class="lineNum">    1058 </span>                :<span class="lineNoCov">          0 :                         goto abort_update;</span>
+<span class="lineNum">    1059 </span>                :            :                 }
+<span class="lineNum">    1060 </span>                :            : 
+<span class="lineNum">    1061 </span>                :            :                 /* Unmap TCE */
+<span class="lineNum">    1062 </span>                :<span class="lineNoCov">          0 :                 code_update_tce_unmap(PSI_DMA_CODE_UPD_SIZE);</span>
+<span class="lineNum">    1063 </span>                :            : 
+<span class="lineNum">    1064 </span>                :            :                 /* Next LID index */
+<span class="lineNum">    1065 </span>                :<span class="lineNoCov">          0 :                 idx_entry = (void *)idx_entry + sizeof(struct lid_index_entry);</span>
+<span class="lineNum">    1066 </span>                :            :         }
+<span class="lineNum">    1067 </span>                :            : 
+<span class="lineNum">    1068 </span>                :            :         /* Code update completed */
+<span class="lineNum">    1069 </span>                :<span class="lineNoCov">          0 :         rc = code_update_complete(FSP_CMD_FLASH_COMPLETE);</span>
+<span class="lineNum">    1070 </span>                :            : 
+<span class="lineNum">    1071 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;flash_lock);</span>
+<span class="lineNum">    1072 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">    1073 </span>                :            : 
+<span class="lineNum">    1074 </span>                :            : abort_update:
+<span class="lineNum">    1075 </span>                :<span class="lineNoCov">          0 :         rc = code_update_complete(FSP_CMD_FLASH_ABORT);</span>
+<span class="lineNum">    1076 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">    1077 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_FLASH), &quot;CUPD: &quot;</span>
+<span class="lineNum">    1078 </span>                :            :                          &quot;Code update abort command failed. (rc : %d).&quot;, rc);
+<span class="lineNum">    1079 </span>                :            : 
+<span class="lineNum">    1080 </span>                :            : out:
+<span class="lineNum">    1081 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;flash_lock);</span>
+<span class="lineNum">    1082 </span>                :<span class="lineNoCov">          0 :         return -1;</span>
+<a name="1083"><span class="lineNum">    1083 </span>                :            : }</a>
+<span class="lineNum">    1084 </span>                :            : 
+<span class="lineNum">    1085 </span>                :<span class="lineNoCov">          0 : static int64_t validate_sglist(struct opal_sg_list *list)</span>
+<span class="lineNum">    1086 </span>                :            : {
+<span class="lineNum">    1087 </span>                :            :         struct opal_sg_list *sg;
+<span class="lineNum">    1088 </span>                :            :         struct opal_sg_entry *prev_entry, *entry;
+<span class="lineNum">    1089 </span>                :            :         int length, num_entries, i;
+<span class="lineNum">    1090 </span>                :            : 
+<span class="lineNum">    1091 </span>                :<span class="lineNoCov">          0 :         prev_entry = NULL;</span>
+<span class="lineNum">    1092 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (sg = list; sg; sg = (struct opal_sg_list*)be64_to_cpu(sg-&gt;next)) {</span>
+<span class="lineNum">    1093 </span>                :<span class="lineNoCov">          0 :                 length = (be64_to_cpu(sg-&gt;length) &amp; ~(SG_LIST_VERSION &lt;&lt; 56)) - 16;</span>
+<span class="lineNum">    1094 </span>                :<span class="lineNoCov">          0 :                 num_entries = length / sizeof(struct opal_sg_entry);</span>
+<span class="lineNum">    1095 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (num_entries &lt;= 0)</span>
+<span class="lineNum">    1096 </span>                :            :                         return -1;
+<span class="lineNum">    1097 </span>                :            : 
+<span class="lineNum">    1098 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 for (i = 0; i &lt; num_entries; i++) {</span>
+<span class="lineNum">    1099 </span>                :<span class="lineNoCov">          0 :                         entry = &amp;sg-&gt;entry[i];</span>
+<span class="lineNum">    1100 </span>                :            : 
+<span class="lineNum">    1101 </span>                :            :                         /* All entries must be aligned */
+<span class="lineNum">    1102 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (((uint64_t)be64_to_cpu(entry-&gt;data)) &amp; 0xfff)</span>
+<span class="lineNum">    1103 </span>                :            :                                 return OPAL_PARAMETER;
+<span class="lineNum">    1104 </span>                :            : 
+<span class="lineNum">    1105 </span>                :            :                         /* All non-terminal entries size must be aligned */
+<span class="lineNum">    1106 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (prev_entry &amp;&amp; (prev_entry-&gt;length &amp; 0xfff))</span>
+<span class="lineNum">    1107 </span>                :            :                                 return OPAL_PARAMETER;
+<span class="lineNum">    1108 </span>                :            : 
+<span class="lineNum">    1109 </span>                :<span class="lineNoCov">          0 :                         prev_entry = entry;</span>
+<span class="lineNum">    1110 </span>                :            :                 }
+<span class="lineNum">    1111 </span>                :            :         }
+<span class="lineNum">    1112 </span>                :            :         return OPAL_SUCCESS;
+<a name="1113"><span class="lineNum">    1113 </span>                :            : }</a>
+<span class="lineNum">    1114 </span>                :            : 
+<span class="lineNum">    1115 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_opal_update_flash(struct opal_sg_list *list)</span>
+<span class="lineNum">    1116 </span>                :            : {
+<span class="lineNum">    1117 </span>                :            :         struct opal_sg_entry *entry;
+<span class="lineNum">    1118 </span>                :<span class="lineNoCov">          0 :         int length, num_entries, result = 0, rc = OPAL_PARAMETER;</span>
+<span class="lineNum">    1119 </span>                :            : 
+<span class="lineNum">    1120 </span>                :            :         /* Ensure that the sg list honors our alignment requirements */
+<span class="lineNum">    1121 </span>                :<span class="lineNoCov">          0 :         rc = validate_sglist(list);</span>
+<span class="lineNum">    1122 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">    1123 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_SG_LIST),</span>
+<span class="lineNum">    1124 </span>                :            :                         &quot;CUPD: sglist fails alignment requirements\n&quot;);
+<span class="lineNum">    1125 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
+<span class="lineNum">    1126 </span>                :            :         }
+<span class="lineNum">    1127 </span>                :            : 
+<span class="lineNum">    1128 </span>                :<span class="lineNoCov">          0 :         lock(&amp;flash_lock);</span>
+<span class="lineNum">    1129 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!list) {    /* Cancel update request */</span>
+<span class="lineNum">    1130 </span>                :<span class="lineNoCov">          0 :                 fsp_flash_term_hook = NULL;</span>
+<span class="lineNum">    1131 </span>                :<span class="lineNoCov">          0 :                 image_data = NULL;</span>
+<span class="lineNum">    1132 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_SUCCESS;</span>
+<span class="lineNum">    1133 </span>                :<span class="lineNoCov">          0 :                 goto out;</span>
+<span class="lineNum">    1134 </span>                :            :         }
+<span class="lineNum">    1135 </span>                :<span class="lineNoCov">          0 :         length = (be64_to_cpu(list-&gt;length) &amp; ~(SG_LIST_VERSION &lt;&lt; 56)) - 16;</span>
+<span class="lineNum">    1136 </span>                :<span class="lineNoCov">          0 :         num_entries = length / sizeof(struct opal_sg_entry);</span>
+<span class="lineNum">    1137 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (num_entries &lt;= 0)</span>
+<span class="lineNum">    1138 </span>                :            :                 goto out;
+<span class="lineNum">    1139 </span>                :            : 
+<span class="lineNum">    1140 </span>                :            :         /* Validate image header */
+<span class="lineNum">    1141 </span>                :<span class="lineNoCov">          0 :         entry = &amp;list-&gt;entry[0];</span>
+<span class="lineNum">    1142 </span>                :<span class="lineNoCov">          0 :         rc = validate_candidate_image((uint64_t)be64_to_cpu(entry-&gt;data),</span>
+<span class="lineNum">    1143 </span>                :            :                                       VALIDATE_BUF_SIZE, &amp;result);
+<span class="lineNum">    1144 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!rc &amp;&amp; (result != VALIDATE_FLASH_AUTH &amp;&amp;</span>
+<span class="lineNum">    1145 </span>                :            :                    result != VALIDATE_INVALID_IMG)) {
+<span class="lineNum">    1146 </span>                :<span class="lineNoCov">          0 :                 image_data = list;</span>
+<span class="lineNum">    1147 </span>                :<span class="lineNoCov">          0 :                 fsp_flash_term_hook = fsp_flash_firmware;</span>
+<span class="lineNum">    1148 </span>                :<span class="lineNoCov">          0 :                 goto out;</span>
+<span class="lineNum">    1149 </span>                :            :         }
+<span class="lineNum">    1150 </span>                :            : 
+<span class="lineNum">    1151 </span>                :            :         /* Adjust return code */
+<span class="lineNum">    1152 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (result == VALIDATE_FLASH_AUTH)</span>
+<span class="lineNum">    1153 </span>                :            :                 rc = OPAL_FLASH_NO_AUTH;
+<span class="lineNum">    1154 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (result == VALIDATE_INVALID_IMG)</span>
+<span class="lineNum">    1155 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_INVALID_IMAGE;</span>
+<span class="lineNum">    1156 </span>                :            : 
+<span class="lineNum">    1157 </span>                :            : out:
+<span class="lineNum">    1158 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;flash_lock);</span>
+<span class="lineNum">    1159 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">    1160 </span>                :            : }
+<span class="lineNum">    1161 </span>                :            : 
+<span class="lineNum">    1162 </span>                :            : /*
+<span class="lineNum">    1163 </span>                :            :  * Code Update notifications
+<span class="lineNum">    1164 </span>                :            :  *
+<span class="lineNum">    1165 </span>                :            :  * Note: At present we just ACK these notifications.
+<span class="lineNum">    1166 </span>                :            :  *       Reset cached VPD data if we are going to support
+<a name="1167"><span class="lineNum">    1167 </span>                :            :  *       concurrent image maint in future.</a>
+<span class="lineNum">    1168 </span>                :            :  */
+<span class="lineNum">    1169 </span>                :<span class="lineNoCov">          0 : static bool code_update_notify(uint32_t cmd_sub_mod, struct fsp_msg *msg)</span>
+<span class="lineNum">    1170 </span>                :            : {
+<span class="lineNum">    1171 </span>                :            :         int rc;
+<span class="lineNum">    1172 </span>                :            :         uint32_t cmd;
+<span class="lineNum">    1173 </span>                :            : 
+<span class="lineNum">    1174 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch(cmd_sub_mod) {</span>
+<span class="lineNum">    1175 </span>                :            :         case FSP_CMD_FLASH_CACHE:
+<span class="lineNum">    1176 </span>                :<span class="lineNoCov">          0 :                 cmd = FSP_CMD_FLASH_CACHE_RSP;</span>
+<span class="lineNum">    1177 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_NOTICE, &quot;CUPD: Update LID cache event [data = 0x%x]\n&quot;,</span>
+<span class="lineNum">    1178 </span>                :            :                       msg-&gt;data.words[0]);
+<span class="lineNum">    1179 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">    1180 </span>                :            :         case FSP_CMD_FLASH_OUTC:
+<span class="lineNum">    1181 </span>                :            :         case FSP_CMD_FLASH_OUTR:
+<span class="lineNum">    1182 </span>                :            :         case FSP_CMD_FLASH_OUTS:
+<span class="lineNum">    1183 </span>                :<span class="lineNoCov">          0 :                 cmd = FSP_CMD_FLASH_OUT_RSP;</span>
+<span class="lineNum">    1184 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_NOTICE, &quot;CUPD: Out of band commit notify &quot;</span>
+<span class="lineNum">    1185 </span>                :<span class="lineNoCov">          0 :                       &quot;[Type = 0x%x]\n&quot;, (msg-&gt;word1 &gt;&gt; 8) &amp; 0xff);</span>
+<span class="lineNum">    1186 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">    1187 </span>                :            :         default:
+<span class="lineNum">    1188 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_NOTIFY), &quot;CUPD: Unknown &quot;</span>
+<span class="lineNum">    1189 </span>                :            :                         &quot;notification [cmd = 0x%x]\n&quot;, cmd_sub_mod);
+<span class="lineNum">    1190 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">    1191 </span>                :            :         }
+<span class="lineNum">    1192 </span>                :            : 
+<span class="lineNum">    1193 </span>                :<span class="lineNoCov">          0 :         rc = fsp_queue_msg(fsp_mkmsg(cmd, 0), fsp_freemsg);</span>
+<span class="lineNum">    1194 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">    1195 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_NOTIFY), &quot;CUPD: Failed to &quot;</span>
+<span class="lineNum">    1196 </span>                :            :                         &quot;queue code update notification response :%d\n&quot;, rc);
+<span class="lineNum">    1197 </span>                :            : 
+<span class="lineNum">    1198 </span>                :            :         return true;
+<span class="lineNum">    1199 </span>                :            : }
+<span class="lineNum">    1200 </span>                :            : 
+<span class="lineNum">    1201 </span>                :            : /*
+<span class="lineNum">    1202 </span>                :            :  * Handle FSP R/R event.
+<span class="lineNum">    1203 </span>                :            :  *
+<span class="lineNum">    1204 </span>                :            :  * Note:
+<span class="lineNum">    1205 </span>                :            :  *   If FSP R/R happens during code update, then entire system reboots
+<span class="lineNum">    1206 </span>                :            :  *   and comes up with P side image (and T side image will be invalid).
+<span class="lineNum">    1207 </span>                :            :  *   Hence we don't need to handle R/R during code update.
+<span class="lineNum">    1208 </span>                :            :  *
+<span class="lineNum">    1209 </span>                :            :  *   Also if FSP R/R happens in init path (while retrieving in_flight_params)
+<span class="lineNum">    1210 </span>                :            :  *   then system fails to continue booting (because we have not yet loaded
+<span class="lineNum">    1211 </span>                :            :  *   all required data/LID from FSP). Hence we don't need to handle R/R
+<a name="1212"><span class="lineNum">    1212 </span>                :            :  *   for system params.</a>
+<span class="lineNum">    1213 </span>                :            :  */
+<span class="lineNum">    1214 </span>                :<span class="lineNoCov">          0 : static bool fsp_code_update_rr(uint32_t cmd_sub_mod,</span>
+<span class="lineNum">    1215 </span>                :            :                                struct fsp_msg *msg __unused)
+<span class="lineNum">    1216 </span>                :            : {
+<span class="lineNum">    1217 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (cmd_sub_mod) {</span>
+<span class="lineNum">    1218 </span>                :            :         case FSP_RESET_START:
+<span class="lineNum">    1219 </span>                :<span class="lineNoCov">          0 :                 lock(&amp;flash_lock);</span>
+<span class="lineNum">    1220 </span>                :            : 
+<span class="lineNum">    1221 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (code_update_check_state() == OPAL_BUSY)</span>
+<span class="lineNum">    1222 </span>                :<span class="lineNoCov">          0 :                         flash_state = FLASH_STATE_ABORT;</span>
+<span class="lineNum">    1223 </span>                :            : 
+<span class="lineNum">    1224 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;flash_lock);</span>
+<span class="lineNum">    1225 </span>                :<span class="lineNoCov">          0 :                 return true;</span>
+<span class="lineNum">    1226 </span>                :            :         case FSP_RELOAD_COMPLETE:
+<span class="lineNum">    1227 </span>                :<span class="lineNoCov">          0 :                 lock(&amp;flash_lock);</span>
+<span class="lineNum">    1228 </span>                :            : 
+<span class="lineNum">    1229 </span>                :            :                 /* Lets try to parse marker LID again, if we failed
+<span class="lineNum">    1230 </span>                :            :                  * to parse marker LID last time.
+<span class="lineNum">    1231 </span>                :            :                  */
+<span class="lineNum">    1232 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (code_update_check_state() == OPAL_INTERNAL_ERROR)</span>
+<span class="lineNum">    1233 </span>                :<span class="lineNoCov">          0 :                         fetch_com_marker_lid();</span>
+<span class="lineNum">    1234 </span>                :            : 
+<span class="lineNum">    1235 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;flash_lock);</span>
+<span class="lineNum">    1236 </span>                :<span class="lineNoCov">          0 :                 return true;</span>
+<span class="lineNum">    1237 </span>                :            :         }
+<span class="lineNum">    1238 </span>                :            :         return false;
+<span class="lineNum">    1239 </span>                :            : }
+<span class="lineNum">    1240 </span>                :            : 
+<span class="lineNum">    1241 </span>                :            : static struct fsp_client fsp_cupd_client_rr = {
+<span class="lineNum">    1242 </span>                :            :                 .message = fsp_code_update_rr,
+<span class="lineNum">    1243 </span>                :            : };
+<span class="lineNum">    1244 </span>                :            : 
+<span class="lineNum">    1245 </span>                :            : static struct fsp_client fsp_get_notify = {
+<span class="lineNum">    1246 </span>                :            :         .message = code_update_notify,
+<a name="1247"><span class="lineNum">    1247 </span>                :            : };</a>
+<span class="lineNum">    1248 </span>                :            : 
+<span class="lineNum">    1249 </span>                :<span class="lineCov">          1 : void fsp_code_update_init(void)</span>
+<span class="lineNum">    1250 </span>                :            : {
+<span class="lineNum">    1251 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!fsp_present()) {</span>
+<span class="lineNum">    1252 </span>                :<span class="lineNoCov">          0 :                 flash_state = FLASH_STATE_ABSENT;</span>
+<span class="lineNum">    1253 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">    1254 </span>                :            :         }
+<span class="lineNum">    1255 </span>                :            : 
+<span class="lineNum">    1256 </span>                :            :         /* OPAL interface */
+<span class="lineNum">    1257 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_FLASH_VALIDATE, fsp_opal_validate_flash, 3);</span>
+<span class="lineNum">    1258 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_FLASH_MANAGE, fsp_opal_manage_flash, 1);</span>
+<span class="lineNum">    1259 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_FLASH_UPDATE, fsp_opal_update_flash, 1);</span>
+<span class="lineNum">    1260 </span>                :            : 
+<span class="lineNum">    1261 </span>                :            :         /* register Code Update Class D3 */
+<span class="lineNum">    1262 </span>                :<span class="lineCov">          1 :         fsp_register_client(&amp;fsp_get_notify, FSP_MCLASS_CODE_UPDATE);</span>
+<span class="lineNum">    1263 </span>                :            :         /* Register for Class AA (FSP R/R) */
+<span class="lineNum">    1264 </span>                :<span class="lineCov">          1 :         fsp_register_client(&amp;fsp_cupd_client_rr, FSP_MCLASS_RR_EVENT);</span>
+<span class="lineNum">    1265 </span>                :            : 
+<span class="lineNum">    1266 </span>                :            :         /* Flash hook */
+<span class="lineNum">    1267 </span>                :<span class="lineCov">          1 :         fsp_flash_term_hook = NULL;</span>
+<span class="lineNum">    1268 </span>                :            : 
+<span class="lineNum">    1269 </span>                :            :         /* Fetch various code update related sys parameters */
+<span class="lineNum">    1270 </span>                :<span class="lineCov">          1 :         get_ipl_side();</span>
+<span class="lineNum">    1271 </span>                :<span class="lineCov">          1 :         get_code_update_policy();</span>
+<span class="lineNum">    1272 </span>                :<span class="lineCov">          1 :         get_platform_hmc_managed();</span>
+<span class="lineNum">    1273 </span>                :            : 
+<span class="lineNum">    1274 </span>                :            :         /* Fetch common marker LID */
+<span class="lineNum">    1275 </span>                :<span class="lineCov">          1 :         lid_data = memalign(TCE_PSIZE, MARKER_LID_SIZE);</span>
+<span class="lineNum">    1276 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!lid_data) {</span>
+<span class="lineNum">    1277 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_INIT),</span>
+<span class="lineNum">    1278 </span>                :            :                         &quot;CUPD: Failed to allocate memory for marker LID\n&quot;);
+<span class="lineNum">    1279 </span>                :<span class="lineNoCov">          0 :                 flash_state = FLASH_STATE_ABSENT;</span>
+<span class="lineNum">    1280 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">    1281 </span>                :            :         }
+<span class="lineNum">    1282 </span>                :<span class="lineCov">          1 :         fetch_com_marker_lid();</span>
+<span class="lineNum">    1283 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

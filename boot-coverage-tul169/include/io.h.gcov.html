@@ -1,0 +1,260 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - include/io.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">include</a> - io.h<span style="font-size: 80%;"> (source / <a href="io.h.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #ifndef __IO_H
+<span class="lineNum">      18 </span>                :            : #define __IO_H
+<span class="lineNum">      19 </span>                :            : 
+<span class="lineNum">      20 </span>                :            : #ifndef __ASSEMBLY__
+<span class="lineNum">      21 </span>                :            : 
+<span class="lineNum">      22 </span>                :            : #include &lt;compiler.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;stdint.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;processor.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;ccan/endian/endian.h&gt;
+<span class="lineNum">      26 </span>                :            : 
+<span class="lineNum">      27 </span>                :            : /*
+<span class="lineNum">      28 </span>                :            :  * IO access functions
+<span class="lineNum">      29 </span>                :            :  *
+<span class="lineNum">      30 </span>                :            :  * __in_beXX() / __out_beXX() : non-byteswap, no barrier
+<span class="lineNum">      31 </span>                :            :  * in_beXX() / out_beXX()     : non-byteswap, barrier
+<span class="lineNum">      32 </span>                :            :  * in_leXX() / out_leXX()     : byteswap, barrier
+<span class="lineNum">      33 </span>                :            :  */
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : static inline uint8_t __in_8(const volatile uint8_t *addr)
+<span class="lineNum">      36 </span>                :            : {
+<span class="lineNum">      37 </span>                :            :         uint8_t val;
+<span class="lineNum">      38 </span>                :<span class="lineCov">       2465 :         asm volatile(&quot;lbzcix %0,0,%1&quot; :</span>
+<span class="lineNum">      39 </span>                :            :                      &quot;=r&quot;(val) : &quot;r&quot;(addr), &quot;m&quot;(*addr) : &quot;memory&quot;);
+<span class="lineNum">      40 </span>                :            :         return val;
+<span class="lineNum">      41 </span>                :            : }
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :            : static inline uint8_t in_8(const volatile uint8_t *addr)
+<span class="lineNum">      44 </span>                :            : {
+<span class="lineNum">      45 </span>                :            :         sync();
+<span class="lineNum">      46 </span>                :            :         return __in_8(addr);
+<span class="lineNum">      47 </span>                :            : }
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :            : static inline uint16_t __in_be16(const volatile uint16_t *addr)
+<a name="50"><span class="lineNum">      50 </span>                :            : {</a>
+<span class="lineNum">      51 </span>                :            :         uint16_t val;
+<span class="lineNum">      52 </span>                :<span class="lineCov">       2042 :         asm volatile(&quot;lhzcix %0,0,%1&quot; :</span>
+<span class="lineNum">      53 </span>                :            :                      &quot;=r&quot;(val) : &quot;r&quot;(addr), &quot;m&quot;(*addr) : &quot;memory&quot;);
+<span class="lineNum">      54 </span>                :            :         return val;
+<span class="lineNum">      55 </span>                :            : }
+<span class="lineNum">      56 </span>                :            : 
+<span class="lineNum">      57 </span>                :            : static inline uint16_t in_be16(const volatile uint16_t *addr)
+<span class="lineNum">      58 </span>                :            : {
+<span class="lineNum">      59 </span>                :            :         sync();
+<span class="lineNum">      60 </span>                :            :         return __in_be16(addr);
+<span class="lineNum">      61 </span>                :            : }
+<span class="lineNum">      62 </span>                :            : 
+<span class="lineNum">      63 </span>                :<span class="lineCov">       2042 : static inline uint16_t in_le16(const volatile uint16_t *addr)</span>
+<span class="lineNum">      64 </span>                :            : {
+<span class="lineNum">      65 </span>                :<span class="lineCov">       4084 :         return bswap_16(in_be16(addr));</span>
+<span class="lineNum">      66 </span>                :            : }
+<span class="lineNum">      67 </span>                :            : 
+<span class="lineNum">      68 </span>                :            : static inline uint32_t __in_be32(const volatile uint32_t *addr)
+<a name="69"><span class="lineNum">      69 </span>                :            : {</a>
+<span class="lineNum">      70 </span>                :            :         uint32_t val;
+<span class="lineNum">      71 </span>                :<span class="lineCov">     901899 :         asm volatile(&quot;lwzcix %0,0,%1&quot; :</span>
+<span class="lineNum">      72 </span>                :            :                      &quot;=r&quot;(val) : &quot;r&quot;(addr), &quot;m&quot;(*addr) : &quot;memory&quot;);
+<span class="lineNum">      73 </span>                :            :         return val;
+<span class="lineNum">      74 </span>                :            : }
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :            : static inline uint32_t in_be32(const volatile uint32_t *addr)
+<span class="lineNum">      77 </span>                :            : {
+<span class="lineNum">      78 </span>                :            :         sync();
+<span class="lineNum">      79 </span>                :            :         return __in_be32(addr);
+<span class="lineNum">      80 </span>                :            : }
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>                :<span class="lineCov">       2987 : static inline uint32_t in_le32(const volatile uint32_t *addr)</span>
+<span class="lineNum">      83 </span>                :            : {
+<span class="lineNum">      84 </span>                :<span class="lineCov">       2987 :         return bswap_32(in_be32(addr));</span>
+<span class="lineNum">      85 </span>                :            : }
+<span class="lineNum">      86 </span>                :            : 
+<span class="lineNum">      87 </span>                :            : static inline uint64_t __in_be64(const volatile uint64_t *addr)
+<span class="lineNum">      88 </span>                :            : {
+<span class="lineNum">      89 </span>                :            :         uint64_t val;
+<span class="lineNum">      90 </span>                :<span class="lineCov">     537125 :         asm volatile(&quot;ldcix %0,0,%1&quot; :</span>
+<span class="lineNum">      91 </span>                :            :                      &quot;=r&quot;(val) : &quot;r&quot;(addr), &quot;m&quot;(*addr) : &quot;memory&quot;);
+<span class="lineNum">      92 </span>                :            :         return val;
+<span class="lineNum">      93 </span>                :            : }
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :            : static inline uint64_t in_be64(const volatile uint64_t *addr)
+<span class="lineNum">      96 </span>                :            : {
+<span class="lineNum">      97 </span>                :            :         sync();
+<span class="lineNum">      98 </span>                :            :         return __in_be64(addr);
+<span class="lineNum">      99 </span>                :            : }
+<span class="lineNum">     100 </span>                :            : 
+<span class="lineNum">     101 </span>                :            : static inline uint64_t in_le64(const volatile uint64_t *addr)
+<span class="lineNum">     102 </span>                :            : {
+<span class="lineNum">     103 </span>                :            :         return bswap_64(in_be64(addr));
+<span class="lineNum">     104 </span>                :            : }
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :            : static inline void __out_8(volatile uint8_t *addr, uint8_t val)
+<span class="lineNum">     107 </span>                :            : {
+<span class="lineNum">     108 </span>                :<span class="lineCov">        108 :         asm volatile(&quot;stbcix %0,0,%1&quot;</span>
+<span class="lineNum">     109 </span>                :            :                      : : &quot;r&quot;(val), &quot;r&quot;(addr), &quot;m&quot;(*addr) : &quot;memory&quot;);
+<span class="lineNum">     110 </span>                :            : }
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :            : static inline void out_8(volatile uint8_t *addr, uint8_t val)
+<span class="lineNum">     113 </span>                :            : {
+<span class="lineNum">     114 </span>                :            :         sync();
+<span class="lineNum">     115 </span>                :            :         return __out_8(addr, val);
+<span class="lineNum">     116 </span>                :            : }
+<span class="lineNum">     117 </span>                :            : 
+<a name="118"><span class="lineNum">     118 </span>                :            : static inline void __out_be16(volatile uint16_t *addr, uint16_t val)</a>
+<span class="lineNum">     119 </span>                :            : {
+<span class="lineNum">     120 </span>                :<span class="lineCov">       1082 :         asm volatile(&quot;sthcix %0,0,%1&quot;</span>
+<span class="lineNum">     121 </span>                :            :                      : : &quot;r&quot;(val), &quot;r&quot;(addr), &quot;m&quot;(*addr) : &quot;memory&quot;);
+<span class="lineNum">     122 </span>                :            : }
+<span class="lineNum">     123 </span>                :            : 
+<span class="lineNum">     124 </span>                :            : static inline void out_be16(volatile uint16_t *addr, uint16_t val)
+<span class="lineNum">     125 </span>                :            : {
+<span class="lineNum">     126 </span>                :            :         sync();
+<span class="lineNum">     127 </span>                :            :         return __out_be16(addr, val);
+<span class="lineNum">     128 </span>                :            : }
+<span class="lineNum">     129 </span>                :            : 
+<span class="lineNum">     130 </span>                :<span class="lineCov">       1082 : static inline void out_le16(volatile uint16_t *addr, uint16_t val)</span>
+<span class="lineNum">     131 </span>                :            : {
+<span class="lineNum">     132 </span>                :<span class="lineCov">       1082 :         out_be16(addr, bswap_16(val));</span>
+<span class="lineNum">     133 </span>                :<span class="lineCov">       1082 : }</span>
+<span class="lineNum">     134 </span>                :            : 
+<a name="135"><span class="lineNum">     135 </span>                :            : static inline void __out_be32(volatile uint32_t *addr, uint32_t val)</a>
+<span class="lineNum">     136 </span>                :            : {
+<span class="lineNum">     137 </span>                :<span class="lineCov">     231156 :         asm volatile(&quot;stwcix %0,0,%1&quot;</span>
+<span class="lineNum">     138 </span>                :            :                      : : &quot;r&quot;(val), &quot;r&quot;(addr), &quot;m&quot;(*addr) : &quot;memory&quot;);
+<span class="lineNum">     139 </span>                :            : }
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>                :            : static inline void out_be32(volatile uint32_t *addr, uint32_t val)
+<span class="lineNum">     142 </span>                :            : {
+<span class="lineNum">     143 </span>                :            :         sync();
+<span class="lineNum">     144 </span>                :            :         return __out_be32(addr, val);
+<span class="lineNum">     145 </span>                :            : }
+<span class="lineNum">     146 </span>                :            : 
+<span class="lineNum">     147 </span>                :<span class="lineCov">        754 : static inline void out_le32(volatile uint32_t *addr, uint32_t val)</span>
+<span class="lineNum">     148 </span>                :            : {
+<span class="lineNum">     149 </span>                :<span class="lineCov">        754 :         out_be32(addr, bswap_32(val));</span>
+<span class="lineNum">     150 </span>                :<span class="lineCov">        754 : }</span>
+<span class="lineNum">     151 </span>                :            : 
+<span class="lineNum">     152 </span>                :            : static inline void __out_be64(volatile uint64_t *addr, uint64_t val)
+<span class="lineNum">     153 </span>                :            : {
+<span class="lineNum">     154 </span>                :<span class="lineCov">     119488 :         asm volatile(&quot;stdcix %0,0,%1&quot;</span>
+<span class="lineNum">     155 </span>                :            :                      : : &quot;r&quot;(val), &quot;r&quot;(addr), &quot;m&quot;(*addr) : &quot;memory&quot;);
+<span class="lineNum">     156 </span>                :            : }
+<span class="lineNum">     157 </span>                :            : 
+<span class="lineNum">     158 </span>                :            : static inline void out_be64(volatile uint64_t *addr, uint64_t val)
+<span class="lineNum">     159 </span>                :            : {
+<span class="lineNum">     160 </span>                :            :         sync();
+<span class="lineNum">     161 </span>                :            :         return __out_be64(addr, val);
+<span class="lineNum">     162 </span>                :            : }
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>                :            : static inline void out_le64(volatile uint64_t *addr, uint64_t val)
+<span class="lineNum">     165 </span>                :            : {
+<span class="lineNum">     166 </span>                :            :         out_be64(addr, bswap_64(val));
+<span class="lineNum">     167 </span>                :            : }
+<span class="lineNum">     168 </span>                :            : 
+<span class="lineNum">     169 </span>                :            : /* Assistant to macros used to access PCI config space */
+<span class="lineNum">     170 </span>                :            : #define in_le8  in_8
+<span class="lineNum">     171 </span>                :            : #define out_le8 out_8
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>                :            : #endif /* __ASSEMBLY__ */
+<span class="lineNum">     174 </span>                :            : 
+<span class="lineNum">     175 </span>                :            : #endif /* __IO_H */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

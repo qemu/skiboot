@@ -1,0 +1,934 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - libpore/p8_pore_table_gen_api_fixed.C</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">libpore</a> - p8_pore_table_gen_api_fixed.C<span style="font-size: 80%;"> (source / <a href="p8_pore_table_gen_api_fixed.C.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">75</td>
+            <td class="headerCovTableEntry">332</td>
+            <td class="headerCovTableEntryLo">22.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">37</td>
+            <td class="headerCovTableEntry">198</td>
+            <td class="headerCovTableEntryLo">18.7 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* IBM_PROLOG_BEGIN_TAG                                                   */</a>
+<span class="lineNum">       2 </span>                :            : /* This is an automatically generated prolog.                             */
+<span class="lineNum">       3 </span>                :            : /*                                                                        */
+<span class="lineNum">       4 </span>                :            : /* $Source: src/usr/hwpf/hwp/build_winkle_images/p8_slw_build/p8_pore_table_gen_api_fixed.C $ */
+<span class="lineNum">       5 </span>                :            : /*                                                                        */
+<span class="lineNum">       6 </span>                :            : /* OpenPOWER HostBoot Project                                             */
+<span class="lineNum">       7 </span>                :            : /*                                                                        */
+<span class="lineNum">       8 </span>                :            : /* COPYRIGHT International Business Machines Corp. 2013,2014              */
+<span class="lineNum">       9 </span>                :            : /*                                                                        */
+<span class="lineNum">      10 </span>                :            : /* Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);        */
+<span class="lineNum">      11 </span>                :            : /* you may not use this file except in compliance with the License.       */
+<span class="lineNum">      12 </span>                :            : /* You may obtain a copy of the License at                                */
+<span class="lineNum">      13 </span>                :            : /*                                                                        */
+<span class="lineNum">      14 </span>                :            : /*     http://www.apache.org/licenses/LICENSE-2.0                         */
+<span class="lineNum">      15 </span>                :            : /*                                                                        */
+<span class="lineNum">      16 </span>                :            : /* Unless required by applicable law or agreed to in writing, software    */
+<span class="lineNum">      17 </span>                :            : /* distributed under the License is distributed on an &quot;AS IS&quot; BASIS,      */
+<span class="lineNum">      18 </span>                :            : /* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or        */
+<span class="lineNum">      19 </span>                :            : /* implied. See the License for the specific language governing           */
+<span class="lineNum">      20 </span>                :            : /* permissions and limitations under the License.                         */
+<span class="lineNum">      21 </span>                :            : /*                                                                        */
+<span class="lineNum">      22 </span>                :            : /* IBM_PROLOG_END_TAG                                                     */
+<span class="lineNum">      23 </span>                :            : // $Id: p8_pore_table_gen_api_fixed.C,v 1.15 2014/05/30 20:31:24 cmolsen Exp $
+<span class="lineNum">      24 </span>                :            : //
+<span class="lineNum">      25 </span>                :            : /*------------------------------------------------------------------------------*/
+<span class="lineNum">      26 </span>                :            : /* *! (C) Copyright International Business Machines Corp. 2012                  */
+<span class="lineNum">      27 </span>                :            : /* *! All Rights Reserved -- Property of IBM                                    */
+<span class="lineNum">      28 </span>                :            : /* *! *** IBM Confidential ***                                                  */
+<span class="lineNum">      29 </span>                :            : /*------------------------------------------------------------------------------*/
+<span class="lineNum">      30 </span>                :            : /* *! TITLE :       p8_pore_table_gen_api_fixed.C                               */
+<span class="lineNum">      31 </span>                :            : /* *! DESCRIPTION : PORE SLW table generaion APIs                               */
+<span class="lineNum">      32 </span>                :            : /* *! OWNER NAME :  Michael Olsen            Email: cmolsen@us.ibm.com          */
+<span class="lineNum">      33 </span>                :            : //
+<span class="lineNum">      34 </span>                :            : /* *! USAGE :       To build for PHYP command-line -                            */
+<span class="lineNum">      35 </span>                :            : /*                  buildecmdprcd   -C &quot;p8_pore_table_gen_api_fixed.C&quot;   -c &quot;p8_pore_table_static_data.c,sbe_xip_image.c,pore_inline_assembler.c&quot;  -u &quot;SLW_COMMAND_LINE_RAM&quot;  p8_pore_table_gen_api_fixed_main.C                                                    */
+<span class="lineNum">      36 </span>                :            : //
+<span class="lineNum">      37 </span>                :            : /* *! COMMENTS :    - The DYNAMIC_RAM_TABLE_PPD was dropped in v1.12 of this    */ 
+<span class="lineNum">      38 </span>                :            : /*                    code. See v1.12 for explanation and code implementation.  */
+<span class="lineNum">      39 </span>                :            : //
+<span class="lineNum">      40 </span>                :            : /*------------------------------------------------------------------------------*/
+<span class="lineNum">      41 </span>                :            : 
+<span class="lineNum">      42 </span>                :            : #define __P8_PORE_TABLE_GEN_API_C
+<span class="lineNum">      43 </span>                :            : #include &lt;p8_pore_api_custom.h&gt;
+<span class="lineNum">      44 </span>                :            : #include &lt;p8_pore_table_gen_api.H&gt;
+<span class="lineNum">      45 </span>                :            : #include &lt;p8_delta_scan_rw.h&gt;
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>                :            : /*
+<span class="lineNum">      48 </span>                :            : // io_image -      pointer to SLW image
+<span class="lineNum">      49 </span>                :            : // i_modeBuild -   0: HB/IPL mode, 1: PHYP/Rebuild mode, 2: SRAM mode.
+<span class="lineNum">      50 </span>                :            : // i_regName -     unswizzled enum SPR value (NOT a name)
+<span class="lineNum">      51 </span>                :            : // i_regData -     data to write
+<span class="lineNum">      52 </span>                :            : // i_coreIndex -   core ID = [0:15]
+<a name="53"><span class="lineNum">      53 </span>                :            : // i_threadIndex - thread to operate on = [0:7]. </a>
+<span class="lineNum">      54 </span>                :            : */
+<span class="lineNum">      55 </span>                :<span class="lineCov">        120 : uint32_t p8_pore_gen_cpureg_fixed(  void      *io_image,</span>
+<span class="lineNum">      56 </span>                :            :                               uint8_t   i_modeBuild,
+<span class="lineNum">      57 </span>                :            :                               uint32_t  i_regName, 
+<span class="lineNum">      58 </span>                :            :                               uint64_t  i_regData, 
+<span class="lineNum">      59 </span>                :            :                               uint32_t  i_coreId,
+<span class="lineNum">      60 </span>                :            :                               uint32_t  i_threadId)
+<span class="lineNum">      61 </span>                :            : {
+<span class="lineNum">      62 </span>                :<span class="lineCov">        120 :   uint32_t  rc=0, rcLoc=0, iCount=0;</span>
+<span class="lineNum">      63 </span>                :<span class="lineCov">        120 :   int       i=0, iReg=-1;</span>
+<span class="lineNum">      64 </span>                :            :   uint64_t  xipSlwRamSection;
+<span class="lineNum">      65 </span>                :            :   void      *hostSlwRamSection;
+<span class="lineNum">      66 </span>                :            :   void      *hostSlwSectionFixed;
+<span class="lineNum">      67 </span>                :            :   uint64_t  xipRamTableThis;
+<span class="lineNum">      68 </span>                :            :   void      *hostRamVector;
+<span class="lineNum">      69 </span>                :<span class="lineCov">        120 :   void      *hostRamTableThis=NULL;</span>
+<span class="lineNum">      70 </span>                :<span class="lineCov">        120 :   void      *hostRamEntryThis=NULL, *hostRamEntryNext=NULL;</span>
+<span class="lineNum">      71 </span>                :<span class="lineCov">        120 :   uint8_t   bNewTable=0, bFound=0;</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">        120 :   uint8_t   bEntryEnd=1, headerType=0;</span>
+<span class="lineNum">      73 </span>                :            :   SbeXipSection  xipSection;
+<span class="lineNum">      74 </span>                :            :   SbeXipItem    xipTocItem;
+<span class="lineNum">      75 </span>                :            :   RamTableEntry ramEntryThis, *ramEntryNext;
+<span class="lineNum">      76 </span>                :<span class="lineCov">        120 :   uint32_t  sprSwiz=0;</span>
+<span class="lineNum">      77 </span>                :<span class="lineCov">        120 :   uint8_t       bReplaceEntry=0;</span>
+<span class="lineNum">      78 </span>                :<span class="lineCov">        120 :   uint32_t      headerNext=0;</span>
+<span class="lineNum">      79 </span>                :<span class="lineCov">        120 :   uint32_t      instrNext=0;</span>
+<span class="lineNum">      80 </span>                :            :         
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>                :            :   // -------------------------------------------------------------------------
+<span class="lineNum">      83 </span>                :            :   // Validate Ramming parameters.
+<span class="lineNum">      84 </span>                :            :   //
+<span class="lineNum">      85 </span>                :            :   // ...check mode build
+<span class="lineNum">      86 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 120 times"> + </span>]:<span class="lineCov">        120 :   if (i_modeBuild&gt;P8_SLW_MODEBUILD_MAX_VALUE)  {</span>
+<span class="lineNum">      87 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;modeBuild=%i invalid. Valid range is [0;%i].&quot;,</span>
+<span class="lineNum">      88 </span>                :            :       i_modeBuild,P8_SLW_MODEBUILD_MAX_VALUE);
+<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :     rcLoc = 1;</span>
+<span class="lineNum">      90 </span>                :            :   }
+<span class="lineNum">      91 </span>                :            :   // ...check register value
+<span class="lineNum">      92 </span>                :<span class="lineCov">        120 :   bFound = 0;</span>
+<span class="lineNum">      93 </span>        [<span class="branchCov" title="Branch 0 was taken 900 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        900 :   for (i=0;i&lt;SLW_SPR_REGS_SIZE;i++)  {</span>
+<span class="lineNum">      94 </span>        [<span class="branchCov" title="Branch 0 was taken 780 times"> + </span><span class="branchCov" title="Branch 1 was taken 120 times"> + </span>]:<span class="lineCov">        900 :     if (i_regName==SLW_SPR_REGS[i].value)  {</span>
+<span class="lineNum">      95 </span>                :            :       bFound = 1;
+<span class="lineNum">      96 </span>                :            :       iReg = i;
+<span class="lineNum">      97 </span>                :            :       break;
+<span class="lineNum">      98 </span>                :            :     }
+<span class="lineNum">      99 </span>                :            :   }
+<span class="lineNum">     100 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 120 times"> + </span>]:<span class="lineCov">        120 :   if (!bFound)  {</span>
+<span class="lineNum">     101 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Register value = %i is not supported.\n&quot;,i_regName);</span>
+<span class="lineNum">     102 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;The following registers are supported:\n&quot;);</span>
+<span class="lineNum">     103 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (i=0;i&lt;SLW_SPR_REGS_SIZE;i++)</span>
+<span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;\t(%s,%i)\n&quot;,SLW_SPR_REGS[i].name,SLW_SPR_REGS[i].value);</span>
+<span class="lineNum">     105 </span>                :            :     rcLoc = 1;
+<span class="lineNum">     106 </span>                :            :   }
+<span class="lineNum">     107 </span>                :            :   // ...check core ID
+<span class="lineNum">     108 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 120 times"> + </span>]:<span class="lineCov">        120 :   if (i_coreId&gt;=SLW_MAX_CORES)  {</span>
+<span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Core ID = %i is not within valid range of [0;%i]\n&quot;,i_coreId,SLW_MAX_CORES-1);</span>
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :     rcLoc = 1;</span>
+<span class="lineNum">     111 </span>                :            :   }
+<span class="lineNum">     112 </span>                :            :   // ...check thread ID
+<span class="lineNum">     113 </span>                :            :   // - ensure it's zero if SPR is not thread scoped, i.e. if SPR is core scoped.
+<span class="lineNum">     114 </span>                :            :   // - error out if threadId exceed max num of threads.
+<span class="lineNum">     115 </span>[<span class="branchCov" title="Branch 0 was taken 88 times"> + </span><span class="branchCov" title="Branch 1 was taken 32 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 56 times"> + </span><span class="branchCov" title="Branch 3 was taken 32 times"> + </span>]:<span class="lineCov">        120 :   if (i_regName!=P8_SPR_HSPRG0 &amp;&amp; i_regName!=P8_SPR_LPCR &amp;&amp; i_regName!=P8_MSR_MSR)  {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken 56 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
+<span class="lineNum">     116 </span>                :<span class="lineCov">         56 :     i_threadId = 0;</span>
+<span class="lineNum">     117 </span>                :            :   }
+<span class="lineNum">     118 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 120 times"> + </span>]:<span class="lineCov">        120 :   if (i_threadId&gt;=SLW_CORE_THREADS)  {</span>
+<span class="lineNum">     119 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Thread ID = %i is not within valid range of [0;%i]\n&quot;,i_threadId,SLW_CORE_THREADS-1);</span>
+<span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 :     rcLoc = 1;</span>
+<span class="lineNum">     121 </span>                :            :   }
+<span class="lineNum">     122 </span>        [<span class="branchCov" title="Branch 0 was taken 120 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        120 :   if (rcLoc)</span>
+<span class="lineNum">     123 </span>                :            :     return IMGBUILD_ERR_RAM_INVALID_PARM;
+<span class="lineNum">     124 </span>                :<span class="lineCov">        120 :   rcLoc = 0;</span>
+<span class="lineNum">     125 </span>                :            :   
+<span class="lineNum">     126 </span>                :            :   // -------------------------------------------------------------------------
+<span class="lineNum">     127 </span>                :            :   // Check slw section location and size. (Mainly needed for fixed image.)
+<span class="lineNum">     128 </span>                :            :   //
+<span class="lineNum">     129 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 120 times"> + </span>]:<span class="lineCov">        120 :   if (i_modeBuild==P8_SLW_MODEBUILD_IPL ||</span>
+<span class="lineNum">     130 </span>                :            :       i_modeBuild==P8_SLW_MODEBUILD_REBUILD)  {  // Fixed image.
+<span class="lineNum">     131 </span>                :<span class="lineNoCov">          0 :     hostSlwSectionFixed = (void*)( (uintptr_t)io_image + </span>
+<span class="lineNum">     132 </span>                :            :                                    FIXED_SLW_IMAGE_SIZE -
+<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 :                                    FIXED_FFDC_SECTION_SIZE -</span>
+<span class="lineNum">     134 </span>                :            :                                    FIXED_SLW_SECTION_SIZE );
+<span class="lineNum">     135 </span>                :            :     // Even though we shouldn't call this api during a rebuild, it should be 
+<span class="lineNum">     136 </span>                :            :     // safe to do so in this particular case since none of the info requested
+<span class="lineNum">     137 </span>                :            :     // is supposed to be moved during a rebuild.
+<span class="lineNum">     138 </span>                :<span class="lineNoCov">          0 :     rc = sbe_xip_get_section( io_image, SBE_XIP_SECTION_SLW, &amp;xipSection);</span>
+<span class="lineNum">     139 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (rc)  {</span>
+<span class="lineNum">     140 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;Probably invalid section name for SBE_XIP_SECTION_SLW.\n&quot;);</span>
+<span class="lineNum">     141 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_GET_SECTION;</span>
+<span class="lineNum">     142 </span>                :            :     }
+<span class="lineNum">     143 </span>                :<span class="lineNoCov">          0 :     hostSlwRamSection = (void*)((uintptr_t)io_image + xipSection.iv_offset);</span>
+<span class="lineNum">     144 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (hostSlwSectionFixed!=hostSlwRamSection)  {</span>
+<span class="lineNum">     145 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;hostSlwSectionFixed != hostSlwRamSection(from image api).\n&quot;);</span>
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_RAM_HDRS_NOT_SYNCED;</span>
+<span class="lineNum">     147 </span>                :            :     }
+<span class="lineNum">     148 </span>                :            :     else  {
+<span class="lineNum">     149 </span>                :            :       MY_INF(&quot;hostSlwSectionFixed == hostSlwRamSection(from image api).\n&quot;);
+<span class="lineNum">     150 </span>                :            :     }
+<span class="lineNum">     151 </span>                :            :   }
+<span class="lineNum">     152 </span>                :            :   else  {  // SRAM non-fixed image.
+<span class="lineNum">     153 </span>                :<span class="lineCov">        120 :     rc = sbe_xip_get_section( io_image, SBE_XIP_SECTION_SLW, &amp;xipSection);</span>
+<span class="lineNum">     154 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 120 times"> + </span>]:<span class="lineCov">        120 :     if (rc)  {</span>
+<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;Probably invalid section name for SBE_XIP_SECTION_SLW.\n&quot;);</span>
+<span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_GET_SECTION;</span>
+<span class="lineNum">     157 </span>                :            :     }
+<span class="lineNum">     158 </span>                :<span class="lineCov">        120 :     hostSlwRamSection = (void*)((uintptr_t)io_image + xipSection.iv_offset);</span>
+<span class="lineNum">     159 </span>                :<span class="lineCov">        120 :     sbe_xip_host2pore( io_image, hostSlwRamSection, &amp;xipSlwRamSection);</span>
+<span class="lineNum">     160 </span>                :            :   }
+<span class="lineNum">     161 </span>                :            : 
+<span class="lineNum">     162 </span>                :            :   // -------------------------------------------------------------------------
+<span class="lineNum">     163 </span>                :            :   // Cross check SPR register and table defines
+<span class="lineNum">     164 </span>                :            :   //
+<span class="lineNum">     165 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 119 times"> + </span>]:<span class="lineCov">        119 :   if (SLW_SPR_REGS_SIZE!=(SLW_MAX_CPUREGS_CORE+SLW_MAX_CPUREGS_THREADS))  {</span>
+<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Defines in *.H header file not in sync.\n&quot;);</span>
+<span class="lineNum">     167 </span>                :<span class="lineNoCov">          0 :     return IMGBUILD_ERR_RAM_HDRS_NOT_SYNCED;</span>
+<span class="lineNum">     168 </span>                :            :   }
+<span class="lineNum">     169 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 119 times"> + </span>]:<span class="lineCov">        119 :   if (xipSection.iv_size!=FIXED_SLW_SECTION_SIZE)  {</span>
+<span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Fixed SLW table size in *.H header file differs from SLW section size in image.\n&quot;); </span>
+<span class="lineNum">     171 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Check code or image version.\n&quot;);</span>
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :     return IMGBUILD_ERR_RAM_HDRS_NOT_SYNCED;</span>
+<span class="lineNum">     173 </span>                :            :   }
+<span class="lineNum">     174 </span>                :            : 
+<span class="lineNum">     175 </span>                :            :   // -------------------------------------------------------------------------
+<span class="lineNum">     176 </span>                :            :   // Summarize parameters and checking results.
+<span class="lineNum">     177 </span>                :            :   //
+<span class="lineNum">     178 </span>                :            :   MY_INF(&quot;Input parameter checks - OK\n&quot;);
+<span class="lineNum">     179 </span>                :            :   MY_INF(&quot;\tMode build= %i\n&quot;,i_modeBuild);
+<span class="lineNum">     180 </span>                :            :   MY_INF(&quot;\tRegister  = (%s,%i)\n&quot;,SLW_SPR_REGS[iReg].name,SLW_SPR_REGS[iReg].value);
+<span class="lineNum">     181 </span>                :            :   MY_INF(&quot;\tCore ID   = %i\n&quot;,i_coreId);
+<span class="lineNum">     182 </span>                :            :   MY_INF(&quot;\tThread ID = %i\n&quot;,i_threadId);
+<span class="lineNum">     183 </span>                :            :   MY_INF(&quot;Image validation and size checks - OK\n&quot;);
+<span class="lineNum">     184 </span>                :            :   MY_INF(&quot;\tSLW section size=  %i\n&quot;,xipSection.iv_size);
+<span class="lineNum">     185 </span>                :            :   
+<span class="lineNum">     186 </span>                :            :   // -------------------------------------------------------------------------
+<span class="lineNum">     187 </span>                :            :   // Locate RAM vector and locate RAM table associated with &quot;This&quot; core ID.
+<span class="lineNum">     188 </span>                :            :   //
+<span class="lineNum">     189 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 119 times"> + </span>]:<span class="lineCov">        119 :   if (i_modeBuild==P8_SLW_MODEBUILD_IPL ||</span>
+<span class="lineNum">     190 </span>                :            :       i_modeBuild==P8_SLW_MODEBUILD_REBUILD)  {  // Fixed image.
+<span class="lineNum">     191 </span>                :<span class="lineNoCov">          0 :     hostRamTableThis = (void*)( (uintptr_t)io_image +</span>
+<span class="lineNum">     192 </span>                :            :                                 FIXED_SLW_IMAGE_SIZE -
+<span class="lineNum">     193 </span>                :            :                                 FIXED_FFDC_SECTION_SIZE -
+<span class="lineNum">     194 </span>                :<span class="lineNoCov">          0 :                                 FIXED_SLW_SECTION_SIZE +</span>
+<span class="lineNum">     195 </span>                :<span class="lineNoCov">          0 :                                 SLW_RAM_TABLE_SPACE_PER_CORE*i_coreId );</span>
+<span class="lineNum">     196 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (*(uintptr_t*)hostRamTableThis)  {  // Table content NOT empty.</span>
+<span class="lineNum">     197 </span>                :            :       bNewTable = 0;                       // So, NOT new table.
+<span class="lineNum">     198 </span>                :            :     }
+<span class="lineNum">     199 </span>                :            :     else  {                                // Table content empty.
+<span class="lineNum">     200 </span>                :<span class="lineNoCov">          0 :       bNewTable = 1;                       // So, new table.</span>
+<span class="lineNum">     201 </span>                :            :     }
+<span class="lineNum">     202 </span>                :            :   }
+<span class="lineNum">     203 </span>                :            :   else  {                 // SRAM non-fixed image.
+<span class="lineNum">     204 </span>                :<span class="lineCov">        119 :     rc = sbe_xip_find( io_image, SLW_HOST_REG_VECTOR_TOC_NAME, &amp;xipTocItem);</span>
+<span class="lineNum">     205 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 120 times"> + </span>]:<span class="lineCov">        120 :     if (rc)  {</span>
+<span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;Probably invalid key word for SLW_HOST_REG_VECTOR_TOC_NAME.\n&quot;);</span>
+<span class="lineNum">     207 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_KEYWORD_NOT_FOUND;</span>
+<span class="lineNum">     208 </span>                :            :     }
+<span class="lineNum">     209 </span>                :<span class="lineCov">        120 :     sbe_xip_pore2host( io_image, xipTocItem.iv_address, &amp;hostRamVector);</span>
+<span class="lineNum">     210 </span>                :<span class="lineCov">        240 :     xipRamTableThis = myRev64(*((uint64_t*)hostRamVector + i_coreId));</span>
+<span class="lineNum">     211 </span>        [<span class="branchCov" title="Branch 0 was taken 120 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        120 :     if (xipRamTableThis)  {</span>
+<span class="lineNum">     212 </span>                :<span class="lineCov">        120 :       sbe_xip_pore2host( io_image, xipRamTableThis, &amp;hostRamTableThis);</span>
+<span class="lineNum">     213 </span>                :<span class="lineCov">        120 :       bNewTable = 0;</span>
+<span class="lineNum">     214 </span>                :            :     }
+<span class="lineNum">     215 </span>                :            :     else  {
+<span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 :       hostRamTableThis = (void*)( (uintptr_t)hostSlwRamSection + </span>
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :                                   SLW_RAM_TABLE_SPACE_PER_CORE*i_coreId );</span>
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :       bNewTable = 1;</span>
+<span class="lineNum">     219 </span>                :            :     }
+<span class="lineNum">     220 </span>                :            :   }
+<span class="lineNum">     221 </span>                :            : 
+<span class="lineNum">     222 </span>                :            : 
+<span class="lineNum">     223 </span>                :            :         // -------------------------------------------------------------------------
+<span class="lineNum">     224 </span>                :            :   // Create most of the RAM entry, so it can be used to find a potential existing entry to 
+<span class="lineNum">     225 </span>                :            :         // replace. Postpone decision about bEntryEnd and assume its zero for now (not end). 
+<span class="lineNum">     226 </span>                :            :   //
+<span class="lineNum">     227 </span>           [<span class="branchCov" title="Branch 1 was taken 120 times"> + </span>]:<span class="lineCov">        119 :   if (i_regName==P8_MSR_MSR)  {</span>
+<span class="lineNum">     228 </span>                :            :     // ...make the MSR header
+<span class="lineNum">     229 </span>                :<span class="lineNoCov">          0 :     headerType = 0x1; // MTMSRD header.</span>
+<span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 :     ramEntryThis.header = ( ((uint32_t)headerType) &lt;&lt; RAM_HEADER_TYPE_START_C   &amp; RAM_HEADER_TYPE_MASK_C )   |</span>
+<span class="lineNum">     231 </span>                :<span class="lineNoCov">          0 :                           (            i_threadId  &lt;&lt; RAM_HEADER_THREAD_START_C &amp; RAM_HEADER_THREAD_MASK_C );</span>
+<span class="lineNum">     232 </span>                :            :     // ...make the MSR instr
+<span class="lineNum">     233 </span>                :<span class="lineNoCov">          0 :     ramEntryThis.instr =  RAM_MTMSRD_INSTR_TEMPL_C;</span>
+<span class="lineNum">     234 </span>                :            :   }
+<span class="lineNum">     235 </span>                :            :   else  {
+<span class="lineNum">     236 </span>                :            :     // ...make the SPR header
+<span class="lineNum">     237 </span>                :<span class="lineCov">        120 :     headerType = 0x0; // MTSPR header.</span>
+<span class="lineNum">     238 </span>                :<span class="lineCov">        120 :     ramEntryThis.header = ( ((uint32_t)headerType) &lt;&lt; RAM_HEADER_TYPE_START_C   &amp; RAM_HEADER_TYPE_MASK_C )   |</span>
+<span class="lineNum">     239 </span>                :<span class="lineCov">        240 :                           (            i_regName   &lt;&lt; RAM_HEADER_SPRN_START_C   &amp; RAM_HEADER_SPRN_MASK_C )   |</span>
+<span class="lineNum">     240 </span>                :<span class="lineCov">        120 :                           (            i_threadId  &lt;&lt; RAM_HEADER_THREAD_START_C &amp; RAM_HEADER_THREAD_MASK_C );</span>
+<span class="lineNum">     241 </span>                :            :     // ...make the SPR instr 
+<span class="lineNum">     242 </span>                :<span class="lineCov">        120 :     sprSwiz = i_regName&gt;&gt;5 | (i_regName &amp; 0x0000001f)&lt;&lt;5;</span>
+<span class="lineNum">     243 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 120 times"> + </span>]:<span class="lineCov">        120 :     if (sprSwiz!=SLW_SPR_REGS[iReg].swizzled)  {</span>
+<span class="lineNum">     244 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;Inconsistent swizzle rules implemented. Check code. Dumping data.\n&quot;);</span>
+<span class="lineNum">     245 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;\tsprSwiz (on-the-fly-calc)=%i\n&quot;,sprSwiz);</span>
+<span class="lineNum">     246 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;\tSLW_SPR_REGS[%i].swizzled=%i\n&quot;,iReg,SLW_SPR_REGS[iReg].swizzled);</span>
+<span class="lineNum">     247 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_RAM_CODE;</span>
+<span class="lineNum">     248 </span>                :            :     }
+<span class="lineNum">     249 </span>                :<span class="lineCov">        120 :     ramEntryThis.instr =  RAM_MTSPR_INSTR_TEMPL_C | ( ( sprSwiz&lt;&lt;RAM_MTSPR_SPR_START_C ) &amp; RAM_MTSPR_SPR_MASK_C );</span>
+<span class="lineNum">     250 </span>                :            :   }
+<span class="lineNum">     251 </span>                :            :   // ...make the data
+<span class="lineNum">     252 </span>                :<span class="lineCov">        119 :   ramEntryThis.data  = i_regData;</span>
+<span class="lineNum">     253 </span>                :            : 
+<span class="lineNum">     254 </span>                :            : 
+<span class="lineNum">     255 </span>                :            : 
+<span class="lineNum">     256 </span>                :            :   // -------------------------------------------------------------------------
+<span class="lineNum">     257 </span>                :            :   // Determine insertion point of new RAM entry, hostRamEntryThis.  The possibilities are:
+<span class="lineNum">     258 </span>                :            :         // - New table =&gt; First entry
+<span class="lineNum">     259 </span>                :            :         // - Existing Ram entry =&gt; Replace said entry
+<span class="lineNum">     260 </span>                :            :         // - Existing table, new Ram entry =&gt; Last entry
+<span class="lineNum">     261 </span>                :            :   //
+<span class="lineNum">     262 </span>                :<span class="lineCov">        119 :         bReplaceEntry = 0;</span>
+<span class="lineNum">     263 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 119 times"> + </span>]:<span class="lineCov">        119 :   if (bNewTable)  {</span>
+<span class="lineNum">     264 </span>                :            :     // Append to beginning of agreed upon static Ram table position for this coreId.
+<span class="lineNum">     265 </span>                :<span class="lineNoCov">          0 :     bEntryEnd = 1;</span>
+<span class="lineNum">     266 </span>                :<span class="lineNoCov">          0 :           ramEntryThis.header = ( ((uint32_t)bEntryEnd)  &lt;&lt; RAM_HEADER_END_START_C    &amp; RAM_HEADER_END_MASK_C )    |</span>
+<span class="lineNum">     267 </span>                :            :                                                                                                                 ramEntryThis.header;
+<span class="lineNum">     268 </span>                :<span class="lineNoCov">          0 :     hostRamEntryThis = hostRamTableThis;</span>
+<span class="lineNum">     269 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (i_modeBuild==P8_SLW_MODEBUILD_SRAM)  {</span>
+<span class="lineNum">     270 </span>                :            :       // Update RAM vector (since it is currently NULL)
+<span class="lineNum">     271 </span>                :<span class="lineNoCov">          0 :       *((uint64_t*)hostRamVector + i_coreId) = </span>
+<span class="lineNum">     272 </span>                :<span class="lineNoCov">          0 :                            myRev64( xipSlwRamSection + SLW_RAM_TABLE_SPACE_PER_CORE*i_coreId );</span>
+<span class="lineNum">     273 </span>                :            :     }
+<span class="lineNum">     274 </span>                :            :   }
+<span class="lineNum">     275 </span>                :            :   else  {
+<span class="lineNum">     276 </span>                :            :                 // Append at end of existing Ram table for this coreId
+<span class="lineNum">     277 </span>                :            :                 //   or
+<span class="lineNum">     278 </span>                :            :     // Replace an existing Ram entry
+<span class="lineNum">     279 </span>                :<span class="lineCov">        119 :     hostRamEntryNext = hostRamTableThis;</span>
+<span class="lineNum">     280 </span>                :<span class="lineCov">        119 :     ramEntryNext = (RamTableEntry*)hostRamEntryNext;</span>
+<span class="lineNum">     281 </span>                :<span class="lineCov">        238 :                 headerNext = myRev32(ramEntryNext-&gt;header);</span>
+<span class="lineNum">     282 </span>                :<span class="lineCov">        238 :                 instrNext = myRev32(ramEntryNext-&gt;instr);</span>
+<span class="lineNum">     283 </span>                :<span class="lineCov">        119 :     iCount = 1;</span>
+<span class="lineNum">     284 </span>                :            :                 // Examine all entries, except last entry.
+<span class="lineNum">     285 </span>[<span class="branchCov" title="Branch 0 was taken 1160 times"> + </span><span class="branchCov" title="Branch 1 was taken 57 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 1093 times"> + </span><span class="branchCov" title="Branch 3 was taken 67 times"> + </span>]:<span class="lineCov">       1217 :     while ((headerNext &amp; RAM_HEADER_END_MASK_C)==0 &amp;&amp; bReplaceEntry==0)  {</span>
+<span class="lineNum">     286 </span>           [<span class="branchCov" title="Branch 1 was taken 1098 times"> + </span>]:<span class="lineCov">       1093 :       if (iCount&gt;=SLW_MAX_CPUREGS_OPS)  {</span>
+<span class="lineNum">     287 </span>                :<span class="lineNoCov">          0 :         MY_ERR(&quot;Bad table! Header end bit not found and RAM table full (=%i entries).\n&quot;,SLW_MAX_CPUREGS_OPS);</span>
+<span class="lineNum">     288 </span>                :<span class="lineNoCov">          0 :         return IMGBUILD_ERR_RAM_TABLE_END_NOT_FOUND;</span>
+<span class="lineNum">     289 </span>                :            :       }
+<span class="lineNum">     290 </span>   [<span class="branchCov" title="Branch 0 was taken 68 times"> + </span><span class="branchCov" title="Branch 1 was taken 1030 times"> + </span>][<span class="branchCov" title="Branch 3 was taken 70 times"> + </span>]:<span class="lineCov">       1098 :                         if (ramEntryThis.header==headerNext &amp;&amp; ramEntryThis.instr==instrNext)  {</span>
+<span class="lineNum">     291 </span>                :            :                                 // Its a replacement. Stop searching. Go do the replacement.
+<span class="lineNum">     292 </span>                :            :                                 bReplaceEntry = 1;
+<span class="lineNum">     293 </span>                :            :                     hostRamEntryThis = hostRamEntryNext;
+<span class="lineNum">     294 </span>                :            :                         }
+<span class="lineNum">     295 </span>                :            :                         else  {
+<span class="lineNum">     296 </span>                :<span class="lineCov">       1028 :         hostRamEntryNext = (void*)((uint8_t*)hostRamEntryNext + XIPSIZE_RAM_ENTRY);</span>
+<span class="lineNum">     297 </span>                :<span class="lineCov">       1028 :         ramEntryNext = (RamTableEntry*)hostRamEntryNext;</span>
+<span class="lineNum">     298 </span>                :<span class="lineCov">       2056 :                                 headerNext = myRev32(ramEntryNext-&gt;header);</span>
+<span class="lineNum">     299 </span>                :<span class="lineCov">       2056 :                                 instrNext = myRev32(ramEntryNext-&gt;instr);</span>
+<span class="lineNum">     300 </span>                :<span class="lineCov">       1098 :         iCount++;</span>
+<span class="lineNum">     301 </span>                :            :                         }
+<span class="lineNum">     302 </span>                :            :     }
+<span class="lineNum">     303 </span>        [<span class="branchCov" title="Branch 0 was taken 52 times"> + </span><span class="branchCov" title="Branch 1 was taken 72 times"> + </span>]:<span class="lineCov">        124 :                 if (bReplaceEntry==0)  {</span>
+<span class="lineNum">     304 </span>                :            :                         // Examine the last entry.
+<span class="lineNum">     305 </span>        [<span class="branchCov" title="Branch 0 was taken 52 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         52 :                 if (headerNext &amp; RAM_HEADER_END_MASK_C)  {</span>
+<span class="lineNum">     306 </span>                :            :                         // Now we know for sure that our new Ram entry will also be the last, either as a 
+<span class="lineNum">     307 </span>                :            :                                 // replace or append. So put the end bit into the new entry.
+<span class="lineNum">     308 </span>                :<span class="lineCov">         52 :                                 bEntryEnd = 1;</span>
+<span class="lineNum">     309 </span>                :<span class="lineCov">         52 :                           ramEntryThis.header = ( ((uint32_t)bEntryEnd)  &lt;&lt; RAM_HEADER_END_START_C    &amp; RAM_HEADER_END_MASK_C )    |</span>
+<span class="lineNum">     310 </span>                :            :                                                                                                                                 ramEntryThis.header;
+<span class="lineNum">     311 </span>                :            :                                 // Determine if to replace or append.
+<span class="lineNum">     312 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 52 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         52 :                                 if (ramEntryThis.header==headerNext &amp;&amp; ramEntryThis.instr==instrNext)  {</span>
+<span class="lineNum">     313 </span>                :            :                                         // Its a replacement. And it would be legal to replace the very last Ram in a completely full table.
+<span class="lineNum">     314 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (iCount&lt;=SLW_MAX_CPUREGS_OPS)  {</span>
+<span class="lineNum">     315 </span>                :            :                                                 bReplaceEntry = 1;
+<span class="lineNum">     316 </span>                :            :                                     hostRamEntryThis = hostRamEntryNext;
+<span class="lineNum">     317 </span>                :            :                         }
+<span class="lineNum">     318 </span>                :            :                         else  {
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :                         MY_ERR(&quot;RAM table is full. Max %i entries allowed.\n&quot;,SLW_MAX_CPUREGS_OPS);</span>
+<span class="lineNum">     320 </span>                :<span class="lineNoCov">          0 :                         return IMGBUILD_ERR_RAM_TABLE_FULL;</span>
+<span class="lineNum">     321 </span>                :            :                         }
+<span class="lineNum">     322 </span>                :            :                                 }
+<span class="lineNum">     323 </span>                :            :                                 else  {
+<span class="lineNum">     324 </span>                :            :                                         // Its an append. Make sure there's room for one more Ram entry.
+<span class="lineNum">     325 </span>        [<span class="branchCov" title="Branch 0 was taken 52 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         52 :                         if (iCount&lt;SLW_MAX_CPUREGS_OPS)  {</span>
+<span class="lineNum">     326 </span>                :            :                                                 // Zero out the end bit in last entrys header (which will now be 2nd last).
+<span class="lineNum">     327 </span>                :<span class="lineCov">        104 :                           ramEntryNext-&gt;header = ramEntryNext-&gt;header &amp; myRev32(~RAM_HEADER_END_MASK_C);</span>
+<span class="lineNum">     328 </span>                :<span class="lineCov">         52 :                                     hostRamEntryThis = (void*)((uint8_t*)hostRamEntryNext + XIPSIZE_RAM_ENTRY);</span>
+<span class="lineNum">     329 </span>                :            :                         }
+<span class="lineNum">     330 </span>                :            :                         else  {
+<span class="lineNum">     331 </span>                :<span class="lineNoCov">          0 :                         MY_ERR(&quot;RAM table is full. Max %i entries allowed.\n&quot;,SLW_MAX_CPUREGS_OPS);</span>
+<span class="lineNum">     332 </span>                :<span class="lineNoCov">          0 :                         return IMGBUILD_ERR_RAM_TABLE_FULL;</span>
+<span class="lineNum">     333 </span>                :            :                         }
+<span class="lineNum">     334 </span>                :            :                 }
+<span class="lineNum">     335 </span>                :            :                         }
+<span class="lineNum">     336 </span>                :            :                 else  {
+<span class="lineNum">     337 </span>                :<span class="lineNoCov">          0 :                   MY_ERR(&quot;We should never get here. Check code. Dumping data:\n&quot;);</span>
+<span class="lineNum">     338 </span>                :<span class="lineNoCov">          0 :                   MY_ERR(&quot;myRev32(ramEntryNext-&gt;header) = 0x%08x\n&quot;,myRev32(ramEntryNext-&gt;header));</span>
+<span class="lineNum">     339 </span>                :<span class="lineNoCov">          0 :                   MY_ERR(&quot;RAM_HEADER_END_MASK_C         = 0x%08x\n&quot;,RAM_HEADER_END_MASK_C);</span>
+<span class="lineNum">     340 </span>                :<span class="lineNoCov">          0 :                   return IMGBUILD_ERR_RAM_CODE;</span>
+<span class="lineNum">     341 </span>                :            :                 }
+<span class="lineNum">     342 </span>                :            :                 }
+<span class="lineNum">     343 </span>                :            :   }
+<span class="lineNum">     344 </span>                :            : 
+<span class="lineNum">     345 </span>                :            : 
+<span class="lineNum">     346 </span>                :            :   // Summarize new table entry data
+<span class="lineNum">     347 </span>                :            :   MY_INF(&quot;New table entry data (host format):\n&quot;);
+<span class="lineNum">     348 </span>                :            :   MY_INF(&quot;\theader = 0x%08x\n&quot;,ramEntryThis.header);
+<span class="lineNum">     349 </span>                :            :   MY_INF(&quot;\tinstr  = 0x%08x\n&quot;,ramEntryThis.instr);
+<span class="lineNum">     350 </span>                :            :   MY_INF(&quot;\tdata   = 0x%016llx\n&quot;,ramEntryThis.data);
+<span class="lineNum">     351 </span>                :            : 
+<span class="lineNum">     352 </span>                :            :   // -------------------------------------------------------------------------
+<span class="lineNum">     353 </span>                :            :   // Insert the new RAM entry into the table in BE format.
+<span class="lineNum">     354 </span>                :            :   //
+<span class="lineNum">     355 </span>                :<span class="lineCov">        124 :   ramEntryNext = (RamTableEntry*)hostRamEntryThis;</span>
+<span class="lineNum">     356 </span>                :            :   // ...some redundant checking
+<span class="lineNum">     357 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 124 times"> + </span>]:<span class="lineCov">        124 :   if (bNewTable)  {</span>
+<span class="lineNum">     358 </span>                :            :     // For any new table, the insertion location should be clean. We check for this here.
+<span class="lineNum">     359 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (myRev32(ramEntryNext-&gt;header)!=0)  {</span>
+<span class="lineNum">     360 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;WARNING : Table entry location should be empty for a new table. Check code and image. Dumping data:\n&quot;);</span>
+<span class="lineNum">     361 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;\theader = 0x%08x\n&quot;,myRev32(ramEntryNext-&gt;header));</span>
+<span class="lineNum">     362 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;\tinstr  = 0x%08x\n&quot;,myRev32(ramEntryNext-&gt;instr));</span>
+<span class="lineNum">     363 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;\tdata   = 0x%016llx\n&quot;,myRev64(ramEntryNext-&gt;data));</span>
+<span class="lineNum">     364 </span>                :<span class="lineNoCov">          0 :       rc = IMGBUILD_WARN_RAM_TABLE_CONTAMINATION;</span>
+<span class="lineNum">     365 </span>                :            :     }
+<span class="lineNum">     366 </span>                :            :   }
+<span class="lineNum">     367 </span>                :            :         // ..insert the new Ram entry.
+<span class="lineNum">     368 </span>                :<span class="lineCov">        240 :   ramEntryNext-&gt;header = myRev32(ramEntryThis.header);</span>
+<span class="lineNum">     369 </span>                :<span class="lineCov">        240 :   ramEntryNext-&gt;instr  = myRev32(ramEntryThis.instr);</span>
+<span class="lineNum">     370 </span>                :<span class="lineCov">        240 :   ramEntryNext-&gt;data   = myRev64(ramEntryThis.data);</span>
+<span class="lineNum">     371 </span>                :            : 
+<span class="lineNum">     372 </span>                :<span class="lineCov">        120 :   return rc;</span>
+<span class="lineNum">     373 </span>                :            : }
+<span class="lineNum">     374 </span>                :            : 
+<span class="lineNum">     375 </span>                :            : 
+<span class="lineNum">     376 </span>                :            : /*
+<span class="lineNum">     377 </span>                :            : // io_image -    Pointer to SLW image.
+<span class="lineNum">     378 </span>                :            : // i_modeBuild - 0: HB/IPL mode, 1: PHYP/Rebuild mode, 2: SRAM mode. 
+<span class="lineNum">     379 </span>                :            : // i_scomAddr -  Scom address.
+<span class="lineNum">     380 </span>                :            : // i_coreId -    The core ID [0:15].
+<span class="lineNum">     381 </span>                :            : // i_scomData -  Data to write to scom register.
+<span class="lineNum">     382 </span>                :            : // i_operation - What to do with the scom addr and data.
+<a name="383"><span class="lineNum">     383 </span>                :            : // i_section -   0: General Scoms, 1: L2 cache, 2: L3 cache.</a>
+<span class="lineNum">     384 </span>                :            : */
+<span class="lineNum">     385 </span>                :<span class="lineNoCov">          0 : uint32_t p8_pore_gen_scom_fixed(void       *io_image,</span>
+<span class="lineNum">     386 </span>                :            :                                 uint8_t    i_modeBuild,
+<span class="lineNum">     387 </span>                :            :                                 uint32_t   i_scomAddr,
+<span class="lineNum">     388 </span>                :            :                                 uint32_t   i_coreId,     // [0:15] 
+<span class="lineNum">     389 </span>                :            :                                 uint64_t   i_scomData,
+<span class="lineNum">     390 </span>                :            :                                 uint32_t   i_operation,  // [0:7]
+<span class="lineNum">     391 </span>                :            :                                 uint32_t   i_section)    // [0,1,2]
+<span class="lineNum">     392 </span>                :            : {
+<span class="lineNum">     393 </span>                :<span class="lineNoCov">          0 :   uint32_t  rc=0, rcLoc=0, iEntry=0;</span>
+<span class="lineNum">     394 </span>                :<span class="lineNoCov">          0 :   uint32_t  chipletId=0;</span>
+<span class="lineNum">     395 </span>                :<span class="lineNoCov">          0 :   uint32_t  operation=0;</span>
+<span class="lineNum">     396 </span>                :<span class="lineNoCov">          0 :   uint32_t  entriesCount=0, entriesMatch=0, entriesNOP=0;</span>
+<span class="lineNum">     397 </span>                :            :   void      *hostSlwSection;
+<span class="lineNum">     398 </span>                :            :   void      *hostSlwSectionFixed;
+<span class="lineNum">     399 </span>                :            :   uint64_t  xipScomTableThis;
+<span class="lineNum">     400 </span>                :            :   void      *hostScomVector, *hostScomTableThis;
+<span class="lineNum">     401 </span>                :            :   void      *hostScomEntryNext;       // running entry pointer
+<span class="lineNum">     402 </span>                :<span class="lineNoCov">          0 :   void      *hostScomEntryMatch=NULL; // pointer to entry that matches scomAddr</span>
+<span class="lineNum">     403 </span>                :<span class="lineNoCov">          0 :   void      *hostScomEntryRET=NULL;   // pointer to first return instr after table</span>
+<span class="lineNum">     404 </span>                :<span class="lineNoCov">          0 :   void      *hostScomEntryNOP=NULL;   // pointer to first nop IIS</span>
+<span class="lineNum">     405 </span>                :            :   uint8_t   bufIIS[XIPSIZE_SCOM_ENTRY], bufNOP[4], bufRET[4];
+<span class="lineNum">     406 </span>                :            :   SbeXipSection xipSection;
+<span class="lineNum">     407 </span>                :            :   SbeXipItem    xipTocItem;
+<span class="lineNum">     408 </span>                :            :   PoreInlineContext ctx;
+<span class="lineNum">     409 </span>                :            :   
+<span class="lineNum">     410 </span>                :            :   // -------------------------------------------------------------------------
+<span class="lineNum">     411 </span>                :            :   // Validate Scom parameters.
+<span class="lineNum">     412 </span>                :            :   //
+<span class="lineNum">     413 </span>                :            :   // ...check if valid Scom register (is there anything we can do here to check?)
+<span class="lineNum">     414 </span>                :            :   // Skipping check. We blindly trust caller.
+<span class="lineNum">     415 </span>                :            :   //
+<span class="lineNum">     416 </span>                :            :   // ...check mode build
+<span class="lineNum">     417 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (i_modeBuild&gt;P8_SLW_MODEBUILD_MAX_VALUE)  {</span>
+<span class="lineNum">     418 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;modeBuild=%i invalid. Valid range is [0;%i].&quot;,</span>
+<span class="lineNum">     419 </span>                :            :       i_modeBuild,P8_SLW_MODEBUILD_MAX_VALUE);
+<span class="lineNum">     420 </span>                :<span class="lineNoCov">          0 :     rcLoc = 1;</span>
+<span class="lineNum">     421 </span>                :            :   }
+<span class="lineNum">     422 </span>                :            :   // ...check Scom operation
+<span class="lineNum">     423 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (i_operation&gt;P8_PORE_SCOM_LAST_OP)  {</span>
+<span class="lineNum">     424 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Scom operation = %i is not within valid range of [%d;%d]\n&quot;,</span>
+<span class="lineNum">     425 </span>                :            :       i_operation, P8_PORE_SCOM_FIRST_OP, P8_PORE_SCOM_LAST_OP);
+<span class="lineNum">     426 </span>                :<span class="lineNoCov">          0 :     rcLoc = 1;</span>
+<span class="lineNum">     427 </span>                :            :   }
+<span class="lineNum">     428 </span>                :            :   // ...check that core ID corresponds to valid chiplet ID
+<span class="lineNum">     429 </span>                :<span class="lineNoCov">          0 :   chipletId = i_coreId + P8_CID_EX_LOW;</span>
+<span class="lineNum">     430 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (chipletId&lt;P8_CID_EX_LOW || chipletId&gt;P8_CID_EX_HIGH)  {</span>
+<span class="lineNum">     431 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Chiplet ID = 0x%02x is not within valid range of [0x%02x;0x%02x]\n&quot;,</span>
+<span class="lineNum">     432 </span>                :            :       chipletId, P8_CID_EX_LOW, P8_CID_EX_HIGH);
+<span class="lineNum">     433 </span>                :<span class="lineNoCov">          0 :     rcLoc = 1;</span>
+<span class="lineNum">     434 </span>                :            :   }
+<span class="lineNum">     435 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (rcLoc)</span>
+<span class="lineNum">     436 </span>                :            :     return IMGBUILD_ERR_SCOM_INVALID_PARM;
+<span class="lineNum">     437 </span>                :<span class="lineNoCov">          0 :   rcLoc = 0;</span>
+<span class="lineNum">     438 </span>                :            :  
+<span class="lineNum">     439 </span>                :            :   // -------------------------------------------------------------------------
+<span class="lineNum">     440 </span>                :            :   // Check slw section location and size. (Mainly needed for fixed image.)
+<span class="lineNum">     441 </span>                :            :   //
+<span class="lineNum">     442 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (i_modeBuild==P8_SLW_MODEBUILD_IPL ||</span>
+<span class="lineNum">     443 </span>                :            :       i_modeBuild==P8_SLW_MODEBUILD_REBUILD)  {  // Fixed image.
+<span class="lineNum">     444 </span>                :<span class="lineNoCov">          0 :     hostSlwSectionFixed = (void*)( (uintptr_t)io_image + </span>
+<span class="lineNum">     445 </span>                :            :                                    FIXED_SLW_IMAGE_SIZE -
+<span class="lineNum">     446 </span>                :<span class="lineNoCov">          0 :                                    FIXED_FFDC_SECTION_SIZE -</span>
+<span class="lineNum">     447 </span>                :            :                                    FIXED_SLW_SECTION_SIZE );
+<span class="lineNum">     448 </span>                :            :     // Even though we shouldn't call this api during a rebuild, it should be 
+<span class="lineNum">     449 </span>                :            :     // safe to do so in this particular case since none of the info requested
+<span class="lineNum">     450 </span>                :            :     // is supposed to be moved during a rebuild.
+<span class="lineNum">     451 </span>                :<span class="lineNoCov">          0 :     rc = sbe_xip_get_section( io_image, SBE_XIP_SECTION_SLW, &amp;xipSection);</span>
+<span class="lineNum">     452 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (rc)  {</span>
+<span class="lineNum">     453 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;Probably invalid section name for SBE_XIP_SECTION_SLW.\n&quot;);</span>
+<span class="lineNum">     454 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_GET_SECTION;</span>
+<span class="lineNum">     455 </span>                :            :     }
+<span class="lineNum">     456 </span>                :<span class="lineNoCov">          0 :     hostSlwSection = (void*)((uintptr_t)io_image + xipSection.iv_offset);</span>
+<span class="lineNum">     457 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (hostSlwSectionFixed!=hostSlwSection)  {</span>
+<span class="lineNum">     458 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;hostSlwSectionFixed != hostSlwSection(from image api).\n&quot;);</span>
+<span class="lineNum">     459 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_SCOM_HDRS_NOT_SYNCD;</span>
+<span class="lineNum">     460 </span>                :            :     }
+<span class="lineNum">     461 </span>                :            :     else  {
+<span class="lineNum">     462 </span>                :            :       MY_INF(&quot;hostSlwSectionFixed == hostSlwSection(from image api).\n&quot;);
+<span class="lineNum">     463 </span>                :            :     }
+<span class="lineNum">     464 </span>                :            :   }
+<span class="lineNum">     465 </span>                :            :   else  {                 // SRAM non-fixed image.
+<span class="lineNum">     466 </span>                :<span class="lineNoCov">          0 :     rc = sbe_xip_get_section( io_image, SBE_XIP_SECTION_SLW, &amp;xipSection);</span>
+<span class="lineNum">     467 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (rc)  {</span>
+<span class="lineNum">     468 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;Probably invalid section name for SBE_XIP_SECTION_SLW.\n&quot;);</span>
+<span class="lineNum">     469 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_GET_SECTION;</span>
+<span class="lineNum">     470 </span>                :            :     }
+<span class="lineNum">     471 </span>                :<span class="lineNoCov">          0 :     hostSlwSection = (void*)((uintptr_t)io_image + xipSection.iv_offset);</span>
+<span class="lineNum">     472 </span>                :            :   }
+<span class="lineNum">     473 </span>                :            : 
+<span class="lineNum">     474 </span>                :            :   // -------------------------------------------------------------------------
+<span class="lineNum">     475 </span>                :            :   // Check .slw section size and cross-check w/header define.
+<span class="lineNum">     476 </span>                :            :   //
+<span class="lineNum">     477 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (xipSection.iv_size!=FIXED_SLW_SECTION_SIZE)  {</span>
+<span class="lineNum">     478 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;SLW table size in *.H header file (=%ld) differs from SLW section size in image (=%i).\n&quot;,FIXED_SLW_SECTION_SIZE,xipSection.iv_size);</span>
+<span class="lineNum">     479 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Check code or image version.\n&quot;);</span>
+<span class="lineNum">     480 </span>                :<span class="lineNoCov">          0 :     return IMGBUILD_ERR_SCOM_HDRS_NOT_SYNCD;</span>
+<span class="lineNum">     481 </span>                :            :   }
+<span class="lineNum">     482 </span>                :            : 
+<span class="lineNum">     483 </span>                :            :   // -------------------------------------------------------------------------
+<span class="lineNum">     484 </span>                :            :   // Summarize parameters and checking results.
+<span class="lineNum">     485 </span>                :            :   //
+<span class="lineNum">     486 </span>                :            :   MY_INF(&quot;Input parameter checks - OK\n&quot;);
+<span class="lineNum">     487 </span>                :            :   MY_INF(&quot;\tRegister  = 0x%08x\n&quot;,i_scomAddr);
+<span class="lineNum">     488 </span>                :            :   MY_INF(&quot;\tOperation = %i\n&quot;,i_operation);
+<span class="lineNum">     489 </span>                :            :   MY_INF(&quot;\tSection   = %i\n&quot;,i_section);
+<span class="lineNum">     490 </span>                :            :   MY_INF(&quot;\tCore ID   = %i\n&quot;,i_coreId);
+<span class="lineNum">     491 </span>                :            :   MY_INF(&quot;Image validation and size checks - OK\n&quot;);
+<span class="lineNum">     492 </span>                :            :   MY_INF(&quot;\tSLW section size=  %i\n&quot;,xipSection.iv_size);
+<span class="lineNum">     493 </span>                :            :   
+<span class="lineNum">     494 </span>                :            :   // -------------------------------------------------------------------------
+<span class="lineNum">     495 </span>                :            :   // Locate Scom vector according to i_section and then locate Scom table 
+<span class="lineNum">     496 </span>                :            :   //   associated with &quot;This&quot; core ID.
+<span class="lineNum">     497 </span>                :            :   //
+<span class="lineNum">     498 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (i_modeBuild==P8_SLW_MODEBUILD_IPL ||</span>
+<span class="lineNum">     499 </span>                :            :       i_modeBuild==P8_SLW_MODEBUILD_REBUILD)  {  // Fixed image.
+<span class="lineNum">     500 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     switch (i_section)  {</span>
+<span class="lineNum">     501 </span>                :            :     case P8_SCOM_SECTION_NC:
+<span class="lineNum">     502 </span>                :<span class="lineNoCov">          0 :       hostScomTableThis = (void*)( (uintptr_t)hostSlwSection +</span>
+<span class="lineNum">     503 </span>                :<span class="lineNoCov">          0 :                                    SLW_RAM_TABLE_SIZE +</span>
+<span class="lineNum">     504 </span>                :<span class="lineNoCov">          0 :                                    SLW_SCOM_TABLE_SPACE_PER_CORE_NC*i_coreId );</span>
+<span class="lineNum">     505 </span>                :<span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     506 </span>                :            :     case P8_SCOM_SECTION_L2:
+<span class="lineNum">     507 </span>                :<span class="lineNoCov">          0 :       hostScomTableThis = (void*)( (uintptr_t)hostSlwSection +</span>
+<span class="lineNum">     508 </span>                :            :                                    SLW_RAM_TABLE_SIZE +
+<span class="lineNum">     509 </span>                :<span class="lineNoCov">          0 :                                    SLW_SCOM_TABLE_SIZE_NC +</span>
+<span class="lineNum">     510 </span>                :<span class="lineNoCov">          0 :                                    SLW_SCOM_TABLE_SPACE_PER_CORE_L2*i_coreId );</span>
+<span class="lineNum">     511 </span>                :<span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     512 </span>                :            :     case P8_SCOM_SECTION_L3:
+<span class="lineNum">     513 </span>                :<span class="lineNoCov">          0 :       hostScomTableThis = (void*)( (uintptr_t)hostSlwSection +</span>
+<span class="lineNum">     514 </span>                :            :                                    SLW_RAM_TABLE_SIZE +
+<span class="lineNum">     515 </span>                :            :                                    SLW_SCOM_TABLE_SIZE_NC +
+<span class="lineNum">     516 </span>                :<span class="lineNoCov">          0 :                                    SLW_SCOM_TABLE_SIZE_L2 +</span>
+<span class="lineNum">     517 </span>                :<span class="lineNoCov">          0 :                                    SLW_SCOM_TABLE_SPACE_PER_CORE_L3*i_coreId );</span>
+<span class="lineNum">     518 </span>                :<span class="lineNoCov">          0 :       break;</span>
+<span class="lineNum">     519 </span>                :            :     default:
+<span class="lineNum">     520 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;Invalid value for i_section (=%i).\n&quot;,i_section);</span>
+<span class="lineNum">     521 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;Valid values for i_section = [%i,%i,%i].\n&quot;,</span>
+<span class="lineNum">     522 </span>                :            :         P8_SCOM_SECTION_NC,P8_SCOM_SECTION_L2,P8_SCOM_SECTION_L3);
+<span class="lineNum">     523 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_SCOM_INVALID_SUBSECTION;</span>
+<span class="lineNum">     524 </span>                :            :       break;
+<span class="lineNum">     525 </span>                :            :     }
+<span class="lineNum">     526 </span>                :            :   }
+<span class="lineNum">     527 </span>                :            :   else  {                 // SRAM non-fixed image.
+<span class="lineNum">     528 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     switch (i_section)  {</span>
+<span class="lineNum">     529 </span>                :            :     case P8_SCOM_SECTION_NC:
+<span class="lineNum">     530 </span>                :<span class="lineNoCov">          0 :       rc = sbe_xip_find( io_image, SLW_HOST_SCOM_NC_VECTOR_TOC_NAME, &amp;xipTocItem);</span>
+<span class="lineNum">     531 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (rc)  {</span>
+<span class="lineNum">     532 </span>                :<span class="lineNoCov">          0 :         MY_ERR(&quot;Probably invalid key word for SLW_HOST_SCOM_NC_VECTOR_TOC_NAME.\n&quot;);</span>
+<span class="lineNum">     533 </span>                :<span class="lineNoCov">          0 :         return IMGBUILD_ERR_KEYWORD_NOT_FOUND;</span>
+<span class="lineNum">     534 </span>                :            :       }
+<span class="lineNum">     535 </span>                :            :       break;
+<span class="lineNum">     536 </span>                :            :     case P8_SCOM_SECTION_L2:
+<span class="lineNum">     537 </span>                :<span class="lineNoCov">          0 :       rc = sbe_xip_find( io_image, SLW_HOST_SCOM_L2_VECTOR_TOC_NAME, &amp;xipTocItem);</span>
+<span class="lineNum">     538 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (rc)  {</span>
+<span class="lineNum">     539 </span>                :<span class="lineNoCov">          0 :         MY_ERR(&quot;Probably invalid key word for SLW_HOST_SCOM_L2_VECTOR_TOC_NAME.\n&quot;);</span>
+<span class="lineNum">     540 </span>                :<span class="lineNoCov">          0 :         return IMGBUILD_ERR_KEYWORD_NOT_FOUND;</span>
+<span class="lineNum">     541 </span>                :            :       }
+<span class="lineNum">     542 </span>                :            :       break;
+<span class="lineNum">     543 </span>                :            :     case P8_SCOM_SECTION_L3:
+<span class="lineNum">     544 </span>                :<span class="lineNoCov">          0 :       rc = sbe_xip_find( io_image, SLW_HOST_SCOM_L3_VECTOR_TOC_NAME, &amp;xipTocItem);</span>
+<span class="lineNum">     545 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (rc)  {</span>
+<span class="lineNum">     546 </span>                :<span class="lineNoCov">          0 :         MY_ERR(&quot;Probably invalid key word for SLW_HOST_SCOM_L3_VECTOR_TOC_NAME.\n&quot;);</span>
+<span class="lineNum">     547 </span>                :<span class="lineNoCov">          0 :         return IMGBUILD_ERR_KEYWORD_NOT_FOUND;</span>
+<span class="lineNum">     548 </span>                :            :       }
+<span class="lineNum">     549 </span>                :            :       break;
+<span class="lineNum">     550 </span>                :            :     default:
+<span class="lineNum">     551 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;Invalid value for i_section (=%i).\n&quot;,i_section);</span>
+<span class="lineNum">     552 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;Valid values for i_section = [%i,%i,%i].\n&quot;,</span>
+<span class="lineNum">     553 </span>                :            :         P8_SCOM_SECTION_NC,P8_SCOM_SECTION_L2,P8_SCOM_SECTION_L3);
+<span class="lineNum">     554 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_SCOM_INVALID_SUBSECTION;</span>
+<span class="lineNum">     555 </span>                :            :     }
+<span class="lineNum">     556 </span>                :            :     MY_INF(&quot;xipTocItem.iv_address = 0x%016llx\n&quot;,xipTocItem.iv_address);
+<span class="lineNum">     557 </span>                :<span class="lineNoCov">          0 :     sbe_xip_pore2host( io_image, xipTocItem.iv_address, &amp;hostScomVector);</span>
+<span class="lineNum">     558 </span>                :            :     MY_INF(&quot;hostScomVector = 0x%016llx\n&quot;,(uint64_t)hostScomVector);
+<span class="lineNum">     559 </span>                :<span class="lineNoCov">          0 :     xipScomTableThis = myRev64(*((uint64_t*)hostScomVector + i_coreId));</span>
+<span class="lineNum">     560 </span>                :            :     MY_INF(&quot;xipScomTableThis = 0x%016llx\n&quot;,xipScomTableThis);
+<span class="lineNum">     561 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (xipScomTableThis)  {</span>
+<span class="lineNum">     562 </span>                :<span class="lineNoCov">          0 :       sbe_xip_pore2host( io_image, xipScomTableThis, &amp;hostScomTableThis);</span>
+<span class="lineNum">     563 </span>                :            :     }
+<span class="lineNum">     564 </span>                :            :     else  {  // Should never be here.
+<span class="lineNum">     565 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;Code or image bug. Scom vector table entries should never be null.\n&quot;);</span>
+<span class="lineNum">     566 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_CHECK_CODE;</span>
+<span class="lineNum">     567 </span>                :            :     }
+<span class="lineNum">     568 </span>                :            :   }
+<span class="lineNum">     569 </span>                :            : 
+<span class="lineNum">     570 </span>                :            :   //
+<span class="lineNum">     571 </span>                :            :   // Determine where to place/do Scom action and if entry already exists.
+<span class="lineNum">     572 </span>                :            :   // Insertion rules:
+<span class="lineNum">     573 </span>                :            :   // - If entry doesn't exist, insert at first NOP. (Note that if you don't do
+<span class="lineNum">     574 </span>                :            :   //   this, then the table might potentially overflow since the max table size
+<span class="lineNum">     575 </span>                :            :   //   doesn't include NOP entries.)
+<span class="lineNum">     576 </span>                :            :   // - If no NOP found, insert at first RET.
+<span class="lineNum">     577 </span>                :            :   //
+<span class="lineNum">     578 </span>                :            :   
+<span class="lineNum">     579 </span>                :            :   //----------------------------------------------------------------------------
+<span class="lineNum">     580 </span>                :            :   // 1. Create search strings for addr, nop and ret.
+<span class="lineNum">     581 </span>                :            :   //----------------------------------------------------------------------------
+<span class="lineNum">     582 </span>                :            :   // Note, the following IIS will also be used in case of
+<span class="lineNum">     583 </span>                :            :   // - i_operation==append
+<span class="lineNum">     584 </span>                :            :   // - i_operation==replace
+<span class="lineNum">     585 </span>                :<span class="lineNoCov">          0 :   pore_inline_context_create( &amp;ctx, (void*)bufIIS, XIPSIZE_SCOM_ENTRY, 0, 0);</span>
+<span class="lineNum">     586 </span>                :<span class="lineNoCov">          0 :   pore_LS( &amp;ctx, P1, chipletId);</span>
+<span class="lineNum">     587 </span>                :<span class="lineNoCov">          0 :   pore_STI( &amp;ctx, i_scomAddr, P1, i_scomData);</span>
+<span class="lineNum">     588 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (ctx.error  &gt; 0)  {</span>
+<span class="lineNum">     589 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;pore_LS or _STI generated rc = %d&quot;, ctx.error);</span>
+<span class="lineNum">     590 </span>                :<span class="lineNoCov">          0 :     return IMGBUILD_ERR_PORE_INLINE_ASM;</span>
+<span class="lineNum">     591 </span>                :            :   }
+<span class="lineNum">     592 </span>                :<span class="lineNoCov">          0 :   pore_inline_context_create( &amp;ctx, (void*)bufRET, 4, 0, 0);</span>
+<span class="lineNum">     593 </span>                :<span class="lineNoCov">          0 :   pore_RET( &amp;ctx);</span>
+<span class="lineNum">     594 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (ctx.error &gt; 0)  {</span>
+<span class="lineNum">     595 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;pore_RET generated rc = %d&quot;, ctx.error);</span>
+<span class="lineNum">     596 </span>                :<span class="lineNoCov">          0 :     return IMGBUILD_ERR_PORE_INLINE_ASM;</span>
+<span class="lineNum">     597 </span>                :            :   }
+<span class="lineNum">     598 </span>                :<span class="lineNoCov">          0 :   pore_inline_context_create( &amp;ctx, (void*)bufNOP, 4, 0, 0);</span>
+<span class="lineNum">     599 </span>                :<span class="lineNoCov">          0 :   pore_NOP( &amp;ctx);</span>
+<span class="lineNum">     600 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (ctx.error &gt; 0)  {</span>
+<span class="lineNum">     601 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;pore_NOP generated rc = %d&quot;, ctx.error);</span>
+<span class="lineNum">     602 </span>                :<span class="lineNoCov">          0 :     return IMGBUILD_ERR_PORE_INLINE_ASM;</span>
+<span class="lineNum">     603 </span>                :            :   }
+<span class="lineNum">     604 </span>                :            :   
+<span class="lineNum">     605 </span>                :            :   //----------------------------------------------------------------------------
+<span class="lineNum">     606 </span>                :            :   // 2. Search for addr and nop in relevant coreId table until first RET.
+<span class="lineNum">     607 </span>                :            :   //----------------------------------------------------------------------------
+<span class="lineNum">     608 </span>                :            :   // Note:
+<span class="lineNum">     609 </span>                :            :   // - We go through ALL entries until first RET instr. We MUST find a RET instr,
+<span class="lineNum">     610 </span>                :            :   //   though we don't check for overrun until later. (Could be improved.)
+<span class="lineNum">     611 </span>                :            :   // - Count number of entries, incl the NOOPs, until we find an RET.
+<span class="lineNum">     612 </span>                :            :   // - The STI(+SCOM_addr) opcode is in the 2nd word of the Scom entry.
+<span class="lineNum">     613 </span>                :            :   // - For an append operation, if a NOP is found (before a RET obviously), the 
+<span class="lineNum">     614 </span>                :            :   //   SCOM is replacing that NNNN sequence.
+<span class="lineNum">     615 </span>                :<span class="lineNoCov">          0 :   hostScomEntryNext = hostScomTableThis;</span>
+<span class="lineNum">     616 </span>                :            :   MY_INF(&quot;hostScomEntryNext (addr): 0x%016llx\n &quot;,(uint64_t)hostScomEntryNext);
+<span class="lineNum">     617 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :   while (memcmp(hostScomEntryNext, bufRET, sizeof(uint32_t)))  {</span>
+<span class="lineNum">     618 </span>                :<span class="lineNoCov">          0 :     entriesCount++;</span>
+<span class="lineNum">     619 </span>                :            :     MY_INF(&quot;Number of SCOM entries: %i\n &quot;,entriesCount);
+<span class="lineNum">     620 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (*((uint32_t*)bufIIS+1)==*((uint32_t*)hostScomEntryNext+1) &amp;&amp; entriesMatch==0)  {// +1 skips 1st word in Scom entry (which loads the PC in an LS operation.)</span>
+<span class="lineNum">     621 </span>                :<span class="lineNoCov">          0 :       hostScomEntryMatch = hostScomEntryNext;</span>
+<span class="lineNum">     622 </span>                :<span class="lineNoCov">          0 :       entriesMatch++;</span>
+<span class="lineNum">     623 </span>                :            :     }
+<span class="lineNum">     624 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (memcmp(hostScomEntryNext, bufNOP, sizeof(uint32_t))==0 &amp;&amp; entriesNOP==0)  {</span>
+<span class="lineNum">     625 </span>                :<span class="lineNoCov">          0 :       hostScomEntryNOP = hostScomEntryNext;</span>
+<span class="lineNum">     626 </span>                :<span class="lineNoCov">          0 :       entriesNOP++;</span>
+<span class="lineNum">     627 </span>                :            :     }
+<span class="lineNum">     628 </span>                :<span class="lineNoCov">          0 :     hostScomEntryNext = (void*)((uintptr_t)hostScomEntryNext + XIPSIZE_SCOM_ENTRY);</span>
+<span class="lineNum">     629 </span>                :            :   }
+<span class="lineNum">     630 </span>                :<span class="lineNoCov">          0 :   hostScomEntryRET = hostScomEntryNext; // The last EntryNext is always the first RET.</span>
+<span class="lineNum">     631 </span>                :            :   
+<span class="lineNum">     632 </span>                :            :   //----------------------------------------------------------------------------
+<span class="lineNum">     633 </span>                :            :   // 3. Qualify (translate) operation and IIS.
+<span class="lineNum">     634 </span>                :            :   //----------------------------------------------------------------------------
+<span class="lineNum">     635 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (i_operation==P8_PORE_SCOM_APPEND)  </span>
+<span class="lineNum">     636 </span>                :            :   {
+<span class="lineNum">     637 </span>                :            :     operation = i_operation;
+<span class="lineNum">     638 </span>                :            :   }
+<span class="lineNum">     639 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   else if (i_operation==P8_PORE_SCOM_REPLACE)  </span>
+<span class="lineNum">     640 </span>                :            :   {
+<span class="lineNum">     641 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (hostScomEntryMatch)</span>
+<span class="lineNum">     642 </span>                :            :       // ... do a replace
+<span class="lineNum">     643 </span>                :<span class="lineNoCov">          0 :       operation = i_operation;</span>
+<span class="lineNum">     644 </span>                :            :     else
+<span class="lineNum">     645 </span>                :            :       // ... do an append
+<span class="lineNum">     646 </span>                :            :       operation = P8_PORE_SCOM_APPEND;
+<span class="lineNum">     647 </span>                :            :   }
+<span class="lineNum">     648 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   else if (i_operation==P8_PORE_SCOM_NOOP)  </span>
+<span class="lineNum">     649 </span>                :            :   {
+<span class="lineNum">     650 </span>                :            :     // ...overwrite earlier bufIIS from the search step
+<span class="lineNum">     651 </span>                :<span class="lineNoCov">          0 :     pore_inline_context_create( &amp;ctx, (void*)bufIIS, XIPSIZE_SCOM_ENTRY, 0, 0);</span>
+<span class="lineNum">     652 </span>                :<span class="lineNoCov">          0 :     pore_NOP( &amp;ctx);</span>
+<span class="lineNum">     653 </span>                :<span class="lineNoCov">          0 :     pore_NOP( &amp;ctx);</span>
+<span class="lineNum">     654 </span>                :<span class="lineNoCov">          0 :     pore_NOP( &amp;ctx);</span>
+<span class="lineNum">     655 </span>                :<span class="lineNoCov">          0 :     pore_NOP( &amp;ctx);</span>
+<span class="lineNum">     656 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (ctx.error &gt; 0)  {</span>
+<span class="lineNum">     657 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;*** _NOP generated rc = %d&quot;, ctx.error);</span>
+<span class="lineNum">     658 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_PORE_INLINE_ASM;</span>
+<span class="lineNum">     659 </span>                :            :     }
+<span class="lineNum">     660 </span>                :            :     operation = i_operation;
+<span class="lineNum">     661 </span>                :            :   }
+<span class="lineNum">     662 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   else if ( i_operation==P8_PORE_SCOM_AND        ||</span>
+<span class="lineNum">     663 </span>                :            :             i_operation==P8_PORE_SCOM_OR )  
+<span class="lineNum">     664 </span>                :            :   {
+<span class="lineNum">     665 </span>                :            :     operation = i_operation;
+<span class="lineNum">     666 </span>                :            :   }            
+<span class="lineNum">     667 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   else if ( i_operation==P8_PORE_SCOM_AND_APPEND )  </span>
+<span class="lineNum">     668 </span>                :            :   {
+<span class="lineNum">     669 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (hostScomEntryMatch)</span>
+<span class="lineNum">     670 </span>                :            :       // ... do the AND on existing Scom
+<span class="lineNum">     671 </span>                :            :       operation = P8_PORE_SCOM_AND;
+<span class="lineNum">     672 </span>                :            :     else
+<span class="lineNum">     673 </span>                :            :       // ... do an append (this better be to an _AND register type)
+<span class="lineNum">     674 </span>                :<span class="lineNoCov">          0 :       operation = P8_PORE_SCOM_APPEND;  </span>
+<span class="lineNum">     675 </span>                :            :   }
+<span class="lineNum">     676 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   else if ( i_operation==P8_PORE_SCOM_OR_APPEND )  </span>
+<span class="lineNum">     677 </span>                :            :   {
+<span class="lineNum">     678 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (hostScomEntryMatch)</span>
+<span class="lineNum">     679 </span>                :            :       // ... do the OR on existing Scom
+<span class="lineNum">     680 </span>                :            :       operation = P8_PORE_SCOM_OR;
+<span class="lineNum">     681 </span>                :            :     else
+<span class="lineNum">     682 </span>                :            :       // ... do an append (this better be to an _OR register type)
+<span class="lineNum">     683 </span>                :<span class="lineNoCov">          0 :       operation = P8_PORE_SCOM_APPEND;  </span>
+<span class="lineNum">     684 </span>                :            :   }
+<span class="lineNum">     685 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   else if (i_operation==P8_PORE_SCOM_RESET)  </span>
+<span class="lineNum">     686 </span>                :            :   {
+<span class="lineNum">     687 </span>                :            :     // ... create RNNN instruction sequence.
+<span class="lineNum">     688 </span>                :<span class="lineNoCov">          0 :     pore_inline_context_create( &amp;ctx, (void*)bufIIS, XIPSIZE_SCOM_ENTRY, 0, 0);</span>
+<span class="lineNum">     689 </span>                :<span class="lineNoCov">          0 :     pore_RET( &amp;ctx);</span>
+<span class="lineNum">     690 </span>                :<span class="lineNoCov">          0 :     pore_NOP( &amp;ctx);</span>
+<span class="lineNum">     691 </span>                :<span class="lineNoCov">          0 :     pore_NOP( &amp;ctx);</span>
+<span class="lineNum">     692 </span>                :<span class="lineNoCov">          0 :     pore_NOP( &amp;ctx);</span>
+<span class="lineNum">     693 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (ctx.error &gt; 0)  {</span>
+<span class="lineNum">     694 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;***_RET or _NOP generated rc = %d&quot;, ctx.error);</span>
+<span class="lineNum">     695 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_PORE_INLINE_ASM;</span>
+<span class="lineNum">     696 </span>                :            :     }
+<span class="lineNum">     697 </span>                :            :     operation = i_operation;
+<span class="lineNum">     698 </span>                :            :   }
+<span class="lineNum">     699 </span>                :            :   else  
+<span class="lineNum">     700 </span>                :            :   {
+<span class="lineNum">     701 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Scom operation = %i is not within valid range of [%d;%d]\n&quot;,</span>
+<span class="lineNum">     702 </span>                :            :       i_operation, P8_PORE_SCOM_FIRST_OP, P8_PORE_SCOM_LAST_OP);
+<span class="lineNum">     703 </span>                :<span class="lineNoCov">          0 :     return IMGBUILD_ERR_SCOM_INVALID_PARM;</span>
+<span class="lineNum">     704 </span>                :            :   }
+<span class="lineNum">     705 </span>                :            :   
+<span class="lineNum">     706 </span>                :            :   //----------------------------------------------------------------------------
+<span class="lineNum">     707 </span>                :            :   // 4. Check for overrun.
+<span class="lineNum">     708 </span>                :            :   //----------------------------------------------------------------------------
+<span class="lineNum">     709 </span>                :            :   // Note:
+<span class="lineNum">     710 </span>                :            :   // - An entry count exceeding the max allocated entry count will result in a code error
+<span class="lineNum">     711 </span>                :            :   //   because the allocation is based on an agreed upon max number of entries and 
+<span class="lineNum">     712 </span>                :            :   //   therefore either the code header file needs to change or the caller is not abiding 
+<span class="lineNum">     713 </span>                :            :   //   by the rules.
+<span class="lineNum">     714 </span>                :            :   // - An entry count equalling the max allocated entry count is allowed for all commands
+<span class="lineNum">     715 </span>                :            :   //   except the APPEND command, incl the translated REPLACE-&gt;APPEND, which will result 
+<span class="lineNum">     716 </span>                :            :   //   in the previously mentioned code error being returned.
+<span class="lineNum">     717 </span>                :            :   // - The table can be full but still include NOOPs. If so, we can still APPEND since
+<span class="lineNum">     718 </span>                :            :   //   we append at first occurrance of a NOOP or at the end of the table (at the RET).
+<span class="lineNum">     719 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   switch (i_section)  {</span>
+<span class="lineNum">     720 </span>                :            :   case P8_SCOM_SECTION_NC:
+<span class="lineNum">     721 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if ( ( (operation==P8_PORE_SCOM_APPEND &amp;&amp; entriesCount==SLW_MAX_SCOMS_NC) &amp;&amp;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     722 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :            hostScomEntryNOP==NULL ) ||</span>
+<span class="lineNum">     723 </span>                :            :            entriesCount&gt;SLW_MAX_SCOMS_NC )
+<span class="lineNum">     724 </span>                :            :     {
+<span class="lineNum">     725 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;SCOM table NC is full. Max %i entries allowed.\n&quot;,SLW_MAX_SCOMS_NC);</span>
+<span class="lineNum">     726 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_CHECK_CODE;</span>
+<span class="lineNum">     727 </span>                :            :     }
+<span class="lineNum">     728 </span>                :            :     break;
+<span class="lineNum">     729 </span>                :            :   case P8_SCOM_SECTION_L2:
+<span class="lineNum">     730 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if ( ( (operation==P8_PORE_SCOM_APPEND &amp;&amp; entriesCount==SLW_MAX_SCOMS_L2) &amp;&amp;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     731 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :            hostScomEntryNOP==NULL ) ||</span>
+<span class="lineNum">     732 </span>                :            :            entriesCount&gt;SLW_MAX_SCOMS_L2 )
+<span class="lineNum">     733 </span>                :            :     {
+<span class="lineNum">     734 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;SCOM table L2 is full. Max %i entries allowed.\n&quot;,SLW_MAX_SCOMS_L2);</span>
+<span class="lineNum">     735 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_CHECK_CODE;</span>
+<span class="lineNum">     736 </span>                :            :     }
+<span class="lineNum">     737 </span>                :            :     break;
+<span class="lineNum">     738 </span>                :            :   case P8_SCOM_SECTION_L3:
+<span class="lineNum">     739 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if ( ( (operation==P8_PORE_SCOM_APPEND &amp;&amp; entriesCount==SLW_MAX_SCOMS_L3) &amp;&amp;</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     740 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :            hostScomEntryNOP==NULL ) ||</span>
+<span class="lineNum">     741 </span>                :            :            entriesCount&gt;SLW_MAX_SCOMS_L3 )
+<span class="lineNum">     742 </span>                :            :     {
+<span class="lineNum">     743 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;SCOM table L3 is full. Max %i entries allowed.\n&quot;,SLW_MAX_SCOMS_L3);</span>
+<span class="lineNum">     744 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_CHECK_CODE;</span>
+<span class="lineNum">     745 </span>                :            :     }
+<span class="lineNum">     746 </span>                :            :     break;
+<span class="lineNum">     747 </span>                :            :   default:
+<span class="lineNum">     748 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Invalid value for i_section (=%i).\n&quot;,i_section);</span>
+<span class="lineNum">     749 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Valid values for i_section = [%i,%i,%i].\n&quot;,</span>
+<span class="lineNum">     750 </span>                :            :         P8_SCOM_SECTION_NC,P8_SCOM_SECTION_L2,P8_SCOM_SECTION_L3);
+<span class="lineNum">     751 </span>                :<span class="lineNoCov">          0 :     return IMGBUILD_ERR_SCOM_INVALID_SUBSECTION;</span>
+<span class="lineNum">     752 </span>                :            :   }
+<span class="lineNum">     753 </span>                :            : 
+<span class="lineNum">     754 </span>                :            : 
+<span class="lineNum">     755 </span>                :            :   // ---------------------------------------------------------------------------
+<span class="lineNum">     756 </span>                :            :   // 5.  Insert the SCOM.
+<span class="lineNum">     757 </span>                :            :   // ---------------------------------------------------------------------------
+<span class="lineNum">     758 </span>                :            :   // Assuming pre-allocated Scom table (after pre-allocated Ram table):
+<span class="lineNum">     759 </span>                :            :   // - Table is pre-filled with RNNN ISS.
+<span class="lineNum">     760 </span>                :            :   // - Each core Id has dedicated space, uniformly distributed by SLW_MAX_SCOMS_NC*
+<span class="lineNum">     761 </span>                :            :   //   XIPSIZE_SCOM_ENTRY.
+<span class="lineNum">     762 </span>                :            :   // - Remember to check for more than SLW_MAX_SCOMS_NC entries!
+<span class="lineNum">     763 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span> :<span class="lineNoCov">          0 :   switch (operation)  {</span>
+<span class="lineNum">         </span>      <span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]
+<span class="lineNum">     764 </span>                :            : 
+<span class="lineNum">     765 </span>                :            :   case P8_PORE_SCOM_APPEND:  // Append a Scom at first occurring NNNN or RNNN,  
+<span class="lineNum">     766 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (hostScomEntryNOP)  {</span>
+<span class="lineNum">     767 </span>                :            :       // ... replace the NNNN
+<span class="lineNum">     768 </span>                :            :       MY_INF(&quot;Append at NOP\n&quot;);
+<span class="lineNum">     769 </span>                :<span class="lineNoCov">          0 :       memcpy(hostScomEntryNOP,(void*)bufIIS,XIPSIZE_SCOM_ENTRY);</span>
+<span class="lineNum">     770 </span>                :            :     }
+<span class="lineNum">     771 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     else if (hostScomEntryRET)  {</span>
+<span class="lineNum">     772 </span>                :            :       // ... replace the RNNN
+<span class="lineNum">     773 </span>                :            :       MY_INF(&quot;Append at RET\n&quot;);
+<span class="lineNum">     774 </span>                :<span class="lineNoCov">          0 :       memcpy(hostScomEntryRET,(void*)bufIIS,XIPSIZE_SCOM_ENTRY);</span>
+<span class="lineNum">     775 </span>                :            :     }
+<span class="lineNum">     776 </span>                :            :     else  {
+<span class="lineNum">     777 </span>                :            :       // We should never be here.
+<span class="lineNum">     778 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;In case=_SCOM_APPEND: EntryRET=NULL is impossible. Check code.\n&quot;);</span>
+<span class="lineNum">     779 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_CHECK_CODE;</span>
+<span class="lineNum">     780 </span>                :            :     }
+<span class="lineNum">     781 </span>                :            :     break;
+<span class="lineNum">     782 </span>                :            :   case P8_PORE_SCOM_REPLACE: // Replace existing Scom with new data
+<span class="lineNum">     783 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (hostScomEntryMatch)  {</span>
+<span class="lineNum">     784 </span>                :            :       // ... do a vanilla replace
+<span class="lineNum">     785 </span>                :            :       MY_INF(&quot;Replace existing Scom\n&quot;);
+<span class="lineNum">     786 </span>                :<span class="lineNoCov">          0 :       memcpy(hostScomEntryMatch,(void*)bufIIS,XIPSIZE_SCOM_ENTRY);</span>
+<span class="lineNum">     787 </span>                :            :     }
+<span class="lineNum">     788 </span>                :            :     else  {
+<span class="lineNum">     789 </span>                :            :       // We should never be here.
+<span class="lineNum">     790 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;In case=_SCOM_REPLACE: EntryMatch=NULL is impossible. Check code.\n&quot;);</span>
+<span class="lineNum">     791 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_CHECK_CODE;</span>
+<span class="lineNum">     792 </span>                :            :     }
+<span class="lineNum">     793 </span>                :<span class="lineNoCov">          0 :     break;</span>
+<span class="lineNum">     794 </span>                :            :   case P8_PORE_SCOM_NOOP:
+<span class="lineNum">     795 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (hostScomEntryMatch)  {</span>
+<span class="lineNum">     796 </span>                :            :       // ... do a vanilla replace
+<span class="lineNum">     797 </span>                :            :       MY_INF(&quot;Replace existing Scom w/NOPs\n&quot;);
+<span class="lineNum">     798 </span>                :<span class="lineNoCov">          0 :       memcpy(hostScomEntryMatch,(void*)bufIIS,XIPSIZE_SCOM_ENTRY);</span>
+<span class="lineNum">     799 </span>                :            :     }
+<span class="lineNum">     800 </span>                :            :     else  {
+<span class="lineNum">     801 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;No Scom entry found to replace NOOPs with.\n&quot;);</span>
+<span class="lineNum">     802 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_SCOM_ENTRY_NOT_FOUND;</span>
+<span class="lineNum">     803 </span>                :            :     }
+<span class="lineNum">     804 </span>                :<span class="lineNoCov">          0 :     break;</span>
+<span class="lineNum">     805 </span>                :            :   case P8_PORE_SCOM_OR:      // Overlay Scom data onto existing data by bitwise OR
+<span class="lineNum">     806 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (hostScomEntryMatch)  {</span>
+<span class="lineNum">     807 </span>                :            :       // ... do an OR on the data (which is the 2nd DWord in the entry)
+<span class="lineNum">     808 </span>                :            :       MY_INF(&quot;Overlay existing Scom - OR case\n&quot;);
+<span class="lineNum">     809 </span>                :<span class="lineNoCov">          0 :       *((uint64_t*)hostScomEntryMatch+1) = </span>
+<span class="lineNum">     810 </span>                :<span class="lineNoCov">          0 :         *((uint64_t*)hostScomEntryMatch+1) | myRev64(i_scomData);</span>
+<span class="lineNum">     811 </span>                :            :     }
+<span class="lineNum">     812 </span>                :            :     else  { 
+<span class="lineNum">     813 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;No Scom entry found to do OR operation with.\n&quot;);</span>
+<span class="lineNum">     814 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_SCOM_ENTRY_NOT_FOUND;</span>
+<span class="lineNum">     815 </span>                :            :     }
+<span class="lineNum">     816 </span>                :<span class="lineNoCov">          0 :     break;</span>
+<span class="lineNum">     817 </span>                :            :   case P8_PORE_SCOM_AND:     // Overlay Scom data onto existing data by bitwise AND
+<span class="lineNum">     818 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (hostScomEntryMatch)  {</span>
+<span class="lineNum">     819 </span>                :            :       // ... do an AND on the data (which is the 2nd DWord in the entry)
+<span class="lineNum">     820 </span>                :            :       MY_INF(&quot;Overlay existing Scom - AND case\n&quot;);
+<span class="lineNum">     821 </span>                :<span class="lineNoCov">          0 :       *((uint64_t*)hostScomEntryMatch+1) = </span>
+<span class="lineNum">     822 </span>                :<span class="lineNoCov">          0 :         *((uint64_t*)hostScomEntryMatch+1) &amp; myRev64(i_scomData);</span>
+<span class="lineNum">     823 </span>                :            :     }
+<span class="lineNum">     824 </span>                :            :     else  { 
+<span class="lineNum">     825 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;No Scom entry found to do AND operation with.\n&quot;);</span>
+<span class="lineNum">     826 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_SCOM_ENTRY_NOT_FOUND;</span>
+<span class="lineNum">     827 </span>                :            :     }
+<span class="lineNum">     828 </span>                :<span class="lineNoCov">          0 :     break;</span>
+<span class="lineNum">     829 </span>                :            :   case P8_PORE_SCOM_RESET:   // Reset (delete) table. Refill w/RNNN ISS.
+<span class="lineNum">     830 </span>                :            :     MY_INF(&quot;Reset table\n&quot;);
+<span class="lineNum">     831 </span>                :<span class="lineNoCov">          0 :     hostScomEntryNext = hostScomTableThis;</span>
+<span class="lineNum">     832 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for ( iEntry=0; iEntry&lt;entriesCount; iEntry++)  {</span>
+<span class="lineNum">     833 </span>                :<span class="lineNoCov">          0 :       memcpy( hostScomEntryNext, (void*)bufIIS, XIPSIZE_SCOM_ENTRY);</span>
+<span class="lineNum">     834 </span>                :<span class="lineNoCov">          0 :       hostScomEntryNext = (void*)((uintptr_t)hostScomEntryNext + XIPSIZE_SCOM_ENTRY);</span>
+<span class="lineNum">     835 </span>                :            :     }
+<span class="lineNum">     836 </span>                :            :     break;
+<span class="lineNum">     837 </span>                :            :   default:
+<span class="lineNum">     838 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Impossible value of operation (=%i). Check code.\n&quot;,operation);</span>
+<span class="lineNum">     839 </span>                :<span class="lineNoCov">          0 :     return IMGBUILD_ERR_CHECK_CODE;</span>
+<span class="lineNum">     840 </span>                :            :   
+<span class="lineNum">     841 </span>                :            :   }  // End of switch(operation)
+<span class="lineNum">     842 </span>                :            : 
+<span class="lineNum">     843 </span>                :<span class="lineNoCov">          0 :   return rc;</span>
+<span class="lineNum">     844 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

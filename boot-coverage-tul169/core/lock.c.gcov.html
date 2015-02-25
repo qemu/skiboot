@@ -1,0 +1,220 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - core/lock.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">core</a> - lock.c<span style="font-size: 80%;"> (source / <a href="lock.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">38</td>
+            <td class="headerCovTableEntry">54</td>
+            <td class="headerCovTableEntryLo">70.4 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntryMed">77.8 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntry">34</td>
+            <td class="headerCovTableEntryLo">61.8 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;assert.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;processor.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;cpu.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;console.h&gt;
+<span class="lineNum">      23 </span>                :            : 
+<span class="lineNum">      24 </span>                :            : /* Set to bust locks. Note, this is initialized to true because our
+<span class="lineNum">      25 </span>                :            :  * lock debugging code is not going to work until we have the per
+<span class="lineNum">      26 </span>                :            :  * CPU data initialized
+<span class="lineNum">      27 </span>                :            :  */
+<span class="lineNum">      28 </span>                :            : bool bust_locks = true;
+<span class="lineNum">      29 </span>                :            : 
+<a name="30"><span class="lineNum">      30 </span>                :            : #ifdef DEBUG_LOCKS</a>
+<span class="lineNum">      31 </span>                :            : 
+<span class="lineNum">      32 </span>                :<span class="lineNoCov">          0 : static void lock_error(struct lock *l, const char *reason, uint16_t err)</span>
+<span class="lineNum">      33 </span>                :            : {
+<span class="lineNum">      34 </span>                :<span class="lineNoCov">          0 :         fprintf(stderr, &quot;LOCK ERROR: %s @%p (state: 0x%016lx)\n&quot;,</span>
+<span class="lineNum">      35 </span>                :            :                 reason, l, l-&gt;lock_val);
+<span class="lineNum">      36 </span>                :<span class="lineNoCov">          0 :         op_display(OP_FATAL, OP_MOD_LOCK, err);</span>
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :<span class="lineNoCov">          0 :         abort();</span>
+<a name="39"><span class="lineNum">      39 </span>                :            : }</a>
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :<span class="lineCov">     569280 : static void lock_check(struct lock *l)</span>
+<span class="lineNum">      42 </span>                :            : {
+<span class="lineNum">      43 </span>[<span class="branchCov" title="Branch 0 was taken 945 times"> + </span><span class="branchCov" title="Branch 1 was taken 568335 times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 945 times"> + </span>]:<span class="lineCov">     569280 :         if ((l-&gt;lock_val &amp; 1) &amp;&amp; (l-&gt;lock_val &gt;&gt; 32) == this_cpu()-&gt;pir)</span>
+<span class="lineNum">      44 </span>                :<span class="lineNoCov">          0 :                 lock_error(l, &quot;Invalid recursive lock&quot;, 0);</span>
+<a name="45"><span class="lineNum">      45 </span>                :<span class="lineCov">     569280 : }</span></a>
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>                :<span class="lineCov">     913660 : static void unlock_check(struct lock *l)</span>
+<span class="lineNum">      48 </span>                :            : {
+<span class="lineNum">      49 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 913660 times"> + </span>]:<span class="lineCov">     913660 :         if (!(l-&gt;lock_val &amp; 1))</span>
+<span class="lineNum">      50 </span>                :<span class="lineNoCov">          0 :                 lock_error(l, &quot;Unlocking unlocked lock&quot;, 1);</span>
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 913660 times"> + </span>]:<span class="lineCov">     913660 :         if ((l-&gt;lock_val &gt;&gt; 32) != this_cpu()-&gt;pir)</span>
+<span class="lineNum">      53 </span>                :<span class="lineNoCov">          0 :                 lock_error(l, &quot;Unlocked non-owned lock&quot;, 2);</span>
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 913660 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">     913660 :         if (l-&gt;in_con_path &amp;&amp; this_cpu()-&gt;con_suspend == 0)</span>
+<span class="lineNum">      56 </span>                :<span class="lineNoCov">          0 :                 lock_error(l, &quot;Unlock con lock with console not suspended&quot;, 3);</span>
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 913660 times"> + </span>]:<span class="lineCov">     913660 :         if (this_cpu()-&gt;lock_depth == 0)</span>
+<span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 :                 lock_error(l, &quot;Releasing lock with 0 depth&quot;, 4);</span>
+<span class="lineNum">      60 </span>                :<span class="lineCov">     913660 : }</span>
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :            : #else
+<span class="lineNum">      63 </span>                :            : static inline void lock_check(struct lock *l) { };
+<span class="lineNum">      64 </span>                :            : static inline void unlock_check(struct lock *l) { };
+<a name="65"><span class="lineNum">      65 </span>                :            : #endif /* DEBUG_LOCKS */</a>
+<span class="lineNum">      66 </span>                :            : 
+<span class="lineNum">      67 </span>                :<span class="lineNoCov">          0 : bool lock_held_by_me(struct lock *l)</span>
+<span class="lineNum">      68 </span>                :            : {
+<span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 :         uint64_t pir64 = this_cpu()-&gt;pir;</span>
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 :         return l-&gt;lock_val == ((pir64 &lt;&lt; 32) | 1);</span>
+<a name="72"><span class="lineNum">      72 </span>                :            : }</a>
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :<span class="lineCov">    1176996 : bool try_lock(struct lock *l)</span>
+<span class="lineNum">      75 </span>                :            : {
+<span class="lineNum">      76 </span>        [<span class="branchCov" title="Branch 1 was taken 913598 times"> + </span><span class="branchCov" title="Branch 2 was taken 264795 times"> + </span>]:<span class="lineCov">    1176996 :         if (__try_lock(l)) {</span>
+<span class="lineNum">      77 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 913598 times"> + </span>]:<span class="lineCov">     913598 :                 if (l-&gt;in_con_path)</span>
+<span class="lineNum">      78 </span>                :<span class="lineNoCov">          0 :                         this_cpu()-&gt;con_suspend++;</span>
+<span class="lineNum">      79 </span>                :<span class="lineCov">     913598 :                 this_cpu()-&gt;lock_depth++;</span>
+<span class="lineNum">      80 </span>                :<span class="lineCov">     913598 :                 return true;</span>
+<span class="lineNum">      81 </span>                :            :         }
+<span class="lineNum">      82 </span>                :            :         return false;
+<a name="83"><span class="lineNum">      83 </span>                :            : }</a>
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :<span class="lineCov">     569279 : void lock(struct lock *l)</span>
+<span class="lineNum">      86 </span>                :            : {
+<span class="lineNum">      87 </span>           [<span class="branchCov" title="Branch 0 was taken 569280 times"> + </span>]:<span class="lineCov">     569279 :         if (bust_locks)</span>
+<span class="lineNum">      88 </span>                :<span class="lineCov">     568608 :                 return;</span>
+<span class="lineNum">      89 </span>                :            : 
+<span class="lineNum">      90 </span>                :<span class="lineCov">     569280 :         lock_check(l);</span>
+<span class="lineNum">      91 </span>                :            :         for (;;) {
+<span class="lineNum">      92 </span>        [<span class="branchCov" title="Branch 1 was taken 265713 times"> + </span><span class="branchCov" title="Branch 2 was taken 568609 times"> + </span>]:<span class="lineCov">     833800 :                 if (try_lock(l))</span>
+<span class="lineNum">      93 </span>                :            :                         break;
+<span class="lineNum">      94 </span>                :<span class="lineCov">     265713 :                 cpu_relax();</span>
+<span class="lineNum">      95 </span>                :<span class="lineCov">     264520 :         }</span>
+<a name="96"><span class="lineNum">      96 </span>                :            : }</a>
+<span class="lineNum">      97 </span>                :            : 
+<span class="lineNum">      98 </span>                :<span class="lineCov">     913650 : void unlock(struct lock *l)</span>
+<span class="lineNum">      99 </span>                :            : {
+<span class="lineNum">     100 </span>                :<span class="lineCov">     913650 :         struct cpu_thread *cpu = this_cpu();</span>
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>        [<span class="branchCov" title="Branch 0 was taken 913649 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">     913650 :         if (bust_locks)</span>
+<span class="lineNum">     103 </span>                :<span class="lineCov">     913682 :                 return;</span>
+<span class="lineNum">     104 </span>                :            : 
+<span class="lineNum">     105 </span>                :<span class="lineCov">     913649 :         unlock_check(l);</span>
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :            :         lwsync();
+<span class="lineNum">     108 </span>                :<span class="lineCov">     913681 :         this_cpu()-&gt;lock_depth--;</span>
+<span class="lineNum">     109 </span>                :<span class="lineCov">     913681 :         l-&gt;lock_val = 0;</span>
+<span class="lineNum">     110 </span>                :            : 
+<span class="lineNum">     111 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 913681 times"> + </span>]:<span class="lineCov">     913681 :         if (l-&gt;in_con_path) {</span>
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :                 cpu-&gt;con_suspend--;</span>
+<span class="lineNum">     113 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (cpu-&gt;con_suspend == 0 &amp;&amp; cpu-&gt;con_need_flush)</span>
+<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :                         flush_console();</span>
+<span class="lineNum">     115 </span>                :            :         }
+<a name="116"><span class="lineNum">     116 </span>                :            : }</a>
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>                :<span class="lineCov">      36802 : bool lock_recursive(struct lock *l)</span>
+<span class="lineNum">     119 </span>                :            : {
+<span class="lineNum">     120 </span>        [<span class="branchCov" title="Branch 0 was taken 36793 times"> + </span><span class="branchCov" title="Branch 1 was taken 9 times"> + </span>]:<span class="lineCov">      36802 :         if (bust_locks)</span>
+<span class="lineNum">     121 </span>                :            :                 return false;
+<span class="lineNum">     122 </span>                :            : 
+<span class="lineNum">     123 </span>   [<span class="branchCov" title="Branch 0 was taken 30 times"> + </span><span class="branchCov" title="Branch 1 was taken 36763 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 31 times"> + </span>]:<span class="lineCov">      36793 :         if ((l-&gt;lock_val &amp; 1) &amp;&amp;</span>
+<span class="lineNum">     124 </span>                :<span class="lineCov">         60 :             (l-&gt;lock_val &gt;&gt; 32) == this_cpu()-&gt;pir)</span>
+<span class="lineNum">     125 </span>                :            :                 return false;
+<span class="lineNum">     126 </span>                :            : 
+<span class="lineNum">     127 </span>                :<span class="lineCov">      36794 :         lock(l);</span>
+<span class="lineNum">     128 </span>                :<span class="lineCov">      36810 :         return true;</span>
+<span class="lineNum">     129 </span>                :            : }
+<a name="130"><span class="lineNum">     130 </span>                :            : </a>
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :<span class="lineCov">          1 : void init_locks(void)</span>
+<span class="lineNum">     133 </span>                :            : {
+<span class="lineNum">     134 </span>                :<span class="lineCov">          1 :         bust_locks = false;</span>
+<span class="lineNum">     135 </span>                :<span class="lineCov">          1 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

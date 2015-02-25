@@ -1,0 +1,525 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/fsp/fsp-mdst-table.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">hw/fsp</a> - fsp-mdst-table.c<span style="font-size: 80%;"> (source / <a href="fsp-mdst-table.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">103</td>
+            <td class="headerCovTableEntry">152</td>
+            <td class="headerCovTableEntryLo">67.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryMed">85.7 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntry">57</td>
+            <td class="headerCovTableEntryLo">42.1 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : 
+<span class="lineNum">      18 </span>                :            : /*
+<span class="lineNum">      19 </span>                :            :  * Sapphire dump design:
+<span class="lineNum">      20 </span>                :            :  *   - During initialization we setup Memory Dump Source Table (MDST) table
+<span class="lineNum">      21 </span>                :            :  *     which contains address, size pair.
+<span class="lineNum">      22 </span>                :            :  *   - We send MDST table update notification to FSP via MBOX command.
+<span class="lineNum">      23 </span>                :            :  *   - During Sapphire checkstop:
+<span class="lineNum">      24 </span>                :            :  *     - FSP retrieves HWDUMP.
+<span class="lineNum">      25 </span>                :            :  *     - FSP retrieves CEC memory based on MDST table.
+<span class="lineNum">      26 </span>                :            :  *   - Once Sapphire reboot FSP sends new dump avialable notification via HDAT
+<span class="lineNum">      27 </span>                :            :  */
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            : #include &lt;fsp.h&gt;
+<span class="lineNum">      30 </span>                :            : #include &lt;psi.h&gt;
+<span class="lineNum">      31 </span>                :            : #include &lt;opal.h&gt;
+<span class="lineNum">      32 </span>                :            : #include &lt;opal-api.h&gt;
+<span class="lineNum">      33 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      34 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      35 </span>                :            : #include &lt;errorlog.h&gt;
+<span class="lineNum">      36 </span>                :            : #include &lt;fsp-mdst-table.h&gt;
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :            : /*
+<span class="lineNum">      39 </span>                :            :  * Sapphire dump size
+<span class="lineNum">      40 </span>                :            :  *   This is the maximum memory that FSP can retrieve during checkstop.
+<span class="lineNum">      41 </span>                :            :  *
+<span class="lineNum">      42 </span>                :            :  * Note:
+<span class="lineNum">      43 </span>                :            :  *   Presently we are hardcoding this parameter. Eventually we need
+<span class="lineNum">      44 </span>                :            :  *   new System parameter so that we can get max size dynamically.
+<span class="lineNum">      45 </span>                :            :  */
+<span class="lineNum">      46 </span>                :            : #define MAX_SAPPHIRE_DUMP_SIZE  0x1000000
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_DUMP_MDST_INIT, OPAL_PLATFORM_ERR_EVT, OPAL_DUMP,
+<span class="lineNum">      49 </span>                :            :                  OPAL_PLATFORM_FIRMWARE, OPAL_PREDICTIVE_ERR_FAULT_RECTIFY_REBOOT,
+<span class="lineNum">      50 </span>                :            :                  OPAL_NA, NULL);
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_DUMP_MDST_UPDATE, OPAL_PLATFORM_ERR_EVT, OPAL_DUMP,
+<span class="lineNum">      53 </span>                :            :                  OPAL_PLATFORM_FIRMWARE,
+<span class="lineNum">      54 </span>                :            :                  OPAL_PREDICTIVE_ERR_FAULT_RECTIFY_REBOOT,
+<span class="lineNum">      55 </span>                :            :                  OPAL_NA, NULL);
+<span class="lineNum">      56 </span>                :            : 
+<span class="lineNum">      57 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_DUMP_MDST_ADD, OPAL_PLATFORM_ERR_EVT, OPAL_DUMP,
+<span class="lineNum">      58 </span>                :            :                  OPAL_PLATFORM_FIRMWARE, OPAL_INFO, OPAL_NA, NULL);
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_DUMP_MDST_REMOVE, OPAL_PLATFORM_ERR_EVT, OPAL_DUMP,
+<span class="lineNum">      61 </span>                :            :                  OPAL_PLATFORM_FIRMWARE, OPAL_INFO, OPAL_NA, NULL);
+<span class="lineNum">      62 </span>                :            : 
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :            : static struct dump_mdst_table *mdst_table;
+<span class="lineNum">      65 </span>                :            : static struct dump_mdst_table *dump_mem_region;
+<span class="lineNum">      66 </span>                :            : 
+<span class="lineNum">      67 </span>                :            : static int cur_mdst_entry;
+<span class="lineNum">      68 </span>                :            : static int max_mdst_entry;
+<span class="lineNum">      69 </span>                :            : static int cur_dump_size;
+<span class="lineNum">      70 </span>                :            : /*
+<span class="lineNum">      71 </span>                :            :  * Presently both sizes are same.. But if someday FSP gives more space
+<span class="lineNum">      72 </span>                :            :  * than our TCE mapping then we need this validation..
+<span class="lineNum">      73 </span>                :            :  *
+<span class="lineNum">      74 </span>                :            :  * Also once FSP implements MAX_SAPPHIRE_DUMP_SIZE system param, we can
+<span class="lineNum">      75 </span>                :            :  * move this validation to separate function.
+<span class="lineNum">      76 </span>                :            :  */
+<span class="lineNum">      77 </span>                :            : static int max_dump_size = MIN(MAX_SAPPHIRE_DUMP_SIZE, PSI_DMA_HYP_DUMP_SIZE);
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>                :            : /* Protect MDST table entries */
+<span class="lineNum">      80 </span>                :            : static struct lock mdst_lock = LOCK_UNLOCKED;
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>                :            : /* Not supported on P7 */
+<a name="83"><span class="lineNum">      83 </span>                :            : static inline bool fsp_mdst_supported(void)</a>
+<span class="lineNum">      84 </span>                :            : {
+<span class="lineNum">      85 </span>                :<span class="lineCov">          2 :         return proc_gen &gt;= proc_gen_p8;</span>
+<a name="86"><span class="lineNum">      86 </span>                :            : }</a>
+<span class="lineNum">      87 </span>                :            : 
+<span class="lineNum">      88 </span>                :<span class="lineCov">          8 : static inline uint32_t get_dump_region_map_size(uint64_t addr, uint32_t size)</span>
+<span class="lineNum">      89 </span>                :            : {
+<span class="lineNum">      90 </span>                :            :         uint64_t start, end;
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :<span class="lineCov">          8 :         start = addr &amp; ~TCE_MASK;</span>
+<span class="lineNum">      93 </span>                :<span class="lineCov">          8 :         end = addr + size;</span>
+<span class="lineNum">      94 </span>                :<span class="lineCov">          8 :         end = (end + (TCE_MASK - 1)) &amp; ~TCE_MASK;</span>
+<span class="lineNum">      95 </span>                :            : 
+<span class="lineNum">      96 </span>                :<span class="lineCov">          8 :         return (end - start);</span>
+<a name="97"><span class="lineNum">      97 </span>                :            : }</a>
+<span class="lineNum">      98 </span>                :            : 
+<span class="lineNum">      99 </span>                :<span class="lineCov">          2 : static int dump_region_tce_map(void)</span>
+<span class="lineNum">     100 </span>                :            : {
+<span class="lineNum">     101 </span>                :            :         int i;
+<span class="lineNum">     102 </span>                :<span class="lineCov">          2 :         uint32_t t_size = 0, size;</span>
+<span class="lineNum">     103 </span>                :            :         uint64_t addr;
+<span class="lineNum">     104 </span>                :            : 
+<span class="lineNum">     105 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          7 :         for (i = 0; i &lt; cur_mdst_entry; i++) {</span>
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :<span class="lineCov">          5 :                 addr = dump_mem_region[i].addr &amp; ~TCE_MASK;</span>
+<span class="lineNum">     108 </span>                :<span class="lineCov">          5 :                 size = get_dump_region_map_size(dump_mem_region[i].addr,</span>
+<span class="lineNum">     109 </span>                :            :                                                 dump_mem_region[i].size);
+<span class="lineNum">     110 </span>                :            : 
+<span class="lineNum">     111 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          5 :                 if (t_size + size &gt; max_dump_size)</span>
+<span class="lineNum">     112 </span>                :            :                         break;
+<span class="lineNum">     113 </span>                :            : 
+<span class="lineNum">     114 </span>                :            :                 /* TCE mapping */
+<span class="lineNum">     115 </span>                :<span class="lineCov">          5 :                 fsp_tce_map(PSI_DMA_HYP_DUMP + t_size, (void *)addr, size);</span>
+<span class="lineNum">     116 </span>                :            : 
+<span class="lineNum">     117 </span>                :            :                 /* Add entry to MDST table */
+<span class="lineNum">     118 </span>                :<span class="lineCov">          5 :                 mdst_table[i].type = dump_mem_region[i].type;</span>
+<span class="lineNum">     119 </span>                :<span class="lineCov">          5 :                 mdst_table[i].size = dump_mem_region[i].size;</span>
+<span class="lineNum">     120 </span>                :<span class="lineCov">          5 :                 mdst_table[i].addr = PSI_DMA_HYP_DUMP + t_size;</span>
+<span class="lineNum">     121 </span>                :            : 
+<span class="lineNum">     122 </span>                :            :                 /* TCE alignment adjustment */
+<span class="lineNum">     123 </span>                :<span class="lineCov">          5 :                 mdst_table[i].addr += dump_mem_region[i].addr &amp; 0xfff;</span>
+<span class="lineNum">     124 </span>                :            : 
+<span class="lineNum">     125 </span>                :<span class="lineCov">          5 :                 t_size += size;</span>
+<span class="lineNum">     126 </span>                :            :         }
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>                :<span class="lineCov">          2 :         return i;</span>
+<a name="129"><span class="lineNum">     129 </span>                :            : }</a>
+<span class="lineNum">     130 </span>                :            : 
+<span class="lineNum">     131 </span>                :<span class="lineCov">          2 : static inline void dump_region_tce_unmap(void)</span>
+<span class="lineNum">     132 </span>                :            : {
+<span class="lineNum">     133 </span>                :<span class="lineCov">          2 :         fsp_tce_unmap(PSI_DMA_HYP_DUMP, PSI_DMA_HYP_DUMP_SIZE);</span>
+<a name="134"><span class="lineNum">     134 </span>                :<span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     135 </span>                :            : 
+<span class="lineNum">     136 </span>                :<span class="lineCov">          2 : static void update_mdst_table_complete(struct fsp_msg *msg)</span>
+<span class="lineNum">     137 </span>                :            : {
+<span class="lineNum">     138 </span>                :<span class="lineCov">          2 :         uint8_t status = (msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (status)</span>
+<span class="lineNum">     141 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_DUMP_MDST_UPDATE),</span>
+<span class="lineNum">     142 </span>                :            :                                  &quot;MDST: Update table MBOX command failed: &quot;
+<span class="lineNum">     143 </span>                :            :                                  &quot;0x%x\n&quot;, status);
+<span class="lineNum">     144 </span>                :            :         else
+<span class="lineNum">     145 </span>                :<span class="lineCov">          2 :                 printf(&quot;MDST: Table updated.\n&quot;);</span>
+<span class="lineNum">     146 </span>                :            : 
+<span class="lineNum">     147 </span>                :<span class="lineCov">          2 :         fsp_freemsg(msg);</span>
+<span class="lineNum">     148 </span>                :<span class="lineCov">          2 : }</span>
+<a name="149"><span class="lineNum">     149 </span>                :            : </a>
+<span class="lineNum">     150 </span>                :            : /* Send MDST table to FSP */
+<span class="lineNum">     151 </span>                :<span class="lineCov">          2 : static int64_t fsp_update_mdst_table(void)</span>
+<span class="lineNum">     152 </span>                :            : {
+<span class="lineNum">     153 </span>                :            :         struct fsp_msg *msg;
+<span class="lineNum">     154 </span>                :            :         int count;
+<span class="lineNum">     155 </span>                :<span class="lineCov">          2 :         int rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     156 </span>                :            : 
+<span class="lineNum">     157 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (cur_mdst_entry &lt;= 0) {</span>
+<span class="lineNum">     158 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;MDST: Table is empty\n&quot;);</span>
+<span class="lineNum">     159 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     160 </span>                :            :         }
+<span class="lineNum">     161 </span>                :            : 
+<span class="lineNum">     162 </span>                :<span class="lineCov">          2 :         lock(&amp;mdst_lock);</span>
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>                :            :         /* Unmap previous mapping */
+<span class="lineNum">     165 </span>                :<span class="lineCov">          2 :         dump_region_tce_unmap();</span>
+<span class="lineNum">     166 </span>                :<span class="lineCov">          2 :         count = dump_region_tce_map();</span>
+<span class="lineNum">     167 </span>                :            : 
+<span class="lineNum">     168 </span>                :<span class="lineCov">          2 :         msg = fsp_mkmsg(FSP_CMD_HYP_MDST_TABLE, 4, 0,</span>
+<span class="lineNum">     169 </span>                :            :                         PSI_DMA_MDST_TABLE,
+<span class="lineNum">     170 </span>                :            :                         sizeof(*mdst_table) * count,
+<span class="lineNum">     171 </span>                :            :                         sizeof(*mdst_table));
+<span class="lineNum">     172 </span>                :<span class="lineCov">          2 :         unlock(&amp;mdst_lock);</span>
+<span class="lineNum">     173 </span>                :            : 
+<span class="lineNum">     174 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!msg) {</span>
+<span class="lineNum">     175 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_DUMP_MDST_UPDATE),</span>
+<span class="lineNum">     176 </span>                :            :                                  &quot;MDST: Message allocation failed.!\n&quot;);
+<span class="lineNum">     177 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     178 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         } else if (fsp_queue_msg(msg, update_mdst_table_complete)) {</span>
+<span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_DUMP_MDST_UPDATE),</span>
+<span class="lineNum">     180 </span>                :            :                                  &quot;MDST: Failed to queue MDST table message.\n&quot;);
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(msg);</span>
+<span class="lineNum">     182 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     183 </span>                :            :         }
+<span class="lineNum">     184 </span>                :<span class="lineCov">          2 :         return rc;</span>
+<a name="185"><span class="lineNum">     185 </span>                :            : }</a>
+<span class="lineNum">     186 </span>                :            : 
+<span class="lineNum">     187 </span>                :<span class="lineCov">          3 : static int dump_region_del_entry(uint32_t id)</span>
+<span class="lineNum">     188 </span>                :            : {
+<span class="lineNum">     189 </span>                :            :         int i;
+<span class="lineNum">     190 </span>                :            :         uint32_t size;
+<span class="lineNum">     191 </span>                :<span class="lineCov">          3 :         bool found = false;</span>
+<span class="lineNum">     192 </span>                :<span class="lineCov">          3 :         int rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     193 </span>                :            : 
+<span class="lineNum">     194 </span>                :<span class="lineCov">          3 :         lock(&amp;mdst_lock);</span>
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>        [<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span>]:<span class="lineCov">          6 :         for (i = 0; i &lt; cur_mdst_entry; i++) {</span>
+<span class="lineNum">     197 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          3 :                 if (dump_mem_region[i].type != id)</span>
+<span class="lineNum">     198 </span>                :<span class="lineCov">          3 :                         continue;</span>
+<span class="lineNum">     199 </span>                :            : 
+<span class="lineNum">     200 </span>                :            :                 found = true;
+<span class="lineNum">     201 </span>                :            :                 break;
+<span class="lineNum">     202 </span>                :            :         }
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         if (!found) {</span>
+<span class="lineNum">     205 </span>                :            :                 rc = OPAL_PARAMETER;
+<span class="lineNum">     206 </span>                :            :                 goto del_out;
+<span class="lineNum">     207 </span>                :            :         }
+<span class="lineNum">     208 </span>                :            : 
+<span class="lineNum">     209 </span>                :            :         /* Adjust current dump size */
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :         size = get_dump_region_map_size(dump_mem_region[i].addr,</span>
+<span class="lineNum">     211 </span>                :            :                                         dump_mem_region[i].size);
+<span class="lineNum">     212 </span>                :<span class="lineNoCov">          0 :         cur_dump_size -= size;</span>
+<span class="lineNum">     213 </span>                :            : 
+<span class="lineNum">     214 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for ( ; i &lt; cur_mdst_entry - 1; i++)</span>
+<span class="lineNum">     215 </span>                :<span class="lineNoCov">          0 :                 dump_mem_region[i] = dump_mem_region[i + 1];</span>
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :         dump_mem_region[i].type = 0;</span>
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :         cur_mdst_entry--;</span>
+<span class="lineNum">     219 </span>                :            : 
+<span class="lineNum">     220 </span>                :            : del_out:
+<span class="lineNum">     221 </span>                :<span class="lineCov">          3 :         unlock(&amp;mdst_lock);</span>
+<span class="lineNum">     222 </span>                :<span class="lineCov">          3 :         return rc;</span>
+<span class="lineNum">     223 </span>                :            : }
+<a name="224"><span class="lineNum">     224 </span>                :            : </a>
+<span class="lineNum">     225 </span>                :            : /* Add entry to MDST table */
+<span class="lineNum">     226 </span>                :<span class="lineCov">          3 : static int __dump_region_add_entry(uint32_t id, uint64_t addr, uint32_t size)</span>
+<span class="lineNum">     227 </span>                :            : {
+<span class="lineNum">     228 </span>                :<span class="lineCov">          3 :         int rc = OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     229 </span>                :            :         uint32_t act_size;
+<span class="lineNum">     230 </span>                :            : 
+<span class="lineNum">     231 </span>                :            :         /* Delete function takes lock before modifying table */
+<span class="lineNum">     232 </span>                :<span class="lineCov">          3 :         dump_region_del_entry(id);</span>
+<span class="lineNum">     233 </span>                :            : 
+<span class="lineNum">     234 </span>                :<span class="lineCov">          3 :         lock(&amp;mdst_lock);</span>
+<span class="lineNum">     235 </span>                :            : 
+<span class="lineNum">     236 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         if (cur_mdst_entry &gt;= max_mdst_entry) {</span>
+<span class="lineNum">     237 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_DUMP_MDST_ADD),</span>
+<span class="lineNum">     238 </span>                :            :                                  &quot;MDST: Table is full.\n&quot;);
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :                 goto out;</span>
+<span class="lineNum">     240 </span>                :            :         }
+<span class="lineNum">     241 </span>                :            : 
+<span class="lineNum">     242 </span>                :            :         /* TCE alignment adjustment */
+<span class="lineNum">     243 </span>                :<span class="lineCov">          3 :         act_size = get_dump_region_map_size(addr, size);</span>
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>                :            :         /* Make sure we don't cross dump size limit */
+<span class="lineNum">     246 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         if (cur_dump_size + act_size &gt; max_dump_size) {</span>
+<span class="lineNum">     247 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_DUMP_MDST_ADD),</span>
+<span class="lineNum">     248 </span>                :            :                          &quot;MDST: 0x%x is crossing max dump size (0x%x) limit.\n&quot;,
+<span class="lineNum">     249 </span>                :            :                          cur_dump_size + act_size, max_dump_size);
+<span class="lineNum">     250 </span>                :<span class="lineNoCov">          0 :                 goto out;</span>
+<span class="lineNum">     251 </span>                :            :         }
+<span class="lineNum">     252 </span>                :            : 
+<span class="lineNum">     253 </span>                :            :         /* Add entry to dump memory region table */
+<span class="lineNum">     254 </span>                :<span class="lineCov">          3 :         dump_mem_region[cur_mdst_entry].type = id;</span>
+<span class="lineNum">     255 </span>                :<span class="lineCov">          3 :         dump_mem_region[cur_mdst_entry].addr = addr;</span>
+<span class="lineNum">     256 </span>                :<span class="lineCov">          3 :         dump_mem_region[cur_mdst_entry].size = size;</span>
+<span class="lineNum">     257 </span>                :            : 
+<span class="lineNum">     258 </span>                :            :         /* Update dump region count and dump size */
+<span class="lineNum">     259 </span>                :<span class="lineCov">          3 :         cur_mdst_entry++;</span>
+<span class="lineNum">     260 </span>                :<span class="lineCov">          3 :         cur_dump_size += act_size;</span>
+<span class="lineNum">     261 </span>                :            : 
+<span class="lineNum">     262 </span>                :<span class="lineCov">          3 :         printf(&quot;MDST: Addr = 0x%llx [size : 0x%x bytes] added to MDST table.\n&quot;,</span>
+<span class="lineNum">     263 </span>                :            :                (uint64_t)addr, size);
+<span class="lineNum">     264 </span>                :            : 
+<span class="lineNum">     265 </span>                :<span class="lineCov">          3 :         rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     266 </span>                :            : 
+<span class="lineNum">     267 </span>                :            : out:
+<span class="lineNum">     268 </span>                :<span class="lineCov">          3 :         unlock(&amp;mdst_lock);</span>
+<span class="lineNum">     269 </span>                :<span class="lineCov">          3 :         return rc;</span>
+<a name="270"><span class="lineNum">     270 </span>                :            : }</a>
+<span class="lineNum">     271 </span>                :            : 
+<span class="lineNum">     272 </span>                :<span class="lineCov">          1 : static int dump_region_add_entries(void)</span>
+<span class="lineNum">     273 </span>                :            : {
+<span class="lineNum">     274 </span>                :            :         int rc;
+<span class="lineNum">     275 </span>                :            : 
+<span class="lineNum">     276 </span>                :            :         /* Add console buffer */
+<span class="lineNum">     277 </span>                :<span class="lineCov">          1 :         rc = __dump_region_add_entry(DUMP_REGION_CONSOLE,</span>
+<span class="lineNum">     278 </span>                :            :                                      INMEM_CON_START, INMEM_CON_LEN);
+<span class="lineNum">     279 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (rc)</span>
+<span class="lineNum">     280 </span>                :            :                 return rc;
+<span class="lineNum">     281 </span>                :            : 
+<span class="lineNum">     282 </span>                :            :         /* Add HBRT buffer */
+<span class="lineNum">     283 </span>                :<span class="lineCov">          1 :         rc = __dump_region_add_entry(DUMP_REGION_HBRT_LOG,</span>
+<span class="lineNum">     284 </span>                :            :                                      HBRT_CON_START, HBRT_CON_LEN);
+<span class="lineNum">     285 </span>                :            : 
+<span class="lineNum">     286 </span>                :<span class="lineCov">          1 :         return rc;</span>
+<span class="lineNum">     287 </span>                :            : }
+<span class="lineNum">     288 </span>                :            : 
+<span class="lineNum">     289 </span>                :<span class="lineCov">          1 : static int64_t fsp_opal_register_dump_region(uint32_t id,</span>
+<span class="lineNum">     290 </span>                :            :                                              uint64_t addr, uint64_t size)
+<span class="lineNum">     291 </span>                :            : {
+<span class="lineNum">     292 </span>                :<span class="lineCov">          1 :         int rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     293 </span>                :            : 
+<span class="lineNum">     294 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!fsp_present())</span>
+<span class="lineNum">     295 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     296 </span>                :            : 
+<span class="lineNum">     297 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!fsp_mdst_supported()) {</span>
+<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;MDST: Not supported\n&quot;);</span>
+<span class="lineNum">     299 </span>                :<span class="lineNoCov">          0 :                 return OPAL_UNSUPPORTED;</span>
+<span class="lineNum">     300 </span>                :            :         }
+<span class="lineNum">     301 </span>                :            : 
+<span class="lineNum">     302 </span>                :            :         /* Validate memory region id */
+<span class="lineNum">     303 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (id &lt; DUMP_REGION_HOST_START || id &gt; DUMP_REGION_HOST_END) {</span>
+<span class="lineNum">     304 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_DUMP_MDST_ADD),</span>
+<span class="lineNum">     305 </span>                :            :                                  &quot;MDST: Invalid dump region id : 0x%x\n&quot;, id);
+<span class="lineNum">     306 </span>                :<span class="lineNoCov">          0 :                 return OPAL_PARAMETER;</span>
+<span class="lineNum">     307 </span>                :            :         }
+<span class="lineNum">     308 </span>                :            : 
+<span class="lineNum">     309 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (size &lt;= 0) {</span>
+<span class="lineNum">     310 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_DUMP_MDST_ADD),</span>
+<span class="lineNum">     311 </span>                :            :                                  &quot;MDST: Invalid size : 0x%llx\n&quot;, size);
+<span class="lineNum">     312 </span>                :<span class="lineNoCov">          0 :                 return OPAL_PARAMETER;</span>
+<span class="lineNum">     313 </span>                :            :         }
+<span class="lineNum">     314 </span>                :            : 
+<span class="lineNum">     315 </span>                :<span class="lineCov">          1 :         rc = __dump_region_add_entry(id, addr, size);</span>
+<span class="lineNum">     316 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (rc)</span>
+<span class="lineNum">     317 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
+<span class="lineNum">     318 </span>                :            : 
+<span class="lineNum">     319 </span>                :            :         /* Send updated MDST to FSP */
+<span class="lineNum">     320 </span>                :<span class="lineCov">          1 :         rc = fsp_update_mdst_table();</span>
+<span class="lineNum">     321 </span>                :            : 
+<span class="lineNum">     322 </span>                :<span class="lineCov">          1 :         return rc;</span>
+<span class="lineNum">     323 </span>                :            : }
+<span class="lineNum">     324 </span>                :            : 
+<span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_opal_unregister_dump_region(uint32_t id)</span>
+<span class="lineNum">     326 </span>                :            : {
+<span class="lineNum">     327 </span>                :<span class="lineNoCov">          0 :         int rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     328 </span>                :            : 
+<span class="lineNum">     329 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fsp_present())</span>
+<span class="lineNum">     330 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     331 </span>                :            : 
+<span class="lineNum">     332 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fsp_mdst_supported()) {</span>
+<span class="lineNum">     333 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;MDST: Not supported\n&quot;);</span>
+<span class="lineNum">     334 </span>                :<span class="lineNoCov">          0 :                 return OPAL_UNSUPPORTED;</span>
+<span class="lineNum">     335 </span>                :            :         }
+<span class="lineNum">     336 </span>                :            : 
+<span class="lineNum">     337 </span>                :            :         /* Validate memory region id */
+<span class="lineNum">     338 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (id &lt; DUMP_REGION_HOST_START || id &gt; DUMP_REGION_HOST_END) {</span>
+<span class="lineNum">     339 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_DUMP_MDST_REMOVE),</span>
+<span class="lineNum">     340 </span>                :            :                                  &quot;MDST: Invalid dump region id : 0x%x\n&quot;, id);
+<span class="lineNum">     341 </span>                :<span class="lineNoCov">          0 :                 return OPAL_PARAMETER;</span>
+<span class="lineNum">     342 </span>                :            :         }
+<span class="lineNum">     343 </span>                :            : 
+<span class="lineNum">     344 </span>                :<span class="lineNoCov">          0 :         rc = dump_region_del_entry(id);</span>
+<span class="lineNum">     345 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     346 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_DUMP_MDST_REMOVE),</span>
+<span class="lineNum">     347 </span>                :            :                                  &quot;MDST: dump region id : 0x%x not found\n&quot;, id);
+<span class="lineNum">     348 </span>                :<span class="lineNoCov">          0 :                 return OPAL_PARAMETER;</span>
+<span class="lineNum">     349 </span>                :            :         }
+<span class="lineNum">     350 </span>                :            : 
+<span class="lineNum">     351 </span>                :            :         /* Send updated MDST to FSP */
+<span class="lineNum">     352 </span>                :<span class="lineNoCov">          0 :         rc = fsp_update_mdst_table();</span>
+<span class="lineNum">     353 </span>                :            : 
+<span class="lineNum">     354 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     355 </span>                :            : }
+<a name="356"><span class="lineNum">     356 </span>                :            : </a>
+<span class="lineNum">     357 </span>                :            : /* TCE mapping */
+<span class="lineNum">     358 </span>                :<span class="lineCov">          1 : static inline void mdst_table_tce_map(void)</span>
+<span class="lineNum">     359 </span>                :            : {
+<span class="lineNum">     360 </span>                :<span class="lineCov">          1 :         fsp_tce_map(PSI_DMA_MDST_TABLE, mdst_table, PSI_DMA_MDST_TABLE_SIZE);</span>
+<span class="lineNum">     361 </span>                :<span class="lineCov">          1 : }</span>
+<a name="362"><span class="lineNum">     362 </span>                :            : </a>
+<span class="lineNum">     363 </span>                :            : /* Initialize MDST table */
+<span class="lineNum">     364 </span>                :<span class="lineCov">          1 : static int mdst_table_init(void)</span>
+<span class="lineNum">     365 </span>                :            : {
+<span class="lineNum">     366 </span>                :<span class="lineCov">          1 :         dump_mem_region = memalign(TCE_PSIZE, PSI_DMA_MDST_TABLE_SIZE);</span>
+<span class="lineNum">     367 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!dump_mem_region) {</span>
+<span class="lineNum">     368 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_DUMP_MDST_INIT),</span>
+<span class="lineNum">     369 </span>                :            :                          &quot;MDST: Failed to allocate memory for dump &quot;
+<span class="lineNum">     370 </span>                :            :                          &quot;memory region table.\n&quot;);
+<span class="lineNum">     371 </span>                :<span class="lineNoCov">          0 :                 return -ENOMEM;</span>
+<span class="lineNum">     372 </span>                :            :         }
+<span class="lineNum">     373 </span>                :            : 
+<span class="lineNum">     374 </span>                :<span class="lineCov">          1 :         memset(dump_mem_region, 0, PSI_DMA_MDST_TABLE_SIZE);</span>
+<span class="lineNum">     375 </span>                :            : 
+<span class="lineNum">     376 </span>                :<span class="lineCov">          1 :         mdst_table = memalign(TCE_PSIZE, PSI_DMA_MDST_TABLE_SIZE);</span>
+<span class="lineNum">     377 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!mdst_table) {</span>
+<span class="lineNum">     378 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_DUMP_MDST_INIT),</span>
+<span class="lineNum">     379 </span>                :            :                          &quot;MDST: Failed to allocate memory for MDST table.\n&quot;);
+<span class="lineNum">     380 </span>                :<span class="lineNoCov">          0 :                 return -ENOMEM;</span>
+<span class="lineNum">     381 </span>                :            :         }
+<span class="lineNum">     382 </span>                :            : 
+<span class="lineNum">     383 </span>                :<span class="lineCov">          1 :         memset(mdst_table, 0, PSI_DMA_MDST_TABLE_SIZE);</span>
+<span class="lineNum">     384 </span>                :<span class="lineCov">          1 :         mdst_table_tce_map();</span>
+<span class="lineNum">     385 </span>                :            : 
+<span class="lineNum">     386 </span>                :<span class="lineCov">          1 :         max_mdst_entry = PSI_DMA_MDST_TABLE_SIZE / sizeof(*mdst_table);</span>
+<span class="lineNum">     387 </span>                :<span class="lineCov">          1 :         printf(&quot;MDST: Max entries in MDST table : %d\n&quot;, max_mdst_entry);</span>
+<span class="lineNum">     388 </span>                :            : 
+<span class="lineNum">     389 </span>                :<span class="lineCov">          1 :         return OPAL_SUCCESS;</span>
+<span class="lineNum">     390 </span>                :            : }
+<span class="lineNum">     391 </span>                :            : 
+<span class="lineNum">     392 </span>                :            : /*
+<a name="393"><span class="lineNum">     393 </span>                :            :  * Handle FSP R/R event.</a>
+<span class="lineNum">     394 </span>                :            :  */
+<span class="lineNum">     395 </span>                :<span class="lineNoCov">          0 : static bool fsp_mdst_update_rr(uint32_t cmd_sub_mod,</span>
+<span class="lineNum">     396 </span>                :            :                                struct fsp_msg *msg __unused)
+<span class="lineNum">     397 </span>                :            : {
+<span class="lineNum">     398 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (cmd_sub_mod) {</span>
+<span class="lineNum">     399 </span>                :            :         case FSP_RESET_START:
+<span class="lineNum">     400 </span>                :            :                 return true;
+<span class="lineNum">     401 </span>                :            :         case FSP_RELOAD_COMPLETE: /* Send MDST to FSP */
+<span class="lineNum">     402 </span>                :<span class="lineNoCov">          0 :                 fsp_update_mdst_table();</span>
+<span class="lineNum">     403 </span>                :<span class="lineNoCov">          0 :                 return true;</span>
+<span class="lineNum">     404 </span>                :            :         }
+<span class="lineNum">     405 </span>                :<span class="lineNoCov">          0 :         return false;</span>
+<span class="lineNum">     406 </span>                :            : }
+<span class="lineNum">     407 </span>                :            : 
+<span class="lineNum">     408 </span>                :            : static struct fsp_client fsp_mdst_client_rr = {
+<span class="lineNum">     409 </span>                :            :         .message = fsp_mdst_update_rr,
+<span class="lineNum">     410 </span>                :            : };
+<span class="lineNum">     411 </span>                :            : 
+<span class="lineNum">     412 </span>                :            : /* Initialize MDST table and send notification to FSP */
+<span class="lineNum">     413 </span>                :<span class="lineCov">          1 : void fsp_mdst_table_init(void)</span>
+<span class="lineNum">     414 </span>                :            : {
+<span class="lineNum">     415 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!fsp_present())</span>
+<span class="lineNum">     416 </span>                :            :                 return;
+<span class="lineNum">     417 </span>                :            : 
+<span class="lineNum">     418 </span>                :            :         /* OPAL interface */
+<span class="lineNum">     419 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_REGISTER_DUMP_REGION,</span>
+<span class="lineNum">     420 </span>                :            :                       fsp_opal_register_dump_region, 3);
+<span class="lineNum">     421 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_UNREGISTER_DUMP_REGION,</span>
+<span class="lineNum">     422 </span>                :            :                       fsp_opal_unregister_dump_region, 1);
+<span class="lineNum">     423 </span>                :            : 
+<span class="lineNum">     424 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!fsp_mdst_supported())</span>
+<span class="lineNum">     425 </span>                :            :                 return;
+<span class="lineNum">     426 </span>                :            : 
+<span class="lineNum">     427 </span>                :            :         /* Initiate MDST */
+<span class="lineNum">     428 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if (mdst_table_init() != OPAL_SUCCESS)</span>
+<span class="lineNum">     429 </span>                :            :                 return;
+<span class="lineNum">     430 </span>                :            : 
+<span class="lineNum">     431 </span>                :            :         /*
+<span class="lineNum">     432 </span>                :            :          * Ignore return code from mdst_table_add_entries so that
+<span class="lineNum">     433 </span>                :            :          * we can atleast capture partial dump.
+<span class="lineNum">     434 </span>                :            :          */
+<span class="lineNum">     435 </span>                :<span class="lineCov">          1 :         dump_region_add_entries();</span>
+<span class="lineNum">     436 </span>                :<span class="lineCov">          1 :         fsp_update_mdst_table();</span>
+<span class="lineNum">     437 </span>                :            : 
+<span class="lineNum">     438 </span>                :            :         /* Register for Class AA (FSP R/R) */
+<span class="lineNum">     439 </span>                :<span class="lineCov">          1 :         fsp_register_client(&amp;fsp_mdst_client_rr, FSP_MCLASS_RR_EVENT);</span>
+<span class="lineNum">     440 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

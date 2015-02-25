@@ -1,0 +1,292 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - core/fdt.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">core</a> - fdt.c<span style="font-size: 80%;"> (source / <a href="fdt.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">54</td>
+            <td class="headerCovTableEntry">63</td>
+            <td class="headerCovTableEntryMed">85.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntryLo">58.3 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;stdarg.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;libfdt.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;device.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;cpu.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;opal.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;interrupts.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;fsp.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;cec.h&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;vpd.h&gt;
+<span class="lineNum">      27 </span>                :            : #include &lt;ccan/str/str.h&gt;
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            : static int fdt_error;
+<span class="lineNum">      30 </span>                :            : static void *fdt;
+<span class="lineNum">      31 </span>                :            : 
+<a name="32"><span class="lineNum">      32 </span>                :            : #undef DEBUG_FDT</a>
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :<span class="lineCov">       1915 : static void __save_err(int err, const char *str)</span>
+<span class="lineNum">      35 </span>                :            : {
+<span class="lineNum">      36 </span>                :            : #ifdef DEBUG_FDT
+<span class="lineNum">      37 </span>                :            :         printf(&quot;FDT: rc: %d from \&quot;%s\&quot;\n&quot;, err, str);
+<span class="lineNum">      38 </span>                :            : #endif
+<span class="lineNum">      39 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1915 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">       1915 :         if (err &amp;&amp; !fdt_error) {</span>
+<span class="lineNum">      40 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FDT: Error %d from \&quot;%s\&quot;\n&quot;, err, str);</span>
+<span class="lineNum">      41 </span>                :<span class="lineNoCov">          0 :                 fdt_error = err;</span>
+<span class="lineNum">      42 </span>                :            :         }
+<span class="lineNum">      43 </span>                :<span class="lineCov">       1915 : }</span>
+<span class="lineNum">      44 </span>                :            : 
+<a name="45"><span class="lineNum">      45 </span>                :            : #define save_err(...) __save_err(__VA_ARGS__, #__VA_ARGS__)</a>
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>                :<span class="lineCov">        314 : static void dt_property_cell(const char *name, u32 cell)</span>
+<span class="lineNum">      48 </span>                :            : {
+<span class="lineNum">      49 </span>                :<span class="lineCov">        314 :         save_err(fdt_property_cell(fdt, name, cell));</span>
+<a name="50"><span class="lineNum">      50 </span>                :<span class="lineCov">        314 : }</span></a>
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :<span class="lineCov">        157 : static void dt_begin_node(const char *name, uint32_t phandle)</span>
+<span class="lineNum">      53 </span>                :            : {
+<span class="lineNum">      54 </span>                :<span class="lineCov">        157 :         save_err(fdt_begin_node(fdt, name));</span>
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :            :         /*
+<span class="lineNum">      57 </span>                :            :          * We add both the new style &quot;phandle&quot; and the legacy
+<span class="lineNum">      58 </span>                :            :          * &quot;linux,phandle&quot; properties
+<span class="lineNum">      59 </span>                :            :          */
+<span class="lineNum">      60 </span>                :<span class="lineCov">        157 :         dt_property_cell(&quot;linux,phandle&quot;, phandle);</span>
+<span class="lineNum">      61 </span>                :<span class="lineCov">        157 :         dt_property_cell(&quot;phandle&quot;, phandle);</span>
+<a name="62"><span class="lineNum">      62 </span>                :<span class="lineCov">        157 : }</span></a>
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :<span class="lineCov">       1275 : static void dt_property(const char *name, const void *val, size_t size)</span>
+<span class="lineNum">      65 </span>                :            : {
+<span class="lineNum">      66 </span>                :<span class="lineCov">       1275 :         save_err(fdt_property(fdt, name, val, size));</span>
+<a name="67"><span class="lineNum">      67 </span>                :<span class="lineCov">       1275 : }</span></a>
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :<span class="lineCov">        157 : static void dt_end_node(void)</span>
+<span class="lineNum">      70 </span>                :            : {
+<span class="lineNum">      71 </span>                :<span class="lineCov">        157 :         save_err(fdt_end_node(fdt));</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">        157 : }</span>
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :            : static void dump_fdt(void)
+<span class="lineNum">      75 </span>                :            : {
+<span class="lineNum">      76 </span>                :            : #ifdef DEBUG_FDT
+<span class="lineNum">      77 </span>                :            :         int i, off, depth, err;
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>                :            :         printf(&quot;Device tree %u@%p\n&quot;, fdt_totalsize(fdt), fdt);
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :            :         err = fdt_check_header(fdt);
+<span class="lineNum">      82 </span>                :            :         if (err) {
+<span class="lineNum">      83 </span>                :            :                 prerror(&quot;fdt_check_header: %s\n&quot;, fdt_strerror(err));
+<span class="lineNum">      84 </span>                :            :                 return;
+<span class="lineNum">      85 </span>                :            :         }
+<span class="lineNum">      86 </span>                :            :         printf(&quot;fdt_check_header passed\n&quot;);
+<span class="lineNum">      87 </span>                :            : 
+<span class="lineNum">      88 </span>                :            :         printf(&quot;fdt_num_mem_rsv = %u\n&quot;, fdt_num_mem_rsv(fdt));
+<span class="lineNum">      89 </span>                :            :         for (i = 0; i &lt; fdt_num_mem_rsv(fdt); i++) {
+<span class="lineNum">      90 </span>                :            :                 u64 addr, size;
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :            :                 err = fdt_get_mem_rsv(fdt, i, &amp;addr, &amp;size);
+<span class="lineNum">      93 </span>                :            :                 if (err) {
+<span class="lineNum">      94 </span>                :            :                         printf(&quot; ERR %s\n&quot;, fdt_strerror(err));
+<span class="lineNum">      95 </span>                :            :                         return;
+<span class="lineNum">      96 </span>                :            :                 }
+<span class="lineNum">      97 </span>                :            :                 printf(&quot;  mem_rsv[%i] = %lu@%#lx\n&quot;, i, (long)addr, (long)size);
+<span class="lineNum">      98 </span>                :            :         }
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :            :         for (off = fdt_next_node(fdt, 0, &amp;depth);
+<span class="lineNum">     101 </span>                :            :              off &gt; 0;
+<span class="lineNum">     102 </span>                :            :              off = fdt_next_node(fdt, off, &amp;depth)) {
+<span class="lineNum">     103 </span>                :            :                 int len;
+<span class="lineNum">     104 </span>                :            :                 const char *name;
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :            :                 name = fdt_get_name(fdt, off, &amp;len);
+<span class="lineNum">     107 </span>                :            :                 if (!name) {
+<span class="lineNum">     108 </span>                :            :                         prerror(&quot;fdt: offset %i no name!\n&quot;, off);
+<span class="lineNum">     109 </span>                :            :                         return;
+<span class="lineNum">     110 </span>                :            :                 }
+<span class="lineNum">     111 </span>                :            :                 printf(&quot;name: %s [%u]\n&quot;, name, off);
+<span class="lineNum">     112 </span>                :            :         }
+<span class="lineNum">     113 </span>                :            : #endif
+<a name="114"><span class="lineNum">     114 </span>                :            : }</a>
+<span class="lineNum">     115 </span>                :            : 
+<span class="lineNum">     116 </span>                :<span class="lineCov">        157 : static void flatten_dt_node(const struct dt_node *root)</span>
+<span class="lineNum">     117 </span>                :            : {
+<span class="lineNum">     118 </span>                :            :         const struct dt_node *i;
+<span class="lineNum">     119 </span>                :            :         const struct dt_property *p;
+<span class="lineNum">     120 </span>                :            : 
+<span class="lineNum">     121 </span>                :            : #ifdef DEBUG_FDT
+<span class="lineNum">     122 </span>                :            :         printf(&quot;FDT: node: %s\n&quot;, root-&gt;name);
+<span class="lineNum">     123 </span>                :            : #endif
+<span class="lineNum">     124 </span>                :            : 
+<span class="lineNum">     125 </span>        [<span class="branchCov" title="Branch 0 was taken 1276 times"> + </span><span class="branchCov" title="Branch 1 was taken 157 times"> + </span>]:<span class="lineCov">       1433 :         list_for_each(&amp;root-&gt;properties, p, list) {</span>
+<span class="lineNum">     126 </span>        [<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 1275 times"> + </span>]:<span class="lineCov">       1276 :                 if (strstarts(p-&gt;name, DT_PRIVATE))</span>
+<span class="lineNum">     127 </span>                :<span class="lineCov">          1 :                         continue;</span>
+<span class="lineNum">     128 </span>                :            : #ifdef DEBUG_FDT
+<span class="lineNum">     129 </span>                :            :                 printf(&quot;FDT:   prop: %s size: %ld\n&quot;, p-&gt;name, p-&gt;len);
+<span class="lineNum">     130 </span>                :            : #endif
+<span class="lineNum">     131 </span>                :<span class="lineCov">       1275 :                 dt_property(p-&gt;name, p-&gt;prop, p-&gt;len);</span>
+<span class="lineNum">     132 </span>                :            :         }
+<span class="lineNum">     133 </span>                :            : 
+<span class="lineNum">     134 </span>        [<span class="branchCov" title="Branch 0 was taken 156 times"> + </span><span class="branchCov" title="Branch 1 was taken 157 times"> + </span>]:<span class="lineCov">        313 :         list_for_each(&amp;root-&gt;children, i, list) {</span>
+<span class="lineNum">     135 </span>                :<span class="lineCov">        156 :                 dt_begin_node(i-&gt;name, i-&gt;phandle);</span>
+<span class="lineNum">     136 </span>                :<span class="lineCov">        156 :                 flatten_dt_node(i);</span>
+<span class="lineNum">     137 </span>                :<span class="lineCov">        156 :                 dt_end_node();</span>
+<span class="lineNum">     138 </span>                :            :         }
+<a name="139"><span class="lineNum">     139 </span>                :<span class="lineCov">        157 : }</span></a>
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>                :<span class="lineCov">          1 : static void create_dtb_reservemap(const struct dt_node *root)</span>
+<span class="lineNum">     142 </span>                :            : {
+<span class="lineNum">     143 </span>                :            :         uint64_t base, size;
+<span class="lineNum">     144 </span>                :            :         const uint64_t *ranges;
+<span class="lineNum">     145 </span>                :            :         const struct dt_property *prop;
+<span class="lineNum">     146 </span>                :            :         int i;
+<span class="lineNum">     147 </span>                :            : 
+<span class="lineNum">     148 </span>                :            :         /* Duplicate the reserved-ranges property into the fdt reservemap */
+<span class="lineNum">     149 </span>                :<span class="lineCov">          1 :         prop = dt_find_property(root, &quot;reserved-ranges&quot;);</span>
+<span class="lineNum">     150 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (prop) {</span>
+<span class="lineNum">     151 </span>                :<span class="lineCov">          1 :                 ranges = (const void *)prop-&gt;prop;</span>
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         11 :                 for (i = 0; i &lt; prop-&gt;len / (sizeof(uint64_t) * 2); i++) {</span>
+<span class="lineNum">     154 </span>                :<span class="lineCov">         10 :                         base = *(ranges++);</span>
+<span class="lineNum">     155 </span>                :<span class="lineCov">         10 :                         size = *(ranges++);</span>
+<span class="lineNum">     156 </span>                :<span class="lineCov">         10 :                         save_err(fdt_add_reservemap_entry(fdt, base, size));</span>
+<span class="lineNum">     157 </span>                :            :                 }
+<span class="lineNum">     158 </span>                :            :         }
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>                :<span class="lineCov">          1 :         save_err(fdt_finish_reservemap(fdt));</span>
+<a name="161"><span class="lineNum">     161 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     162 </span>                :            : 
+<span class="lineNum">     163 </span>                :<span class="lineCov">          1 : void *create_dtb(const struct dt_node *root)</span>
+<span class="lineNum">     164 </span>                :            : {
+<span class="lineNum">     165 </span>                :<span class="lineCov">          1 :         size_t len = DEVICE_TREE_MAX_SIZE;</span>
+<span class="lineNum">     166 </span>                :<span class="lineCov">          1 :         uint32_t old_last_phandle = last_phandle;</span>
+<span class="lineNum">     167 </span>                :            : 
+<span class="lineNum">     168 </span>                :            :         do {
+<span class="lineNum">     169 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                 if (fdt)</span>
+<span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 :                         free(fdt);</span>
+<span class="lineNum">     171 </span>                :<span class="lineCov">          1 :                 last_phandle = old_last_phandle;</span>
+<span class="lineNum">     172 </span>                :<span class="lineCov">          1 :                 fdt_error = 0;</span>
+<span class="lineNum">     173 </span>                :<span class="lineCov">          1 :                 fdt = malloc(len);</span>
+<span class="lineNum">     174 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                 if (!fdt) {</span>
+<span class="lineNum">     175 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;dtb: could not malloc %lu\n&quot;, (long)len);</span>
+<span class="lineNum">     176 </span>                :<span class="lineNoCov">          0 :                         return NULL;</span>
+<span class="lineNum">     177 </span>                :            :                 }
+<span class="lineNum">     178 </span>                :            : 
+<span class="lineNum">     179 </span>                :<span class="lineCov">          1 :                 fdt_create(fdt, len);</span>
+<span class="lineNum">     180 </span>                :            : 
+<span class="lineNum">     181 </span>                :<span class="lineCov">          1 :                 create_dtb_reservemap(root);</span>
+<span class="lineNum">     182 </span>                :            : 
+<span class="lineNum">     183 </span>                :            :                 /* Open root node */
+<span class="lineNum">     184 </span>                :<span class="lineCov">          1 :                 dt_begin_node(root-&gt;name, root-&gt;phandle);</span>
+<span class="lineNum">     185 </span>                :            : 
+<span class="lineNum">     186 </span>                :            :                 /* Unflatten our live tree */
+<span class="lineNum">     187 </span>                :<span class="lineCov">          1 :                 flatten_dt_node(root);</span>
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :            :                 /* Close root node */
+<span class="lineNum">     190 </span>                :<span class="lineCov">          1 :                 dt_end_node();</span>
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>                :<span class="lineCov">          1 :                 save_err(fdt_finish(fdt));</span>
+<span class="lineNum">     193 </span>                :            : 
+<span class="lineNum">     194 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                 if (!fdt_error)</span>
+<span class="lineNum">     195 </span>                :            :                         break;
+<span class="lineNum">     196 </span>                :            : 
+<span class="lineNum">     197 </span>                :<span class="lineNoCov">          0 :                 len *= 2;</span>
+<span class="lineNum">     198 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         } while (fdt_error == -FDT_ERR_NOSPACE);</span>
+<span class="lineNum">     199 </span>                :            : 
+<span class="lineNum">     200 </span>                :            :         dump_fdt();
+<span class="lineNum">     201 </span>                :            : 
+<span class="lineNum">     202 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (fdt_error) {</span>
+<span class="lineNum">     203 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;dtb: error %s\n&quot;, fdt_strerror(fdt_error));</span>
+<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :                 return NULL;</span>
+<span class="lineNum">     205 </span>                :            :         }
+<span class="lineNum">     206 </span>                :<span class="lineCov">          1 :         return fdt;</span>
+<span class="lineNum">     207 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

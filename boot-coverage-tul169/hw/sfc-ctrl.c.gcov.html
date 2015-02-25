@@ -1,0 +1,609 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/sfc-ctrl.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">hw</a> - sfc-ctrl.c<span style="font-size: 80%;"> (source / <a href="sfc-ctrl.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">180</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">112</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : #include &lt;stdint.h&gt;
+<span class="lineNum">      17 </span>                :            : #include &lt;stdbool.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;errno.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;stdio.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;string.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;time.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;lpc.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;sfc-ctrl.h&gt;
+<span class="lineNum">      25 </span>                :            : 
+<span class="lineNum">      26 </span>                :            : #include &lt;libflash/libflash.h&gt;
+<span class="lineNum">      27 </span>                :            : #include &lt;libflash/libflash-priv.h&gt;
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            : /* Offset of SFC registers in FW space */
+<span class="lineNum">      30 </span>                :            : #define SFC_CMDREG_OFFSET       0x00000c00
+<span class="lineNum">      31 </span>                :            : /* Offset of SFC command buffer in FW space */
+<span class="lineNum">      32 </span>                :            : #define SFC_CMDBUF_OFFSET       0x00000d00
+<span class="lineNum">      33 </span>                :            : /* Offset of flash MMIO mapping in FW space */
+<span class="lineNum">      34 </span>                :            : #define SFC_MMIO_OFFSET         0x0c000000
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :            : 
+<span class="lineNum">      37 </span>                :            : /*
+<span class="lineNum">      38 </span>                :            :  * Register definitions
+<span class="lineNum">      39 </span>                :            :  */
+<span class="lineNum">      40 </span>                :            : #define SFC_REG_CONF      0x10 /* CONF: Direct Access Configuration */
+<span class="lineNum">      41 </span>                :            : #define SFC_REG_CONF_FRZE               (1 &lt;&lt; 3)
+<span class="lineNum">      42 </span>                :            : #define SFC_REG_CONF_ECCEN              (1 &lt;&lt; 2)
+<span class="lineNum">      43 </span>                :            : #define SFC_REG_CONF_DRCD               (1 &lt;&lt; 1)
+<span class="lineNum">      44 </span>                :            : #define SFC_REG_CONF_FLRLD              (1 &lt;&lt; 0)
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            : #define SFC_REG_STATUS    0x0C /* STATUS : Status Reg */
+<span class="lineNum">      47 </span>                :            : #define SFC_REG_STATUS_NX_ON_SHFT       28
+<span class="lineNum">      48 </span>                :            : #define SFC_REG_STATUS_RWP              (1 &lt;&lt; 27)
+<span class="lineNum">      49 </span>                :            : #define SFC_REG_STATUS_FOURBYTEAD       (1 &lt;&lt; 26)
+<span class="lineNum">      50 </span>                :            : #define SFC_REG_STATUS_ILLEGAL          (1 &lt;&lt; 4)
+<span class="lineNum">      51 </span>                :            : #define SFC_REG_STATUS_ECCERRCNTN       (1 &lt;&lt; 3)
+<span class="lineNum">      52 </span>                :            : #define SFC_REG_STATUS_ECCUEN           (1 &lt;&lt; 2)
+<span class="lineNum">      53 </span>                :            : #define SFC_REG_STATUS_DONE             (1 &lt;&lt; 0)
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            : #define SFC_REG_CMD       0x40 /* CMD : Command */
+<span class="lineNum">      56 </span>                :            : #define SFC_REG_CMD_OPCODE_SHFT         9
+<span class="lineNum">      57 </span>                :            : #define SFC_REG_CMD_LENGTH_SHFT         0
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :            : #define SFC_REG_SPICLK    0x3C /* SPICLK: SPI clock rate config */
+<span class="lineNum">      60 </span>                :            : #define SFC_REG_SPICLK_OUTDLY_SHFT      24
+<span class="lineNum">      61 </span>                :            : #define SFC_REG_SPICLK_INSAMPDLY_SHFT   16
+<span class="lineNum">      62 </span>                :            : #define SFC_REG_SPICLK_CLKHI_SHFT       8
+<span class="lineNum">      63 </span>                :            : #define SFC_REG_SPICLK_CLKLO_SHFT       0
+<span class="lineNum">      64 </span>                :            : 
+<span class="lineNum">      65 </span>                :            : #define SFC_REG_ADR       0x44 /* ADR : Address */
+<span class="lineNum">      66 </span>                :            : #define SFC_REG_ERASMS    0x48 /* ERASMS : Small Erase Block Size */
+<span class="lineNum">      67 </span>                :            : #define SFC_REG_ERASLGS   0x4C /* ERALGS : Large Erase Block Size */
+<span class="lineNum">      68 </span>                :            : #define SFC_REG_CONF4     0x54 /* CONF4  : SPI Op Code for Small Erase */
+<span class="lineNum">      69 </span>                :            : #define SFC_REG_CONF5     0x58 /* CONF5  : Small Erase Size config reg */
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>                :            : #define SFC_REG_CONF8     0x64 /* CONF8  : Read Command */
+<span class="lineNum">      72 </span>                :            : #define SFC_REG_CONF8_CSINACTIVERD_SHFT 18
+<span class="lineNum">      73 </span>                :            : #define SFC_REG_CONF8_DUMMY_SHFT        8
+<span class="lineNum">      74 </span>                :            : #define SFC_REG_CONF8_READOP_SHFT       0
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :            : #define SFC_REG_ADRCBF    0x80 /* ADRCBF : First Intf NOR Addr Offset */
+<span class="lineNum">      77 </span>                :            : #define SFC_REG_ADRCMF    0x84 /* ADRCMF : First Intf NOR Allocation */
+<span class="lineNum">      78 </span>                :            : #define SFC_REG_ADRCBS    0x88 /* ADRCBS : Second Intf NOR Addr Offset */
+<span class="lineNum">      79 </span>                :            : #define SFC_REG_ADRCMS    0x8C /* ADRCMS : Second Intf NOR Allocation */
+<span class="lineNum">      80 </span>                :            : #define SFC_REG_OADRNB    0x90 /* OADRNB : Direct Access OBP Window Base Address */
+<span class="lineNum">      81 </span>                :            : #define SFC_REG_OADRNS    0x94 /* OADRNS : DIrect Access OPB Window Size */
+<span class="lineNum">      82 </span>                :            : 
+<span class="lineNum">      83 </span>                :            : #define SFC_REG_CHIPIDCONF    0x9C /* CHIPIDCONF : config ChipId CMD */
+<span class="lineNum">      84 </span>                :            : #define SFC_REG_CHIPIDCONF_OPCODE_SHFT  24
+<span class="lineNum">      85 </span>                :            : #define SFC_REG_CHIPIDCONF_READ         (1 &lt;&lt; 23)
+<span class="lineNum">      86 </span>                :            : #define SFC_REG_CHIPIDCONF_WRITE        (1 &lt;&lt; 22)
+<span class="lineNum">      87 </span>                :            : #define SFC_REG_CHIPIDCONF_USE_ADDR     (1 &lt;&lt; 21)
+<span class="lineNum">      88 </span>                :            : #define SFC_REG_CHIPIDCONF_DUMMY_SHFT   16
+<span class="lineNum">      89 </span>                :            : #define SFC_REG_CHIPIDCONF_LEN_SHFT     0
+<span class="lineNum">      90 </span>                :            : 
+<span class="lineNum">      91 </span>                :            : /*
+<span class="lineNum">      92 </span>                :            :  * SFC Opcodes
+<span class="lineNum">      93 </span>                :            :  */
+<span class="lineNum">      94 </span>                :            : #define SFC_OP_READRAW      0x03 /* Read Raw */
+<span class="lineNum">      95 </span>                :            : #define SFC_OP_WRITERAW     0x02 /* Write Raw */
+<span class="lineNum">      96 </span>                :            : #define SFC_OP_ERASM        0x32 /* Erase Small */
+<span class="lineNum">      97 </span>                :            : #define SFC_OP_ERALG        0x34 /* Erase Large */
+<span class="lineNum">      98 </span>                :            : #define SFC_OP_ENWRITPROT   0x53 /* Enable WRite Protect */
+<span class="lineNum">      99 </span>                :            : #define SFC_OP_CHIPID       0x1F /* Get Chip ID */
+<span class="lineNum">     100 </span>                :            : #define SFC_OP_STATUS       0x05 /* Get Status */
+<span class="lineNum">     101 </span>                :            : #define SFC_OP_TURNOFF      0x5E /* Turn Off */
+<span class="lineNum">     102 </span>                :            : #define SFC_OP_TURNON       0x50 /* Turn On */
+<span class="lineNum">     103 </span>                :            : #define SFC_OP_ABORT        0x6F /* Super-Abort */
+<span class="lineNum">     104 </span>                :            : #define SFC_OP_START4BA     0x37 /* Start 4BA */
+<span class="lineNum">     105 </span>                :            : #define SFC_OP_END4BA       0x69 /* End 4BA */
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :            : /* Command buffer size */
+<span class="lineNum">     108 </span>                :            : #define SFC_CMDBUF_SIZE     256
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>                :            : struct sfc_ctrl {
+<span class="lineNum">     111 </span>                :            :         /* Erase sizes */
+<span class="lineNum">     112 </span>                :            :         uint32_t                small_er_size;
+<span class="lineNum">     113 </span>                :            :         uint32_t                large_er_size;
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>                :            :         /* Current 4b mode */
+<span class="lineNum">     116 </span>                :            :         bool                    mode_4b;
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>                :            :         /* Callbacks */
+<span class="lineNum">     119 </span>                :            :         struct spi_flash_ctrl   ops;
+<span class="lineNum">     120 </span>                :            : };
+<a name="121"><span class="lineNum">     121 </span>                :            : </a>
+<span class="lineNum">     122 </span>                :            : /* Command register support */
+<span class="lineNum">     123 </span>                :<span class="lineNoCov">          0 : static inline int sfc_reg_read(uint8_t reg, uint32_t *val)</span>
+<span class="lineNum">     124 </span>                :            : {
+<span class="lineNum">     125 </span>                :            :         uint32_t tmp;
+<span class="lineNum">     126 </span>                :            :         int rc;
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>                :<span class="lineNoCov">          0 :         *val = 0xffffffff;</span>
+<span class="lineNum">     129 </span>                :<span class="lineNoCov">          0 :         rc = lpc_fw_read32(&amp;tmp, SFC_CMDREG_OFFSET + reg);</span>
+<span class="lineNum">     130 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     131 </span>                :            :                 return rc;
+<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :         *val = be32_to_cpu(tmp);</span>
+<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<a name="134"><span class="lineNum">     134 </span>                :            : }</a>
+<span class="lineNum">     135 </span>                :            : 
+<span class="lineNum">     136 </span>                :<span class="lineNoCov">          0 : static inline int sfc_reg_write(uint8_t reg, uint32_t val)</span>
+<span class="lineNum">     137 </span>                :            : {
+<span class="lineNum">     138 </span>                :<span class="lineNoCov">          0 :         return lpc_fw_write32(cpu_to_be32(val), SFC_CMDREG_OFFSET + reg);</span>
+<a name="139"><span class="lineNum">     139 </span>                :            : }</a>
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>                :<span class="lineNoCov">          0 : static int sfc_buf_write(uint32_t len, const void *data)</span>
+<span class="lineNum">     142 </span>                :            : {
+<span class="lineNum">     143 </span>                :<span class="lineNoCov">          0 :         uint32_t tmp, off = 0;</span>
+<span class="lineNum">     144 </span>                :            :         int rc;
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (len &gt; SFC_CMDBUF_SIZE)</span>
+<span class="lineNum">     147 </span>                :            :                 return FLASH_ERR_PARM_ERROR;
+<span class="lineNum">     148 </span>                :            : 
+<span class="lineNum">     149 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while (len &gt;= 4) {</span>
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :                 tmp = *(const uint32_t *)data;</span>
+<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :                 rc = lpc_fw_write32(tmp, SFC_CMDBUF_OFFSET + off);</span>
+<span class="lineNum">     152 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     153 </span>                :            :                         return rc;
+<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 :                 off += 4;</span>
+<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :                 len -= 4;</span>
+<span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 :                 data += 4;</span>
+<span class="lineNum">     157 </span>                :            :         }
+<span class="lineNum">     158 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!len)</span>
+<span class="lineNum">     159 </span>                :            :                 return 0;
+<span class="lineNum">     160 </span>                :            : 
+<span class="lineNum">     161 </span>                :            :         /* lpc_fw_write operates on BE values so that's what we layout
+<span class="lineNum">     162 </span>                :            :          * in memory with memcpy. The swap in the register on LE doesn't
+<span class="lineNum">     163 </span>                :            :          * matter, the result in memory will be in the right order.
+<span class="lineNum">     164 </span>                :            :          */
+<span class="lineNum">     165 </span>                :<span class="lineNoCov">          0 :         tmp = -1;</span>
+<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :         memcpy(&amp;tmp, data, len);</span>
+<span class="lineNum">     167 </span>                :<span class="lineNoCov">          0 :         return lpc_fw_write32(tmp, SFC_CMDBUF_OFFSET + off);</span>
+<a name="168"><span class="lineNum">     168 </span>                :            : }</a>
+<span class="lineNum">     169 </span>                :            : 
+<span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 : static int sfc_buf_read(uint32_t len, void *data)</span>
+<span class="lineNum">     171 </span>                :            : {
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :         uint32_t tmp, off = 0;</span>
+<span class="lineNum">     173 </span>                :            :         int rc;
+<span class="lineNum">     174 </span>                :            : 
+<span class="lineNum">     175 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (len &gt; SFC_CMDBUF_SIZE)</span>
+<span class="lineNum">     176 </span>                :            :                 return FLASH_ERR_PARM_ERROR;
+<span class="lineNum">     177 </span>                :            : 
+<span class="lineNum">     178 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while (len &gt;= 4) {</span>
+<span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :                 rc = lpc_fw_read32(data, SFC_CMDBUF_OFFSET + off);</span>
+<span class="lineNum">     180 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     181 </span>                :            :                         return rc;
+<span class="lineNum">     182 </span>                :<span class="lineNoCov">          0 :                 off += 4;</span>
+<span class="lineNum">     183 </span>                :<span class="lineNoCov">          0 :                 len -= 4;</span>
+<span class="lineNum">     184 </span>                :<span class="lineNoCov">          0 :                 data += 4;</span>
+<span class="lineNum">     185 </span>                :            :         }
+<span class="lineNum">     186 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!len)</span>
+<span class="lineNum">     187 </span>                :            :                 return 0;
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :<span class="lineNoCov">          0 :         rc = lpc_fw_read32(&amp;tmp, SFC_CMDBUF_OFFSET + off);</span>
+<span class="lineNum">     190 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     191 </span>                :            :                 return rc;
+<span class="lineNum">     192 </span>                :            :         /* We know tmp contains a big endian value, so memcpy is
+<span class="lineNum">     193 </span>                :            :          * our friend here
+<span class="lineNum">     194 </span>                :            :          */
+<span class="lineNum">     195 </span>                :<span class="lineNoCov">          0 :         memcpy(data, &amp;tmp, len);</span>
+<span class="lineNum">     196 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     197 </span>                :            : }
+<a name="198"><span class="lineNum">     198 </span>                :            : </a>
+<span class="lineNum">     199 </span>                :            : /* Polls until SFC indicates command is complete */
+<span class="lineNum">     200 </span>                :<span class="lineNoCov">          0 : static int sfc_poll_complete(void)</span>
+<span class="lineNum">     201 </span>                :            : {
+<span class="lineNum">     202 </span>                :            :         uint32_t status, timeout;
+<span class="lineNum">     203 </span>                :            :         struct timespec ts;
+<span class="lineNum">     204 </span>                :            : 
+<span class="lineNum">     205 </span>                :            :         /*
+<span class="lineNum">     206 </span>                :            :          * A full 256 bytes read/write command will take at least
+<span class="lineNum">     207 </span>                :            :          * 126us. Smaller commands are faster but we use less of
+<span class="lineNum">     208 </span>                :            :          * them. So let's sleep in increments of 100us
+<span class="lineNum">     209 </span>                :            :          */
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :         ts.tv_sec = 0;</span>
+<span class="lineNum">     211 </span>                :<span class="lineNoCov">          0 :         ts.tv_nsec = 100000;</span>
+<span class="lineNum">     212 </span>                :            : 
+<span class="lineNum">     213 </span>                :            :         /*
+<span class="lineNum">     214 </span>                :            :          * Use a 1s timeout which should be sufficient for the
+<span class="lineNum">     215 </span>                :            :          * commands we use
+<span class="lineNum">     216 </span>                :            :          */
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :         timeout = 10000;</span>
+<span class="lineNum">     218 </span>                :            : 
+<span class="lineNum">     219 </span>                :            :         do {
+<span class="lineNum">     220 </span>                :            :                 int rc;
+<span class="lineNum">     221 </span>                :            : 
+<span class="lineNum">     222 </span>                :<span class="lineNoCov">          0 :                 rc = sfc_reg_read(SFC_REG_STATUS, &amp;status);</span>
+<span class="lineNum">     223 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     224 </span>                :            :                         return rc;
+<span class="lineNum">     225 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (status &amp; SFC_REG_STATUS_DONE)</span>
+<span class="lineNum">     226 </span>                :            :                         break;
+<span class="lineNum">     227 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (--timeout == 0)</span>
+<span class="lineNum">     228 </span>                :            :                         return FLASH_ERR_CTRL_TIMEOUT;
+<span class="lineNum">     229 </span>                :<span class="lineNoCov">          0 :                 nanosleep(&amp;ts, NULL);</span>
+<span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 :         } while (true);</span>
+<span class="lineNum">     231 </span>                :            : 
+<span class="lineNum">     232 </span>                :            :         return 0;
+<a name="233"><span class="lineNum">     233 </span>                :            : }</a>
+<span class="lineNum">     234 </span>                :            : 
+<span class="lineNum">     235 </span>                :<span class="lineNoCov">          0 : static int sfc_exec_command(uint8_t opcode, uint32_t length)</span>
+<span class="lineNum">     236 </span>                :            : {
+<span class="lineNum">     237 </span>                :<span class="lineNoCov">          0 :         int rc = 0;</span>
+<span class="lineNum">     238 </span>                :<span class="lineNoCov">          0 :         uint32_t cmd_reg = 0;</span>
+<span class="lineNum">     239 </span>                :            : 
+<span class="lineNum">     240 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (opcode &gt; 0x7f || length &gt; 0x1ff)</span>
+<span class="lineNum">     241 </span>                :            :                 return FLASH_ERR_PARM_ERROR;
+<span class="lineNum">     242 </span>                :            : 
+<span class="lineNum">     243 </span>                :            :         /* Write command register to start execution */
+<span class="lineNum">     244 </span>                :<span class="lineNoCov">          0 :         cmd_reg |= (opcode &lt;&lt; SFC_REG_CMD_OPCODE_SHFT);</span>
+<span class="lineNum">     245 </span>                :<span class="lineNoCov">          0 :         cmd_reg |= (length &lt;&lt; SFC_REG_CMD_LENGTH_SHFT);</span>
+<span class="lineNum">     246 </span>                :<span class="lineNoCov">          0 :         rc = sfc_reg_write(SFC_REG_CMD, cmd_reg);</span>
+<span class="lineNum">     247 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     248 </span>                :            :                 return rc;
+<span class="lineNum">     249 </span>                :            : 
+<span class="lineNum">     250 </span>                :            :         /* Wait for command to complete */
+<span class="lineNum">     251 </span>                :<span class="lineNoCov">          0 :         return sfc_poll_complete();</span>
+<a name="252"><span class="lineNum">     252 </span>                :            : }</a>
+<span class="lineNum">     253 </span>                :            : 
+<span class="lineNum">     254 </span>                :<span class="lineNoCov">          0 : static int sfc_chip_id(struct spi_flash_ctrl *ctrl, uint8_t *id_buf,</span>
+<span class="lineNum">     255 </span>                :            :                        uint32_t *id_size)
+<span class="lineNum">     256 </span>                :            : {
+<span class="lineNum">     257 </span>                :            :         uint32_t idconf;
+<span class="lineNum">     258 </span>                :            :         int rc;
+<span class="lineNum">     259 </span>                :            : 
+<span class="lineNum">     260 </span>                :            :         (void)ctrl;
+<span class="lineNum">     261 </span>                :            : 
+<span class="lineNum">     262 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((*id_size) &lt; 3)</span>
+<span class="lineNum">     263 </span>                :            :                 return FLASH_ERR_PARM_ERROR;
+<span class="lineNum">     264 </span>                :            : 
+<span class="lineNum">     265 </span>                :            :         /*
+<span class="lineNum">     266 </span>                :            :          * XXX This will not work in locked down mode but we assume that
+<span class="lineNum">     267 </span>                :            :          * in this case, the chip ID command is already properly programmed
+<span class="lineNum">     268 </span>                :            :          * and the SFC will ignore this. However I haven't verified...
+<span class="lineNum">     269 </span>                :            :          */
+<span class="lineNum">     270 </span>                :<span class="lineNoCov">          0 :         idconf = ((uint64_t)CMD_RDID) &lt;&lt; SFC_REG_CHIPIDCONF_OPCODE_SHFT;</span>
+<span class="lineNum">     271 </span>                :<span class="lineNoCov">          0 :         idconf |= SFC_REG_CHIPIDCONF_READ;</span>
+<span class="lineNum">     272 </span>                :<span class="lineNoCov">          0 :         idconf |= (3ul &lt;&lt; SFC_REG_CHIPIDCONF_LEN_SHFT);</span>
+<span class="lineNum">     273 </span>                :<span class="lineNoCov">          0 :         (void)sfc_reg_write(SFC_REG_CHIPIDCONF, idconf);</span>
+<span class="lineNum">     274 </span>                :            : 
+<span class="lineNum">     275 </span>                :            :         /* Perform command */
+<span class="lineNum">     276 </span>                :<span class="lineNoCov">          0 :         rc = sfc_exec_command(SFC_OP_CHIPID, 0);</span>
+<span class="lineNum">     277 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     278 </span>                :            :                 return rc;
+<span class="lineNum">     279 </span>                :            : 
+<span class="lineNum">     280 </span>                :            :         /* Read chip ID */
+<span class="lineNum">     281 </span>                :<span class="lineNoCov">          0 :         rc = sfc_buf_read(3, id_buf);</span>
+<span class="lineNum">     282 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     283 </span>                :            :                 return rc;
+<span class="lineNum">     284 </span>                :<span class="lineNoCov">          0 :         *id_size = 3;</span>
+<span class="lineNum">     285 </span>                :            : 
+<span class="lineNum">     286 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     287 </span>                :            : }
+<a name="288"><span class="lineNum">     288 </span>                :            : </a>
+<span class="lineNum">     289 </span>                :            : 
+<span class="lineNum">     290 </span>                :<span class="lineNoCov">          0 : static int sfc_read(struct spi_flash_ctrl *ctrl, uint32_t pos,</span>
+<span class="lineNum">     291 </span>                :            :                     void *buf, uint32_t len)
+<span class="lineNum">     292 </span>                :            : {
+<span class="lineNum">     293 </span>                :            :         (void)ctrl;
+<span class="lineNum">     294 </span>                :            : 
+<span class="lineNum">     295 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while(len) {</span>
+<span class="lineNum">     296 </span>                :<span class="lineNoCov">          0 :                 uint32_t chunk = len;</span>
+<span class="lineNum">     297 </span>                :            :                 int rc;
+<span class="lineNum">     298 </span>                :            : 
+<span class="lineNum">     299 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (chunk &gt; SFC_CMDBUF_SIZE)</span>
+<span class="lineNum">     300 </span>                :<span class="lineNoCov">          0 :                         chunk = SFC_CMDBUF_SIZE;</span>
+<span class="lineNum">     301 </span>                :<span class="lineNoCov">          0 :                 rc = sfc_reg_write(SFC_REG_ADR, pos);</span>
+<span class="lineNum">     302 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     303 </span>                :            :                         return rc;
+<span class="lineNum">     304 </span>                :<span class="lineNoCov">          0 :                 rc = sfc_exec_command(SFC_OP_READRAW, chunk);</span>
+<span class="lineNum">     305 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     306 </span>                :            :                         return rc;
+<span class="lineNum">     307 </span>                :<span class="lineNoCov">          0 :                 rc = sfc_buf_read(chunk, buf);</span>
+<span class="lineNum">     308 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     309 </span>                :            :                         return rc;
+<span class="lineNum">     310 </span>                :<span class="lineNoCov">          0 :                 len -= chunk;</span>
+<span class="lineNum">     311 </span>                :<span class="lineNoCov">          0 :                 pos += chunk;</span>
+<span class="lineNum">     312 </span>                :<span class="lineNoCov">          0 :                 buf += chunk;</span>
+<span class="lineNum">     313 </span>                :            :         }
+<span class="lineNum">     314 </span>                :            :         return 0;
+<a name="315"><span class="lineNum">     315 </span>                :            : }</a>
+<span class="lineNum">     316 </span>                :            : 
+<span class="lineNum">     317 </span>                :<span class="lineNoCov">          0 : static int sfc_write(struct spi_flash_ctrl *ctrl, uint32_t addr,</span>
+<span class="lineNum">     318 </span>                :            :                      const void *buf, uint32_t size)
+<span class="lineNum">     319 </span>                :            : {
+<span class="lineNum">     320 </span>                :            :         uint32_t chunk;
+<span class="lineNum">     321 </span>                :            :         int rc;
+<span class="lineNum">     322 </span>                :            : 
+<span class="lineNum">     323 </span>                :            :         (void)ctrl;
+<span class="lineNum">     324 </span>                :            : 
+<span class="lineNum">     325 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while(size) {</span>
+<span class="lineNum">     326 </span>                :            :                 /* We shall not cross a page boundary */
+<span class="lineNum">     327 </span>                :<span class="lineNoCov">          0 :                 chunk = 0x100 - (addr &amp; 0xff);</span>
+<span class="lineNum">     328 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (chunk &gt; size)</span>
+<span class="lineNum">     329 </span>                :<span class="lineNoCov">          0 :                         chunk = size;</span>
+<span class="lineNum">     330 </span>                :            : 
+<span class="lineNum">     331 </span>                :            :                 /* Write to SFC write buffer */
+<span class="lineNum">     332 </span>                :<span class="lineNoCov">          0 :                 rc = sfc_buf_write(chunk, buf);</span>
+<span class="lineNum">     333 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     334 </span>                :            :                         return rc;
+<span class="lineNum">     335 </span>                :            : 
+<span class="lineNum">     336 </span>                :            :                 /* Program address */
+<span class="lineNum">     337 </span>                :<span class="lineNoCov">          0 :                 rc = sfc_reg_write(SFC_REG_ADR, addr);</span>
+<span class="lineNum">     338 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     339 </span>                :            :                         return rc;
+<span class="lineNum">     340 </span>                :            : 
+<span class="lineNum">     341 </span>                :            :                 /* Send command */
+<span class="lineNum">     342 </span>                :<span class="lineNoCov">          0 :                 rc = sfc_exec_command(SFC_OP_WRITERAW, chunk);</span>
+<span class="lineNum">     343 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     344 </span>                :            :                         return rc;
+<span class="lineNum">     345 </span>                :            : 
+<span class="lineNum">     346 </span>                :<span class="lineNoCov">          0 :                 addr += chunk;</span>
+<span class="lineNum">     347 </span>                :<span class="lineNoCov">          0 :                 buf += chunk;</span>
+<span class="lineNum">     348 </span>                :<span class="lineNoCov">          0 :                 size -= chunk;</span>
+<span class="lineNum">     349 </span>                :            :         }
+<span class="lineNum">     350 </span>                :            :         return 0;
+<a name="351"><span class="lineNum">     351 </span>                :            : }</a>
+<span class="lineNum">     352 </span>                :            : 
+<span class="lineNum">     353 </span>                :<span class="lineNoCov">          0 : static int sfc_erase(struct spi_flash_ctrl *ctrl, uint32_t addr,</span>
+<span class="lineNum">     354 </span>                :            :                      uint32_t size)
+<span class="lineNum">     355 </span>                :            : {
+<span class="lineNum">     356 </span>                :<span class="lineNoCov">          0 :         struct sfc_ctrl *ct = container_of(ctrl, struct sfc_ctrl, ops);</span>
+<span class="lineNum">     357 </span>                :<span class="lineNoCov">          0 :         uint32_t sm_mask = ct-&gt;small_er_size - 1;</span>
+<span class="lineNum">     358 </span>                :<span class="lineNoCov">          0 :         uint32_t lg_mask = ct-&gt;large_er_size - 1;</span>
+<span class="lineNum">     359 </span>                :            :         uint32_t chunk;
+<span class="lineNum">     360 </span>                :            :         uint8_t cmd;
+<span class="lineNum">     361 </span>                :            :         int rc;
+<span class="lineNum">     362 </span>                :            : 
+<span class="lineNum">     363 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while(size) {</span>
+<span class="lineNum">     364 </span>                :            :                 /* Choose erase size for this chunk */
+<span class="lineNum">     365 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (((addr | size) &amp; lg_mask) == 0) {</span>
+<span class="lineNum">     366 </span>                :<span class="lineNoCov">          0 :                         chunk = ct-&gt;large_er_size;</span>
+<span class="lineNum">     367 </span>                :<span class="lineNoCov">          0 :                         cmd = SFC_OP_ERALG;</span>
+<span class="lineNum">     368 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 } else if (((addr | size) &amp; sm_mask) == 0) {</span>
+<span class="lineNum">     369 </span>                :<span class="lineNoCov">          0 :                         chunk = ct-&gt;small_er_size;</span>
+<span class="lineNum">     370 </span>                :<span class="lineNoCov">          0 :                         cmd = SFC_OP_ERASM;</span>
+<span class="lineNum">     371 </span>                :            :                 } else
+<span class="lineNum">     372 </span>                :            :                         return FLASH_ERR_ERASE_BOUNDARY;
+<span class="lineNum">     373 </span>                :            : 
+<span class="lineNum">     374 </span>                :<span class="lineNoCov">          0 :                 rc = sfc_reg_write(SFC_REG_ADR, addr);</span>
+<span class="lineNum">     375 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     376 </span>                :            :                         return rc;
+<span class="lineNum">     377 </span>                :<span class="lineNoCov">          0 :                 rc = sfc_exec_command(cmd, 0);</span>
+<span class="lineNum">     378 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     379 </span>                :            :                         return rc;
+<span class="lineNum">     380 </span>                :<span class="lineNoCov">          0 :                 addr += chunk;</span>
+<span class="lineNum">     381 </span>                :<span class="lineNoCov">          0 :                 size -= chunk;</span>
+<span class="lineNum">     382 </span>                :            :         }
+<span class="lineNum">     383 </span>                :            :         return 0;
+<a name="384"><span class="lineNum">     384 </span>                :            : }</a>
+<span class="lineNum">     385 </span>                :            : 
+<span class="lineNum">     386 </span>                :<span class="lineNoCov">          0 : static int sfc_setup(struct spi_flash_ctrl *ctrl, uint32_t *tsize)</span>
+<span class="lineNum">     387 </span>                :            : {
+<span class="lineNum">     388 </span>                :<span class="lineNoCov">          0 :         struct sfc_ctrl *ct = container_of(ctrl, struct sfc_ctrl, ops);</span>
+<span class="lineNum">     389 </span>                :<span class="lineNoCov">          0 :         struct flash_info *info = ctrl-&gt;finfo;</span>
+<span class="lineNum">     390 </span>                :            :         uint32_t er_flags;
+<span class="lineNum">     391 </span>                :            : 
+<span class="lineNum">     392 </span>                :            :         (void)tsize;
+<span class="lineNum">     393 </span>                :            : 
+<span class="lineNum">     394 </span>                :            :         /* Keep non-erase related flags */
+<span class="lineNum">     395 </span>                :<span class="lineNoCov">          0 :         er_flags = ~FL_ERASE_ALL;</span>
+<span class="lineNum">     396 </span>                :            : 
+<span class="lineNum">     397 </span>                :            :         /* Add supported erase sizes */
+<span class="lineNum">     398 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ct-&gt;small_er_size == 0x1000 || ct-&gt;large_er_size == 0x1000)</span>
+<span class="lineNum">     399 </span>                :<span class="lineNoCov">          0 :                 er_flags |= FL_ERASE_4K;</span>
+<span class="lineNum">     400 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ct-&gt;small_er_size == 0x8000 || ct-&gt;large_er_size == 0x8000)</span>
+<span class="lineNum">     401 </span>                :<span class="lineNoCov">          0 :                 er_flags |= FL_ERASE_32K;</span>
+<span class="lineNum">     402 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ct-&gt;small_er_size == 0x10000 || ct-&gt;large_er_size == 0x10000)</span>
+<span class="lineNum">     403 </span>                :<span class="lineNoCov">          0 :                 er_flags |= FL_ERASE_64K;</span>
+<span class="lineNum">     404 </span>                :            : 
+<span class="lineNum">     405 </span>                :            :         /* Mask the flags out */
+<span class="lineNum">     406 </span>                :<span class="lineNoCov">          0 :         info-&gt;flags &amp;= er_flags;</span>
+<span class="lineNum">     407 </span>                :            : 
+<span class="lineNum">     408 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<a name="409"><span class="lineNum">     409 </span>                :            : }</a>
+<span class="lineNum">     410 </span>                :            : 
+<span class="lineNum">     411 </span>                :<span class="lineNoCov">          0 : static int sfc_set_4b(struct spi_flash_ctrl *ctrl, bool enable)</span>
+<span class="lineNum">     412 </span>                :            : {
+<span class="lineNum">     413 </span>                :<span class="lineNoCov">          0 :         struct sfc_ctrl *ct = container_of(ctrl, struct sfc_ctrl, ops);</span>
+<span class="lineNum">     414 </span>                :            :         int rc;
+<span class="lineNum">     415 </span>                :            : 
+<span class="lineNum">     416 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         rc = sfc_exec_command(enable ? SFC_OP_START4BA : SFC_OP_END4BA, 0);</span>
+<span class="lineNum">     417 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     418 </span>                :            :                 return rc;
+<span class="lineNum">     419 </span>                :<span class="lineNoCov">          0 :         ct-&gt;mode_4b = enable;</span>
+<span class="lineNum">     420 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<a name="421"><span class="lineNum">     421 </span>                :            : }</a>
+<span class="lineNum">     422 </span>                :            : 
+<span class="lineNum">     423 </span>                :<span class="lineNoCov">          0 : static void sfc_validate_er_size(uint32_t *size)</span>
+<span class="lineNum">     424 </span>                :            : {
+<span class="lineNum">     425 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (*size == 0)</span>
+<span class="lineNum">     426 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     427 </span>                :            : 
+<span class="lineNum">     428 </span>                :            :         /* We only support 4k, 32k and 64k */
+<span class="lineNum">     429 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (*size != 0x1000 &amp;&amp; *size != 0x8000 &amp;&amp; *size != 0x10000) {</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
+<span class="lineNum">     430 </span>                :<span class="lineNoCov">          0 :                 FL_ERR(&quot;SFC: Erase size %d bytes unsupported\n&quot;, *size);</span>
+<span class="lineNum">     431 </span>                :<span class="lineNoCov">          0 :                 *size = 0;</span>
+<span class="lineNum">     432 </span>                :            :         }
+<a name="433"><span class="lineNum">     433 </span>                :            : }</a>
+<span class="lineNum">     434 </span>                :            : 
+<span class="lineNum">     435 </span>                :<span class="lineNoCov">          0 : static int sfc_init(struct sfc_ctrl *ct)</span>
+<span class="lineNum">     436 </span>                :            : {
+<span class="lineNum">     437 </span>                :            :         int rc;
+<span class="lineNum">     438 </span>                :            :         uint32_t status;
+<span class="lineNum">     439 </span>                :            : 
+<span class="lineNum">     440 </span>                :            :         /*
+<span class="lineNum">     441 </span>                :            :          * Assumptions: The controller has been fully initialized
+<span class="lineNum">     442 </span>                :            :          * by an earlier FW layer setting the chip ID command, the
+<span class="lineNum">     443 </span>                :            :          * erase sizes, and configuring the timings for reads and
+<span class="lineNum">     444 </span>                :            :          * writes.
+<span class="lineNum">     445 </span>                :            :          *
+<span class="lineNum">     446 </span>                :            :          * This driver is meant to be usable if the configuration
+<span class="lineNum">     447 </span>                :            :          * is in lock down.
+<span class="lineNum">     448 </span>                :            :          *
+<span class="lineNum">     449 </span>                :            :          * If that wasn't the case, we could configure some sane
+<span class="lineNum">     450 </span>                :            :          * defaults here and tuned values in setup() after the
+<span class="lineNum">     451 </span>                :            :          * chip has been identified.
+<span class="lineNum">     452 </span>                :            :          */
+<span class="lineNum">     453 </span>                :            : 
+<span class="lineNum">     454 </span>                :            :         /* Read erase sizes from flash */
+<span class="lineNum">     455 </span>                :<span class="lineNoCov">          0 :         rc = sfc_reg_read(SFC_REG_ERASMS, &amp;ct-&gt;small_er_size);</span>
+<span class="lineNum">     456 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     457 </span>                :            :                 return rc;
+<span class="lineNum">     458 </span>                :<span class="lineNoCov">          0 :         sfc_validate_er_size(&amp;ct-&gt;small_er_size);</span>
+<span class="lineNum">     459 </span>                :<span class="lineNoCov">          0 :         rc = sfc_reg_read(SFC_REG_ERASLGS, &amp;ct-&gt;large_er_size);</span>
+<span class="lineNum">     460 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     461 </span>                :            :                 return rc;
+<span class="lineNum">     462 </span>                :<span class="lineNoCov">          0 :         sfc_validate_er_size(&amp;ct-&gt;large_er_size);</span>
+<span class="lineNum">     463 </span>                :            : 
+<span class="lineNum">     464 </span>                :            :         /* No erase sizes we can cope with ? Ouch... */
+<span class="lineNum">     465 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((ct-&gt;small_er_size == 0 &amp;&amp; ct-&gt;large_er_size == 0) ||</span>
+<span class="lineNum">     466 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             (ct-&gt;large_er_size &amp;&amp; (ct-&gt;small_er_size &gt; ct-&gt;large_er_size))) {</span>
+<span class="lineNum">     467 </span>                :<span class="lineNoCov">          0 :                 FL_ERR(&quot;SFC: No supported erase sizes !\n&quot;);</span>
+<span class="lineNum">     468 </span>                :<span class="lineNoCov">          0 :                 return FLASH_ERR_CTRL_CONFIG_MISMATCH;</span>
+<span class="lineNum">     469 </span>                :            :         }
+<span class="lineNum">     470 </span>                :            : 
+<span class="lineNum">     471 </span>                :<span class="lineNoCov">          0 :         FL_INF(&quot;SFC: Suppored erase sizes:&quot;);</span>
+<span class="lineNum">     472 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ct-&gt;small_er_size)</span>
+<span class="lineNum">     473 </span>                :<span class="lineNoCov">          0 :                 FL_INF(&quot; %dKB&quot;, ct-&gt;small_er_size &gt;&gt; 10);</span>
+<span class="lineNum">     474 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ct-&gt;large_er_size)</span>
+<span class="lineNum">     475 </span>                :<span class="lineNoCov">          0 :                 FL_INF(&quot; %dKB&quot;, ct-&gt;large_er_size &gt;&gt; 10);</span>
+<span class="lineNum">     476 </span>                :<span class="lineNoCov">          0 :         FL_INF(&quot;\n&quot;);</span>
+<span class="lineNum">     477 </span>                :            : 
+<span class="lineNum">     478 </span>                :            :         /* Read current state of 4 byte addressing */
+<span class="lineNum">     479 </span>                :<span class="lineNoCov">          0 :         rc = sfc_reg_read(SFC_REG_STATUS, &amp;status);</span>
+<span class="lineNum">     480 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     481 </span>                :            :                 return rc;
+<span class="lineNum">     482 </span>                :<span class="lineNoCov">          0 :         ct-&gt;mode_4b = !!(status &amp; SFC_REG_STATUS_FOURBYTEAD);</span>
+<span class="lineNum">     483 </span>                :            : 
+<span class="lineNum">     484 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<a name="485"><span class="lineNum">     485 </span>                :            : }</a>
+<span class="lineNum">     486 </span>                :            : 
+<span class="lineNum">     487 </span>                :<span class="lineNoCov">          0 : int sfc_open(struct spi_flash_ctrl **ctrl)</span>
+<span class="lineNum">     488 </span>                :            : {
+<span class="lineNum">     489 </span>                :            :         struct sfc_ctrl *ct;
+<span class="lineNum">     490 </span>                :            :         int rc;
+<span class="lineNum">     491 </span>                :            : 
+<span class="lineNum">     492 </span>                :<span class="lineNoCov">          0 :         *ctrl = NULL;</span>
+<span class="lineNum">     493 </span>                :<span class="lineNoCov">          0 :         ct = malloc(sizeof(*ct));</span>
+<span class="lineNum">     494 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!ct) {</span>
+<span class="lineNum">     495 </span>                :<span class="lineNoCov">          0 :                 FL_ERR(&quot;SFC: Failed to allocate\n&quot;);</span>
+<span class="lineNum">     496 </span>                :<span class="lineNoCov">          0 :                 return FLASH_ERR_MALLOC_FAILED;</span>
+<span class="lineNum">     497 </span>                :            :         }
+<span class="lineNum">     498 </span>                :<span class="lineNoCov">          0 :         memset(ct, 0, sizeof(*ct));</span>
+<span class="lineNum">     499 </span>                :<span class="lineNoCov">          0 :         ct-&gt;ops.chip_id = sfc_chip_id;</span>
+<span class="lineNum">     500 </span>                :<span class="lineNoCov">          0 :         ct-&gt;ops.setup = sfc_setup;</span>
+<span class="lineNum">     501 </span>                :<span class="lineNoCov">          0 :         ct-&gt;ops.set_4b = sfc_set_4b;</span>
+<span class="lineNum">     502 </span>                :<span class="lineNoCov">          0 :         ct-&gt;ops.read = sfc_read;</span>
+<span class="lineNum">     503 </span>                :<span class="lineNoCov">          0 :         ct-&gt;ops.write = sfc_write;</span>
+<span class="lineNum">     504 </span>                :<span class="lineNoCov">          0 :         ct-&gt;ops.erase = sfc_erase;</span>
+<span class="lineNum">     505 </span>                :            : 
+<span class="lineNum">     506 </span>                :<span class="lineNoCov">          0 :         rc = sfc_init(ct);</span>
+<span class="lineNum">     507 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     508 </span>                :            :                 goto fail;
+<span class="lineNum">     509 </span>                :<span class="lineNoCov">          0 :         *ctrl = &amp;ct-&gt;ops;</span>
+<span class="lineNum">     510 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     511 </span>                :            :  fail:
+<span class="lineNum">     512 </span>                :<span class="lineNoCov">          0 :         free(ct);</span>
+<span class="lineNum">     513 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="514"><span class="lineNum">     514 </span>                :            : }</a>
+<span class="lineNum">     515 </span>                :            : 
+<span class="lineNum">     516 </span>                :<span class="lineNoCov">          0 : void sfc_close(struct spi_flash_ctrl *ctrl)</span>
+<span class="lineNum">     517 </span>                :            : {
+<span class="lineNum">     518 </span>                :<span class="lineNoCov">          0 :         struct sfc_ctrl *ct = container_of(ctrl, struct sfc_ctrl, ops);</span>
+<span class="lineNum">     519 </span>                :            : 
+<span class="lineNum">     520 </span>                :            :         /* Free the whole lot */
+<span class="lineNum">     521 </span>                :<span class="lineNoCov">          0 :         free(ct);</span>
+<span class="lineNum">     522 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     523 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

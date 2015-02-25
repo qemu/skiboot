@@ -1,0 +1,1005 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - core/hostservices.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">core</a> - hostservices.c<span style="font-size: 80%;"> (source / <a href="hostservices.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">189</td>
+            <td class="headerCovTableEntry">299</td>
+            <td class="headerCovTableEntryLo">63.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">24</td>
+            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntryMed">85.7 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">53</td>
+            <td class="headerCovTableEntry">110</td>
+            <td class="headerCovTableEntryLo">48.2 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;stdint.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;stdlib.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;stdio.h&gt;
+<span class="lineNum">      20 </span>                :            : 
+<span class="lineNum">      21 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;device.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;compiler.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;hostservices.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;mem_region.h&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;xscom.h&gt;
+<span class="lineNum">      27 </span>                :            : #include &lt;fsp.h&gt;
+<span class="lineNum">      28 </span>                :            : #include &lt;chip.h&gt;
+<span class="lineNum">      29 </span>                :            : #include &lt;console.h&gt;
+<span class="lineNum">      30 </span>                :            : #include &lt;mem-map.h&gt;
+<span class="lineNum">      31 </span>                :            : #include &lt;timebase.h&gt;
+<span class="lineNum">      32 </span>                :            : 
+<span class="lineNum">      33 </span>                :            : #define HOSTBOOT_RUNTIME_INTERFACE_VERSION 1
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : struct host_interfaces {
+<span class="lineNum">      36 </span>                :            :         /** Interface version. */
+<span class="lineNum">      37 </span>                :            :         uint64_t interface_version;
+<span class="lineNum">      38 </span>                :            : 
+<span class="lineNum">      39 </span>                :            :         /** Put a string to the console. */
+<span class="lineNum">      40 </span>                :            :         void (*puts)(const char*);
+<span class="lineNum">      41 </span>                :            :         /** Critical failure in runtime execution. */
+<span class="lineNum">      42 </span>                :            :         void (*assert)(void);
+<span class="lineNum">      43 </span>                :            : 
+<span class="lineNum">      44 </span>                :            :         /** OPTIONAL. Hint to environment that the page may be executed. */
+<span class="lineNum">      45 </span>                :            :         int (*set_page_execute)(void*);
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>                :            :         /** malloc */
+<span class="lineNum">      48 </span>                :            :         void *(*malloc)(size_t);
+<span class="lineNum">      49 </span>                :            :         /** free */
+<span class="lineNum">      50 </span>                :            :         void (*free)(void*);
+<span class="lineNum">      51 </span>                :            :         /** realloc */
+<span class="lineNum">      52 </span>                :            :         void *(*realloc)(void*, size_t);
+<span class="lineNum">      53 </span>                :            : 
+<span class="lineNum">      54 </span>                :            :         /** sendErrorLog
+<span class="lineNum">      55 </span>                :            :          * @param[in] plid Platform Log identifier
+<span class="lineNum">      56 </span>                :            :          * @param[in] data size in bytes
+<span class="lineNum">      57 </span>                :            :          * @param[in] pointer to data
+<span class="lineNum">      58 </span>                :            :          * @return 0 on success else error code
+<span class="lineNum">      59 </span>                :            :          */
+<span class="lineNum">      60 </span>                :            :         int (*send_error_log)(uint32_t,uint32_t,void *);
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :            :         /** Scan communication read
+<span class="lineNum">      63 </span>                :            :          * @param[in] chip_id (based on devtree defn)
+<span class="lineNum">      64 </span>                :            :          * @param[in] address
+<span class="lineNum">      65 </span>                :            :          * @param[in] pointer to 8-byte data buffer
+<span class="lineNum">      66 </span>                :            :          * @return 0 on success else return code
+<span class="lineNum">      67 </span>                :            :          */
+<span class="lineNum">      68 </span>                :            :         int (*scom_read)(uint64_t, uint64_t, void*);
+<span class="lineNum">      69 </span>                :            : 
+<span class="lineNum">      70 </span>                :            :         /** Scan communication write
+<span class="lineNum">      71 </span>                :            :          * @param[in] chip_id (based on devtree defn)
+<span class="lineNum">      72 </span>                :            :          * @param[in] address
+<span class="lineNum">      73 </span>                :            :          * @param[in] pointer to 8-byte data buffer
+<span class="lineNum">      74 </span>                :            :          * @return 0 on success else return code
+<span class="lineNum">      75 </span>                :            :          */
+<span class="lineNum">      76 </span>                :            :         int (*scom_write)(uint64_t, uint64_t, const void *);
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :            :         /** lid_load
+<span class="lineNum">      79 </span>                :            :          *  Load a LID from PNOR, FSP, etc.
+<span class="lineNum">      80 </span>                :            :          *
+<span class="lineNum">      81 </span>                :            :          *  @param[in] LID number.
+<span class="lineNum">      82 </span>                :            :          *  @param[out] Allocated buffer for LID.
+<span class="lineNum">      83 </span>                :            :          *  @param[out] Size of LID (in bytes).
+<span class="lineNum">      84 </span>                :            :          *
+<span class="lineNum">      85 </span>                :            :          *  @return 0 on success, else RC.
+<span class="lineNum">      86 </span>                :            :          */
+<span class="lineNum">      87 </span>                :            :         int (*lid_load)(uint32_t lid, void **buf, size_t *len);
+<span class="lineNum">      88 </span>                :            : 
+<span class="lineNum">      89 </span>                :            :         /** lid_unload
+<span class="lineNum">      90 </span>                :            :          *  Release memory from previously loaded LID.
+<span class="lineNum">      91 </span>                :            :          *
+<span class="lineNum">      92 </span>                :            :          *  @param[in] Allocated buffer for LID to release.
+<span class="lineNum">      93 </span>                :            :          *
+<span class="lineNum">      94 </span>                :            :          *  @return 0 on success, else RC.
+<span class="lineNum">      95 </span>                :            :          */
+<span class="lineNum">      96 </span>                :            :         int (*lid_unload)(void *buf);
+<span class="lineNum">      97 </span>                :            : 
+<span class="lineNum">      98 </span>                :            :         /** Get the address of a reserved memory region by its devtree name.
+<span class="lineNum">      99 </span>                :            :          *
+<span class="lineNum">     100 </span>                :            :          *  @param[in] Devtree name (ex. &quot;ibm,hbrt-vpd-image&quot;)
+<span class="lineNum">     101 </span>                :            :          *  @return physical address of region (or NULL).
+<span class="lineNum">     102 </span>                :            :          **/
+<span class="lineNum">     103 </span>                :            :         uint64_t (*get_reserved_mem)(const char*);
+<span class="lineNum">     104 </span>                :            : 
+<span class="lineNum">     105 </span>                :            :         /**
+<span class="lineNum">     106 </span>                :            :          * @brief  Force a core to be awake, or clear the force
+<span class="lineNum">     107 </span>                :            :          * @param[in] i_core  Core to wake up (pid)
+<span class="lineNum">     108 </span>                :            :          * @param[in] i_mode  0=force awake
+<span class="lineNum">     109 </span>                :            :          *                1=clear force
+<span class="lineNum">     110 </span>                :            :          *                2=clear all previous forces
+<span class="lineNum">     111 </span>                :            :          * @return rc  non-zero on error
+<span class="lineNum">     112 </span>                :            :          */
+<span class="lineNum">     113 </span>                :            :         int (*wakeup)( uint32_t i_core, uint32_t i_mode );
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>                :            :         /**
+<span class="lineNum">     116 </span>                :            :          * @brief Delay/sleep for at least the time given
+<span class="lineNum">     117 </span>                :            :          * @param[in] seconds
+<span class="lineNum">     118 </span>                :            :          * @param[in] nano seconds
+<span class="lineNum">     119 </span>                :            :          */
+<span class="lineNum">     120 </span>                :            :         void (*nanosleep)(uint64_t i_seconds, uint64_t i_nano_seconds);
+<span class="lineNum">     121 </span>                :            : 
+<span class="lineNum">     122 </span>                :            :         // Reserve some space for future growth.
+<span class="lineNum">     123 </span>                :            :         void (*reserved[32])(void);
+<span class="lineNum">     124 </span>                :            : };
+<span class="lineNum">     125 </span>                :            : 
+<span class="lineNum">     126 </span>                :            : struct runtime_interfaces {
+<span class="lineNum">     127 </span>                :            :         /** Interface version. */
+<span class="lineNum">     128 </span>                :            :         uint64_t interface_version;
+<span class="lineNum">     129 </span>                :            : 
+<span class="lineNum">     130 </span>                :            :         /** Execute CxxTests that may be contained in the image.
+<span class="lineNum">     131 </span>                :            :          *
+<span class="lineNum">     132 </span>                :            :          * @param[in] - Pointer to CxxTestStats structure for results reporting.
+<span class="lineNum">     133 </span>                :            :          */
+<span class="lineNum">     134 </span>                :            :         void (*cxxtestExecute)(void *);
+<span class="lineNum">     135 </span>                :            :         /** Get a list of lids numbers of the lids known to HostBoot
+<span class="lineNum">     136 </span>                :            :          *
+<span class="lineNum">     137 </span>                :            :          * @param[out] o_num - the number of lids in the list
+<span class="lineNum">     138 </span>                :            :          * @return a pointer to the list
+<span class="lineNum">     139 </span>                :            :          */
+<span class="lineNum">     140 </span>                :            :         const uint32_t * (*get_lid_list)(size_t * o_num);
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :            :         /** Load OCC Image and common data into mainstore, also setup OCC BARSs
+<span class="lineNum">     143 </span>                :            :          *
+<span class="lineNum">     144 </span>                :            :          * @param[in] i_homer_addr_phys - The physical mainstore address of the
+<span class="lineNum">     145 </span>                :            :          *                                start of the HOMER image
+<span class="lineNum">     146 </span>                :            :          * @param[in] i_homer_addr_va - Virtual memory address of the HOMER image
+<span class="lineNum">     147 </span>                :            :          * @param[in] i_common_addr_phys - The physical mainstore address of the
+<span class="lineNum">     148 </span>                :            :          *                                 OCC common area.
+<span class="lineNum">     149 </span>                :            :          * @param[in] i_common_addr_va - Virtual memory address of the common area
+<span class="lineNum">     150 </span>                :            :          * @param[in] i_chip - The HW chip id (XSCOM chip ID)
+<span class="lineNum">     151 </span>                :            :          * @return 0 on success else return code
+<span class="lineNum">     152 </span>                :            :          */
+<span class="lineNum">     153 </span>                :            :         int(*loadOCC)(uint64_t i_homer_addr_phys,
+<span class="lineNum">     154 </span>                :            :                         uint64_t i_homer_addr_va,
+<span class="lineNum">     155 </span>                :            :                         uint64_t i_common_addr_phys,
+<span class="lineNum">     156 </span>                :            :                         uint64_t i_common_addr_va,
+<span class="lineNum">     157 </span>                :            :                         uint64_t i_chip);
+<span class="lineNum">     158 </span>                :            : 
+<span class="lineNum">     159 </span>                :            :         /** Start OCC on all chips, by module
+<span class="lineNum">     160 </span>                :            :          *
+<span class="lineNum">     161 </span>                :            :          *  @param[in] i_chip - Array of functional HW chip ids
+<span class="lineNum">     162 </span>                :            :          *  @Note The caller must include a complete modules worth of chips
+<span class="lineNum">     163 </span>                :            :          *  @param[in] i_num_chips - Number of chips in the array
+<span class="lineNum">     164 </span>                :            :          *  @return 0 on success else return code
+<span class="lineNum">     165 </span>                :            :          */
+<span class="lineNum">     166 </span>                :            :         int (*startOCCs)(uint64_t* i_chip,
+<span class="lineNum">     167 </span>                :            :                         size_t i_num_chips);
+<span class="lineNum">     168 </span>                :            : 
+<span class="lineNum">     169 </span>                :            :         /** Stop OCC hold OCCs in reset
+<span class="lineNum">     170 </span>                :            :          *
+<span class="lineNum">     171 </span>                :            :          *  @param[in] i_chip - Array of functional HW chip ids
+<span class="lineNum">     172 </span>                :            :          *  @Note The caller must include a complete modules worth of chips
+<span class="lineNum">     173 </span>                :            :          *  @param[in] i_num_chips - Number of chips in the array
+<span class="lineNum">     174 </span>                :            :          *  @return 0 on success else return code
+<span class="lineNum">     175 </span>                :            :          */
+<span class="lineNum">     176 </span>                :            :         int (*stopOCCs)(uint64_t* i_chip,
+<span class="lineNum">     177 </span>                :            :                         size_t i_num_chips);
+<span class="lineNum">     178 </span>                :            : 
+<span class="lineNum">     179 </span>                :            :         /* Reserve some space for future growth. */
+<span class="lineNum">     180 </span>                :            :         void (*reserved[32])(void);
+<span class="lineNum">     181 </span>                :            : };
+<span class="lineNum">     182 </span>                :            : 
+<span class="lineNum">     183 </span>                :            : static struct runtime_interfaces *hservice_runtime;
+<span class="lineNum">     184 </span>                :            : 
+<span class="lineNum">     185 </span>                :            : static char *hbrt_con_buf = (char *)HBRT_CON_START;
+<span class="lineNum">     186 </span>                :            : static size_t hbrt_con_pos;
+<span class="lineNum">     187 </span>                :            : static bool hbrt_con_wrapped;
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :            : #define HBRT_CON_IN_LEN         0
+<span class="lineNum">     190 </span>                :            : #define HBRT_CON_OUT_LEN        (HBRT_CON_LEN - HBRT_CON_IN_LEN)
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>                :            : struct memcons hbrt_memcons __section(&quot;.data.memcons&quot;) = {
+<span class="lineNum">     193 </span>                :            :         .magic          = MEMCONS_MAGIC,
+<span class="lineNum">     194 </span>                :            :         .obuf_phys      = HBRT_CON_START,
+<span class="lineNum">     195 </span>                :            :         .ibuf_phys      = HBRT_CON_START + HBRT_CON_OUT_LEN,
+<span class="lineNum">     196 </span>                :            :         .obuf_size      = HBRT_CON_OUT_LEN,
+<span class="lineNum">     197 </span>                :            :         .ibuf_size      = HBRT_CON_IN_LEN,
+<a name="198"><span class="lineNum">     198 </span>                :            : };</a>
+<span class="lineNum">     199 </span>                :            : 
+<span class="lineNum">     200 </span>                :<span class="lineCov">     283990 : static void hservice_putc(char c)</span>
+<span class="lineNum">     201 </span>                :            : {
+<span class="lineNum">     202 </span>                :            :         uint32_t opos;
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>                :<span class="lineCov">     283990 :         hbrt_con_buf[hbrt_con_pos++] = c;</span>
+<span class="lineNum">     205 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 283990 times"> + </span>]:<span class="lineCov">     283990 :         if (hbrt_con_pos &gt;= HBRT_CON_OUT_LEN) {</span>
+<span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :                 hbrt_con_pos = 0;</span>
+<span class="lineNum">     207 </span>                :<span class="lineNoCov">          0 :                 hbrt_con_wrapped = true;</span>
+<span class="lineNum">     208 </span>                :            :         }
+<span class="lineNum">     209 </span>                :            : 
+<span class="lineNum">     210 </span>                :            :         /*
+<span class="lineNum">     211 </span>                :            :          * We must always re-generate memcons.out_pos because
+<span class="lineNum">     212 </span>                :            :          * under some circumstances, the console script will
+<span class="lineNum">     213 </span>                :            :          * use a broken putmemproc that does RMW on the full
+<span class="lineNum">     214 </span>                :            :          * 8 bytes containing out_pos and in_prod, thus corrupting
+<span class="lineNum">     215 </span>                :            :          * out_pos
+<span class="lineNum">     216 </span>                :            :          */
+<span class="lineNum">     217 </span>                :<span class="lineCov">     283990 :         opos = hbrt_con_pos;</span>
+<span class="lineNum">     218 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 283990 times"> + </span>]:<span class="lineCov">     283990 :         if (hbrt_con_wrapped)</span>
+<span class="lineNum">     219 </span>                :<span class="lineNoCov">          0 :                 opos |= MEMCONS_OUT_POS_WRAP;</span>
+<span class="lineNum">     220 </span>                :            :         lwsync();
+<span class="lineNum">     221 </span>                :<span class="lineCov">     283990 :         hbrt_memcons.out_pos = opos;</span>
+<a name="222"><span class="lineNum">     222 </span>                :<span class="lineCov">     283990 : }</span></a>
+<span class="lineNum">     223 </span>                :            : 
+<span class="lineNum">     224 </span>                :<span class="lineCov">       3565 : static void hservice_puts(const char *str)</span>
+<span class="lineNum">     225 </span>                :            : {
+<span class="lineNum">     226 </span>                :            :         char c;
+<span class="lineNum">     227 </span>                :            : 
+<span class="lineNum">     228 </span>        [<span class="branchCov" title="Branch 0 was taken 280425 times"> + </span><span class="branchCov" title="Branch 1 was taken 3565 times"> + </span>]:<span class="lineCov">     283990 :         while((c = *(str++)) != 0)</span>
+<span class="lineNum">     229 </span>                :<span class="lineCov">     280425 :                 hservice_putc(c);</span>
+<span class="lineNum">     230 </span>                :<span class="lineCov">       3565 :         hservice_putc(10);</span>
+<a name="231"><span class="lineNum">     231 </span>                :<span class="lineCov">       3565 : }</span></a>
+<span class="lineNum">     232 </span>                :            : 
+<span class="lineNum">     233 </span>                :<span class="lineCov">          6 : static void hservice_mark(void)</span>
+<span class="lineNum">     234 </span>                :            : {
+<span class="lineNum">     235 </span>                :<span class="lineCov">          6 :         hservice_puts(&quot;--------------------------------------------------&quot;</span>
+<span class="lineNum">     236 </span>                :            :                       &quot;--------------------------------------------------\n&quot;);
+<a name="237"><span class="lineNum">     237 </span>                :<span class="lineCov">          6 : }</span></a>
+<span class="lineNum">     238 </span>                :            : 
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 : static void hservice_assert(void)</span>
+<span class="lineNum">     240 </span>                :            : {
+<span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 :         prlog(PR_EMERG, &quot;HBRT: Assertion from hostservices\n&quot;);</span>
+<span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 :         abort();</span>
+<a name="243"><span class="lineNum">     243 </span>                :            : }</a>
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>                :<span class="lineCov">       2129 : static void *hservice_malloc(size_t size)</span>
+<span class="lineNum">     246 </span>                :            : {
+<span class="lineNum">     247 </span>                :<span class="lineCov">       2129 :         return malloc(size);</span>
+<a name="248"><span class="lineNum">     248 </span>                :            : }</a>
+<span class="lineNum">     249 </span>                :            : 
+<span class="lineNum">     250 </span>                :<span class="lineCov">       2730 : static void hservice_free(void *ptr)</span>
+<span class="lineNum">     251 </span>                :            : {
+<span class="lineNum">     252 </span>                :<span class="lineCov">       2730 :         free(ptr);</span>
+<span class="lineNum">     253 </span>                :<span class="lineCov">       2730 : }</span>
+<a name="254"><span class="lineNum">     254 </span>                :            : </a>
+<span class="lineNum">     255 </span>                :            : 
+<span class="lineNum">     256 </span>                :<span class="lineCov">         20 : static void *hservice_realloc(void *ptr, size_t size)</span>
+<span class="lineNum">     257 </span>                :            : {
+<span class="lineNum">     258 </span>                :<span class="lineCov">         20 :         return realloc(ptr, size);</span>
+<span class="lineNum">     259 </span>                :            : }
+<span class="lineNum">     260 </span>                :            : 
+<span class="lineNum">     261 </span>                :            : struct hbrt_elog_ent {
+<span class="lineNum">     262 </span>                :            :         void *buf;
+<span class="lineNum">     263 </span>                :            :         unsigned int size;
+<span class="lineNum">     264 </span>                :            :         unsigned int plid;
+<span class="lineNum">     265 </span>                :            :         struct list_node link;
+<span class="lineNum">     266 </span>                :            : };
+<span class="lineNum">     267 </span>                :            : static LIST_HEAD(hbrt_elogs);
+<span class="lineNum">     268 </span>                :            : static struct lock hbrt_elog_lock = LOCK_UNLOCKED;
+<span class="lineNum">     269 </span>                :            : static bool hbrt_elog_sending;
+<a name="270"><span class="lineNum">     270 </span>                :            : static void hservice_start_elog_send(void);</a>
+<span class="lineNum">     271 </span>                :            : 
+<span class="lineNum">     272 </span>                :<span class="lineNoCov">          0 : static void hservice_elog_write_complete(struct fsp_msg *msg)</span>
+<span class="lineNum">     273 </span>                :            : {
+<span class="lineNum">     274 </span>                :<span class="lineNoCov">          0 :         struct hbrt_elog_ent *ent = msg-&gt;user_data;</span>
+<span class="lineNum">     275 </span>                :            : 
+<span class="lineNum">     276 </span>                :<span class="lineNoCov">          0 :         lock(&amp;hbrt_elog_lock);</span>
+<span class="lineNum">     277 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;HBRT: Completed send of PLID 0x%08x\n&quot;, ent-&gt;plid);</span>
+<span class="lineNum">     278 </span>                :<span class="lineNoCov">          0 :         hbrt_elog_sending = false;</span>
+<span class="lineNum">     279 </span>                :<span class="lineNoCov">          0 :         fsp_tce_unmap(PSI_DMA_HBRT_LOG_WRITE_BUF,</span>
+<span class="lineNum">     280 </span>                :            :                       PSI_DMA_HBRT_LOG_WRITE_BUF_SZ);
+<span class="lineNum">     281 </span>                :<span class="lineNoCov">          0 :         free(ent-&gt;buf);</span>
+<span class="lineNum">     282 </span>                :<span class="lineNoCov">          0 :         free(ent);</span>
+<span class="lineNum">     283 </span>                :<span class="lineNoCov">          0 :         fsp_freemsg(msg);</span>
+<span class="lineNum">     284 </span>                :<span class="lineNoCov">          0 :         hservice_start_elog_send();</span>
+<span class="lineNum">     285 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;hbrt_elog_lock);</span>
+<a name="286"><span class="lineNum">     286 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     287 </span>                :            : 
+<span class="lineNum">     288 </span>                :<span class="lineNoCov">          0 : static void hservice_start_elog_send(void)</span>
+<span class="lineNum">     289 </span>                :            : {
+<span class="lineNum">     290 </span>                :            :         struct fsp_msg *msg;
+<span class="lineNum">     291 </span>                :            :         struct hbrt_elog_ent *ent;
+<span class="lineNum">     292 </span>                :            : 
+<span class="lineNum">     293 </span>                :            :  again:
+<span class="lineNum">     294 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (list_empty(&amp;hbrt_elogs))</span>
+<span class="lineNum">     295 </span>                :            :                 return;
+<span class="lineNum">     296 </span>                :<span class="lineNoCov">          0 :         ent = list_pop(&amp;hbrt_elogs, struct hbrt_elog_ent, link);</span>
+<span class="lineNum">     297 </span>                :            : 
+<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 :         hbrt_elog_sending = true;</span>
+<span class="lineNum">     299 </span>                :            : 
+<span class="lineNum">     300 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;HBRT: Starting send of PLID 0x%08x\n&quot;, ent-&gt;plid);</span>
+<span class="lineNum">     301 </span>                :            : 
+<span class="lineNum">     302 </span>                :<span class="lineNoCov">          0 :         fsp_tce_map(PSI_DMA_HBRT_LOG_WRITE_BUF, ent-&gt;buf,</span>
+<span class="lineNum">     303 </span>                :            :                     PSI_DMA_HBRT_LOG_WRITE_BUF_SZ);
+<span class="lineNum">     304 </span>                :            : 
+<span class="lineNum">     305 </span>                :<span class="lineNoCov">          0 :         msg = fsp_mkmsg(FSP_CMD_WRITE_SP_DATA, 6, FSP_DATASET_HBRT_BLOB,</span>
+<span class="lineNum">     306 </span>                :            :                         0, 0, 0, PSI_DMA_HBRT_LOG_WRITE_BUF,
+<span class="lineNum">     307 </span>                :            :                         ent-&gt;size);
+<span class="lineNum">     308 </span>                :            : 
+<span class="lineNum">     309 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!msg) {</span>
+<span class="lineNum">     310 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;HBRT: Failed to create error msg log to FSP\n&quot;);</span>
+<span class="lineNum">     311 </span>                :<span class="lineNoCov">          0 :                 goto error;</span>
+<span class="lineNum">     312 </span>                :            :         }
+<span class="lineNum">     313 </span>                :<span class="lineNoCov">          0 :         msg-&gt;user_data = ent;</span>
+<span class="lineNum">     314 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fsp_queue_msg(msg, hservice_elog_write_complete))</span>
+<span class="lineNum">     315 </span>                :            :                 return;
+<span class="lineNum">     316 </span>                :<span class="lineNoCov">          0 :         prerror(&quot;FSP: Error queueing elog update\n&quot;);</span>
+<span class="lineNum">     317 </span>                :            :  error:
+<span class="lineNum">     318 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (msg)</span>
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(msg);</span>
+<span class="lineNum">     320 </span>                :<span class="lineNoCov">          0 :         fsp_tce_unmap(PSI_DMA_HBRT_LOG_WRITE_BUF,</span>
+<span class="lineNum">     321 </span>                :            :                       PSI_DMA_HBRT_LOG_WRITE_BUF_SZ);
+<span class="lineNum">     322 </span>                :<span class="lineNoCov">          0 :         free(ent-&gt;buf);</span>
+<span class="lineNum">     323 </span>                :<span class="lineNoCov">          0 :         free(ent);</span>
+<span class="lineNum">     324 </span>                :<span class="lineNoCov">          0 :         hbrt_elog_sending = false;</span>
+<span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 :         goto again;</span>
+<a name="326"><span class="lineNum">     326 </span>                :            : }</a>
+<span class="lineNum">     327 </span>                :            : 
+<span class="lineNum">     328 </span>                :<span class="lineNoCov">          0 : static int hservice_send_error_log(uint32_t plid, uint32_t dsize, void *data)</span>
+<span class="lineNum">     329 </span>                :            : {
+<span class="lineNum">     330 </span>                :            :         struct hbrt_elog_ent *ent;
+<span class="lineNum">     331 </span>                :            :         void *abuf;
+<span class="lineNum">     332 </span>                :            : 
+<span class="lineNum">     333 </span>                :<span class="lineNoCov">          0 :         prlog(PR_ERR, &quot;HBRT: Error log generated with plid 0x%08x\n&quot;, plid);</span>
+<span class="lineNum">     334 </span>                :            : 
+<span class="lineNum">     335 </span>                :            :         /* We only know how to send error logs to FSP */
+<span class="lineNum">     336 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fsp_present()) {</span>
+<span class="lineNum">     337 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;HBRT: Warning, error log from HBRT discarded !\n&quot;);</span>
+<span class="lineNum">     338 </span>                :<span class="lineNoCov">          0 :                 return OPAL_UNSUPPORTED;</span>
+<span class="lineNum">     339 </span>                :            :         }
+<span class="lineNum">     340 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (dsize &gt; PSI_DMA_HBRT_LOG_WRITE_BUF_SZ) {</span>
+<span class="lineNum">     341 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;HBRT: Warning, error log from HBRT too big (%d) !\n&quot;,</span>
+<span class="lineNum">     342 </span>                :            :                         dsize);
+<span class="lineNum">     343 </span>                :<span class="lineNoCov">          0 :                 dsize = PSI_DMA_HBRT_LOG_WRITE_BUF_SZ;</span>
+<span class="lineNum">     344 </span>                :            :         }
+<span class="lineNum">     345 </span>                :            : 
+<span class="lineNum">     346 </span>                :<span class="lineNoCov">          0 :         lock(&amp;hbrt_elog_lock);</span>
+<span class="lineNum">     347 </span>                :            : 
+<span class="lineNum">     348 </span>                :            :         /* Create and populate a tracking structure */
+<span class="lineNum">     349 </span>                :<span class="lineNoCov">          0 :         ent = zalloc(sizeof(struct hbrt_elog_ent));</span>
+<span class="lineNum">     350 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!ent) {</span>
+<span class="lineNum">     351 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;hbrt_elog_lock);</span>
+<span class="lineNum">     352 </span>                :<span class="lineNoCov">          0 :                 return OPAL_NO_MEM;</span>
+<span class="lineNum">     353 </span>                :            :         }
+<span class="lineNum">     354 </span>                :            : 
+<span class="lineNum">     355 </span>                :            :         /* Grab a 4k aligned page */
+<span class="lineNum">     356 </span>                :<span class="lineNoCov">          0 :         abuf = memalign(0x1000, PSI_DMA_HBRT_LOG_WRITE_BUF_SZ);</span>
+<span class="lineNum">     357 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!abuf) {</span>
+<span class="lineNum">     358 </span>                :<span class="lineNoCov">          0 :                 free(ent);</span>
+<span class="lineNum">     359 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;hbrt_elog_lock);</span>
+<span class="lineNum">     360 </span>                :<span class="lineNoCov">          0 :                 return OPAL_NO_MEM;</span>
+<span class="lineNum">     361 </span>                :            :         }
+<span class="lineNum">     362 </span>                :<span class="lineNoCov">          0 :         memset(abuf, 0, PSI_DMA_HBRT_LOG_WRITE_BUF_SZ);</span>
+<span class="lineNum">     363 </span>                :<span class="lineNoCov">          0 :         memcpy(abuf, data, dsize);</span>
+<span class="lineNum">     364 </span>                :<span class="lineNoCov">          0 :         ent-&gt;buf = abuf;</span>
+<span class="lineNum">     365 </span>                :<span class="lineNoCov">          0 :         ent-&gt;size = dsize;</span>
+<span class="lineNum">     366 </span>                :<span class="lineNoCov">          0 :         ent-&gt;plid = plid;</span>
+<span class="lineNum">     367 </span>                :<span class="lineNoCov">          0 :         list_add_tail(&amp;hbrt_elogs, &amp;ent-&gt;link);</span>
+<span class="lineNum">     368 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!hbrt_elog_sending)</span>
+<span class="lineNum">     369 </span>                :<span class="lineNoCov">          0 :                 hservice_start_elog_send();</span>
+<span class="lineNum">     370 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;hbrt_elog_lock);</span>
+<span class="lineNum">     371 </span>                :            : 
+<span class="lineNum">     372 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<a name="373"><span class="lineNum">     373 </span>                :            : }</a>
+<span class="lineNum">     374 </span>                :            : 
+<span class="lineNum">     375 </span>                :<span class="lineCov">       3018 : static int hservice_scom_read(uint64_t chip_id, uint64_t addr, void *buf)</span>
+<span class="lineNum">     376 </span>                :            : {
+<span class="lineNum">     377 </span>                :<span class="lineCov">       3018 :         return xscom_read(chip_id, addr, buf);</span>
+<a name="378"><span class="lineNum">     378 </span>                :            : }</a>
+<span class="lineNum">     379 </span>                :            : 
+<span class="lineNum">     380 </span>                :<span class="lineCov">       1452 : static int hservice_scom_write(uint64_t chip_id, uint64_t addr,</span>
+<span class="lineNum">     381 </span>                :            :                                const void *buf)
+<span class="lineNum">     382 </span>                :            : {
+<span class="lineNum">     383 </span>                :            :         uint64_t val;
+<span class="lineNum">     384 </span>                :            : 
+<span class="lineNum">     385 </span>                :<span class="lineCov">       1452 :         memcpy(&amp;val, buf, sizeof(val));</span>
+<span class="lineNum">     386 </span>                :<span class="lineCov">       1452 :         return xscom_write(chip_id, addr, val);</span>
+<span class="lineNum">     387 </span>                :            : }
+<span class="lineNum">     388 </span>                :            : 
+<span class="lineNum">     389 </span>                :            : struct hbrt_lid {
+<span class="lineNum">     390 </span>                :            :         void *load_addr;
+<span class="lineNum">     391 </span>                :            :         size_t len;
+<span class="lineNum">     392 </span>                :            :         uint32_t id;
+<span class="lineNum">     393 </span>                :            :         struct list_node link;
+<span class="lineNum">     394 </span>                :            : };
+<span class="lineNum">     395 </span>                :            : static LIST_HEAD(hbrt_lid_list);
+<span class="lineNum">     396 </span>                :            : 
+<a name="397"><span class="lineNum">     397 </span>                :            : static bool hbrt_lid_preload_complete = false;</a>
+<span class="lineNum">     398 </span>                :            : 
+<span class="lineNum">     399 </span>                :<span class="lineCov">          1 : bool hservices_lid_preload_complete(void)</span>
+<span class="lineNum">     400 </span>                :            : {
+<span class="lineNum">     401 </span>                :<span class="lineCov">          1 :         return hbrt_lid_preload_complete;</span>
+<span class="lineNum">     402 </span>                :            : }
+<a name="403"><span class="lineNum">     403 </span>                :            : </a>
+<span class="lineNum">     404 </span>                :            : /* TODO: Few of the following routines can be generalized */
+<span class="lineNum">     405 </span>                :<span class="lineCov">          1 : static int __hservice_lid_load(uint32_t lid, void **buf, size_t *len)</span>
+<span class="lineNum">     406 </span>                :            : {
+<span class="lineNum">     407 </span>                :            :         int rc;
+<span class="lineNum">     408 </span>                :            : 
+<span class="lineNum">     409 </span>                :            :         /* Adjust LID side first or we get a cache mismatch */
+<span class="lineNum">     410 </span>                :<span class="lineCov">          1 :         lid = fsp_adjust_lid_side(lid);</span>
+<span class="lineNum">     411 </span>                :            : 
+<span class="lineNum">     412 </span>                :            :         /*
+<span class="lineNum">     413 </span>                :            :          * Allocate a new buffer and load the LID into it
+<span class="lineNum">     414 </span>                :            :          * XXX: We currently use the same size for each HBRT lid.
+<span class="lineNum">     415 </span>                :            :          */
+<span class="lineNum">     416 </span>                :<span class="lineCov">          1 :         *buf = malloc(HBRT_LOAD_LID_SIZE);</span>
+<span class="lineNum">     417 </span>                :<span class="lineCov">          1 :         *len = HBRT_LOAD_LID_SIZE;</span>
+<span class="lineNum">     418 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         assert(*buf);</span>
+<span class="lineNum">     419 </span>                :<span class="lineCov">          1 :         rc = fsp_fetch_data(0, FSP_DATASET_NONSP_LID, lid, 0, *buf, len);</span>
+<span class="lineNum">     420 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (rc != 0)</span>
+<span class="lineNum">     421 </span>                :            :                 /* Take advantage of realloc corner case here. */
+<span class="lineNum">     422 </span>                :<span class="lineNoCov">          0 :                 *len = 0;</span>
+<span class="lineNum">     423 </span>                :<span class="lineCov">          1 :         *buf = realloc(*buf, *len);</span>
+<span class="lineNum">     424 </span>                :            : 
+<span class="lineNum">     425 </span>                :<span class="lineCov">          1 :         prlog(PR_DEBUG, &quot;HBRT: LID 0x%08x successfully loaded, len=0x%lx\n&quot;,</span>
+<span class="lineNum">     426 </span>                :            :                         lid, (unsigned long)*len);
+<span class="lineNum">     427 </span>                :            : 
+<span class="lineNum">     428 </span>                :<span class="lineCov">          1 :         return rc;</span>
+<a name="429"><span class="lineNum">     429 </span>                :            : }</a>
+<span class="lineNum">     430 </span>                :            : 
+<span class="lineNum">     431 </span>                :<span class="lineCov">          1 : static int __hservice_lid_preload(const uint32_t lid)</span>
+<span class="lineNum">     432 </span>                :            : {
+<span class="lineNum">     433 </span>                :            :         struct hbrt_lid *hlid;
+<span class="lineNum">     434 </span>                :            :         void *buf;
+<span class="lineNum">     435 </span>                :            :         size_t len;
+<span class="lineNum">     436 </span>                :            :         int rc;
+<span class="lineNum">     437 </span>                :            : 
+<span class="lineNum">     438 </span>                :<span class="lineCov">          1 :         hlid = zalloc(sizeof(struct hbrt_lid));</span>
+<span class="lineNum">     439 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!hlid) {</span>
+<span class="lineNum">     440 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;HBRT: Could not allocate struct hbrt_lid\n&quot;);</span>
+<span class="lineNum">     441 </span>                :<span class="lineNoCov">          0 :                 return OPAL_NO_MEM;</span>
+<span class="lineNum">     442 </span>                :            :         }
+<span class="lineNum">     443 </span>                :            : 
+<span class="lineNum">     444 </span>                :<span class="lineCov">          1 :         rc = __hservice_lid_load(lid, &amp;buf, &amp;len);</span>
+<span class="lineNum">     445 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (rc) {</span>
+<span class="lineNum">     446 </span>                :<span class="lineNoCov">          0 :                 free(hlid);</span>
+<span class="lineNum">     447 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
+<span class="lineNum">     448 </span>                :            :         }
+<span class="lineNum">     449 </span>                :            : 
+<span class="lineNum">     450 </span>                :<span class="lineCov">          1 :         hlid-&gt;load_addr = buf;</span>
+<span class="lineNum">     451 </span>                :<span class="lineCov">          1 :         hlid-&gt;len = len;</span>
+<span class="lineNum">     452 </span>                :<span class="lineCov">          1 :         hlid-&gt;id = lid;</span>
+<span class="lineNum">     453 </span>                :<span class="lineCov">          1 :         list_add_tail(&amp;hbrt_lid_list, &amp;hlid-&gt;link);</span>
+<span class="lineNum">     454 </span>                :            : 
+<span class="lineNum">     455 </span>                :<span class="lineCov">          1 :         return 0;</span>
+<span class="lineNum">     456 </span>                :            : }
+<a name="457"><span class="lineNum">     457 </span>                :            : </a>
+<span class="lineNum">     458 </span>                :            : /* Find and preload all lids needed by hostservices */
+<span class="lineNum">     459 </span>                :<span class="lineCov">          1 : void hservices_lid_preload(void)</span>
+<span class="lineNum">     460 </span>                :            : {
+<span class="lineNum">     461 </span>                :<span class="lineCov">          1 :         const uint32_t *lid_list = NULL;</span>
+<span class="lineNum">     462 </span>                :            :         size_t num_lids;
+<span class="lineNum">     463 </span>                :            :         int i;
+<span class="lineNum">     464 </span>                :            : 
+<span class="lineNum">     465 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!hservice_runtime)</span>
+<span class="lineNum">     466 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     467 </span>                :            : 
+<span class="lineNum">     468 </span>                :<span class="lineCov">          1 :         lid_list = (const uint32_t *)hservice_runtime-&gt;get_lid_list(&amp;num_lids);</span>
+<span class="lineNum">     469 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!lid_list) {</span>
+<span class="lineNum">     470 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;HBRT: get_lid_list() returned NULL\n&quot;);</span>
+<span class="lineNum">     471 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     472 </span>                :            :         }
+<span class="lineNum">     473 </span>                :            : 
+<span class="lineNum">     474 </span>                :<span class="lineCov">          1 :         prlog(PR_INFO, &quot;HBRT: %d lids to load\n&quot;, (int)num_lids);</span>
+<span class="lineNum">     475 </span>                :            : 
+<span class="lineNum">     476 </span>                :            :         /* Currently HBRT needs only one (OCC) lid */
+<span class="lineNum">     477 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         for (i = 0; i &lt; num_lids; i++)</span>
+<span class="lineNum">     478 </span>                :<span class="lineCov">          1 :                 __hservice_lid_preload(lid_list[i]);</span>
+<span class="lineNum">     479 </span>                :            : 
+<span class="lineNum">     480 </span>                :<span class="lineCov">          1 :         hbrt_lid_preload_complete = true;</span>
+<span class="lineNum">     481 </span>                :<span class="lineCov">          1 :         occ_poke_load_queue();</span>
+<a name="482"><span class="lineNum">     482 </span>                :            : }</a>
+<span class="lineNum">     483 </span>                :            : 
+<span class="lineNum">     484 </span>                :<span class="lineCov">          2 : static int hservice_lid_load(uint32_t lid, void **buf, size_t *len)</span>
+<span class="lineNum">     485 </span>                :            : {
+<span class="lineNum">     486 </span>                :            :         struct hbrt_lid *hlid;
+<span class="lineNum">     487 </span>                :            : 
+<span class="lineNum">     488 </span>                :<span class="lineCov">          2 :         prlog(PR_INFO, &quot;HBRT: Lid load request for 0x%08x\n&quot;, lid);</span>
+<span class="lineNum">     489 </span>                :            : 
+<span class="lineNum">     490 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (list_empty(&amp;hbrt_lid_list))     /* Should not happen */</span>
+<span class="lineNum">     491 </span>                :<span class="lineNoCov">          0 :                 hservices_lid_preload();</span>
+<span class="lineNum">     492 </span>                :            : 
+<span class="lineNum">     493 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         list_for_each(&amp;hbrt_lid_list, hlid, link) {</span>
+<span class="lineNum">     494 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :                 if (hlid-&gt;id == lid) {</span>
+<span class="lineNum">     495 </span>                :<span class="lineCov">          2 :                         *buf = hlid-&gt;load_addr;</span>
+<span class="lineNum">     496 </span>                :<span class="lineCov">          2 :                         *len = hlid-&gt;len;</span>
+<span class="lineNum">     497 </span>                :<span class="lineCov">          2 :                         prlog(PR_DEBUG, &quot;HBRT: Serviced from cache,&quot;</span>
+<span class="lineNum">     498 </span>                :            :                                         &quot; len=0x%lx\n&quot;, hlid-&gt;len);
+<span class="lineNum">     499 </span>                :<span class="lineCov">          2 :                         return 0;</span>
+<span class="lineNum">     500 </span>                :            :                 }
+<span class="lineNum">     501 </span>                :            :         }
+<span class="lineNum">     502 </span>                :            :         return -ENOENT;
+<a name="503"><span class="lineNum">     503 </span>                :            : }</a>
+<span class="lineNum">     504 </span>                :            : 
+<span class="lineNum">     505 </span>                :<span class="lineCov">          2 : static int hservice_lid_unload(void *buf __unused)</span>
+<span class="lineNum">     506 </span>                :            : {
+<span class="lineNum">     507 </span>                :            :         /* We do nothing as the LID is held in cache */
+<span class="lineNum">     508 </span>                :<span class="lineCov">          2 :         return 0;</span>
+<a name="509"><span class="lineNum">     509 </span>                :            : }</a>
+<span class="lineNum">     510 </span>                :            : 
+<span class="lineNum">     511 </span>                :<span class="lineCov">          2 : static uint64_t hservice_get_reserved_mem(const char *name)</span>
+<span class="lineNum">     512 </span>                :            : {
+<span class="lineNum">     513 </span>                :            :         struct mem_region *region;
+<span class="lineNum">     514 </span>                :            :         uint64_t ret;
+<span class="lineNum">     515 </span>                :            : 
+<span class="lineNum">     516 </span>                :            :         /* We assume it doesn't change after we've unlocked it, but
+<span class="lineNum">     517 </span>                :            :          * lock ensures list is safe to walk. */
+<span class="lineNum">     518 </span>                :<span class="lineCov">          2 :         lock(&amp;mem_region_lock);</span>
+<span class="lineNum">     519 </span>                :<span class="lineCov">          2 :         region = find_mem_region(name);</span>
+<span class="lineNum">     520 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         ret = region ? region-&gt;start : 0;</span>
+<span class="lineNum">     521 </span>                :<span class="lineCov">          2 :         unlock(&amp;mem_region_lock);</span>
+<span class="lineNum">     522 </span>                :            : 
+<span class="lineNum">     523 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!ret)</span>
+<span class="lineNum">     524 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;HBRT: Mem region '%s' not found !\n&quot;, name);</span>
+<span class="lineNum">     525 </span>                :            : 
+<span class="lineNum">     526 </span>                :<span class="lineCov">          2 :         return ret;</span>
+<a name="527"><span class="lineNum">     527 </span>                :            : }</a>
+<span class="lineNum">     528 </span>                :            : 
+<span class="lineNum">     529 </span>                :<span class="lineCov">         52 : static void hservice_nanosleep(uint64_t i_seconds, uint64_t i_nano_seconds)</span>
+<span class="lineNum">     530 </span>                :            : {
+<span class="lineNum">     531 </span>                :            :         struct timespec ts;
+<span class="lineNum">     532 </span>                :            : 
+<span class="lineNum">     533 </span>                :<span class="lineCov">         52 :         ts.tv_sec = i_seconds;</span>
+<span class="lineNum">     534 </span>                :<span class="lineCov">         52 :         ts.tv_nsec = i_nano_seconds;</span>
+<span class="lineNum">     535 </span>                :<span class="lineCov">         52 :         nanosleep_nopoll(&amp;ts, NULL);</span>
+<a name="536"><span class="lineNum">     536 </span>                :<span class="lineCov">         52 : }</span></a>
+<span class="lineNum">     537 </span>                :            : 
+<span class="lineNum">     538 </span>                :<span class="lineCov">         16 : static int hservice_set_special_wakeup(struct cpu_thread *cpu)</span>
+<span class="lineNum">     539 </span>                :            : {
+<span class="lineNum">     540 </span>                :            :         uint64_t val, core_id, poll_target, stamp;
+<span class="lineNum">     541 </span>                :            :         int rc;
+<span class="lineNum">     542 </span>                :            : 
+<span class="lineNum">     543 </span>                :            :         /*
+<span class="lineNum">     544 </span>                :            :          * Note: HWP checks for checkstops, but I assume we don't need to
+<span class="lineNum">     545 </span>                :            :          * as we wouldn't be running if one was present
+<span class="lineNum">     546 </span>                :            :          */
+<span class="lineNum">     547 </span>                :            : 
+<span class="lineNum">     548 </span>                :            :         /* Grab core ID once */
+<span class="lineNum">     549 </span>                :<span class="lineCov">         16 :         core_id = pir_to_core_id(cpu-&gt;pir);</span>
+<span class="lineNum">     550 </span>                :            : 
+<span class="lineNum">     551 </span>                :            :         /*
+<span class="lineNum">     552 </span>                :            :          * The original HWp reads the XSCOM first but ignores the result
+<span class="lineNum">     553 </span>                :            :          * and error, let's do the same until I know for sure that is
+<span class="lineNum">     554 </span>                :            :          * not neccessary
+<span class="lineNum">     555 </span>                :            :          */
+<span class="lineNum">     556 </span>                :<span class="lineCov">         16 :         xscom_read(cpu-&gt;chip_id,</span>
+<span class="lineNum">     557 </span>                :<span class="lineCov">         16 :                    XSCOM_ADDR_P8_EX_SLAVE(core_id, EX_PM_SPECIAL_WAKEUP_PHYP),</span>
+<span class="lineNum">     558 </span>                :            :                    &amp;val);
+<span class="lineNum">     559 </span>                :            : 
+<span class="lineNum">     560 </span>                :            :         /* Then we write special wakeup */
+<span class="lineNum">     561 </span>                :<span class="lineCov">         16 :         rc = xscom_write(cpu-&gt;chip_id,</span>
+<span class="lineNum">     562 </span>                :            :                          XSCOM_ADDR_P8_EX_SLAVE(core_id,
+<span class="lineNum">     563 </span>                :            :                                                 EX_PM_SPECIAL_WAKEUP_PHYP),
+<span class="lineNum">     564 </span>                :            :                          PPC_BIT(0));
+<span class="lineNum">     565 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         16 :         if (rc) {</span>
+<span class="lineNum">     566 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;HBRT: XSCOM error %d asserting special&quot;</span>
+<span class="lineNum">     567 </span>                :            :                         &quot; wakeup on 0x%x\n&quot;, rc, cpu-&gt;pir);
+<span class="lineNum">     568 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
+<span class="lineNum">     569 </span>                :            :         }
+<span class="lineNum">     570 </span>                :            : 
+<span class="lineNum">     571 </span>                :            :         /*
+<span class="lineNum">     572 </span>                :            :          * HWP uses the history for Perf register here, dunno why it uses
+<span class="lineNum">     573 </span>                :            :          * that one instead of the pHyp one, maybe to avoid clobbering it...
+<span class="lineNum">     574 </span>                :            :          *
+<span class="lineNum">     575 </span>                :            :          * In any case, it does that to check for run/nap vs.sleep/winkle/other
+<span class="lineNum">     576 </span>                :            :          * to decide whether to poll on checkstop or not. Since we don't deal
+<span class="lineNum">     577 </span>                :            :          * with checkstop conditions here, we ignore that part.
+<span class="lineNum">     578 </span>                :            :          */
+<span class="lineNum">     579 </span>                :            : 
+<span class="lineNum">     580 </span>                :            :         /*
+<span class="lineNum">     581 </span>                :            :          * Now poll for completion of special wakeup. The HWP is nasty here,
+<span class="lineNum">     582 </span>                :            :          * it will poll at 5ms intervals for up to 200ms. This is not quite
+<span class="lineNum">     583 </span>                :            :          * acceptable for us at runtime, at least not until we have the
+<span class="lineNum">     584 </span>                :            :          * ability to &quot;context switch&quot; HBRT. In practice, because we don't
+<span class="lineNum">     585 </span>                :            :          * winkle, it will never take that long, so we increase the polling
+<span class="lineNum">     586 </span>                :            :          * frequency to 1us per poll. However we do have to keep the same
+<span class="lineNum">     587 </span>                :            :          * timeout.
+<span class="lineNum">     588 </span>                :            :          *
+<span class="lineNum">     589 </span>                :            :          * We don't use time_wait_ms() either for now as we don't want to
+<span class="lineNum">     590 </span>                :            :          * poll the FSP here.
+<span class="lineNum">     591 </span>                :            :          */
+<span class="lineNum">     592 </span>                :<span class="lineCov">         16 :         stamp = mftb();</span>
+<span class="lineNum">     593 </span>                :<span class="lineCov">         16 :         poll_target = stamp + msecs_to_tb(200);</span>
+<span class="lineNum">     594 </span>                :<span class="lineCov">         16 :         val = 0;</span>
+<span class="lineNum">     595 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         32 :         while (!(val &amp; EX_PM_GP0_SPECIAL_WAKEUP_DONE)) {</span>
+<span class="lineNum">     596 </span>                :            :                 /* Wait 1 us */
+<span class="lineNum">     597 </span>                :<span class="lineCov">         16 :                 hservice_nanosleep(0, 1000);</span>
+<span class="lineNum">     598 </span>                :            : 
+<span class="lineNum">     599 </span>                :            :                 /* Read PM state */
+<span class="lineNum">     600 </span>                :<span class="lineCov">         16 :                 rc = xscom_read(cpu-&gt;chip_id,</span>
+<span class="lineNum">     601 </span>                :            :                                 XSCOM_ADDR_P8_EX_SLAVE(core_id, EX_PM_GP0),
+<span class="lineNum">     602 </span>                :            :                                 &amp;val);
+<span class="lineNum">     603 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         16 :                 if (rc) {</span>
+<span class="lineNum">     604 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;HBRT: XSCOM error %d reading PM state on&quot;</span>
+<span class="lineNum">     605 </span>                :            :                                 &quot; 0x%x\n&quot;, rc, cpu-&gt;pir);
+<span class="lineNum">     606 </span>                :<span class="lineNoCov">          0 :                         return rc;</span>
+<span class="lineNum">     607 </span>                :            :                 }
+<span class="lineNum">     608 </span>                :            :                 /* Check timeout */
+<span class="lineNum">     609 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         16 :                 if (mftb() &gt; poll_target)</span>
+<span class="lineNum">     610 </span>                :            :                         break;
+<span class="lineNum">     611 </span>                :            :         }
+<span class="lineNum">     612 </span>                :            : 
+<span class="lineNum">     613 </span>                :            :         /* Success ? */
+<span class="lineNum">     614 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         16 :         if (val &amp; EX_PM_GP0_SPECIAL_WAKEUP_DONE) {</span>
+<span class="lineNum">     615 </span>                :<span class="lineCov">         16 :                 uint64_t now = mftb();</span>
+<span class="lineNum">     616 </span>                :<span class="lineCov">         16 :                 prlog(PR_TRACE, &quot;HBRT: Special wakeup complete after %ld us\n&quot;,</span>
+<span class="lineNum">     617 </span>                :<span class="lineCov">         16 :                       tb_to_usecs(now - stamp));</span>
+<span class="lineNum">     618 </span>                :<span class="lineCov">         16 :                 return 0;</span>
+<span class="lineNum">     619 </span>                :            :         }
+<span class="lineNum">     620 </span>                :            : 
+<span class="lineNum">     621 </span>                :            :         /*
+<span class="lineNum">     622 </span>                :            :          * We timed out ...
+<span class="lineNum">     623 </span>                :            :          *
+<span class="lineNum">     624 </span>                :            :          * HWP has a complex workaround for HW255321 which affects
+<span class="lineNum">     625 </span>                :            :          * Murano DD1 and Venice DD1. Ignore that for now
+<span class="lineNum">     626 </span>                :            :          *
+<span class="lineNum">     627 </span>                :            :          * Instead we just dump some XSCOMs for error logging
+<span class="lineNum">     628 </span>                :            :          */
+<span class="lineNum">     629 </span>                :<span class="lineNoCov">          0 :         prerror(&quot;HBRT: Timeout on special wakeup of 0x%0x\n&quot;, cpu-&gt;pir);</span>
+<span class="lineNum">     630 </span>                :<span class="lineNoCov">          0 :         prerror(&quot;HBRT:      PM0 = 0x%016llx\n&quot;, val);</span>
+<span class="lineNum">     631 </span>                :<span class="lineNoCov">          0 :         val = -1;</span>
+<span class="lineNum">     632 </span>                :<span class="lineNoCov">          0 :         xscom_read(cpu-&gt;chip_id,</span>
+<span class="lineNum">     633 </span>                :            :                    XSCOM_ADDR_P8_EX_SLAVE(core_id, EX_PM_SPECIAL_WAKEUP_PHYP),
+<span class="lineNum">     634 </span>                :            :                    &amp;val);
+<span class="lineNum">     635 </span>                :<span class="lineNoCov">          0 :         prerror(&quot;HBRT: SPC_WKUP = 0x%016llx\n&quot;, val);</span>
+<span class="lineNum">     636 </span>                :<span class="lineNoCov">          0 :         val = -1;</span>
+<span class="lineNum">     637 </span>                :<span class="lineNoCov">          0 :         xscom_read(cpu-&gt;chip_id,</span>
+<span class="lineNum">     638 </span>                :            :                    XSCOM_ADDR_P8_EX_SLAVE(core_id,
+<span class="lineNum">     639 </span>                :            :                                           EX_PM_IDLE_STATE_HISTORY_PHYP),
+<span class="lineNum">     640 </span>                :            :                    &amp;val);
+<span class="lineNum">     641 </span>                :<span class="lineNoCov">          0 :         prerror(&quot;HBRT:  HISTORY = 0x%016llx\n&quot;, val);</span>
+<span class="lineNum">     642 </span>                :            : 
+<span class="lineNum">     643 </span>                :<span class="lineNoCov">          0 :         return OPAL_HARDWARE;</span>
+<a name="644"><span class="lineNum">     644 </span>                :            : }</a>
+<span class="lineNum">     645 </span>                :            : 
+<span class="lineNum">     646 </span>                :<span class="lineCov">         16 : static int hservice_clr_special_wakeup(struct cpu_thread *cpu)</span>
+<span class="lineNum">     647 </span>                :            : {
+<span class="lineNum">     648 </span>                :            :         uint64_t val, core_id;
+<span class="lineNum">     649 </span>                :            :         int rc;
+<span class="lineNum">     650 </span>                :            : 
+<span class="lineNum">     651 </span>                :            :         /*
+<span class="lineNum">     652 </span>                :            :          * Note: HWP checks for checkstops, but I assume we don't need to
+<span class="lineNum">     653 </span>                :            :          * as we wouldn't be running if one was present
+<span class="lineNum">     654 </span>                :            :          */
+<span class="lineNum">     655 </span>                :            : 
+<span class="lineNum">     656 </span>                :            :         /* Grab core ID once */
+<span class="lineNum">     657 </span>                :<span class="lineCov">         16 :         core_id = pir_to_core_id(cpu-&gt;pir);</span>
+<span class="lineNum">     658 </span>                :            : 
+<span class="lineNum">     659 </span>                :            :         /*
+<span class="lineNum">     660 </span>                :            :          * The original HWp reads the XSCOM first but ignores the result
+<span class="lineNum">     661 </span>                :            :          * and error, let's do the same until I know for sure that is
+<span class="lineNum">     662 </span>                :            :          * not neccessary
+<span class="lineNum">     663 </span>                :            :          */
+<span class="lineNum">     664 </span>                :<span class="lineCov">         16 :         xscom_read(cpu-&gt;chip_id,</span>
+<span class="lineNum">     665 </span>                :<span class="lineCov">         16 :                    XSCOM_ADDR_P8_EX_SLAVE(core_id, EX_PM_SPECIAL_WAKEUP_PHYP),</span>
+<span class="lineNum">     666 </span>                :            :                    &amp;val);
+<span class="lineNum">     667 </span>                :            : 
+<span class="lineNum">     668 </span>                :            :         /* Then we write special wakeup */
+<span class="lineNum">     669 </span>                :<span class="lineCov">         16 :         rc = xscom_write(cpu-&gt;chip_id,</span>
+<span class="lineNum">     670 </span>                :            :                          XSCOM_ADDR_P8_EX_SLAVE(core_id,
+<span class="lineNum">     671 </span>                :            :                                                 EX_PM_SPECIAL_WAKEUP_PHYP), 0);
+<span class="lineNum">     672 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         16 :         if (rc) {</span>
+<span class="lineNum">     673 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;HBRT: XSCOM error %d deasserting&quot;</span>
+<span class="lineNum">     674 </span>                :            :                         &quot; special wakeup on 0x%x\n&quot;, rc, cpu-&gt;pir);
+<span class="lineNum">     675 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
+<span class="lineNum">     676 </span>                :            :         }
+<span class="lineNum">     677 </span>                :            : 
+<span class="lineNum">     678 </span>                :            :         /*
+<span class="lineNum">     679 </span>                :            :          * The original HWp reads the XSCOM again with the comment
+<span class="lineNum">     680 </span>                :            :          * &quot;This puts an inherent delay in the propagation of the reset
+<span class="lineNum">     681 </span>                :            :          * transition&quot;
+<span class="lineNum">     682 </span>                :            :          */
+<span class="lineNum">     683 </span>                :<span class="lineCov">         16 :         xscom_read(cpu-&gt;chip_id,</span>
+<span class="lineNum">     684 </span>                :            :                    XSCOM_ADDR_P8_EX_SLAVE(core_id, EX_PM_SPECIAL_WAKEUP_PHYP),
+<span class="lineNum">     685 </span>                :            :                    &amp;val);
+<span class="lineNum">     686 </span>                :            : 
+<span class="lineNum">     687 </span>                :<span class="lineCov">         16 :         return 0;</span>
+<a name="688"><span class="lineNum">     688 </span>                :            : }</a>
+<span class="lineNum">     689 </span>                :            : 
+<span class="lineNum">     690 </span>                :<span class="lineCov">         32 : static int hservice_wakeup(uint32_t i_core, uint32_t i_mode)</span>
+<span class="lineNum">     691 </span>                :            : {
+<span class="lineNum">     692 </span>                :            :         struct cpu_thread *cpu;
+<span class="lineNum">     693 </span>                :<span class="lineCov">         32 :         int rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     694 </span>                :            : 
+<span class="lineNum">     695 </span>                :            :         /*
+<span class="lineNum">     696 </span>                :            :          * Mask out the top nibble of i_core since it may contain
+<span class="lineNum">     697 </span>                :            :          * 0x4 (which we use for XSCOM targetting)
+<span class="lineNum">     698 </span>                :            :          */
+<span class="lineNum">     699 </span>                :<span class="lineCov">         32 :         i_core &amp;= 0x0fffffff;</span>
+<span class="lineNum">     700 </span>                :            : 
+<span class="lineNum">     701 </span>                :            :         /* What do we need to do ? */
+<span class="lineNum">     702 </span>  [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         32 :         switch(i_mode) {</span>
+<span class="lineNum">     703 </span>                :            :         case 0: /* Assert special wakeup */
+<span class="lineNum">     704 </span>                :            :                 /* XXX Assume P8 */
+<span class="lineNum">     705 </span>                :<span class="lineCov">         16 :                 cpu = find_cpu_by_pir(i_core &lt;&lt; 3);</span>
+<span class="lineNum">     706 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         16 :                 if (!cpu)</span>
+<span class="lineNum">     707 </span>                :            :                         return OPAL_PARAMETER;
+<span class="lineNum">     708 </span>                :<span class="lineCov">         16 :                 prlog(PR_DEBUG, &quot;HBRT: Special wakeup assert for core 0x%x,&quot;</span>
+<span class="lineNum">     709 </span>                :            :                       &quot; count=%d\n&quot;, i_core, cpu-&gt;hbrt_spec_wakeup);
+<span class="lineNum">     710 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         16 :                 if (cpu-&gt;hbrt_spec_wakeup == 0)</span>
+<span class="lineNum">     711 </span>                :<span class="lineCov">         16 :                         rc = hservice_set_special_wakeup(cpu);</span>
+<span class="lineNum">     712 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         16 :                 if (rc == 0)</span>
+<span class="lineNum">     713 </span>                :<span class="lineCov">         16 :                         cpu-&gt;hbrt_spec_wakeup++;</span>
+<span class="lineNum">     714 </span>                :<span class="lineCov">         16 :                 return rc;</span>
+<span class="lineNum">     715 </span>                :            :         case 1: /* Deassert special wakeup */
+<span class="lineNum">     716 </span>                :            :                 /* XXX Assume P8 */
+<span class="lineNum">     717 </span>                :<span class="lineCov">         16 :                 cpu = find_cpu_by_pir(i_core &lt;&lt; 3);</span>
+<span class="lineNum">     718 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         16 :                 if (!cpu)</span>
+<span class="lineNum">     719 </span>                :            :                         return OPAL_PARAMETER;
+<span class="lineNum">     720 </span>                :<span class="lineCov">         16 :                 prlog(PR_DEBUG, &quot;HBRT: Special wakeup release for core&quot;</span>
+<span class="lineNum">     721 </span>                :            :                       &quot; 0x%x, count=%d\n&quot;, i_core, cpu-&gt;hbrt_spec_wakeup);
+<span class="lineNum">     722 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">         16 :                 if (cpu-&gt;hbrt_spec_wakeup == 0) {</span>
+<span class="lineNum">     723 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;HBRT: Special wakeup clear&quot;</span>
+<span class="lineNum">     724 </span>                :            :                                 &quot; on core 0x%x with count=0\n&quot;,
+<span class="lineNum">     725 </span>                :            :                                 i_core);
+<span class="lineNum">     726 </span>                :<span class="lineNoCov">          0 :                         return OPAL_WRONG_STATE;</span>
+<span class="lineNum">     727 </span>                :            :                 }
+<span class="lineNum">     728 </span>                :            :                 /* What to do with count on errors ? */
+<span class="lineNum">     729 </span>                :<span class="lineCov">         16 :                 cpu-&gt;hbrt_spec_wakeup--;</span>
+<span class="lineNum">     730 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         16 :                 if (cpu-&gt;hbrt_spec_wakeup == 0)</span>
+<span class="lineNum">     731 </span>                :<span class="lineCov">         16 :                         rc = hservice_clr_special_wakeup(cpu);</span>
+<span class="lineNum">     732 </span>                :<span class="lineCov">         16 :                 return rc;</span>
+<span class="lineNum">     733 </span>                :            :         case 2: /* Clear all special wakeups */
+<span class="lineNum">     734 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_DEBUG, &quot;HBRT: Special wakeup release for all cores\n&quot;);</span>
+<span class="lineNum">     735 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 for_each_cpu(cpu) {</span>
+<span class="lineNum">     736 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (cpu-&gt;hbrt_spec_wakeup) {</span>
+<span class="lineNum">     737 </span>                :<span class="lineNoCov">          0 :                                 cpu-&gt;hbrt_spec_wakeup = 0;</span>
+<span class="lineNum">     738 </span>                :            :                                 /* What to do on errors ? */
+<span class="lineNum">     739 </span>                :<span class="lineNoCov">          0 :                                 hservice_clr_special_wakeup(cpu);</span>
+<span class="lineNum">     740 </span>                :            :                         }
+<span class="lineNum">     741 </span>                :            :                 }
+<span class="lineNum">     742 </span>                :            :                 return OPAL_SUCCESS;
+<span class="lineNum">     743 </span>                :            :         default:
+<span class="lineNum">     744 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     745 </span>                :            :         }
+<span class="lineNum">     746 </span>                :            : }
+<span class="lineNum">     747 </span>                :            : 
+<span class="lineNum">     748 </span>                :            : static struct host_interfaces hinterface = {
+<span class="lineNum">     749 </span>                :            :         .interface_version = HOSTBOOT_RUNTIME_INTERFACE_VERSION,
+<span class="lineNum">     750 </span>                :            :         .puts = hservice_puts,
+<span class="lineNum">     751 </span>                :            :         .assert = hservice_assert,
+<span class="lineNum">     752 </span>                :            :         .malloc = hservice_malloc,
+<span class="lineNum">     753 </span>                :            :         .free = hservice_free,
+<span class="lineNum">     754 </span>                :            :         .realloc = hservice_realloc,
+<span class="lineNum">     755 </span>                :            :         .send_error_log = hservice_send_error_log,
+<span class="lineNum">     756 </span>                :            :         .scom_read = hservice_scom_read,
+<span class="lineNum">     757 </span>                :            :         .scom_write = hservice_scom_write,
+<span class="lineNum">     758 </span>                :            :         .lid_load = hservice_lid_load,
+<span class="lineNum">     759 </span>                :            :         .lid_unload = hservice_lid_unload,
+<span class="lineNum">     760 </span>                :            :         .get_reserved_mem = hservice_get_reserved_mem,
+<span class="lineNum">     761 </span>                :            :         .wakeup = hservice_wakeup,
+<span class="lineNum">     762 </span>                :            :         .nanosleep = hservice_nanosleep,
+<a name="763"><span class="lineNum">     763 </span>                :            : };</a>
+<span class="lineNum">     764 </span>                :            : 
+<span class="lineNum">     765 </span>                :<span class="lineCov">          1 : int host_services_occ_load(void)</span>
+<span class="lineNum">     766 </span>                :            : {
+<span class="lineNum">     767 </span>                :            :         struct proc_chip *chip;
+<span class="lineNum">     768 </span>                :<span class="lineCov">          1 :         int rc = 0;</span>
+<span class="lineNum">     769 </span>                :            : 
+<span class="lineNum">     770 </span>                :<span class="lineCov">          1 :         prlog(PR_DEBUG, &quot;HBRT: OCC Load requested\n&quot;);</span>
+<span class="lineNum">     771 </span>                :            : 
+<span class="lineNum">     772 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!(hservice_runtime &amp;&amp; hservice_runtime-&gt;loadOCC)) {</span>
+<span class="lineNum">     773 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;HBRT: No hservice_runtime-&gt;loadOCC\n&quot;);</span>
+<span class="lineNum">     774 </span>                :<span class="lineNoCov">          0 :                 return -ENOENT;</span>
+<span class="lineNum">     775 </span>                :            :         }
+<span class="lineNum">     776 </span>                :            : 
+<span class="lineNum">     777 </span>        [<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         for_each_chip(chip) {</span>
+<span class="lineNum">     778 </span>                :            : 
+<span class="lineNum">     779 </span>                :<span class="lineCov">          2 :                 prlog(PR_DEBUG, &quot;HBRT: Calling loadOCC() homer&quot;</span>
+<span class="lineNum">     780 </span>                :            :                       &quot; %016llx, occ_common_area %016llx, chip %04x\n&quot;,
+<span class="lineNum">     781 </span>                :            :                       chip-&gt;homer_base,
+<span class="lineNum">     782 </span>                :            :                       chip-&gt;occ_common_base,
+<span class="lineNum">     783 </span>                :            :                       chip-&gt;id);
+<span class="lineNum">     784 </span>                :            : 
+<span class="lineNum">     785 </span>                :<span class="lineCov">          2 :                 rc = hservice_runtime-&gt;loadOCC(chip-&gt;homer_base,</span>
+<span class="lineNum">     786 </span>                :            :                                                 chip-&gt;homer_base,
+<span class="lineNum">     787 </span>                :            :                                                 chip-&gt;occ_common_base,
+<span class="lineNum">     788 </span>                :            :                                                 chip-&gt;occ_common_base,
+<span class="lineNum">     789 </span>                :<span class="lineCov">          2 :                                                 chip-&gt;id);</span>
+<span class="lineNum">     790 </span>                :            : 
+<span class="lineNum">     791 </span>                :<span class="lineCov">          2 :                 hservice_mark();</span>
+<span class="lineNum">     792 </span>                :<span class="lineCov">          2 :                 prlog(PR_DEBUG, &quot;HBRT: -&gt; rc = %d\n&quot;, rc);</span>
+<span class="lineNum">     793 </span>                :            :         }
+<span class="lineNum">     794 </span>                :            :         return rc;
+<a name="795"><span class="lineNum">     795 </span>                :            : }</a>
+<span class="lineNum">     796 </span>                :            : 
+<span class="lineNum">     797 </span>                :<span class="lineCov">          1 : int host_services_occ_start(void)</span>
+<span class="lineNum">     798 </span>                :            : {
+<span class="lineNum">     799 </span>                :            :         struct proc_chip *chip;
+<span class="lineNum">     800 </span>                :<span class="lineCov">          1 :         int i, rc = 0, nr_chips=0;</span>
+<span class="lineNum">     801 </span>                :            :         uint64_t chipids[MAX_CHIPS];
+<span class="lineNum">     802 </span>                :            : 
+<span class="lineNum">     803 </span>                :<span class="lineCov">          1 :         prlog(PR_INFO, &quot;HBRT: OCC Start requested\n&quot;);</span>
+<span class="lineNum">     804 </span>                :            : 
+<span class="lineNum">     805 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!(hservice_runtime &amp;&amp; hservice_runtime-&gt;startOCCs)) {</span>
+<span class="lineNum">     806 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;HBRT: No hservice_runtime-&gt;startOCCs\n&quot;);</span>
+<span class="lineNum">     807 </span>                :<span class="lineNoCov">          0 :                 return -ENOENT;</span>
+<span class="lineNum">     808 </span>                :            :         }
+<span class="lineNum">     809 </span>                :            : 
+<span class="lineNum">     810 </span>        [<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         for_each_chip(chip) {</span>
+<span class="lineNum">     811 </span>                :<span class="lineCov">          2 :                 chipids[nr_chips++] = chip-&gt;id;</span>
+<span class="lineNum">     812 </span>                :            :         }
+<span class="lineNum">     813 </span>                :            : 
+<span class="lineNum">     814 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         for (i = 0; i &lt; nr_chips; i++)</span>
+<span class="lineNum">     815 </span>                :<span class="lineCov">          2 :                 prlog(PR_TRACE, &quot;HBRT: Calling startOCC() for %04llx\n&quot;,</span>
+<span class="lineNum">     816 </span>                :            :                       chipids[i]);
+<span class="lineNum">     817 </span>                :            : 
+<span class="lineNum">     818 </span>                :            :         /* Lets start all OCC */
+<span class="lineNum">     819 </span>                :<span class="lineCov">          1 :         rc = hservice_runtime-&gt;startOCCs(chipids, nr_chips);</span>
+<span class="lineNum">     820 </span>                :<span class="lineCov">          1 :         hservice_mark();</span>
+<span class="lineNum">     821 </span>                :<span class="lineCov">          1 :         prlog(PR_DEBUG, &quot;HBRT: startOCCs() rc  = %d\n&quot;, rc);</span>
+<span class="lineNum">     822 </span>                :<span class="lineCov">          1 :         return rc;</span>
+<a name="823"><span class="lineNum">     823 </span>                :            : }</a>
+<span class="lineNum">     824 </span>                :            : 
+<span class="lineNum">     825 </span>                :<span class="lineCov">          2 : int host_services_occ_stop(void)</span>
+<span class="lineNum">     826 </span>                :            : {
+<span class="lineNum">     827 </span>                :            :         struct proc_chip *chip;
+<span class="lineNum">     828 </span>                :<span class="lineCov">          2 :         int i, rc = 0, nr_chips=0;</span>
+<span class="lineNum">     829 </span>                :            :         uint64_t chipids[MAX_CHIPS];
+<span class="lineNum">     830 </span>                :            : 
+<span class="lineNum">     831 </span>                :<span class="lineCov">          2 :         prlog(PR_INFO, &quot;HBRT: OCC Stop requested\n&quot;);</span>
+<span class="lineNum">     832 </span>                :            : 
+<span class="lineNum">     833 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!(hservice_runtime &amp;&amp; hservice_runtime-&gt;stopOCCs)) {</span>
+<span class="lineNum">     834 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;HBRT: No hservice_runtime-&gt;stopOCCs\n&quot;);</span>
+<span class="lineNum">     835 </span>                :<span class="lineNoCov">          0 :                 return -ENOENT;</span>
+<span class="lineNum">     836 </span>                :            :         }
+<span class="lineNum">     837 </span>                :            : 
+<span class="lineNum">     838 </span>        [<span class="branchCov" title="Branch 2 was taken 4 times"> + </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          6 :         for_each_chip(chip) {</span>
+<span class="lineNum">     839 </span>                :<span class="lineCov">          4 :                 chipids[nr_chips++] = chip-&gt;id;</span>
+<span class="lineNum">     840 </span>                :            :         }
+<span class="lineNum">     841 </span>                :            : 
+<span class="lineNum">     842 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          6 :         for (i = 0; i &lt; nr_chips; i++)</span>
+<span class="lineNum">     843 </span>                :<span class="lineCov">          4 :                 prlog(PR_TRACE, &quot;HBRT: Calling stopOCC() for %04llx &quot;,</span>
+<span class="lineNum">     844 </span>                :            :                       chipids[i]);
+<span class="lineNum">     845 </span>                :            : 
+<span class="lineNum">     846 </span>                :            :         /* Lets STOP all OCC */
+<span class="lineNum">     847 </span>                :<span class="lineCov">          2 :         rc = hservice_runtime-&gt;stopOCCs(chipids, nr_chips);</span>
+<span class="lineNum">     848 </span>                :<span class="lineCov">          2 :         hservice_mark();</span>
+<span class="lineNum">     849 </span>                :<span class="lineCov">          2 :         prlog(PR_DEBUG, &quot;HBRT: stopOCCs() rc  = %d\n&quot;, rc);</span>
+<span class="lineNum">     850 </span>                :<span class="lineCov">          2 :         return rc;</span>
+<span class="lineNum">     851 </span>                :            : }
+<a name="852"><span class="lineNum">     852 </span>                :            : </a>
+<span class="lineNum">     853 </span>                :            : 
+<span class="lineNum">     854 </span>                :<span class="lineCov">          1 : void host_services_occ_base_setup(void)</span>
+<span class="lineNum">     855 </span>                :            : {
+<span class="lineNum">     856 </span>                :            :         struct proc_chip *chip;
+<span class="lineNum">     857 </span>                :            :         uint64_t occ_common;
+<span class="lineNum">     858 </span>                :            : 
+<span class="lineNum">     859 </span>                :<span class="lineCov">          1 :         chip = next_chip(NULL); /* Frist chip */</span>
+<span class="lineNum">     860 </span>                :<span class="lineCov">          1 :         occ_common = (uint64_t) local_alloc(chip-&gt;id, OCC_COMMON_SIZE, OCC_COMMON_SIZE);</span>
+<span class="lineNum">     861 </span>                :            : 
+<span class="lineNum">     862 </span>        [<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         for_each_chip(chip) {</span>
+<span class="lineNum">     863 </span>                :<span class="lineCov">          2 :                 chip-&gt;occ_common_base = occ_common;</span>
+<span class="lineNum">     864 </span>                :<span class="lineCov">          2 :                 chip-&gt;occ_common_size = OCC_COMMON_SIZE;</span>
+<span class="lineNum">     865 </span>                :            : 
+<span class="lineNum">     866 </span>                :<span class="lineCov">          2 :                 chip-&gt;homer_base = (uint64_t) local_alloc(chip-&gt;id, HOMER_IMAGE_SIZE,</span>
+<span class="lineNum">     867 </span>                :            :                                                         HOMER_IMAGE_SIZE);
+<span class="lineNum">     868 </span>                :<span class="lineCov">          2 :                 chip-&gt;homer_size = HOMER_IMAGE_SIZE;</span>
+<span class="lineNum">     869 </span>                :<span class="lineCov">          2 :                 memset((void *)chip-&gt;homer_base, 0, chip-&gt;homer_size);</span>
+<span class="lineNum">     870 </span>                :            : 
+<span class="lineNum">     871 </span>                :<span class="lineCov">          2 :                 prlog(PR_DEBUG, &quot;HBRT: Chip %d HOMER base %016llx : %08llx\n&quot;,</span>
+<span class="lineNum">     872 </span>                :            :                       chip-&gt;id, chip-&gt;homer_base, chip-&gt;homer_size);
+<span class="lineNum">     873 </span>                :<span class="lineCov">          2 :                 prlog(PR_DEBUG, &quot;HBRT: OCC common base %016llx : %08llx\n&quot;,</span>
+<span class="lineNum">     874 </span>                :            :                       chip-&gt;occ_common_base, chip-&gt;occ_common_size);
+<span class="lineNum">     875 </span>                :            :         }
+<a name="876"><span class="lineNum">     876 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     877 </span>                :            : 
+<span class="lineNum">     878 </span>                :<span class="lineCov">          1 : bool hservices_init(void)</span>
+<span class="lineNum">     879 </span>                :            : {
+<span class="lineNum">     880 </span>                :<span class="lineCov">          1 :         void *code = NULL;</span>
+<span class="lineNum">     881 </span>                :            :         struct runtime_interfaces *(*hbrt_init)(struct host_interfaces *);
+<span class="lineNum">     882 </span>                :            : 
+<span class="lineNum">     883 </span>                :            :         struct function_descriptor {
+<span class="lineNum">     884 </span>                :            :                 void *addr;
+<span class="lineNum">     885 </span>                :            :                 void *toc;
+<span class="lineNum">     886 </span>                :            :         } fdesc;
+<span class="lineNum">     887 </span>                :            : 
+<span class="lineNum">     888 </span>                :<span class="lineCov">          1 :         code = (void *)hservice_get_reserved_mem(&quot;ibm,hbrt-code-image&quot;);</span>
+<span class="lineNum">     889 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!code) {</span>
+<span class="lineNum">     890 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;HBRT: No ibm,hbrt-code-image found.\n&quot;);</span>
+<span class="lineNum">     891 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     892 </span>                :            :         }
+<span class="lineNum">     893 </span>                :            : 
+<span class="lineNum">     894 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (memcmp(code, &quot;HBRTVERS&quot;, 8) != 0) {</span>
+<span class="lineNum">     895 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;HBRT: Bad eyecatcher for ibm,hbrt-code-image!\n&quot;);</span>
+<span class="lineNum">     896 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     897 </span>                :            :         }
+<span class="lineNum">     898 </span>                :            : 
+<span class="lineNum">     899 </span>                :<span class="lineCov">          1 :         prlog(PR_INFO, &quot;HBRT: Found HostBoot Runtime version %llu\n&quot;,</span>
+<span class="lineNum">     900 </span>                :            :               ((u64 *)code)[1]);
+<span class="lineNum">     901 </span>                :            : 
+<span class="lineNum">     902 </span>                :            :         /* We enter at 0x100 into the image. */
+<span class="lineNum">     903 </span>                :<span class="lineCov">          1 :         fdesc.addr = code + 0x100;</span>
+<span class="lineNum">     904 </span>                :            :         /* It doesn't care about TOC */
+<span class="lineNum">     905 </span>                :<span class="lineCov">          1 :         fdesc.toc = 0;</span>
+<span class="lineNum">     906 </span>                :            : 
+<span class="lineNum">     907 </span>                :<span class="lineCov">          1 :         hbrt_init = (void *)&amp;fdesc;</span>
+<span class="lineNum">     908 </span>                :            : 
+<span class="lineNum">     909 </span>                :<span class="lineCov">          1 :         hservice_runtime = hbrt_init(&amp;hinterface);</span>
+<span class="lineNum">     910 </span>                :<span class="lineCov">          1 :         hservice_mark();</span>
+<span class="lineNum">     911 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!hservice_runtime) {</span>
+<span class="lineNum">     912 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;HBRT: Host services init failed\n&quot;);</span>
+<span class="lineNum">     913 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     914 </span>                :            :         }
+<span class="lineNum">     915 </span>                :            : 
+<span class="lineNum">     916 </span>                :<span class="lineCov">          1 :         prlog(PR_INFO, &quot;HBRT: Interface version %llu\n&quot;,</span>
+<span class="lineNum">     917 </span>                :            :               hservice_runtime-&gt;interface_version);
+<span class="lineNum">     918 </span>                :            : 
+<span class="lineNum">     919 </span>                :<span class="lineCov">          1 :         return true;</span>
+<span class="lineNum">     920 </span>                :            : }               
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

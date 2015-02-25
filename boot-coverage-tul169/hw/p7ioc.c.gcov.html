@@ -1,0 +1,767 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/p7ioc.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">hw</a> - p7ioc.c<span style="font-size: 80%;"> (source / <a href="p7ioc.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">287</td>
+            <td class="headerCovTableEntryLo">1.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryLo">9.1 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">136</td>
+            <td class="headerCovTableEntryLo">0.7 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;p7ioc.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;p7ioc-regs.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;cec.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;opal.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;opal-api.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;io.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;vpd.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;interrupts.h&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;ccan/str/str.h&gt;
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            : /*
+<span class="lineNum">      29 </span>                :            :  * Determine the base address of LEM registers according to
+<a name="30"><span class="lineNum">      30 </span>                :            :  * the indicated error source.</a>
+<span class="lineNum">      31 </span>                :            :  */
+<span class="lineNum">      32 </span>                :<span class="lineNoCov">          0 : static void *p7ioc_LEM_base(struct p7ioc *ioc, uint32_t err_src)</span>
+<span class="lineNum">      33 </span>                :            : {
+<span class="lineNum">      34 </span>                :            :         uint32_t index;
+<span class="lineNum">      35 </span>                :<span class="lineNoCov">          0 :         void *base = NULL;</span>
+<span class="lineNum">      36 </span>                :            : 
+<span class="lineNum">      37 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span> :<span class="lineNoCov">          0 :         switch (err_src) {</span>
+<span class="lineNum">         </span>   <span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">      38 </span>                :            :         case P7IOC_ERR_SRC_RGC:
+<span class="lineNum">      39 </span>                :<span class="lineNoCov">          0 :                 base = ioc-&gt;regs + P7IOC_RGC_LEM_BASE;</span>
+<span class="lineNum">      40 </span>                :            :                 break;
+<span class="lineNum">      41 </span>                :            :         case P7IOC_ERR_SRC_BI_UP:
+<span class="lineNum">      42 </span>                :<span class="lineNoCov">          0 :                 base = ioc-&gt;regs + P7IOC_BI_UP_LEM_BASE;</span>
+<span class="lineNum">      43 </span>                :            :                 break;
+<span class="lineNum">      44 </span>                :            :         case P7IOC_ERR_SRC_BI_DOWN:
+<span class="lineNum">      45 </span>                :<span class="lineNoCov">          0 :                 base = ioc-&gt;regs + P7IOC_BI_DOWN_LEM_BASE;</span>
+<span class="lineNum">      46 </span>                :            :                 break;
+<span class="lineNum">      47 </span>                :            :         case P7IOC_ERR_SRC_CI_P0:
+<span class="lineNum">      48 </span>                :            :         case P7IOC_ERR_SRC_CI_P1:
+<span class="lineNum">      49 </span>                :            :         case P7IOC_ERR_SRC_CI_P2:
+<span class="lineNum">      50 </span>                :            :         case P7IOC_ERR_SRC_CI_P3:
+<span class="lineNum">      51 </span>                :            :         case P7IOC_ERR_SRC_CI_P4:
+<span class="lineNum">      52 </span>                :            :         case P7IOC_ERR_SRC_CI_P5:
+<span class="lineNum">      53 </span>                :            :         case P7IOC_ERR_SRC_CI_P6:
+<span class="lineNum">      54 </span>                :            :         case P7IOC_ERR_SRC_CI_P7:
+<span class="lineNum">      55 </span>                :<span class="lineNoCov">          0 :                 index = err_src - P7IOC_ERR_SRC_CI_P0;</span>
+<span class="lineNum">      56 </span>                :<span class="lineNoCov">          0 :                 base = ioc-&gt;regs + P7IOC_CI_PORTn_LEM_BASE(index);</span>
+<span class="lineNum">      57 </span>                :            :                 break;
+<span class="lineNum">      58 </span>                :            :         case P7IOC_ERR_SRC_PHB0:
+<span class="lineNum">      59 </span>                :            :         case P7IOC_ERR_SRC_PHB1:
+<span class="lineNum">      60 </span>                :            :         case P7IOC_ERR_SRC_PHB2:
+<span class="lineNum">      61 </span>                :            :         case P7IOC_ERR_SRC_PHB3:
+<span class="lineNum">      62 </span>                :            :         case P7IOC_ERR_SRC_PHB4:
+<span class="lineNum">      63 </span>                :            :         case P7IOC_ERR_SRC_PHB5:
+<span class="lineNum">      64 </span>                :<span class="lineNoCov">          0 :                 index = err_src - P7IOC_ERR_SRC_PHB0;</span>
+<span class="lineNum">      65 </span>                :<span class="lineNoCov">          0 :                 base = ioc-&gt;regs + P7IOC_PHBn_LEM_BASE(index);</span>
+<span class="lineNum">      66 </span>                :            :                 break;
+<span class="lineNum">      67 </span>                :            :         case P7IOC_ERR_SRC_MISC:
+<span class="lineNum">      68 </span>                :<span class="lineNoCov">          0 :                 base = ioc-&gt;regs + P7IOC_MISC_LEM_BASE;</span>
+<span class="lineNum">      69 </span>                :            :                 break;
+<span class="lineNum">      70 </span>                :            :         case P7IOC_ERR_SRC_I2C:
+<span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 :                 base = ioc-&gt;regs + P7IOC_I2C_LEM_BASE;</span>
+<span class="lineNum">      72 </span>                :            :                 break;
+<span class="lineNum">      73 </span>                :            :         default:
+<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;%s: Unknown error source %d\n&quot;,</span>
+<span class="lineNum">      75 </span>                :            :                         __func__, err_src);
+<span class="lineNum">      76 </span>                :            :         }
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :<span class="lineNoCov">          0 :         return base;</span>
+<a name="79"><span class="lineNum">      79 </span>                :            : }</a>
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :<span class="lineNoCov">          0 : static void p7ioc_get_diag_common(struct p7ioc *ioc,</span>
+<span class="lineNum">      82 </span>                :            :                                   void *base,
+<span class="lineNum">      83 </span>                :            :                                   struct OpalIoP7IOCErrorData *data)
+<span class="lineNum">      84 </span>                :            : {
+<span class="lineNum">      85 </span>                :            :         /* GEM */
+<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 :         data-&gt;gemXfir    = in_be64(ioc-&gt;regs + P7IOC_GEM_XFIR);</span>
+<span class="lineNum">      87 </span>                :<span class="lineNoCov">          0 :         data-&gt;gemRfir    = in_be64(ioc-&gt;regs + P7IOC_GEM_RFIR);</span>
+<span class="lineNum">      88 </span>                :<span class="lineNoCov">          0 :         data-&gt;gemRirqfir = in_be64(ioc-&gt;regs + P7IOC_GEM_RIRQFIR);</span>
+<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :         data-&gt;gemMask    = in_be64(ioc-&gt;regs + P7IOC_GEM_MASK);</span>
+<span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :         data-&gt;gemRwof    = in_be64(ioc-&gt;regs + P7IOC_GEM_RWOF);</span>
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :            :         /* LEM */
+<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 :         data-&gt;lemFir     = in_be64(base + P7IOC_LEM_FIR_OFFSET);</span>
+<span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 :         data-&gt;lemErrMask = in_be64(base + P7IOC_LEM_ERR_MASK_OFFSET);</span>
+<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 :         data-&gt;lemAction0 = in_be64(base + P7IOC_LEM_ACTION_0_OFFSET);</span>
+<span class="lineNum">      96 </span>                :<span class="lineNoCov">          0 :         data-&gt;lemAction1 = in_be64(base + P7IOC_LEM_ACTION_1_OFFSET);</span>
+<span class="lineNum">      97 </span>                :<span class="lineNoCov">          0 :         data-&gt;lemWof     = in_be64(base + P7IOC_LEM_WOF_OFFSET);</span>
+<a name="98"><span class="lineNum">      98 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 : static int64_t p7ioc_get_diag_data(struct io_hub *hub,</span>
+<span class="lineNum">     101 </span>                :            :                                    void *diag_buffer,
+<span class="lineNum">     102 </span>                :            :                                    uint64_t diag_buffer_len)
+<span class="lineNum">     103 </span>                :            : {
+<span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 :         struct p7ioc *ioc = iohub_to_p7ioc(hub);</span>
+<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 :         struct OpalIoP7IOCErrorData *data = diag_buffer;</span>
+<span class="lineNum">     106 </span>                :            :         void *base;
+<span class="lineNum">     107 </span>                :            : 
+<span class="lineNum">     108 </span>                :            :         /* Make sure we have enough buffer */
+<span class="lineNum">     109 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (diag_buffer_len &lt; sizeof(struct OpalIoP7IOCErrorData))</span>
+<span class="lineNum">     110 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :            :         /* We need do nothing if there're no pending errors */
+<span class="lineNum">     113 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!p7ioc_err_pending(ioc))</span>
+<span class="lineNum">     114 </span>                :            :                 return OPAL_CLOSED;
+<span class="lineNum">     115 </span>                :            : 
+<span class="lineNum">     116 </span>                :            :         /*
+<span class="lineNum">     117 </span>                :            :          * We needn't collect diag-data for CI Port{2, ..., 7}
+<span class="lineNum">     118 </span>                :            :          * and PHB{0, ..., 5} since their errors (except GXE)
+<span class="lineNum">     119 </span>                :            :          * have been cached to the specific PHB.
+<span class="lineNum">     120 </span>                :            :          */
+<span class="lineNum">     121 </span>                :<span class="lineNoCov">          0 :         base = p7ioc_LEM_base(ioc, ioc-&gt;err.err_src);</span>
+<span class="lineNum">     122 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!base) {</span>
+<span class="lineNum">     123 </span>                :<span class="lineNoCov">          0 :                 p7ioc_set_err_pending(ioc, false);</span>
+<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     125 </span>                :            :         }
+<span class="lineNum">     126 </span>                :            : 
+<span class="lineNum">     127 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span> :<span class="lineNoCov">          0 :         switch (ioc-&gt;err.err_src) {</span>
+<span class="lineNum">         </span>      <span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span>]
+<span class="lineNum">     128 </span>                :            :         case P7IOC_ERR_SRC_RGC:
+<span class="lineNum">     129 </span>                :<span class="lineNoCov">          0 :                 data-&gt;type = OPAL_P7IOC_DIAG_TYPE_RGC;</span>
+<span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :                 p7ioc_get_diag_common(ioc, base, data);</span>
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :                 data-&gt;rgc.rgcStatus  = in_be64(ioc-&gt;regs + 0x3E1C10);</span>
+<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 :                 data-&gt;rgc.rgcLdcp    = in_be64(ioc-&gt;regs + 0x3E1C18);</span>
+<span class="lineNum">     134 </span>                :            : 
+<span class="lineNum">     135 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     136 </span>                :            :         case P7IOC_ERR_SRC_BI_UP:
+<span class="lineNum">     137 </span>                :<span class="lineNoCov">          0 :                 data-&gt;type = OPAL_P7IOC_DIAG_TYPE_BI;</span>
+<span class="lineNum">     138 </span>                :<span class="lineNoCov">          0 :                 data-&gt;bi.biDownbound = 0;</span>
+<span class="lineNum">     139 </span>                :<span class="lineNoCov">          0 :                 p7ioc_get_diag_common(ioc, base, data);</span>
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>                :<span class="lineNoCov">          0 :                 data-&gt;bi.biLdcp0     = in_be64(ioc-&gt;regs + 0x3C0100);</span>
+<span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 :                 data-&gt;bi.biLdcp1     = in_be64(ioc-&gt;regs + 0x3C0108);</span>
+<span class="lineNum">     143 </span>                :<span class="lineNoCov">          0 :                 data-&gt;bi.biLdcp2     = in_be64(ioc-&gt;regs + 0x3C0110);</span>
+<span class="lineNum">     144 </span>                :<span class="lineNoCov">          0 :                 data-&gt;bi.biFenceStatus       = in_be64(ioc-&gt;regs + 0x3C0130);</span>
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     147 </span>                :            :         case P7IOC_ERR_SRC_BI_DOWN:
+<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 :                 data-&gt;type = OPAL_P7IOC_DIAG_TYPE_BI;</span>
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :                 data-&gt;bi.biDownbound = 1;</span>
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :                 p7ioc_get_diag_common(ioc, base, data);</span>
+<span class="lineNum">     151 </span>                :            : 
+<span class="lineNum">     152 </span>                :<span class="lineNoCov">          0 :                 data-&gt;bi.biLdcp0     = in_be64(ioc-&gt;regs + 0x3C0118);</span>
+<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 :                 data-&gt;bi.biLdcp1     = in_be64(ioc-&gt;regs + 0x3C0120);</span>
+<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 :                 data-&gt;bi.biLdcp2     = in_be64(ioc-&gt;regs + 0x3C0128);</span>
+<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :                 data-&gt;bi.biFenceStatus       = in_be64(ioc-&gt;regs + 0x3C0130);</span>
+<span class="lineNum">     156 </span>                :            : 
+<span class="lineNum">     157 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     158 </span>                :            :         case P7IOC_ERR_SRC_CI_P0:
+<span class="lineNum">     159 </span>                :            :         case P7IOC_ERR_SRC_CI_P1:
+<span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 :                 data-&gt;type = OPAL_P7IOC_DIAG_TYPE_CI;</span>
+<span class="lineNum">     161 </span>                :<span class="lineNoCov">          0 :                 data-&gt;ci.ciPort = ioc-&gt;err.err_src - P7IOC_ERR_SRC_CI_P0;</span>
+<span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :                 p7ioc_get_diag_common(ioc, base, data);</span>
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>                :<span class="lineNoCov">          0 :                 data-&gt;ci.ciPortStatus        = in_be64(base + 0x008);</span>
+<span class="lineNum">     165 </span>                :<span class="lineNoCov">          0 :                 data-&gt;ci.ciPortLdcp  = in_be64(base + 0x010);</span>
+<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     167 </span>                :            :         case P7IOC_ERR_SRC_MISC:
+<span class="lineNum">     168 </span>                :<span class="lineNoCov">          0 :                 data-&gt;type = OPAL_P7IOC_DIAG_TYPE_MISC;</span>
+<span class="lineNum">     169 </span>                :<span class="lineNoCov">          0 :                 p7ioc_get_diag_common(ioc, base, data);</span>
+<span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     171 </span>                :            :         case P7IOC_ERR_SRC_I2C:
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :                 data-&gt;type = OPAL_P7IOC_DIAG_TYPE_I2C;</span>
+<span class="lineNum">     173 </span>                :<span class="lineNoCov">          0 :                 p7ioc_get_diag_common(ioc, base, data);</span>
+<span class="lineNum">     174 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     175 </span>                :            :         default:
+<span class="lineNum">     176 </span>                :<span class="lineNoCov">          0 :                 p7ioc_set_err_pending(ioc, false);</span>
+<span class="lineNum">     177 </span>                :<span class="lineNoCov">          0 :                 return OPAL_CLOSED;</span>
+<span class="lineNum">     178 </span>                :            :         }
+<span class="lineNum">     179 </span>                :            : 
+<span class="lineNum">     180 </span>                :            :         /* For errors of MAL class, we need mask it */
+<span class="lineNum">     181 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ioc-&gt;err.err_class == P7IOC_ERR_CLASS_MAL)</span>
+<span class="lineNum">     182 </span>                :<span class="lineNoCov">          0 :                 out_be64(base + P7IOC_LEM_ERR_MASK_OR_OFFSET,</span>
+<span class="lineNum">     183 </span>                :<span class="lineNoCov">          0 :                          PPC_BIT(63 - ioc-&gt;err.err_bit));</span>
+<span class="lineNum">     184 </span>                :<span class="lineNoCov">          0 :         p7ioc_set_err_pending(ioc, false);</span>
+<span class="lineNum">     185 </span>                :            : 
+<span class="lineNum">     186 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<span class="lineNum">     187 </span>                :            : }
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :            : static const struct io_hub_ops p7ioc_hub_ops = {
+<span class="lineNum">     190 </span>                :            :         .set_tce_mem    = NULL, /* No set_tce_mem for p7ioc, we use FMTC */
+<span class="lineNum">     191 </span>                :            :         .get_diag_data  = p7ioc_get_diag_data,
+<span class="lineNum">     192 </span>                :            :         .reset          = p7ioc_reset,
+<a name="193"><span class="lineNum">     193 </span>                :            : };</a>
+<span class="lineNum">     194 </span>                :            : 
+<span class="lineNum">     195 </span>                :<span class="lineNoCov">          0 : static int64_t p7ioc_rgc_get_xive(void *data, uint32_t isn,</span>
+<span class="lineNum">     196 </span>                :            :                                   uint16_t *server, uint8_t *prio)
+<span class="lineNum">     197 </span>                :            : {
+<span class="lineNum">     198 </span>                :<span class="lineNoCov">          0 :         struct p7ioc *ioc = data;</span>
+<span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 :         uint32_t irq = (isn &amp; 0xf);</span>
+<span class="lineNum">     200 </span>                :<span class="lineNoCov">          0 :         uint32_t fbuid = P7_IRQ_FBUID(isn);</span>
+<span class="lineNum">     201 </span>                :            :         uint64_t xive;
+<span class="lineNum">     202 </span>                :            : 
+<span class="lineNum">     203 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fbuid != ioc-&gt;rgc_buid)</span>
+<span class="lineNum">     204 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     205 </span>                :            : 
+<span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :         xive = ioc-&gt;xive_cache[irq];</span>
+<span class="lineNum">     207 </span>                :<span class="lineNoCov">          0 :         *server = GETFIELD(IODA_XIVT_SERVER, xive);</span>
+<span class="lineNum">     208 </span>                :<span class="lineNoCov">          0 :         *prio = GETFIELD(IODA_XIVT_PRIORITY, xive);</span>
+<span class="lineNum">     209 </span>                :            : 
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<a name="211"><span class="lineNum">     211 </span>                :            :  }</a>
+<span class="lineNum">     212 </span>                :            : 
+<span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 : static int64_t p7ioc_rgc_set_xive(void *data, uint32_t isn,</span>
+<span class="lineNum">     214 </span>                :            :                                   uint16_t server, uint8_t prio)
+<span class="lineNum">     215 </span>                :            : {
+<span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 :         struct p7ioc *ioc = data;</span>
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :         uint32_t irq = (isn &amp; 0xf);</span>
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :         uint32_t fbuid = P7_IRQ_FBUID(isn);</span>
+<span class="lineNum">     219 </span>                :            :         uint64_t xive;
+<span class="lineNum">     220 </span>                :            :         uint64_t m_server, m_prio;
+<span class="lineNum">     221 </span>                :            : 
+<span class="lineNum">     222 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fbuid != ioc-&gt;rgc_buid)</span>
+<span class="lineNum">     223 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     224 </span>                :            : 
+<span class="lineNum">     225 </span>                :<span class="lineNoCov">          0 :         xive = SETFIELD(IODA_XIVT_SERVER, 0ull, server);</span>
+<span class="lineNum">     226 </span>                :<span class="lineNoCov">          0 :         xive = SETFIELD(IODA_XIVT_PRIORITY, xive, prio);</span>
+<span class="lineNum">     227 </span>                :<span class="lineNoCov">          0 :         ioc-&gt;xive_cache[irq] = xive;</span>
+<span class="lineNum">     228 </span>                :            : 
+<span class="lineNum">     229 </span>                :            :         /* Now we mangle the server and priority */
+<span class="lineNum">     230 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (prio == 0xff) {</span>
+<span class="lineNum">     231 </span>                :            :                 m_server = 0;
+<span class="lineNum">     232 </span>                :            :                 m_prio = 0xff;
+<span class="lineNum">     233 </span>                :            :         } else {
+<span class="lineNum">     234 </span>                :<span class="lineNoCov">          0 :                 m_server = server &gt;&gt; 3;</span>
+<span class="lineNum">     235 </span>                :<span class="lineNoCov">          0 :                 m_prio = (prio &gt;&gt; 3) | ((server &amp; 7) &lt;&lt; 5);</span>
+<span class="lineNum">     236 </span>                :            :         }
+<span class="lineNum">     237 </span>                :            : 
+<span class="lineNum">     238 </span>                :            :         /* Update the XIVE. Don't care HRT entry on P7IOC */
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :         out_be64(ioc-&gt;regs + 0x3e1820, (0x0002000000000000 | irq));</span>
+<span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 :         xive = in_be64(ioc-&gt;regs + 0x3e1830);</span>
+<span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 :         xive = SETFIELD(IODA_XIVT_SERVER, xive, m_server);</span>
+<span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 :         xive = SETFIELD(IODA_XIVT_PRIORITY, xive, m_prio);</span>
+<span class="lineNum">     243 </span>                :<span class="lineNoCov">          0 :         out_be64(ioc-&gt;regs + 0x3e1830, xive);</span>
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<span class="lineNum">     246 </span>                :            : }
+<span class="lineNum">     247 </span>                :            : 
+<span class="lineNum">     248 </span>                :            : /*
+<span class="lineNum">     249 </span>                :            :  * The function is used to figure out the error class and error
+<span class="lineNum">     250 </span>                :            :  * bit according to LEM WOF.
+<span class="lineNum">     251 </span>                :            :  *
+<span class="lineNum">     252 </span>                :            :  * The bits of WOF register have been classified according to
+<span class="lineNum">     253 </span>                :            :  * the error severity. Of course, we should process those errors
+<span class="lineNum">     254 </span>                :            :  * with higher priority. For example, there have 2 errors (GXE, INF)
+<span class="lineNum">     255 </span>                :            :  * pending, we should process GXE, and INF is meaningless in face
+<a name="256"><span class="lineNum">     256 </span>                :            :  * of GXE.</a>
+<span class="lineNum">     257 </span>                :            :  */
+<span class="lineNum">     258 </span>                :<span class="lineNoCov">          0 : static bool p7ioc_err_bit(struct p7ioc *ioc, uint64_t wof)</span>
+<span class="lineNum">     259 </span>                :            : {
+<span class="lineNum">     260 </span>                :            :         uint64_t val, severity[P7IOC_ERR_CLASS_LAST];
+<span class="lineNum">     261 </span>                :<span class="lineNoCov">          0 :         int32_t class, bit, err_bit = -1;</span>
+<span class="lineNum">     262 </span>                :            : 
+<span class="lineNum">     263 </span>                :            :         /* Clear severity array */
+<span class="lineNum">     264 </span>                :<span class="lineNoCov">          0 :         memset(severity, 0, sizeof(uint64_t) * P7IOC_ERR_CLASS_LAST);</span>
+<span class="lineNum">     265 </span>                :            : 
+<span class="lineNum">     266 </span>                :            :         /*
+<span class="lineNum">     267 </span>                :            :          * The severity array has fixed values. However, it depends
+<span class="lineNum">     268 </span>                :            :          * on the damage settings for individual components. We're
+<span class="lineNum">     269 </span>                :            :          * using fixed values based on the assumption that damage settings
+<span class="lineNum">     270 </span>                :            :          * are fixed for now. If we change it some day, we also need
+<span class="lineNum">     271 </span>                :            :          * change the severity array accordingly. Anyway, it's something
+<span class="lineNum">     272 </span>                :            :          * to improve in future so that we can figure out the severity
+<span class="lineNum">     273 </span>                :            :          * array from hardware registers.
+<span class="lineNum">     274 </span>                :            :          */
+<span class="lineNum">     275 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span> :<span class="lineNoCov">          0 :         switch (ioc-&gt;err.err_src) {</span>
+<span class="lineNum">         </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span><span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span><span class="branchNoExec" title="Branch 8 was not executed"> # </span> 
+<span class="lineNum">         </span>            <span class="branchNoExec" title="Branch 9 was not executed"> # </span>]
+<span class="lineNum">     276 </span>                :            :         case P7IOC_ERR_SRC_EI:
+<span class="lineNum">     277 </span>                :            :                 /* EI won't create interrupt yet */
+<span class="lineNum">     278 </span>                :            :                 break;
+<span class="lineNum">     279 </span>                :            :         case P7IOC_ERR_SRC_RGC:
+<span class="lineNum">     280 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_GXE] = 0xF00086E0F4FCFFFF;</span>
+<span class="lineNum">     281 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_RGA] = 0x0000010000000000;</span>
+<span class="lineNum">     282 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_INF] = 0x0FFF781F0B030000;</span>
+<span class="lineNum">     283 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     284 </span>                :            :         case P7IOC_ERR_SRC_BI_UP:
+<span class="lineNum">     285 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_GXE] = 0xF7FFFFFF7FFFFFFF;</span>
+<span class="lineNum">     286 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_INF] = 0x0800000080000000;</span>
+<span class="lineNum">     287 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     288 </span>                :            :         case P7IOC_ERR_SRC_BI_DOWN:
+<span class="lineNum">     289 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_GXE] = 0xDFFFF7F35F8000BF;</span>
+<span class="lineNum">     290 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_INF] = 0x2000080CA07FFF40;</span>
+<span class="lineNum">     291 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     292 </span>                :            :         case P7IOC_ERR_SRC_CI_P0:
+<span class="lineNum">     293 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_GXE] = 0xF5FF000000000000;</span>
+<span class="lineNum">     294 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_INF] = 0x0200FFFFFFFFFFFF;</span>
+<span class="lineNum">     295 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_MAL] = 0x0800000000000000;</span>
+<span class="lineNum">     296 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     297 </span>                :            :         case P7IOC_ERR_SRC_CI_P1:
+<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_GXE] = 0xFFFF000000000000;</span>
+<span class="lineNum">     299 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_INF] = 0x0000FFFFFFFFFFFF;</span>
+<span class="lineNum">     300 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     301 </span>                :            :         case P7IOC_ERR_SRC_CI_P2:
+<span class="lineNum">     302 </span>                :            :         case P7IOC_ERR_SRC_CI_P3:
+<span class="lineNum">     303 </span>                :            :         case P7IOC_ERR_SRC_CI_P4:
+<span class="lineNum">     304 </span>                :            :         case P7IOC_ERR_SRC_CI_P5:
+<span class="lineNum">     305 </span>                :            :         case P7IOC_ERR_SRC_CI_P6:
+<span class="lineNum">     306 </span>                :            :         case P7IOC_ERR_SRC_CI_P7:
+<span class="lineNum">     307 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_GXE] = 0x5B0B000000000000;</span>
+<span class="lineNum">     308 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_PHB] = 0xA4F4000000000000;</span>
+<span class="lineNum">     309 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_INF] = 0x0000FFFFFFFFFFFF;</span>
+<span class="lineNum">     310 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     311 </span>                :            :         case P7IOC_ERR_SRC_MISC:
+<span class="lineNum">     312 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_GXE] = 0x0000000310000000;</span>
+<span class="lineNum">     313 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_PLL] = 0x0000000001C00000;</span>
+<span class="lineNum">     314 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_INF] = 0x555FFFF0EE3FFFFF;</span>
+<span class="lineNum">     315 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_MAL] = 0xAAA0000C00000000;</span>
+<span class="lineNum">     316 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     317 </span>                :            :         case P7IOC_ERR_SRC_I2C:
+<span class="lineNum">     318 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_GXE] = 0x1100000000000000;</span>
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_INF] = 0xEEFFFFFFFFFFFFFF;</span>
+<span class="lineNum">     320 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     321 </span>                :            :         case P7IOC_ERR_SRC_PHB0:
+<span class="lineNum">     322 </span>                :            :         case P7IOC_ERR_SRC_PHB1:
+<span class="lineNum">     323 </span>                :            :         case P7IOC_ERR_SRC_PHB2:
+<span class="lineNum">     324 </span>                :            :         case P7IOC_ERR_SRC_PHB3:
+<span class="lineNum">     325 </span>                :            :         case P7IOC_ERR_SRC_PHB4:
+<span class="lineNum">     326 </span>                :            :         case P7IOC_ERR_SRC_PHB5:
+<span class="lineNum">     327 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_PHB] = 0xADB650CB808DD051;</span>
+<span class="lineNum">     328 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_ER]  = 0x0000A0147F50092C;</span>
+<span class="lineNum">     329 </span>                :<span class="lineNoCov">          0 :                 severity[P7IOC_ERR_CLASS_INF] = 0x52490F2000222682;</span>
+<span class="lineNum">     330 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     331 </span>                :            :         }
+<span class="lineNum">     332 </span>                :            : 
+<span class="lineNum">     333 </span>                :            :         /*
+<span class="lineNum">     334 </span>                :            :          * The error class (ERR_CLASS) has been defined based on
+<span class="lineNum">     335 </span>                :            :          * their severity. The priority of those errors out of same
+<span class="lineNum">     336 </span>                :            :          * class should be defined based on the position of corresponding
+<span class="lineNum">     337 </span>                :            :          * bit in LEM (Local Error Macro) register.
+<span class="lineNum">     338 </span>                :            :          */
+<span class="lineNum">     339 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (class = P7IOC_ERR_CLASS_NONE + 1;</span>
+<span class="lineNum">     340 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :              err_bit &lt; 0 &amp;&amp; class &lt; P7IOC_ERR_CLASS_LAST;</span>
+<span class="lineNum">     341 </span>                :<span class="lineNoCov">          0 :              class++) {</span>
+<span class="lineNum">     342 </span>                :<span class="lineNoCov">          0 :                 val = wof &amp; severity[class];</span>
+<span class="lineNum">     343 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!val) continue;</span>
+<span class="lineNum">     344 </span>                :            : 
+<span class="lineNum">     345 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 for (bit = 0; bit &lt; 64; bit++) {</span>
+<span class="lineNum">     346 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (val &amp; PPC_BIT(bit)) {</span>
+<span class="lineNum">     347 </span>                :<span class="lineNoCov">          0 :                                 err_bit = 63 - bit;</span>
+<span class="lineNum">     348 </span>                :<span class="lineNoCov">          0 :                                 break;</span>
+<span class="lineNum">     349 </span>                :            :                         }
+<span class="lineNum">     350 </span>                :            :                 }
+<span class="lineNum">     351 </span>                :            :         }
+<span class="lineNum">     352 </span>                :            : 
+<span class="lineNum">     353 </span>                :            :         /* If we don't find the error bit, we needn't go on. */
+<span class="lineNum">     354 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (err_bit &lt; 0)</span>
+<span class="lineNum">     355 </span>                :            :                 return false;
+<span class="lineNum">     356 </span>                :            : 
+<span class="lineNum">     357 </span>                :<span class="lineNoCov">          0 :         ioc-&gt;err.err_class = class - 1;</span>
+<span class="lineNum">     358 </span>                :<span class="lineNoCov">          0 :         ioc-&gt;err.err_bit   = err_bit;</span>
+<span class="lineNum">     359 </span>                :<span class="lineNoCov">          0 :         return true;</span>
+<span class="lineNum">     360 </span>                :            : }
+<span class="lineNum">     361 </span>                :            : 
+<span class="lineNum">     362 </span>                :            : /*
+<span class="lineNum">     363 </span>                :            :  * Check LEM to determine the detailed error information.
+<span class="lineNum">     364 </span>                :            :  * The function is expected to be called while OS calls
+<span class="lineNum">     365 </span>                :            :  * to OPAL API opal_pci_next_error(). Eventually, the errors
+<span class="lineNum">     366 </span>                :            :  * from CI Port{2, ..., 7} or PHB{0, ..., 5} would be cached
+<span class="lineNum">     367 </span>                :            :  * to the specific PHB, the left errors would be cached to
+<a name="368"><span class="lineNum">     368 </span>                :            :  * the IOC.</a>
+<span class="lineNum">     369 </span>                :            :  */
+<span class="lineNum">     370 </span>                :<span class="lineNoCov">          0 : bool p7ioc_check_LEM(struct p7ioc *ioc,</span>
+<span class="lineNum">     371 </span>                :            :                      uint16_t *pci_error_type,
+<span class="lineNum">     372 </span>                :            :                      uint16_t *severity)
+<span class="lineNum">     373 </span>                :            : {
+<span class="lineNum">     374 </span>                :            :         void *base;
+<span class="lineNum">     375 </span>                :            :         uint64_t fir, wof, mask;
+<span class="lineNum">     376 </span>                :            :         struct p7ioc_phb *p;
+<span class="lineNum">     377 </span>                :            :         int32_t index;
+<span class="lineNum">     378 </span>                :            :         bool ret;
+<span class="lineNum">     379 </span>                :            : 
+<span class="lineNum">     380 </span>                :            :         /* Make sure we have error pending on IOC */
+<span class="lineNum">     381 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!p7ioc_err_pending(ioc))</span>
+<span class="lineNum">     382 </span>                :            :                 return false;
+<span class="lineNum">     383 </span>                :            : 
+<span class="lineNum">     384 </span>                :            :         /*
+<span class="lineNum">     385 </span>                :            :          * The IOC probably has been put to fatal error
+<span class="lineNum">     386 </span>                :            :          * state (GXE) because of failure on reading on
+<span class="lineNum">     387 </span>                :            :          * GEM FIR.
+<span class="lineNum">     388 </span>                :            :          */
+<span class="lineNum">     389 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ioc-&gt;err.err_src == P7IOC_ERR_SRC_NONE &amp;&amp;</span>
+<span class="lineNum">     390 </span>                :<span class="lineNoCov">          0 :             ioc-&gt;err.err_class != P7IOC_ERR_CLASS_NONE)</span>
+<span class="lineNum">     391 </span>                :            :                 goto err;
+<span class="lineNum">     392 </span>                :            : 
+<span class="lineNum">     393 </span>                :            :         /*
+<span class="lineNum">     394 </span>                :            :          * Get the base address of LEM registers according
+<span class="lineNum">     395 </span>                :            :          * to the error source. If we failed to get that,
+<span class="lineNum">     396 </span>                :            :          * the error pending flag would be cleared.
+<span class="lineNum">     397 </span>                :            :          */
+<span class="lineNum">     398 </span>                :<span class="lineNoCov">          0 :         base = p7ioc_LEM_base(ioc, ioc-&gt;err.err_src);</span>
+<span class="lineNum">     399 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!base) {</span>
+<span class="lineNum">     400 </span>                :<span class="lineNoCov">          0 :                 p7ioc_set_err_pending(ioc, false);</span>
+<span class="lineNum">     401 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     402 </span>                :            :         }
+<span class="lineNum">     403 </span>                :            : 
+<span class="lineNum">     404 </span>                :            :         /* IOC would be broken upon broken FIR */
+<span class="lineNum">     405 </span>                :<span class="lineNoCov">          0 :         fir = in_be64(base + P7IOC_LEM_FIR_OFFSET);</span>
+<span class="lineNum">     406 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fir == 0xffffffffffffffff) {</span>
+<span class="lineNum">     407 </span>                :<span class="lineNoCov">          0 :                 ioc-&gt;err.err_src   = P7IOC_ERR_SRC_NONE;</span>
+<span class="lineNum">     408 </span>                :<span class="lineNoCov">          0 :                 ioc-&gt;err.err_class = P7IOC_ERR_CLASS_GXE;</span>
+<span class="lineNum">     409 </span>                :<span class="lineNoCov">          0 :                 goto err;</span>
+<span class="lineNum">     410 </span>                :            :         }
+<span class="lineNum">     411 </span>                :            : 
+<span class="lineNum">     412 </span>                :            :         /* Read on ERR_MASK and WOF. However, we needn't do for PHBn */
+<span class="lineNum">     413 </span>                :<span class="lineNoCov">          0 :         wof = in_be64(base + P7IOC_LEM_WOF_OFFSET);</span>
+<span class="lineNum">     414 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ioc-&gt;err.err_src &gt;= P7IOC_ERR_SRC_PHB0 &amp;&amp;</span>
+<span class="lineNum">     415 </span>                :            :             ioc-&gt;err.err_src &lt;= P7IOC_ERR_SRC_PHB5) {
+<span class="lineNum">     416 </span>                :            :                 mask = 0x0ull;
+<span class="lineNum">     417 </span>                :            :         } else {
+<span class="lineNum">     418 </span>                :<span class="lineNoCov">          0 :                 mask = in_be64(base + P7IOC_LEM_ERR_MASK_OFFSET);</span>
+<span class="lineNum">     419 </span>                :<span class="lineNoCov">          0 :                 in_be64(base + P7IOC_LEM_ACTION_0_OFFSET);</span>
+<span class="lineNum">     420 </span>                :<span class="lineNoCov">          0 :                 in_be64(base + P7IOC_LEM_ACTION_1_OFFSET);</span>
+<span class="lineNum">     421 </span>                :            :         }
+<span class="lineNum">     422 </span>                :            : 
+<span class="lineNum">     423 </span>                :            :         /*
+<span class="lineNum">     424 </span>                :            :          * We need process those unmasked error first. If we're
+<span class="lineNum">     425 </span>                :            :          * failing to get the error bit, we needn't proceed.
+<span class="lineNum">     426 </span>                :            :          */
+<span class="lineNum">     427 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (wof &amp; ~mask)</span>
+<span class="lineNum">     428 </span>                :<span class="lineNoCov">          0 :                 wof &amp;= ~mask;</span>
+<span class="lineNum">     429 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!wof) {</span>
+<span class="lineNum">     430 </span>                :<span class="lineNoCov">          0 :                 p7ioc_set_err_pending(ioc, false);</span>
+<span class="lineNum">     431 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     432 </span>                :            :         }
+<span class="lineNum">     433 </span>                :            : 
+<span class="lineNum">     434 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!p7ioc_err_bit(ioc, wof)) {</span>
+<span class="lineNum">     435 </span>                :<span class="lineNoCov">          0 :                 p7ioc_set_err_pending(ioc, false);</span>
+<span class="lineNum">     436 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     437 </span>                :            :         }
+<span class="lineNum">     438 </span>                :            : 
+<span class="lineNum">     439 </span>                :            : err:
+<span class="lineNum">     440 </span>                :            :         /*
+<span class="lineNum">     441 </span>                :            :          * We run into here because of valid error. Those errors
+<span class="lineNum">     442 </span>                :            :          * from CI Port{2, ..., 7} and PHB{0, ..., 5} will be cached
+<span class="lineNum">     443 </span>                :            :          * to the specific PHB. However, we will cache the global
+<span class="lineNum">     444 </span>                :            :          * errors (e.g. GXE) to IOC directly. For the left errors,
+<span class="lineNum">     445 </span>                :            :          * they will be cached to IOC.
+<span class="lineNum">     446 </span>                :            :          */
+<span class="lineNum">     447 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (((ioc-&gt;err.err_src &gt;= P7IOC_ERR_SRC_CI_P2  &amp;&amp;</span>
+<span class="lineNum">     448 </span>                :<span class="lineNoCov">          0 :               ioc-&gt;err.err_src &lt;= P7IOC_ERR_SRC_CI_P7) ||</span>
+<span class="lineNum">     449 </span>                :            :              (ioc-&gt;err.err_src &gt;= P7IOC_ERR_SRC_PHB0   &amp;&amp;
+<span class="lineNum">     450 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :               ioc-&gt;err.err_src &lt;= P7IOC_ERR_SRC_PHB5)) &amp;&amp;</span>
+<span class="lineNum">     451 </span>                :<span class="lineNoCov">          0 :              ioc-&gt;err.err_class != P7IOC_ERR_CLASS_GXE) {</span>
+<span class="lineNum">     452 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 index = (ioc-&gt;err.err_src &gt;= P7IOC_ERR_SRC_PHB0 &amp;&amp;</span>
+<span class="lineNum">     453 </span>                :            :                          ioc-&gt;err.err_src &lt;= P7IOC_ERR_SRC_PHB5) ?
+<span class="lineNum">     454 </span>                :            :                         (ioc-&gt;err.err_src - P7IOC_ERR_SRC_PHB0) :
+<span class="lineNum">     455 </span>                :            :                         (ioc-&gt;err.err_src - P7IOC_ERR_SRC_CI_P2);
+<span class="lineNum">     456 </span>                :<span class="lineNoCov">          0 :                 p = &amp;ioc-&gt;phbs[index];</span>
+<span class="lineNum">     457 </span>                :            : 
+<span class="lineNum">     458 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (p7ioc_phb_enabled(ioc, index)) {</span>
+<span class="lineNum">     459 </span>                :<span class="lineNoCov">          0 :                         p-&gt;err.err_src   = ioc-&gt;err.err_src;</span>
+<span class="lineNum">     460 </span>                :<span class="lineNoCov">          0 :                         p-&gt;err.err_class = ioc-&gt;err.err_class;</span>
+<span class="lineNum">     461 </span>                :<span class="lineNoCov">          0 :                         p-&gt;err.err_bit   = ioc-&gt;err.err_bit;</span>
+<span class="lineNum">     462 </span>                :<span class="lineNoCov">          0 :                         p7ioc_phb_set_err_pending(p, true);</span>
+<span class="lineNum">     463 </span>                :<span class="lineNoCov">          0 :                         p7ioc_set_err_pending(ioc, false);</span>
+<span class="lineNum">     464 </span>                :            : 
+<span class="lineNum">     465 </span>                :<span class="lineNoCov">          0 :                         return false;</span>
+<span class="lineNum">     466 </span>                :            :                 }
+<span class="lineNum">     467 </span>                :            :         }
+<span class="lineNum">     468 </span>                :            : 
+<span class="lineNum">     469 </span>                :            :         /*
+<span class="lineNum">     470 </span>                :            :          * Map the internal error class to that OS can recognize.
+<span class="lineNum">     471 </span>                :            :          * Errors from PHB or the associated CI port would be
+<span class="lineNum">     472 </span>                :            :          * GXE, PHB-fatal, ER, or INF. For the case, GXE will be
+<span class="lineNum">     473 </span>                :            :          * cached to IOC and the left classes will be cached to
+<span class="lineNum">     474 </span>                :            :          * the specific PHB.
+<span class="lineNum">     475 </span>                :            :          */
+<span class="lineNum">     476 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (ioc-&gt;err.err_class) {</span>
+<span class="lineNum">     477 </span>                :            :         case P7IOC_ERR_CLASS_GXE:
+<span class="lineNum">     478 </span>                :            :         case P7IOC_ERR_CLASS_PLL:
+<span class="lineNum">     479 </span>                :            :         case P7IOC_ERR_CLASS_RGA:
+<span class="lineNum">     480 </span>                :<span class="lineNoCov">          0 :                 *pci_error_type = OPAL_EEH_IOC_ERROR;</span>
+<span class="lineNum">     481 </span>                :<span class="lineNoCov">          0 :                 *severity = OPAL_EEH_SEV_IOC_DEAD;</span>
+<span class="lineNum">     482 </span>                :<span class="lineNoCov">          0 :                 ret = true;</span>
+<span class="lineNum">     483 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     484 </span>                :            :         case P7IOC_ERR_CLASS_INF:
+<span class="lineNum">     485 </span>                :            :         case P7IOC_ERR_CLASS_MAL:
+<span class="lineNum">     486 </span>                :<span class="lineNoCov">          0 :                 *pci_error_type = OPAL_EEH_IOC_ERROR;</span>
+<span class="lineNum">     487 </span>                :<span class="lineNoCov">          0 :                 *severity = OPAL_EEH_SEV_INF;</span>
+<span class="lineNum">     488 </span>                :<span class="lineNoCov">          0 :                 ret = false;</span>
+<span class="lineNum">     489 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     490 </span>                :            :         default:
+<span class="lineNum">     491 </span>                :<span class="lineNoCov">          0 :                 p7ioc_set_err_pending(ioc, false);</span>
+<span class="lineNum">     492 </span>                :<span class="lineNoCov">          0 :                 ret = false;</span>
+<span class="lineNum">     493 </span>                :            :         }
+<span class="lineNum">     494 </span>                :            : 
+<span class="lineNum">     495 </span>                :<span class="lineNoCov">          0 :         return ret;</span>
+<span class="lineNum">     496 </span>                :            : }
+<span class="lineNum">     497 </span>                :            : 
+<span class="lineNum">     498 </span>                :            : /*
+<span class="lineNum">     499 </span>                :            :  * Check GEM to see if there has any problematic components.
+<span class="lineNum">     500 </span>                :            :  * The function is expected to be called in RGC interrupt
+<span class="lineNum">     501 </span>                :            :  * handler. Also, it's notable that failure on reading on
+<a name="502"><span class="lineNum">     502 </span>                :            :  * XFIR will cause GXE directly.</a>
+<span class="lineNum">     503 </span>                :            :  */
+<span class="lineNum">     504 </span>                :<span class="lineNoCov">          0 : static bool p7ioc_check_GEM(struct p7ioc *ioc)</span>
+<span class="lineNum">     505 </span>                :            : {
+<span class="lineNum">     506 </span>                :            :         uint64_t xfir, rwof;
+<span class="lineNum">     507 </span>                :            : 
+<span class="lineNum">     508 </span>                :            :         /*
+<span class="lineNum">     509 </span>                :            :          * Recov_5: Read GEM Xfir
+<span class="lineNum">     510 </span>                :            :          * Recov_6: go to GXE recovery?
+<span class="lineNum">     511 </span>                :            :          */
+<span class="lineNum">     512 </span>                :<span class="lineNoCov">          0 :         xfir = in_be64(ioc-&gt;regs + P7IOC_GEM_XFIR);</span>
+<span class="lineNum">     513 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (xfir == 0xffffffffffffffff) {</span>
+<span class="lineNum">     514 </span>                :<span class="lineNoCov">          0 :                 ioc-&gt;err.err_src   = P7IOC_ERR_SRC_NONE;</span>
+<span class="lineNum">     515 </span>                :<span class="lineNoCov">          0 :                 ioc-&gt;err.err_class = P7IOC_ERR_CLASS_GXE;</span>
+<span class="lineNum">     516 </span>                :<span class="lineNoCov">          0 :                 p7ioc_set_err_pending(ioc, true);</span>
+<span class="lineNum">     517 </span>                :<span class="lineNoCov">          0 :                 return true;</span>
+<span class="lineNum">     518 </span>                :            :         }
+<span class="lineNum">     519 </span>                :            : 
+<span class="lineNum">     520 </span>                :            :         /*
+<span class="lineNum">     521 </span>                :            :          * Recov_7: Read GEM Rfir
+<span class="lineNum">     522 </span>                :            :          * Recov_8: Read GEM RIRQfir
+<span class="lineNum">     523 </span>                :            :          * Recov_9: Read GEM RWOF
+<span class="lineNum">     524 </span>                :            :          * Recov_10: Read Fence Shadow
+<span class="lineNum">     525 </span>                :            :          * Recov_11: Read Fence Shadow WOF
+<span class="lineNum">     526 </span>                :            :          */
+<span class="lineNum">     527 </span>                :<span class="lineNoCov">          0 :         in_be64(ioc-&gt;regs + P7IOC_GEM_RFIR);</span>
+<span class="lineNum">     528 </span>                :<span class="lineNoCov">          0 :         in_be64(ioc-&gt;regs + P7IOC_GEM_RIRQFIR);</span>
+<span class="lineNum">     529 </span>                :<span class="lineNoCov">          0 :         rwof = in_be64(ioc-&gt;regs + P7IOC_GEM_RWOF);</span>
+<span class="lineNum">     530 </span>                :<span class="lineNoCov">          0 :         in_be64(ioc-&gt;regs + P7IOC_CHIP_FENCE_SHADOW);</span>
+<span class="lineNum">     531 </span>                :<span class="lineNoCov">          0 :         in_be64(ioc-&gt;regs + P7IOC_CHIP_FENCE_WOF);</span>
+<span class="lineNum">     532 </span>                :            : 
+<span class="lineNum">     533 </span>                :            :         /*
+<span class="lineNum">     534 </span>                :            :          * Check GEM RWOF to see which component has been
+<span class="lineNum">     535 </span>                :            :          * put into problematic state.
+<span class="lineNum">     536 </span>                :            :          */
+<span class="lineNum">     537 </span>                :<span class="lineNoCov">          0 :         ioc-&gt;err.err_src = P7IOC_ERR_SRC_NONE;</span>
+<span class="lineNum">     538 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if      (rwof &amp; PPC_BIT(1))  ioc-&gt;err.err_src = P7IOC_ERR_SRC_RGC;</span>
+<span class="lineNum">     539 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (rwof &amp; PPC_BIT(2))  ioc-&gt;err.err_src = P7IOC_ERR_SRC_BI_UP;</span>
+<span class="lineNum">     540 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (rwof &amp; PPC_BIT(3))  ioc-&gt;err.err_src = P7IOC_ERR_SRC_BI_DOWN;</span>
+<span class="lineNum">     541 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (rwof &amp; PPC_BIT(4))  ioc-&gt;err.err_src = P7IOC_ERR_SRC_CI_P0;</span>
+<span class="lineNum">     542 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (rwof &amp; PPC_BIT(5))  ioc-&gt;err.err_src = P7IOC_ERR_SRC_CI_P1;</span>
+<span class="lineNum">     543 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (rwof &amp; PPC_BIT(6))  ioc-&gt;err.err_src = P7IOC_ERR_SRC_CI_P2;</span>
+<span class="lineNum">     544 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (rwof &amp; PPC_BIT(7))  ioc-&gt;err.err_src = P7IOC_ERR_SRC_CI_P3;</span>
+<span class="lineNum">     545 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (rwof &amp; PPC_BIT(8))  ioc-&gt;err.err_src = P7IOC_ERR_SRC_CI_P4;</span>
+<span class="lineNum">     546 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (rwof &amp; PPC_BIT(9))  ioc-&gt;err.err_src = P7IOC_ERR_SRC_CI_P5;</span>
+<span class="lineNum">     547 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (rwof &amp; PPC_BIT(10)) ioc-&gt;err.err_src = P7IOC_ERR_SRC_CI_P6;</span>
+<span class="lineNum">     548 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (rwof &amp; PPC_BIT(11)) ioc-&gt;err.err_src = P7IOC_ERR_SRC_CI_P7;</span>
+<span class="lineNum">     549 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (rwof &amp; PPC_BIT(16)) ioc-&gt;err.err_src = P7IOC_ERR_SRC_PHB0;</span>
+<span class="lineNum">     550 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (rwof &amp; PPC_BIT(17)) ioc-&gt;err.err_src = P7IOC_ERR_SRC_PHB1;</span>
+<span class="lineNum">     551 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (rwof &amp; PPC_BIT(18)) ioc-&gt;err.err_src = P7IOC_ERR_SRC_PHB2;</span>
+<span class="lineNum">     552 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (rwof &amp; PPC_BIT(19)) ioc-&gt;err.err_src = P7IOC_ERR_SRC_PHB3;</span>
+<span class="lineNum">     553 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (rwof &amp; PPC_BIT(20)) ioc-&gt;err.err_src = P7IOC_ERR_SRC_PHB4;</span>
+<span class="lineNum">     554 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (rwof &amp; PPC_BIT(21)) ioc-&gt;err.err_src = P7IOC_ERR_SRC_PHB5;</span>
+<span class="lineNum">     555 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (rwof &amp; PPC_BIT(24)) ioc-&gt;err.err_src = P7IOC_ERR_SRC_MISC;</span>
+<span class="lineNum">     556 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (rwof &amp; PPC_BIT(25)) ioc-&gt;err.err_src = P7IOC_ERR_SRC_I2C;</span>
+<span class="lineNum">     557 </span>                :            : 
+<span class="lineNum">     558 </span>                :            :         /*
+<span class="lineNum">     559 </span>                :            :          * If we detect any problematic components, the OS is
+<span class="lineNum">     560 </span>                :            :          * expected to poll that for more details through OPAL
+<span class="lineNum">     561 </span>                :            :          * interface.
+<span class="lineNum">     562 </span>                :            :          */
+<span class="lineNum">     563 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ioc-&gt;err.err_src != P7IOC_ERR_SRC_NONE) {</span>
+<span class="lineNum">     564 </span>                :<span class="lineNoCov">          0 :                 p7ioc_set_err_pending(ioc, true);</span>
+<span class="lineNum">     565 </span>                :<span class="lineNoCov">          0 :                 return true;</span>
+<span class="lineNum">     566 </span>                :            :         }
+<span class="lineNum">     567 </span>                :            : 
+<span class="lineNum">     568 </span>                :            :         return false;
+<a name="569"><span class="lineNum">     569 </span>                :            : }</a>
+<span class="lineNum">     570 </span>                :            : 
+<span class="lineNum">     571 </span>                :<span class="lineNoCov">          0 : static void p7ioc_rgc_interrupt(void *data, uint32_t isn)</span>
+<span class="lineNum">     572 </span>                :            : {
+<span class="lineNum">     573 </span>                :<span class="lineNoCov">          0 :         struct p7ioc *ioc = data;</span>
+<span class="lineNum">     574 </span>                :            : 
+<span class="lineNum">     575 </span>                :<span class="lineNoCov">          0 :         printf(&quot;Got RGC interrupt 0x%04x\n&quot;, isn);</span>
+<span class="lineNum">     576 </span>                :            : 
+<span class="lineNum">     577 </span>                :            :         /* We will notify OS while getting error from GEM */
+<span class="lineNum">     578 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (p7ioc_check_GEM(ioc))</span>
+<span class="lineNum">     579 </span>                :<span class="lineNoCov">          0 :                 opal_update_pending_evt(OPAL_EVENT_PCI_ERROR,</span>
+<span class="lineNum">     580 </span>                :            :                                         OPAL_EVENT_PCI_ERROR);
+<span class="lineNum">     581 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     582 </span>                :            : 
+<span class="lineNum">     583 </span>                :            : static const struct irq_source_ops p7ioc_rgc_irq_ops = {
+<span class="lineNum">     584 </span>                :            :         .get_xive = p7ioc_rgc_get_xive,
+<span class="lineNum">     585 </span>                :            :         .set_xive = p7ioc_rgc_set_xive,
+<span class="lineNum">     586 </span>                :            :         .interrupt = p7ioc_rgc_interrupt,
+<a name="587"><span class="lineNum">     587 </span>                :            : };</a>
+<span class="lineNum">     588 </span>                :            : 
+<span class="lineNum">     589 </span>                :<span class="lineNoCov">          0 : static void p7ioc_create_hub(struct dt_node *np)</span>
+<span class="lineNum">     590 </span>                :            : {
+<span class="lineNum">     591 </span>                :<span class="lineNoCov">          0 :         struct p7ioc *ioc;</span>
+<span class="lineNum">     592 </span>                :            :         unsigned int i, id;
+<span class="lineNum">     593 </span>                :            :         u64 bar1, bar2;
+<span class="lineNum">     594 </span>                :            :         u32 pdt;
+<span class="lineNum">     595 </span>                :            :         char *path;
+<span class="lineNum">     596 </span>                :            : 
+<span class="lineNum">     597 </span>                :            :         /* Use the BUID extension as ID and add it to device-tree */
+<span class="lineNum">     598 </span>                :<span class="lineNoCov">          0 :         id = dt_prop_get_u32(np, &quot;ibm,buid-ext&quot;);</span>
+<span class="lineNum">     599 </span>                :<span class="lineNoCov">          0 :         path = dt_get_path(np); </span>
+<span class="lineNum">     600 </span>                :<span class="lineNoCov">          0 :         printf(&quot;P7IOC: Found at %s ID 0x%x\n&quot;, path, id);</span>
+<span class="lineNum">     601 </span>                :<span class="lineNoCov">          0 :         free(path);</span>
+<span class="lineNum">     602 </span>                :            : 
+<span class="lineNum">     603 </span>                :            :         /* Load VPD LID */
+<span class="lineNum">     604 </span>                :<span class="lineNoCov">          0 :         vpd_iohub_load(np);</span>
+<span class="lineNum">     605 </span>                :            : 
+<span class="lineNum">     606 </span>                :<span class="lineNoCov">          0 :         ioc = zalloc(sizeof(struct p7ioc));</span>
+<span class="lineNum">     607 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!ioc)</span>
+<span class="lineNum">     608 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     609 </span>                :<span class="lineNoCov">          0 :         ioc-&gt;hub.hub_id = id;</span>
+<span class="lineNum">     610 </span>                :<span class="lineNoCov">          0 :         ioc-&gt;hub.ops = &amp;p7ioc_hub_ops;</span>
+<span class="lineNum">     611 </span>                :<span class="lineNoCov">          0 :         ioc-&gt;dt_node = np;</span>
+<span class="lineNum">     612 </span>                :            : 
+<span class="lineNum">     613 </span>                :<span class="lineNoCov">          0 :         bar1 = dt_prop_get_u64(np, &quot;ibm,gx-bar-1&quot;);</span>
+<span class="lineNum">     614 </span>                :<span class="lineNoCov">          0 :         bar2 = dt_prop_get_u64(np, &quot;ibm,gx-bar-2&quot;);</span>
+<span class="lineNum">     615 </span>                :            : 
+<span class="lineNum">     616 </span>                :<span class="lineNoCov">          0 :         ioc-&gt;regs = (void *)bar1;</span>
+<span class="lineNum">     617 </span>                :            : 
+<span class="lineNum">     618 </span>                :<span class="lineNoCov">          0 :         ioc-&gt;mmio1_win_start = bar1;</span>
+<span class="lineNum">     619 </span>                :<span class="lineNoCov">          0 :         ioc-&gt;mmio1_win_size = MWIN1_SIZE;</span>
+<span class="lineNum">     620 </span>                :<span class="lineNoCov">          0 :         ioc-&gt;mmio2_win_start = bar2;</span>
+<span class="lineNum">     621 </span>                :<span class="lineNoCov">          0 :         ioc-&gt;mmio2_win_size = MWIN2_SIZE;</span>
+<span class="lineNum">     622 </span>                :            : 
+<span class="lineNum">     623 </span>                :<span class="lineNoCov">          0 :         ioc-&gt;buid_base = id &lt;&lt; 9;</span>
+<span class="lineNum">     624 </span>                :<span class="lineNoCov">          0 :         ioc-&gt;rgc_buid = ioc-&gt;buid_base + RGC_BUID_OFFSET;</span>
+<span class="lineNum">     625 </span>                :            : 
+<span class="lineNum">     626 </span>                :            :         /* Add some DT properties */
+<span class="lineNum">     627 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(np, &quot;ibm,opal-hubid&quot;, 0, id);</span>
+<span class="lineNum">     628 </span>                :            : 
+<span class="lineNum">     629 </span>                :            :         /* XXX Fixme: how many RGC interrupts ? */
+<span class="lineNum">     630 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(np, &quot;interrupts&quot;, ioc-&gt;rgc_buid &lt;&lt; 4);</span>
+<span class="lineNum">     631 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(np, &quot;interrupt-base&quot;, ioc-&gt;rgc_buid &lt;&lt; 4);</span>
+<span class="lineNum">     632 </span>                :            : 
+<span class="lineNum">     633 </span>                :            :         /* XXX What about ibm,opal-mmio-real ? */
+<span class="lineNum">     634 </span>                :            : 
+<span class="lineNum">     635 </span>                :            :         /* Clear the RGC XIVE cache */
+<span class="lineNum">     636 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; 16; i++)</span>
+<span class="lineNum">     637 </span>                :<span class="lineNoCov">          0 :                 ioc-&gt;xive_cache[i] = SETFIELD(IODA_XIVT_PRIORITY, 0ull, 0xff);</span>
+<span class="lineNum">     638 </span>                :            : 
+<span class="lineNum">     639 </span>                :            :         /*
+<span class="lineNum">     640 </span>                :            :          * Register RGC interrupts
+<span class="lineNum">     641 </span>                :            :          *
+<span class="lineNum">     642 </span>                :            :          * For now I assume only 0 is... to verify with Greg or HW guys,
+<span class="lineNum">     643 </span>                :            :          * we support all 16
+<span class="lineNum">     644 </span>                :            :          */
+<span class="lineNum">     645 </span>                :<span class="lineNoCov">          0 :         register_irq_source(&amp;p7ioc_rgc_irq_ops, ioc, ioc-&gt;rgc_buid &lt;&lt; 4, 1);</span>
+<span class="lineNum">     646 </span>                :            : 
+<span class="lineNum">     647 </span>                :            :         /* Check for presence detect from HDAT, we use only BR1 on P7IOC */
+<span class="lineNum">     648 </span>                :<span class="lineNoCov">          0 :         pdt = dt_prop_get_u32_def(np, &quot;ibm,br1-presence-detect&quot;, 0xffffffff);</span>
+<span class="lineNum">     649 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (pdt != 0xffffffff)</span>
+<span class="lineNum">     650 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;P7IOC: Presence detect from HDAT : 0x%02x\n&quot;, pdt);</span>
+<span class="lineNum">     651 </span>                :            :         else {
+<span class="lineNum">     652 </span>                :            :         }
+<span class="lineNum">     653 </span>                :<span class="lineNoCov">          0 :         ioc-&gt;phb_pdt = pdt &amp; 0xff;</span>
+<span class="lineNum">     654 </span>                :            : 
+<span class="lineNum">     655 </span>                :            :         /* Setup PHB structures (no HW access yet) */
+<span class="lineNum">     656 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; P7IOC_NUM_PHBS; i++) {</span>
+<span class="lineNum">     657 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (p7ioc_phb_enabled(ioc, i))</span>
+<span class="lineNum">     658 </span>                :<span class="lineNoCov">          0 :                         p7ioc_phb_setup(ioc, i);</span>
+<span class="lineNum">     659 </span>                :            :                 else
+<span class="lineNum">     660 </span>                :<span class="lineNoCov">          0 :                         ioc-&gt;phbs[i].state = P7IOC_PHB_STATE_OFF;</span>
+<span class="lineNum">     661 </span>                :            :         }
+<span class="lineNum">     662 </span>                :            :         
+<span class="lineNum">     663 </span>                :            :         /* Now, we do the bulk of the inits */
+<span class="lineNum">     664 </span>                :<span class="lineNoCov">          0 :         p7ioc_inits(ioc);</span>
+<span class="lineNum">     665 </span>                :            : 
+<span class="lineNum">     666 </span>                :<span class="lineNoCov">          0 :         printf(&quot;P7IOC: Initialization complete\n&quot;);</span>
+<span class="lineNum">     667 </span>                :            : 
+<span class="lineNum">     668 </span>                :<span class="lineNoCov">          0 :         cec_register(&amp;ioc-&gt;hub);</span>
+<a name="669"><span class="lineNum">     669 </span>                :            : }</a>
+<span class="lineNum">     670 </span>                :            : 
+<span class="lineNum">     671 </span>                :<span class="lineCov">          1 : void probe_p7ioc(void)</span>
+<span class="lineNum">     672 </span>                :            : {
+<span class="lineNum">     673 </span>                :            :         struct dt_node *np;
+<span class="lineNum">     674 </span>                :            : 
+<span class="lineNum">     675 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         dt_for_each_compatible(dt_root, np, &quot;ibm,p7ioc&quot;)</span>
+<span class="lineNum">     676 </span>                :<span class="lineNoCov">          0 :                 p7ioc_create_hub(np);</span>
+<span class="lineNum">     677 </span>                :<span class="lineCov">          1 : }</span>
+<span class="lineNum">     678 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

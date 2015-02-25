@@ -1,0 +1,487 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - platforms/ibm-fsp/firenze.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">platforms/ibm-fsp</a> - firenze.c<span style="font-size: 80%;"> (source / <a href="firenze.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">124</td>
+            <td class="headerCovTableEntry">152</td>
+            <td class="headerCovTableEntryMed">81.6 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">39</td>
+            <td class="headerCovTableEntry">77</td>
+            <td class="headerCovTableEntryLo">50.6 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : 
+<span class="lineNum">      18 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;device.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;fsp.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;pci.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;pci-cfg.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;chip.h&gt;
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :            : #include &quot;ibm-fsp.h&quot;
+<span class="lineNum">      26 </span>                :            : #include &quot;lxvpd.h&quot;
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            : /* Structure used to send PCIe card info to FSP */
+<span class="lineNum">      29 </span>                :            : struct fsp_pcie_entry {
+<span class="lineNum">      30 </span>                :            :         uint32_t        hw_proc_id;
+<span class="lineNum">      31 </span>                :            :         uint16_t        slot_idx;
+<span class="lineNum">      32 </span>                :            :         uint16_t        reserved;
+<span class="lineNum">      33 </span>                :            :         uint16_t        vendor_id;
+<span class="lineNum">      34 </span>                :            :         uint16_t        device_id;
+<span class="lineNum">      35 </span>                :            :         uint16_t        subsys_vendor_id;
+<span class="lineNum">      36 </span>                :            :         uint16_t        subsys_device_id;
+<span class="lineNum">      37 </span>                :            : };
+<span class="lineNum">      38 </span>                :            : 
+<span class="lineNum">      39 </span>                :            : struct fsp_pcie_inventory {
+<span class="lineNum">      40 </span>                :            :         uint32_t                version; /* currently 1 */
+<span class="lineNum">      41 </span>                :            :         uint32_t                num_entries;
+<span class="lineNum">      42 </span>                :            :         uint32_t                entry_size;
+<span class="lineNum">      43 </span>                :            :         uint32_t                entry_offset;
+<span class="lineNum">      44 </span>                :            :         struct fsp_pcie_entry   entries[];
+<span class="lineNum">      45 </span>                :            : };
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>                :            : static struct fsp_pcie_inventory *fsp_pcie_inv;
+<span class="lineNum">      48 </span>                :            : static unsigned int fsp_pcie_inv_alloc_count;
+<a name="49"><span class="lineNum">      49 </span>                :            : #define FSP_PCIE_INV_ALLOC_CHUNK        4</a>
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>                :<span class="lineCov">          1 : static struct dt_node *dt_create_i2c_master(struct dt_node *n, uint32_t eng_id)</span>
+<span class="lineNum">      52 </span>                :            : {
+<span class="lineNum">      53 </span>                :            :         struct dt_node *i2cm;
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            :         /* Each master registers set is of length 0x20 */
+<span class="lineNum">      56 </span>                :<span class="lineCov">          1 :         i2cm = dt_new_addr(n, &quot;i2cm&quot;, 0xa0000 + eng_id * 0x20);</span>
+<span class="lineNum">      57 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!i2cm)</span>
+<span class="lineNum">      58 </span>                :            :                 return NULL;
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :<span class="lineCov">          1 :         dt_add_property_string(i2cm, &quot;compatible&quot;,</span>
+<span class="lineNum">      61 </span>                :            :                                &quot;ibm,power8-i2cm&quot;);
+<span class="lineNum">      62 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(i2cm, &quot;reg&quot;, 0xa0000 + eng_id * 0x20,</span>
+<span class="lineNum">      63 </span>                :            :                               0x20);
+<span class="lineNum">      64 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(i2cm, &quot;clock-frequency&quot;, 50000000);</span>
+<span class="lineNum">      65 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(i2cm, &quot;chip-engine#&quot;, eng_id);</span>
+<span class="lineNum">      66 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(i2cm, &quot;#address-cells&quot;, 1);</span>
+<span class="lineNum">      67 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(i2cm, &quot;#size-cells&quot;, 0);</span>
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :<span class="lineCov">          1 :         return i2cm;</span>
+<a name="70"><span class="lineNum">      70 </span>                :            : }</a>
+<span class="lineNum">      71 </span>                :            : 
+<span class="lineNum">      72 </span>                :<span class="lineCov">          1 : static struct dt_node *dt_create_i2c_bus(struct dt_node *i2cm,</span>
+<span class="lineNum">      73 </span>                :            :                                          const char *port_name, uint32_t port_id)
+<span class="lineNum">      74 </span>                :            : {
+<span class="lineNum">      75 </span>                :            :         static struct dt_node *port;
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>                :<span class="lineCov">          1 :         port = dt_new_addr(i2cm, &quot;i2c-bus&quot;, port_id);</span>
+<span class="lineNum">      78 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!port)</span>
+<span class="lineNum">      79 </span>                :            :                 return NULL;
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :<span class="lineCov">          1 :         dt_add_property_strings(port, &quot;compatible&quot;, &quot;ibm,power8-i2c-port&quot;,</span>
+<span class="lineNum">      82 </span>                :            :                                 &quot;ibm,opal-i2c&quot;);
+<span class="lineNum">      83 </span>                :<span class="lineCov">          1 :         dt_add_property_string(port, &quot;ibm,port-name&quot;, port_name);</span>
+<span class="lineNum">      84 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(port, &quot;reg&quot;, port_id);</span>
+<span class="lineNum">      85 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(port, &quot;bus-frequency&quot;, 400000);</span>
+<span class="lineNum">      86 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(port, &quot;#address-cells&quot;, 1);</span>
+<span class="lineNum">      87 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(port, &quot;#size-cells&quot;, 0);</span>
+<span class="lineNum">      88 </span>                :            : 
+<span class="lineNum">      89 </span>                :<span class="lineCov">          1 :         return port;</span>
+<a name="90"><span class="lineNum">      90 </span>                :            : }</a>
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :<span class="lineCov">          4 : static struct dt_node *dt_create_i2c_device(struct dt_node *bus, uint8_t addr,</span>
+<span class="lineNum">      93 </span>                :            :                                             const char *name, const char *compat,
+<span class="lineNum">      94 </span>                :            :                                             const char *label)
+<span class="lineNum">      95 </span>                :            : {
+<span class="lineNum">      96 </span>                :            :         struct dt_node *dev;
+<span class="lineNum">      97 </span>                :            : 
+<span class="lineNum">      98 </span>                :<span class="lineCov">          4 :         dev = dt_new_addr(bus, name, addr);</span>
+<span class="lineNum">      99 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :         if (!dev)</span>
+<span class="lineNum">     100 </span>                :            :                 return NULL;
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :<span class="lineCov">          4 :         dt_add_property_string(dev, &quot;compatible&quot;, compat);</span>
+<span class="lineNum">     103 </span>                :<span class="lineCov">          4 :         dt_add_property_string(dev, &quot;label&quot;, label);</span>
+<span class="lineNum">     104 </span>                :<span class="lineCov">          4 :         dt_add_property_cells(dev, &quot;reg&quot;, addr);</span>
+<span class="lineNum">     105 </span>                :<span class="lineCov">          4 :         dt_add_property_string(dev, &quot;status&quot;, &quot;reserved&quot;);</span>
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :<span class="lineCov">          4 :         return dev;</span>
+<a name="108"><span class="lineNum">     108 </span>                :            : }</a>
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>                :<span class="lineCov">          1 : static void firenze_dt_fixup_i2cm(void)</span>
+<span class="lineNum">     111 </span>                :            : {
+<span class="lineNum">     112 </span>                :            :         struct dt_node *master, *bus, *dev;
+<span class="lineNum">     113 </span>                :            :         struct proc_chip *c;
+<span class="lineNum">     114 </span>                :            :         const uint32_t *p;
+<span class="lineNum">     115 </span>                :            :         char name[32];
+<span class="lineNum">     116 </span>                :            :         uint64_t lx;
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if (dt_find_compatible_node(dt_root, NULL, &quot;ibm,power8-i2cm&quot;))</span>
+<span class="lineNum">     119 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     120 </span>                :            : 
+<span class="lineNum">     121 </span>                :<span class="lineCov">          1 :         p = dt_prop_get_def(dt_root, &quot;ibm,vpd-lx-info&quot;, NULL);</span>
+<span class="lineNum">     122 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!p)</span>
+<span class="lineNum">     123 </span>                :            :                 return;
+<span class="lineNum">     124 </span>                :            : 
+<span class="lineNum">     125 </span>                :<span class="lineCov">          1 :         lx = ((uint64_t)p[1] &lt;&lt; 32) | p[2];</span>
+<span class="lineNum">     126 </span>                :            : 
+<span class="lineNum">     127 </span>     [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         switch (lx) {</span>
+<span class="lineNum">     128 </span>                :            :         case LX_VPD_2S4U_BACKPLANE:
+<span class="lineNum">     129 </span>                :            :         case LX_VPD_2S2U_BACKPLANE:
+<span class="lineNum">     130 </span>                :            :         case LX_VPD_SHARK_BACKPLANE: /* XXX confirm ? */
+<span class="lineNum">     131 </span>                :            :                 /* i2c nodes on chip 0x10 */
+<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :                 c = get_chip(0x10);</span>
+<span class="lineNum">     133 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (c) {</span>
+<span class="lineNum">     134 </span>                :            :                         /* Engine 1 */
+<span class="lineNum">     135 </span>                :<span class="lineNoCov">          0 :                         master = dt_create_i2c_master(c-&gt;devnode, 1);</span>
+<span class="lineNum">     136 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         assert(master);</span>
+<span class="lineNum">     137 </span>                :<span class="lineNoCov">          0 :                         snprintf(name, sizeof(name), &quot;p8_%08x_e%dp%d&quot;, c-&gt;id, 1, 0);</span>
+<span class="lineNum">     138 </span>                :<span class="lineNoCov">          0 :                         bus = dt_create_i2c_bus(master, name, 0);</span>
+<span class="lineNum">     139 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         assert(bus);</span>
+<span class="lineNum">     140 </span>                :<span class="lineNoCov">          0 :                         dev = dt_create_i2c_device(bus, 0x39, &quot;power-control&quot;,</span>
+<span class="lineNum">     141 </span>                :            :                                                    &quot;maxim,5961&quot;, &quot;pcie-hotplug&quot;);
+<span class="lineNum">     142 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         assert(dev);</span>
+<span class="lineNum">     143 </span>                :<span class="lineNoCov">          0 :                         dt_add_property_strings(dev, &quot;target-list&quot;, &quot;slot-C4&quot;,</span>
+<span class="lineNum">     144 </span>                :            :                                                 &quot;slot-C5&quot;);
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :                         dev = dt_create_i2c_device(bus, 0x3a, &quot;power-control&quot;,</span>
+<span class="lineNum">     147 </span>                :            :                                                    &quot;maxim,5961&quot;, &quot;pcie-hotplug&quot;);
+<span class="lineNum">     148 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         assert(dev);</span>
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :                         dt_add_property_strings(dev, &quot;target-list&quot;, &quot;slot-C2&quot;,</span>
+<span class="lineNum">     150 </span>                :            :                                                 &quot;slot-C3&quot;);
+<span class="lineNum">     151 </span>                :            :                 } else {
+<span class="lineNum">     152 </span>                :<span class="lineNoCov">          0 :                         prlog(PR_INFO, &quot;PLAT: Chip not found for the id 0x10\n&quot;);</span>
+<span class="lineNum">     153 </span>                :            :                 }
+<span class="lineNum">     154 </span>                :            : 
+<span class="lineNum">     155 </span>                :            :         /* Fall through */
+<span class="lineNum">     156 </span>                :            :         case LX_VPD_1S4U_BACKPLANE:
+<span class="lineNum">     157 </span>                :            :         case LX_VPD_1S2U_BACKPLANE:
+<span class="lineNum">     158 </span>                :            :                 /* i2c nodes on chip 0 */
+<span class="lineNum">     159 </span>                :<span class="lineCov">          1 :                 c = get_chip(0);</span>
+<span class="lineNum">     160 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                 if (!c) {</span>
+<span class="lineNum">     161 </span>                :<span class="lineNoCov">          0 :                         prlog(PR_INFO, &quot;PLAT: Chip not found for the id 0x0\n&quot;);</span>
+<span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     163 </span>                :            :                 }
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :            :                 /* Engine 1*/
+<span class="lineNum">     166 </span>                :<span class="lineCov">          1 :                 master = dt_create_i2c_master(c-&gt;devnode, 1);</span>
+<span class="lineNum">     167 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                 assert(master);</span>
+<span class="lineNum">     168 </span>                :<span class="lineCov">          1 :                 snprintf(name, sizeof(name), &quot;p8_%08x_e%dp%d&quot;, c-&gt;id, 1, 0);</span>
+<span class="lineNum">     169 </span>                :<span class="lineCov">          1 :                 bus = dt_create_i2c_bus(master, name, 0);</span>
+<span class="lineNum">     170 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                 assert(bus);</span>
+<span class="lineNum">     171 </span>                :<span class="lineCov">          1 :                 dev = dt_create_i2c_device(bus, 0x32, &quot;power-control&quot;,</span>
+<span class="lineNum">     172 </span>                :            :                                            &quot;maxim,5961&quot;, &quot;pcie-hotplug&quot;);
+<span class="lineNum">     173 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                 assert(dev);</span>
+<span class="lineNum">     174 </span>                :<span class="lineCov">          1 :                 dt_add_property_strings(dev, &quot;target-list&quot;, &quot;slot-C10&quot;, &quot;slot-C11&quot;);</span>
+<span class="lineNum">     175 </span>                :            : 
+<span class="lineNum">     176 </span>                :<span class="lineCov">          1 :                 dev = dt_create_i2c_device(bus, 0x35, &quot;power-control&quot;,</span>
+<span class="lineNum">     177 </span>                :            :                                            &quot;maxim,5961&quot;, &quot;pcie-hotplug&quot;);
+<span class="lineNum">     178 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                 assert(dev);</span>
+<span class="lineNum">     179 </span>                :<span class="lineCov">          1 :                 dt_add_property_strings(dev, &quot;target-list&quot;, &quot;slot-C6&quot;, &quot;slot-C7&quot;);</span>
+<span class="lineNum">     180 </span>                :            : 
+<span class="lineNum">     181 </span>                :<span class="lineCov">          1 :                 dev = dt_create_i2c_device(bus, 0x36, &quot;power-control&quot;,</span>
+<span class="lineNum">     182 </span>                :            :                                            &quot;maxim,5961&quot;, &quot;pcie-hotplug&quot;);
+<span class="lineNum">     183 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                 assert(dev);</span>
+<span class="lineNum">     184 </span>                :<span class="lineCov">          1 :                 dt_add_property_strings(dev, &quot;target-list&quot;, &quot;slot-C8&quot;, &quot;slot-C9&quot;);</span>
+<span class="lineNum">     185 </span>                :            : 
+<span class="lineNum">     186 </span>                :<span class="lineCov">          1 :                 dev = dt_create_i2c_device(bus, 0x39, &quot;power-control&quot;, &quot;maxim,5961&quot;,</span>
+<span class="lineNum">     187 </span>                :            :                                            &quot;pcie-hotplug&quot;);
+<span class="lineNum">     188 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                 assert(dev);</span>
+<span class="lineNum">     189 </span>                :<span class="lineCov">          1 :                 dt_add_property_strings(dev, &quot;target-list&quot;, &quot;slot-C12&quot;);</span>
+<span class="lineNum">     190 </span>                :<span class="lineCov">          1 :                 break;</span>
+<span class="lineNum">     191 </span>                :            :         default:
+<span class="lineNum">     192 </span>                :            :                 break;
+<span class="lineNum">     193 </span>                :            :         }
+<a name="194"><span class="lineNum">     194 </span>                :            : }</a>
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>                :<span class="lineCov">          1 : static bool firenze_probe(void)</span>
+<span class="lineNum">     197 </span>                :            : {
+<span class="lineNum">     198 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!dt_node_is_compatible(dt_root, &quot;ibm,firenze&quot;))</span>
+<span class="lineNum">     199 </span>                :            :                 return false;
+<span class="lineNum">     200 </span>                :            : 
+<span class="lineNum">     201 </span>                :<span class="lineCov">          1 :         firenze_dt_fixup_i2cm();</span>
+<span class="lineNum">     202 </span>                :            : 
+<span class="lineNum">     203 </span>                :<span class="lineCov">          1 :         return true;</span>
+<a name="204"><span class="lineNum">     204 </span>                :            : }</a>
+<span class="lineNum">     205 </span>                :            : 
+<span class="lineNum">     206 </span>                :<span class="lineCov">          1 : static void firenze_send_pci_inventory(void)</span>
+<span class="lineNum">     207 </span>                :            : {
+<span class="lineNum">     208 </span>                :            :         uint64_t base, abase, end, aend, offset;
+<span class="lineNum">     209 </span>                :            :         int64_t rc;
+<span class="lineNum">     210 </span>                :            : 
+<span class="lineNum">     211 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!fsp_pcie_inv)</span>
+<span class="lineNum">     212 </span>                :<span class="lineCov">          1 :                 return;</span>
+<span class="lineNum">     213 </span>                :            : 
+<span class="lineNum">     214 </span>                :<span class="lineCov">          1 :         prlog(PR_DEBUG, &quot;PLAT: Sending PCI inventory to FSP, table has&quot;</span>
+<span class="lineNum">     215 </span>                :            :               &quot; %d entries\n&quot;,
+<span class="lineNum">     216 </span>                :            :               fsp_pcie_inv-&gt;num_entries);
+<span class="lineNum">     217 </span>                :            : 
+<span class="lineNum">     218 </span>                :            :         {
+<span class="lineNum">     219 </span>                :            :                 unsigned int i;
+<span class="lineNum">     220 </span>                :            : 
+<span class="lineNum">     221 </span>                :<span class="lineCov">          1 :                 prlog(PR_DEBUG, &quot;HWP SLT VDID DVID SVID SDID\n&quot;);</span>
+<span class="lineNum">     222 </span>                :<span class="lineCov">          1 :                 prlog(PR_DEBUG, &quot;---------------------------\n&quot;);</span>
+<span class="lineNum">     223 </span>        [<span class="branchCov" title="Branch 1 was taken 3 times"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          4 :                 for (i = 0; i &lt; fsp_pcie_inv-&gt;num_entries; i++) {</span>
+<span class="lineNum">     224 </span>                :<span class="lineCov">          3 :                         struct fsp_pcie_entry *e = &amp;fsp_pcie_inv-&gt;entries[i];</span>
+<span class="lineNum">     225 </span>                :            : 
+<span class="lineNum">     226 </span>                :<span class="lineCov">          3 :                         prlog(PR_DEBUG, &quot;%03d %03d %04x %04x %04x %04x\n&quot;,</span>
+<span class="lineNum">     227 </span>                :<span class="lineCov">          3 :                               e-&gt;hw_proc_id, e-&gt;slot_idx,</span>
+<span class="lineNum">     228 </span>                :<span class="lineCov">          6 :                               e-&gt;vendor_id, e-&gt;device_id,</span>
+<span class="lineNum">     229 </span>                :<span class="lineCov">          6 :                               e-&gt;subsys_vendor_id, e-&gt;subsys_device_id);</span>
+<span class="lineNum">     230 </span>                :            :                 }
+<span class="lineNum">     231 </span>                :            :         }
+<span class="lineNum">     232 </span>                :            : 
+<span class="lineNum">     233 </span>                :            :         /*
+<span class="lineNum">     234 </span>                :            :          * Get the location of the table in a form we can send
+<span class="lineNum">     235 </span>                :            :          * to the FSP
+<span class="lineNum">     236 </span>                :            :          */
+<span class="lineNum">     237 </span>                :<span class="lineCov">          1 :         base = (uint64_t)fsp_pcie_inv;</span>
+<span class="lineNum">     238 </span>                :<span class="lineCov">          1 :         end = base + sizeof(struct fsp_pcie_inventory) +</span>
+<span class="lineNum">     239 </span>                :<span class="lineCov">          1 :                 fsp_pcie_inv-&gt;num_entries * fsp_pcie_inv-&gt;entry_size;</span>
+<span class="lineNum">     240 </span>                :<span class="lineCov">          1 :         abase = base &amp; ~0xffful;</span>
+<span class="lineNum">     241 </span>                :<span class="lineCov">          1 :         aend = (end + 0xffful) &amp; ~0xffful;</span>
+<span class="lineNum">     242 </span>                :<span class="lineCov">          1 :         offset = PSI_DMA_PCIE_INVENTORY + (base &amp; 0xfff);</span>
+<span class="lineNum">     243 </span>                :            : 
+<span class="lineNum">     244 </span>                :            :         /* We can only accomodate so many entries in the PSI map */
+<span class="lineNum">     245 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if ((aend - abase) &gt; PSI_DMA_PCIE_INVENTORY_SIZE) {</span>
+<span class="lineNum">     246 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;PLAT: PCIe inventory too large (%lld bytes)\n&quot;,</span>
+<span class="lineNum">     247 </span>                :            :                         aend - abase);
+<span class="lineNum">     248 </span>                :<span class="lineNoCov">          0 :                 goto bail;</span>
+<span class="lineNum">     249 </span>                :            :         }
+<span class="lineNum">     250 </span>                :            : 
+<span class="lineNum">     251 </span>                :            :         /* Map this in the TCEs */
+<span class="lineNum">     252 </span>                :<span class="lineCov">          1 :         fsp_tce_map(PSI_DMA_PCIE_INVENTORY, (void *)abase, aend - abase);</span>
+<span class="lineNum">     253 </span>                :            : 
+<span class="lineNum">     254 </span>                :            :         /* Send FSP message */
+<span class="lineNum">     255 </span>                :<span class="lineCov">          1 :         rc = fsp_sync_msg(fsp_mkmsg(FSP_CMD_PCI_POWER_CONF, 3,</span>
+<span class="lineNum">     256 </span>                :            :                                     hi32(offset), lo32(offset),
+<span class="lineNum">     257 </span>                :            :                                     end - base), true);
+<span class="lineNum">     258 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (rc)</span>
+<span class="lineNum">     259 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;PLAT: FSP error %lld sending inventory\n&quot;, rc);</span>
+<span class="lineNum">     260 </span>                :            : 
+<span class="lineNum">     261 </span>                :            :         /* Unmap */
+<span class="lineNum">     262 </span>                :<span class="lineCov">          1 :         fsp_tce_unmap(PSI_DMA_PCIE_INVENTORY, aend - abase);</span>
+<span class="lineNum">     263 </span>                :            :  bail:
+<span class="lineNum">     264 </span>                :            :         /*
+<span class="lineNum">     265 </span>                :            :          * We free the inventory. We'll have to redo that on hotplug
+<span class="lineNum">     266 </span>                :            :          * when we support it but that isn't the case yet
+<span class="lineNum">     267 </span>                :            :          */
+<span class="lineNum">     268 </span>                :<span class="lineCov">          1 :         free(fsp_pcie_inv);</span>
+<span class="lineNum">     269 </span>                :<span class="lineCov">          1 :         fsp_pcie_inv = NULL;</span>
+<a name="270"><span class="lineNum">     270 </span>                :            : }</a>
+<span class="lineNum">     271 </span>                :            : 
+<span class="lineNum">     272 </span>                :<span class="lineCov">          3 : static void firenze_add_pcidev_to_fsp_inventory(struct phb *phb,</span>
+<span class="lineNum">     273 </span>                :            :                                                 struct pci_device *pd)
+<span class="lineNum">     274 </span>                :            : {
+<span class="lineNum">     275 </span>                :            :         struct fsp_pcie_entry *entry;
+<span class="lineNum">     276 </span>                :            :         struct proc_chip *chip;
+<span class="lineNum">     277 </span>                :            : 
+<span class="lineNum">     278 </span>                :            :         /* Check if we need to do some (Re)allocation */
+<span class="lineNum">     279 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          3 :         if (!fsp_pcie_inv ||</span>
+<span class="lineNum">     280 </span>                :<span class="lineCov">          2 :             fsp_pcie_inv-&gt;num_entries == fsp_pcie_inv_alloc_count) {</span>
+<span class="lineNum">     281 </span>                :            :                 unsigned int new_count;
+<span class="lineNum">     282 </span>                :            :                 size_t new_size;
+<span class="lineNum">     283 </span>                :<span class="lineCov">          1 :                 bool need_init = !fsp_pcie_inv;</span>
+<span class="lineNum">     284 </span>                :            : 
+<span class="lineNum">     285 </span>                :            :                 /* (Re)allocate the block to the new size */
+<span class="lineNum">     286 </span>                :<span class="lineCov">          1 :                 new_count = fsp_pcie_inv_alloc_count + FSP_PCIE_INV_ALLOC_CHUNK;</span>
+<span class="lineNum">     287 </span>                :<span class="lineCov">          1 :                 new_size = sizeof(struct fsp_pcie_inventory);</span>
+<span class="lineNum">     288 </span>                :<span class="lineCov">          1 :                 new_size += sizeof(struct fsp_pcie_entry) * new_count;</span>
+<span class="lineNum">     289 </span>                :<span class="lineCov">          1 :                 fsp_pcie_inv = realloc(fsp_pcie_inv, new_size);</span>
+<span class="lineNum">     290 </span>                :<span class="lineCov">          1 :                 fsp_pcie_inv_alloc_count = new_count;</span>
+<span class="lineNum">     291 </span>                :            : 
+<span class="lineNum">     292 </span>                :            :                 /* Initialize the header for a new inventory */
+<span class="lineNum">     293 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :                 if (need_init) {</span>
+<span class="lineNum">     294 </span>                :<span class="lineCov">          1 :                         fsp_pcie_inv-&gt;version = 1;</span>
+<span class="lineNum">     295 </span>                :<span class="lineCov">          1 :                         fsp_pcie_inv-&gt;num_entries = 0;</span>
+<span class="lineNum">     296 </span>                :<span class="lineCov">          1 :                         fsp_pcie_inv-&gt;entry_size =</span>
+<span class="lineNum">     297 </span>                :            :                                 sizeof(struct fsp_pcie_entry);
+<span class="lineNum">     298 </span>                :<span class="lineCov">          1 :                         fsp_pcie_inv-&gt;entry_offset =</span>
+<span class="lineNum">     299 </span>                :            :                                 offsetof(struct fsp_pcie_inventory, entries);
+<span class="lineNum">     300 </span>                :            :                 }
+<span class="lineNum">     301 </span>                :            :         }
+<span class="lineNum">     302 </span>                :            : 
+<span class="lineNum">     303 </span>                :            :         /* Add entry */
+<span class="lineNum">     304 </span>                :<span class="lineCov">          3 :         entry = &amp;fsp_pcie_inv-&gt;entries[fsp_pcie_inv-&gt;num_entries++];</span>
+<span class="lineNum">     305 </span>                :<span class="lineCov">          3 :         chip = get_chip(dt_get_chip_id(phb-&gt;dt_node));</span>
+<span class="lineNum">     306 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         if (!chip) {</span>
+<span class="lineNum">     307 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;PLAT: Failed to get chip for PHB !\n&quot;);</span>
+<span class="lineNum">     308 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     309 </span>                :            :         }
+<span class="lineNum">     310 </span>                :<span class="lineCov">          3 :         entry-&gt;hw_proc_id = chip-&gt;pcid;</span>
+<span class="lineNum">     311 </span>                :<span class="lineCov">          3 :         entry-&gt;slot_idx = pd-&gt;parent-&gt;slot_info-&gt;slot_index;</span>
+<span class="lineNum">     312 </span>                :<span class="lineCov">          3 :         entry-&gt;reserved = 0;</span>
+<span class="lineNum">     313 </span>                :<span class="lineCov">          3 :         pci_cfg_read16(phb, pd-&gt;bdfn, PCI_CFG_VENDOR_ID, &amp;entry-&gt;vendor_id);</span>
+<span class="lineNum">     314 </span>                :<span class="lineCov">          3 :         pci_cfg_read16(phb, pd-&gt;bdfn, PCI_CFG_DEVICE_ID, &amp;entry-&gt;device_id);</span>
+<span class="lineNum">     315 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         if (pd-&gt;is_bridge) {</span>
+<span class="lineNum">     316 </span>                :<span class="lineNoCov">          0 :                 int64_t ssvc = pci_find_cap(phb, pd-&gt;bdfn,</span>
+<span class="lineNum">     317 </span>                :            :                                             PCI_CFG_CAP_ID_SUBSYS_VID);
+<span class="lineNum">     318 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (ssvc &lt; 0) {</span>
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :                         entry-&gt;subsys_vendor_id = 0xffff;</span>
+<span class="lineNum">     320 </span>                :<span class="lineNoCov">          0 :                         entry-&gt;subsys_device_id = 0xffff;</span>
+<span class="lineNum">     321 </span>                :            :                 } else {
+<span class="lineNum">     322 </span>                :<span class="lineNoCov">          0 :                         pci_cfg_read16(phb, pd-&gt;bdfn,</span>
+<span class="lineNum">     323 </span>                :            :                                        ssvc + PCICAP_SUBSYS_VID_VENDOR,
+<span class="lineNum">     324 </span>                :            :                                        &amp;entry-&gt;subsys_vendor_id);
+<span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 :                         pci_cfg_read16(phb, pd-&gt;bdfn,</span>
+<span class="lineNum">     326 </span>                :            :                                        ssvc + PCICAP_SUBSYS_VID_DEVICE,
+<span class="lineNum">     327 </span>                :            :                                        &amp;entry-&gt;subsys_device_id);
+<span class="lineNum">     328 </span>                :            :                 }
+<span class="lineNum">     329 </span>                :            :         } else {
+<span class="lineNum">     330 </span>                :<span class="lineCov">          3 :                 pci_cfg_read16(phb, pd-&gt;bdfn, PCI_CFG_SUBSYS_VENDOR_ID,</span>
+<span class="lineNum">     331 </span>                :            :                                &amp;entry-&gt;subsys_vendor_id);
+<span class="lineNum">     332 </span>                :<span class="lineCov">          3 :                 pci_cfg_read16(phb, pd-&gt;bdfn, PCI_CFG_SUBSYS_ID,</span>
+<span class="lineNum">     333 </span>                :            :                                &amp;entry-&gt;subsys_device_id);
+<span class="lineNum">     334 </span>                :            :         }
+<a name="335"><span class="lineNum">     335 </span>                :            : }</a>
+<span class="lineNum">     336 </span>                :            : 
+<span class="lineNum">     337 </span>                :<span class="lineCov">         28 : static void firenze_get_slot_info(struct phb *phb, struct pci_device * pd)</span>
+<span class="lineNum">     338 </span>                :            : {
+<span class="lineNum">     339 </span>                :            :         /* Call the main LXVPD function first */
+<span class="lineNum">     340 </span>                :<span class="lineCov">         28 :         lxvpd_get_slot_info(phb, pd);</span>
+<span class="lineNum">     341 </span>                :            : 
+<span class="lineNum">     342 </span>                :            :         /*
+<span class="lineNum">     343 </span>                :            :          * Do we need to add that to the FSP inventory for power management ?
+<span class="lineNum">     344 </span>                :            :          *
+<span class="lineNum">     345 </span>                :            :          * For now, we only add devices that:
+<span class="lineNum">     346 </span>                :            :          *
+<span class="lineNum">     347 </span>                :            :          *  - Are function 0
+<span class="lineNum">     348 </span>                :            :          *  - Are not an RC or a downstream bridge
+<span class="lineNum">     349 </span>                :            :          *  - Have a direct parent that has a slot entry
+<span class="lineNum">     350 </span>                :            :          *  - Slot entry says pluggable
+<span class="lineNum">     351 </span>                :            :          *  - Aren't an upstream switch that has slot info
+<span class="lineNum">     352 </span>                :            :          */
+<span class="lineNum">     353 </span>[<span class="branchCov" title="Branch 0 was taken 28 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 24 times"> + </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span>]:<span class="lineCov">         28 :         if (!pd || !pd-&gt;parent)</span>
+<span class="lineNum">     354 </span>                :            :                 return;
+<span class="lineNum">     355 </span>        [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         24 :         if (pd-&gt;bdfn &amp; 7)</span>
+<span class="lineNum">     356 </span>                :            :                 return;
+<span class="lineNum">     357 </span>[<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 6 times"> + </span><span class="branchCov" title="Branch 3 was taken 8 times"> + </span>]:<span class="lineCov">         14 :         if (pd-&gt;dev_type == PCIE_TYPE_ROOT_PORT ||</span>
+<span class="lineNum">     358 </span>                :            :             pd-&gt;dev_type == PCIE_TYPE_SWITCH_DNPORT)
+<span class="lineNum">     359 </span>                :            :                 return;
+<span class="lineNum">     360 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          6 :         if (pd-&gt;dev_type == PCIE_TYPE_SWITCH_UPPORT &amp;&amp;</span>
+<span class="lineNum">     361 </span>                :<span class="lineCov">          2 :             pd-&gt;slot_info)</span>
+<span class="lineNum">     362 </span>                :            :                 return;
+<span class="lineNum">     363 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :         if (!pd-&gt;parent-&gt;slot_info)</span>
+<span class="lineNum">     364 </span>                :            :                 return;
+<span class="lineNum">     365 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          4 :         if (!pd-&gt;parent-&gt;slot_info-&gt;pluggable)</span>
+<span class="lineNum">     366 </span>                :            :                 return;
+<span class="lineNum">     367 </span>                :<span class="lineCov">          3 :         firenze_add_pcidev_to_fsp_inventory(phb, pd);</span>
+<a name="368"><span class="lineNum">     368 </span>                :            : }</a>
+<span class="lineNum">     369 </span>                :            : 
+<span class="lineNum">     370 </span>                :<span class="lineCov">          4 : static void firenze_setup_phb(struct phb *phb, unsigned int index)</span>
+<span class="lineNum">     371 </span>                :            : {
+<span class="lineNum">     372 </span>                :            :         uint32_t hub_id;
+<span class="lineNum">     373 </span>                :            : 
+<span class="lineNum">     374 </span>                :            :         /* Grab Hub ID used to parse VPDs */
+<span class="lineNum">     375 </span>                :<span class="lineCov">          4 :         hub_id = dt_prop_get_u32_def(phb-&gt;dt_node, &quot;ibm,hub-id&quot;, 0);</span>
+<span class="lineNum">     376 </span>                :            : 
+<span class="lineNum">     377 </span>                :            :         /* Process the pcie slot entries from the lx vpd lid */
+<span class="lineNum">     378 </span>                :<span class="lineCov">          4 :         lxvpd_process_slot_entries(phb, dt_root, hub_id, index);</span>
+<a name="379"><span class="lineNum">     379 </span>                :<span class="lineCov">          4 : }</span></a>
+<span class="lineNum">     380 </span>                :            : 
+<span class="lineNum">     381 </span>                :<span class="lineCov">          1 : static uint32_t ibm_fsp_occ_timeout(void)</span>
+<span class="lineNum">     382 </span>                :            : {
+<span class="lineNum">     383 </span>                :            :         /* Use a fixed 60s value for now */
+<span class="lineNum">     384 </span>                :<span class="lineCov">          1 :         return 60;</span>
+<span class="lineNum">     385 </span>                :            : }
+<span class="lineNum">     386 </span>                :            : 
+<span class="lineNum">     387 </span>                :            : DECLARE_PLATFORM(firenze) = {
+<span class="lineNum">     388 </span>                :            :         .name                   = &quot;Firenze&quot;,
+<span class="lineNum">     389 </span>                :            :         .probe                  = firenze_probe,
+<span class="lineNum">     390 </span>                :            :         .init                   = ibm_fsp_init,
+<span class="lineNum">     391 </span>                :            :         .cec_power_down         = ibm_fsp_cec_power_down,
+<span class="lineNum">     392 </span>                :            :         .cec_reboot             = ibm_fsp_cec_reboot,
+<span class="lineNum">     393 </span>                :            :         .pci_setup_phb          = firenze_setup_phb,
+<span class="lineNum">     394 </span>                :            :         .pci_get_slot_info      = firenze_get_slot_info,
+<span class="lineNum">     395 </span>                :            :         .pci_probe_complete     = firenze_send_pci_inventory,
+<span class="lineNum">     396 </span>                :            :         .nvram_info             = fsp_nvram_info,
+<span class="lineNum">     397 </span>                :            :         .nvram_start_read       = fsp_nvram_start_read,
+<span class="lineNum">     398 </span>                :            :         .nvram_write            = fsp_nvram_write,
+<span class="lineNum">     399 </span>                :            :         .occ_timeout            = ibm_fsp_occ_timeout,
+<span class="lineNum">     400 </span>                :            :         .elog_commit            = elog_fsp_commit,
+<span class="lineNum">     401 </span>                :            :         .load_resource          = fsp_load_resource,
+<span class="lineNum">     402 </span>                :            : } ;
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,1181 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/p7ioc-inits.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">hw</a> - p7ioc-inits.c<span style="font-size: 80%;"> (source / <a href="p7ioc-inits.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">385</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">32</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : /*
+<span class="lineNum">      18 </span>                :            :  * This inits are in part auto-generated from tables coming
+<span class="lineNum">      19 </span>                :            :  * from the HW guys, then hand updated
+<span class="lineNum">      20 </span>                :            :  */
+<span class="lineNum">      21 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;p7ioc.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;p7ioc-regs.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;io.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;processor.h&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;timebase.h&gt;
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            : #undef DUMP_CI_ROUTING
+<span class="lineNum">      29 </span>                :            : #undef DUMP_REG_WRITES
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : #ifdef DUMP_REG_WRITES
+<span class="lineNum">      32 </span>                :            : #define REGW(offset, value)     do {                            \
+<span class="lineNum">      33 </span>                :            :                 out_be64(ioc-&gt;regs + (offset), (value));        \
+<span class="lineNum">      34 </span>                :            :                 printf(&quot;  REGW: %06lx=%016lx RB: %016llx\n&quot;,  \
+<span class="lineNum">      35 </span>                :            :                        (unsigned long)(offset),                 \
+<span class="lineNum">      36 </span>                :            :                        (unsigned long)(value),                  \
+<span class="lineNum">      37 </span>                :            :                        in_be64(ioc-&gt;regs + (offset)));               \
+<span class="lineNum">      38 </span>                :            :                 in_be64(ioc-&gt;regs + (offset));                       \
+<span class="lineNum">      39 </span>                :            :         } while(0)
+<span class="lineNum">      40 </span>                :            : #else
+<span class="lineNum">      41 </span>                :            : #define REGW(offset, value)     do {                            \
+<span class="lineNum">      42 </span>                :            :                 out_be64(ioc-&gt;regs + (offset), (value));        \
+<span class="lineNum">      43 </span>                :            :                 in_be64(ioc-&gt;regs + (offset));                       \
+<span class="lineNum">      44 </span>                :            :         } while(0)
+<span class="lineNum">      45 </span>                :            : #endif
+<a name="46"><span class="lineNum">      46 </span>                :            : #define REGR(offset)    in_be64(ioc-&gt;regs + (offset))</a>
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :<span class="lineNoCov">          0 : static void p7ioc_init_BI(struct p7ioc *ioc)</span>
+<span class="lineNum">      49 </span>                :            : {
+<span class="lineNum">      50 </span>                :<span class="lineNoCov">          0 :         printf(&quot;P7IOC: Init BI...\n&quot;);</span>
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :            :         /*** General settings ***/
+<span class="lineNum">      53 </span>                :            : 
+<span class="lineNum">      54 </span>                :            :         /* Init_1 and Init_2: Different between P7 and P7+ */
+<span class="lineNum">      55 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (PVR_TYPE(mfspr(SPR_PVR)) == PVR_TYPE_P7P) {</span>
+<span class="lineNum">      56 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;P7IOC:   -&gt; Configured for P7+\n&quot;);</span>
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :            :                 /* Chicken switches */
+<span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 :                 REGW(0x3c00d8, 0x0004000000000600);</span>
+<span class="lineNum">      60 </span>                :            :                 /* GX config */
+<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 :                 REGW(0x3c00a0, 0x9F8929BE00880085);</span>
+<span class="lineNum">      62 </span>                :            :         } else {
+<span class="lineNum">      63 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;P7IOC:   -&gt; Configured for P7\n&quot;);</span>
+<span class="lineNum">      64 </span>                :            : 
+<span class="lineNum">      65 </span>                :            :                 /* P7 setting assumes &quot;early write done&quot; mode is
+<span class="lineNum">      66 </span>                :            :                  * enabled in the GX controller. It seems to be
+<span class="lineNum">      67 </span>                :            :                  * the case but maybe we want to check/set it via
+<span class="lineNum">      68 </span>                :            :                  * xscom ?
+<span class="lineNum">      69 </span>                :            :                  */
+<span class="lineNum">      70 </span>                :            :                 /* Chicken switches */
+<span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 :                 REGW(0x3c00d8, 0x00040000000004C0);</span>
+<span class="lineNum">      72 </span>                :            :                 /* GX config */
+<span class="lineNum">      73 </span>                :<span class="lineNoCov">          0 :                 REGW(0x3c00a0, 0x9C8929BE00880085);</span>
+<span class="lineNum">      74 </span>                :            :         }
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :            :         /*
+<span class="lineNum">      77 </span>                :            :          * Note: While running skiboot on Firebird-L, I have
+<span class="lineNum">      78 </span>                :            :          * to print something or wait for a while. The root
+<span class="lineNum">      79 </span>                :            :          * cause wasn't identified yet.
+<span class="lineNum">      80 </span>                :            :          */
+<span class="lineNum">      81 </span>                :<span class="lineNoCov">          0 :         time_wait_ms(100);</span>
+<span class="lineNum">      82 </span>                :            : 
+<span class="lineNum">      83 </span>                :            :         /* Init_3: Upbound Credit Config */
+<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00c8, 0x0303060403030000);</span>
+<span class="lineNum">      85 </span>                :            :         /* Init_4: Credit Init Timer */
+<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00e8, 0x00000000000000FF);</span>
+<span class="lineNum">      87 </span>                :            : 
+<span class="lineNum">      88 </span>                :            :         /* Init_4.1: BI Ack Timing */
+<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00e8, 0x0000FC0000000000);</span>
+<span class="lineNum">      90 </span>                :            :         /* Init_5: Ordering Override 0*/
+<span class="lineNum">      91 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0200, 0x0000000000000000);</span>
+<span class="lineNum">      92 </span>                :            :         /* Init_6: Ordering Override 1*/
+<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0208, 0x0000000000000000);</span>
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :            :         /*** Downbound TTYPE table ***/
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>                :            :         /* Init_7: Enable sequence / speculation for CI Loads */
+<span class="lineNum">      98 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00a8, 0x0000000000000004);</span>
+<span class="lineNum">      99 </span>                :            :         /* Init_8: */
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00b0, 0x700800C000000000);</span>
+<span class="lineNum">     101 </span>                :            :         /* Init_9: Enable sequence / speculation for CI Stores */
+<span class="lineNum">     102 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00a8, 0x0000000000000005);</span>
+<span class="lineNum">     103 </span>                :            :         /* Init_10: */
+<span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00b0, 0x704820C000000000);</span>
+<span class="lineNum">     105 </span>                :            :         /* Init_11: Enable speculation for EOI */
+<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00a8, 0x000000000000001B);</span>
+<span class="lineNum">     107 </span>                :            :         /* Init_12: */
+<span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00b0, 0x3590204000000000);</span>
+<span class="lineNum">     109 </span>                :            :         /* Init_13: ENable speculation for DMA Rd Responses */
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00a8, 0x0000000000000020);</span>
+<span class="lineNum">     111 </span>                :            :         /* Init_14: */
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00b0, 0x1103C4C000000000);</span>
+<span class="lineNum">     113 </span>                :            :         /* Init_15: Enable sequence for DMA RWNITC */
+<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00a8, 0x0000000000000001);</span>
+<span class="lineNum">     115 </span>                :            :         /* Init_16: */
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00b0, 0xC000000000000000);</span>
+<span class="lineNum">     117 </span>                :            :         /* Init_17: Enable sequence for IOKill */
+<span class="lineNum">     118 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00a8, 0x0000000000000009);</span>
+<span class="lineNum">     119 </span>                :            :         /* Init_18: */
+<span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00b0, 0x4208210000000000);</span>
+<span class="lineNum">     121 </span>                :            :         /* Init_19: Enable sequence for IOKill */
+<span class="lineNum">     122 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00a8, 0x000000000000000A);</span>
+<span class="lineNum">     123 </span>                :            :         /* Init_20: */
+<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00b0, 0x4200210000000000);</span>
+<span class="lineNum">     125 </span>                :            :         /* Init_21: Enable sequence for FMTC CI Store w/Kill */
+<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00a8, 0x0000000000000021);</span>
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>                :            :         /*** Timer controls ***/
+<span class="lineNum">     129 </span>                :            : 
+<span class="lineNum">     130 </span>                :            :         /* Init_22: */
+<span class="lineNum">     131 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00b0, 0x4200300000000000);</span>
+<span class="lineNum">     132 </span>                :            :         /* Init_23: Dnbound timer mask */
+<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0190, 0x0040000000000000);</span>
+<span class="lineNum">     134 </span>                :            :         /* Init_24: Upbound timer mask 0 */
+<span class="lineNum">     135 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0180, 0x0010001000100010);</span>
+<span class="lineNum">     136 </span>                :            :         /* Init_25: Upbound timer mask 1 */
+<span class="lineNum">     137 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0188, 0x0010000000000000);</span>
+<span class="lineNum">     138 </span>                :            :         /* Init_26: Credit sync check config */
+<span class="lineNum">     139 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00f0, 0xC102000000000000);</span>
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>                :            :         /*** Setup trace ***/
+<span class="lineNum">     142 </span>                :            : 
+<span class="lineNum">     143 </span>                :            :         /* Init_27: DBG stop trace */
+<span class="lineNum">     144 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0410, 0x4000000000000000);</span>
+<span class="lineNum">     145 </span>                :            :         /* Init_28: DBG control */
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0400, 0x0000000000000000);</span>
+<span class="lineNum">     147 </span>                :            :         /* Init_29: DBG Mode */
+<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0408, 0xA0000000F0CC3300);</span>
+<span class="lineNum">     149 </span>                :            :         /* Init_29a: DBG C0 (Stop on Error) */
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0418, 0xF4F00FFF00000000);</span>
+<span class="lineNum">     151 </span>                :            :         /* Init_30: DBG pre-mux select */
+<span class="lineNum">     152 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0478, 0x0023000000000000);</span>
+<span class="lineNum">     153 </span>                :            :         /* Init_31: CA0 mode */
+<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c04b0, 0x8000000000000000);</span>
+<span class="lineNum">     155 </span>                :            :         /* Init_32: CA0 Compression 0 */
+<span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c04b8, 0x0000000000000000);</span>
+<span class="lineNum">     157 </span>                :            :         /* Init_33: CA0 Compression 1 */
+<span class="lineNum">     158 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c04c0, 0x0000000000000000);</span>
+<span class="lineNum">     159 </span>                :            :         /* Init_34: CA0 Pattern A march (cmd1 selected val) */
+<span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0480, 0x008000007FFFFF00);</span>
+<span class="lineNum">     161 </span>                :            :         /* Init_35: CA0 Trigger 0 definition (pattern A) */
+<span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c04a0, 0x8000000000000000);</span>
+<span class="lineNum">     163 </span>                :            :         /* Init_36: CA1 mode */
+<span class="lineNum">     164 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0530, 0x8000000000000000);</span>
+<span class="lineNum">     165 </span>                :            :         /* Init_37: CA1 Compression 0 */
+<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0538, 0x0000000000000000);</span>
+<span class="lineNum">     167 </span>                :            :         /* Init_38: CA1 Compression 1 */
+<span class="lineNum">     168 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0540, 0x0000000000000000);</span>
+<span class="lineNum">     169 </span>                :            :         /* Init_39: CA2 mode */
+<span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c05b0, 0x8000000000000000);</span>
+<span class="lineNum">     171 </span>                :            :         /* Init_40: CA2 Compression 0 */
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c05b8, 0x0000000000000000);</span>
+<span class="lineNum">     173 </span>                :            :         /* Init_41: CA2 Compression 1 */
+<span class="lineNum">     174 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c05c0, 0x0000000000000000);</span>
+<span class="lineNum">     175 </span>                :            :         /* Init_42: CA3 Mode */
+<span class="lineNum">     176 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0630, 0x8000000000000000);</span>
+<span class="lineNum">     177 </span>                :            :         /* Init_43: CA3 Compression 0 */
+<span class="lineNum">     178 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0638, 0x0000000000000000);</span>
+<span class="lineNum">     179 </span>                :            :         /* Init_44: CA3 Compression 1 */
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0640, 0x0000000000000000);</span>
+<span class="lineNum">     181 </span>                :            :         /* Init_45: CA3 Pattern A match (AIB val) */
+<span class="lineNum">     182 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0600, 0x80000100FFFEFF00);</span>
+<span class="lineNum">     183 </span>                :            :         /* Init_46: CA3 Trigger 0 definition (pattern A) */
+<span class="lineNum">     184 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0620, 0x8000000000000000);</span>
+<span class="lineNum">     185 </span>                :            :         /* Init_47: DBG unfreeze trace */
+<span class="lineNum">     186 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0410, 0x1000000000000000);</span>
+<span class="lineNum">     187 </span>                :            :         /* Init_48: DBG start trace */
+<span class="lineNum">     188 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0410, 0x8000000000000000);</span>
+<span class="lineNum">     189 </span>                :            : 
+<span class="lineNum">     190 </span>                :            :         /*** AIB Port Config ***/
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>                :            :         /* Init_49: AIB Port Information */
+<span class="lineNum">     193 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c00d0, 0x0888888800000000);</span>
+<span class="lineNum">     194 </span>                :            :         /* Init_50: Port Ordering controls */
+<span class="lineNum">     195 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0200, 0x0000000000000000);</span>
+<span class="lineNum">     196 </span>                :            : 
+<span class="lineNum">     197 </span>                :            :         /*** LEMs (need to match recov. tables) ***/
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>                :            :         /* Init_51: Clear upbound LEM */
+<span class="lineNum">     200 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0000, 0x0000000000000000);</span>
+<span class="lineNum">     201 </span>                :            :         /* Init_52: Clear upbound WOF */
+<span class="lineNum">     202 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0040, 0x0000000000000000);</span>
+<span class="lineNum">     203 </span>                :            :         /* Init_53: Clear Dnbound LEM */
+<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0050, 0x0000000000000000);</span>
+<span class="lineNum">     205 </span>                :            :         /* Init_54: Clear Dnbound WOF */
+<span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0090, 0x0000000000000000);</span>
+<span class="lineNum">     207 </span>                :            :         /* Init_55: Clear Fences */
+<span class="lineNum">     208 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0130, 0x0000000000000000);</span>
+<span class="lineNum">     209 </span>                :            :         /* Init_56: Clear Erpt latches */
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0148, 0x0080000000000000);</span>
+<span class="lineNum">     211 </span>                :            :         /* Init_57: Set Upbound LEM Action0 */
+<span class="lineNum">     212 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0030, 0x0800000000800000);</span>
+<span class="lineNum">     213 </span>                :            :         /* Init_58: Set Upbound LEN Action1 */
+<span class="lineNum">     214 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0038, 0x0000000000000000);</span>
+<span class="lineNum">     215 </span>                :            :         /* Init_59: Set Upbound LEM Mask (AND write) */
+<span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0020, 0x0800000000000000);</span>
+<span class="lineNum">     217 </span>                :            :         /* Init_60: Set Dnbound LEM Action0 */
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0080, 0x2000080CA07FFF40);</span>
+<span class="lineNum">     219 </span>                :            :         /* Init_61: Set Dnbound LEM Action1 */
+<span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0088, 0x0000000000000000);</span>
+<span class="lineNum">     221 </span>                :            :         /* Init_62: Set Dnbound LEM Mask (AND write) */
+<span class="lineNum">     222 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0070, 0x00000800200FFE00);</span>
+<span class="lineNum">     223 </span>                :            : 
+<span class="lineNum">     224 </span>                :            :         /*** Setup Fences (need to match recov. tables) ***/
+<span class="lineNum">     225 </span>                :            : 
+<span class="lineNum">     226 </span>                :            :         /* Init_63: Set Upbound Damage Control 0 (GX Err) */
+<span class="lineNum">     227 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0100, 0xF7FFFFFFFF7FFFFF);</span>
+<span class="lineNum">     228 </span>                :            :         /* Init_64: Set Upbound Damage Control 1 (AIB Fence) */
+<span class="lineNum">     229 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0108, 0xF7FFFFFFFF7FFFFF);</span>
+<span class="lineNum">     230 </span>                :            :         /* Init_65: Set Upbound Damage Control 2 (Drop Pkt) */
+<span class="lineNum">     231 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0110, 0x0010054000000000);</span>
+<span class="lineNum">     232 </span>                :            :         /* Init_66: Set Dnbound Damage Control 0 (GX Err) */
+<span class="lineNum">     233 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0118, 0xDFFFF7F35F8000BF);</span>
+<span class="lineNum">     234 </span>                :            :         /* Init_67: Set Dnbound Damage Control 1 (AIB Fence) */
+<span class="lineNum">     235 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0120, 0xDFFFF7F35F8000BF);</span>
+<span class="lineNum">     236 </span>                :            :         /* Init_68: Set Dnbound Damage Control 2 (Drop Pkt) */
+<span class="lineNum">     237 </span>                :<span class="lineNoCov">          0 :         REGW(0x3c0128, 0x0000000C00000000);</span>
+<a name="238"><span class="lineNum">     238 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     239 </span>                :            : 
+<span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 : static void p7ioc_init_MISC_HSS(struct p7ioc *ioc)</span>
+<span class="lineNum">     241 </span>                :            : {
+<span class="lineNum">     242 </span>                :            :         unsigned int i, regbase;
+<span class="lineNum">     243 </span>                :            : 
+<span class="lineNum">     244 </span>                :<span class="lineNoCov">          0 :         printf(&quot;P7IOC: Init HSS...\n&quot;);</span>
+<span class="lineNum">     245 </span>                :            : 
+<span class="lineNum">     246 </span>                :            :         /* Note: These values might need to be tweaked per system and
+<span class="lineNum">     247 </span>                :            :          * per physical port depending on electrical characteristics.
+<span class="lineNum">     248 </span>                :            :          *
+<span class="lineNum">     249 </span>                :            :          * For now we stick to the defaults provided by the spec.
+<span class="lineNum">     250 </span>                :            :          */
+<span class="lineNum">     251 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; P7IOC_NUM_PHBS; i++) {</span>
+<span class="lineNum">     252 </span>                :<span class="lineNoCov">          0 :                 regbase = P7IOC_HSS_BASE + i * P7IOC_HSS_STRIDE;</span>
+<span class="lineNum">     253 </span>                :            : 
+<span class="lineNum">     254 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!p7ioc_phb_enabled(ioc, i))</span>
+<span class="lineNum">     255 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     256 </span>                :            : 
+<span class="lineNum">     257 </span>                :            :                 /* Init_1: HSSn CTL2 */
+<span class="lineNum">     258 </span>                :<span class="lineNoCov">          0 :                 REGW(regbase + P7IOC_HSSn_CTL2_OFFSET, 0xFFFF6DB6DB000000);</span>
+<span class="lineNum">     259 </span>                :            :                 /* Init_2: HSSn CTL3 */
+<span class="lineNum">     260 </span>                :<span class="lineNoCov">          0 :                 REGW(regbase + P7IOC_HSSn_CTL3_OFFSET, 0x1130000320000000);</span>
+<span class="lineNum">     261 </span>                :            :                 /* Init_3: HSSn CTL8 */
+<span class="lineNum">     262 </span>                :<span class="lineNoCov">          0 :                 REGW(regbase + P7IOC_HSSn_CTL8_OFFSET, 0xDDDDDDDD00000000);</span>
+<span class="lineNum">     263 </span>                :            : 
+<span class="lineNum">     264 </span>                :            : #if 0 /* All these remain set to the values configured by the FSP */
+<span class="lineNum">     265 </span>                :            :                 /* Init_4: HSSn CTL9 */
+<span class="lineNum">     266 </span>                :            :                 REGW(regbase + P7IOC_HSSn_CTL9_OFFSET, 0x9999999900000000);
+<span class="lineNum">     267 </span>                :            :                 /* Init_5: HSSn CTL10 */
+<span class="lineNum">     268 </span>                :            :                 REGW(regbase + P7IOC_HSSn_CTL10_OFFSET, 0x8888888800000000);
+<span class="lineNum">     269 </span>                :            :                 /* Init_6: HSSn CTL11 */
+<span class="lineNum">     270 </span>                :            :                 REGW(regbase + P7IOC_HSSn_CTL11_OFFSET, 0x4444444400000000);
+<span class="lineNum">     271 </span>                :            :                 /* Init_7: HSSn CTL12 */
+<span class="lineNum">     272 </span>                :            :                 REGW(regbase + P7IOC_HSSn_CTL12_OFFSET, 0x3333333300000000);
+<span class="lineNum">     273 </span>                :            :                 /* Init_8: HSSn CTL13 */
+<span class="lineNum">     274 </span>                :            :                 REGW(regbase + P7IOC_HSSn_CTL13_OFFSET, 0x2222222200000000);
+<span class="lineNum">     275 </span>                :            :                 /* Init_9: HSSn CTL14 */
+<span class="lineNum">     276 </span>                :            :                 REGW(regbase + P7IOC_HSSn_CTL14_OFFSET, 0x1111111100000000);
+<span class="lineNum">     277 </span>                :            :                 /* Init_10: HSSn CTL15 */
+<span class="lineNum">     278 </span>                :            :                 REGW(regbase + P7IOC_HSSn_CTL15_OFFSET, 0x1111111100000000);
+<span class="lineNum">     279 </span>                :            :                 /* Init_11: HSSn CTL16 */
+<span class="lineNum">     280 </span>                :            :                 REGW(regbase + P7IOC_HSSn_CTL16_OFFSET, 0x9999999900000000);
+<span class="lineNum">     281 </span>                :            :                 /* Init_12: HSSn CTL17 */
+<span class="lineNum">     282 </span>                :            :                 REGW(regbase + P7IOC_HSSn_CTL17_OFFSET, 0x8888888800000000);
+<span class="lineNum">     283 </span>                :            :                 /* Init_13: HSSn CTL18 */
+<span class="lineNum">     284 </span>                :            :                 REGW(regbase + P7IOC_HSSn_CTL18_OFFSET, 0xDDDDDDDD00000000);
+<span class="lineNum">     285 </span>                :            :                 /* Init_14: HSSn CTL19 */
+<span class="lineNum">     286 </span>                :            :                 REGW(regbase + P7IOC_HSSn_CTL19_OFFSET, 0xCCCCCCCC00000000);
+<span class="lineNum">     287 </span>                :            :                 /* Init_15: HSSn CTL20 */
+<span class="lineNum">     288 </span>                :            :                 REGW(regbase + P7IOC_HSSn_CTL20_OFFSET, 0xBBBBBBBB00000000);
+<span class="lineNum">     289 </span>                :            :                 /* Init_16: HSSn CTL21 */
+<span class="lineNum">     290 </span>                :            :                 REGW(regbase + P7IOC_HSSn_CTL21_OFFSET, 0x9999999900000000);
+<span class="lineNum">     291 </span>                :            :                 /* Init_17: HSSn CTL22 */
+<span class="lineNum">     292 </span>                :            :                 REGW(regbase + P7IOC_HSSn_CTL22_OFFSET, 0x8888888800000000);
+<span class="lineNum">     293 </span>                :            :                 /* Init_18: HSSn CTL23 */
+<span class="lineNum">     294 </span>                :            :                 REGW(regbase + P7IOC_HSSn_CTL23_OFFSET, 0x7777777700000000);
+<span class="lineNum">     295 </span>                :            : #endif
+<span class="lineNum">     296 </span>                :            :         }
+<a name="297"><span class="lineNum">     297 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     298 </span>                :            : 
+<span class="lineNum">     299 </span>                :<span class="lineNoCov">          0 : static void p7ioc_init_RGC(struct p7ioc *ioc)</span>
+<span class="lineNum">     300 </span>                :            : {
+<span class="lineNum">     301 </span>                :            :         unsigned int i;
+<span class="lineNum">     302 </span>                :            :         uint64_t val, cfg;
+<span class="lineNum">     303 </span>                :            : 
+<span class="lineNum">     304 </span>                :<span class="lineNoCov">          0 :         printf(&quot;P7IOC: Init RGC...\n&quot;);</span>
+<span class="lineNum">     305 </span>                :            : 
+<span class="lineNum">     306 </span>                :            :         /*** Clear ERPT Macros ***/
+<span class="lineNum">     307 </span>                :            :         
+<span class="lineNum">     308 </span>                :            :         /* Init_1: RGC Configuration reg */
+<span class="lineNum">     309 </span>                :<span class="lineNoCov">          0 :         cfg = REGR(0x3e1c08);</span>
+<span class="lineNum">     310 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1c08, cfg | PPC_BIT(1));</span>
+<span class="lineNum">     311 </span>                :<span class="lineNoCov">          0 :         time_wait_ms(1);</span>
+<span class="lineNum">     312 </span>                :            : 
+<span class="lineNum">     313 </span>                :            :         /* Init_2: RGC Configuration reg */
+<span class="lineNum">     314 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1c08, cfg);</span>
+<span class="lineNum">     315 </span>                :            : 
+<span class="lineNum">     316 </span>                :            :         /*** Set LEM regs (needs to match recov. code) */
+<span class="lineNum">     317 </span>                :            : 
+<span class="lineNum">     318 </span>                :            :         /* Init_3: LEM FIR Accumulator */
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1e00, 0x0000000000000000);</span>
+<span class="lineNum">     320 </span>                :            :         /* Init_4: LEM Action 0 */
+<span class="lineNum">     321 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1e30, 0x0FFF791F0B030000);</span>
+<span class="lineNum">     322 </span>                :            :         /* Init_5: LEN Action 1 */
+<span class="lineNum">     323 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1e38, 0x0000000000000000);</span>
+<span class="lineNum">     324 </span>                :            :         /* Init_6: LEM WOF */
+<span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1e40, 0x0000000000000000);</span>
+<span class="lineNum">     326 </span>                :            :         /* Init_7: LEM Mask Reg (AND write) */
+<span class="lineNum">     327 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1e20, 0x0FFF001F03030000);</span>
+<span class="lineNum">     328 </span>                :            : 
+<span class="lineNum">     329 </span>                :            :         /*** Set GEM regs (masks still on, no irpts can occur yet) ***/
+<span class="lineNum">     330 </span>                :            : 
+<span class="lineNum">     331 </span>                :            :         /* Init_8: GEM XFIR */
+<span class="lineNum">     332 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e0008, 0x0000000000000000);</span>
+<span class="lineNum">     333 </span>                :            :         /* Init_9: GEM WOF */
+<span class="lineNum">     334 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e0028, 0x0000000000000000);</span>
+<span class="lineNum">     335 </span>                :            : 
+<span class="lineNum">     336 </span>                :            :         /*** Set Damage Controls (needs to match recov.) ***/
+<span class="lineNum">     337 </span>                :            : 
+<span class="lineNum">     338 </span>                :            :         /* Init_10: LDCP */
+<span class="lineNum">     339 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1c18, 0xF00086C0B4FCFFFF);</span>
+<span class="lineNum">     340 </span>                :            : 
+<span class="lineNum">     341 </span>                :            :         /*** Read status (optional) ***/
+<span class="lineNum">     342 </span>                :            : 
+<span class="lineNum">     343 </span>                :            :         /* Init_11: Read status */
+<span class="lineNum">     344 </span>                :<span class="lineNoCov">          0 :         val = REGR(0x3e1c10);</span>
+<span class="lineNum">     345 </span>                :<span class="lineNoCov">          0 :         printf(&quot;P7IOC:   Init_11 Status: %016llx\n&quot;, val);</span>
+<span class="lineNum">     346 </span>                :            : 
+<span class="lineNum">     347 </span>                :            :         /*** Set running configuration **/
+<span class="lineNum">     348 </span>                :            : 
+<span class="lineNum">     349 </span>                :            :         /* Init_12: Configuration reg (modes, values, timers) */
+<span class="lineNum">     350 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1c08, 0x10000077CE100000);</span>
+<span class="lineNum">     351 </span>                :            : 
+<span class="lineNum">     352 </span>                :            :         /* Init_13: Cmd/Dat Crd Allocation */
+<span class="lineNum">     353 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1c20, 0x00000103000700FF);</span>
+<span class="lineNum">     354 </span>                :            :         /* Init_14: GP reg - disable errs, wrap, stop_trc */
+<span class="lineNum">     355 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1018, 0x0000000000000000);</span>
+<span class="lineNum">     356 </span>                :            :         /* Init_15: Configuration reg (start init timers) */
+<span class="lineNum">     357 </span>                :<span class="lineNoCov">          0 :         cfg = REGR(0x3e1c08);</span>
+<span class="lineNum">     358 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1c08, cfg | 0x00003f0000000000);</span>
+<span class="lineNum">     359 </span>                :            : 
+<span class="lineNum">     360 </span>                :            :         /*** Setup  interrupts ***/
+<span class="lineNum">     361 </span>                :            : 
+<span class="lineNum">     362 </span>                :            :         /* Init_16: BUID Register
+<span class="lineNum">     363 </span>                :            :          *
+<span class="lineNum">     364 </span>                :            :          * XXX NOTE: This needs to be clarified. According to the doc
+<span class="lineNum">     365 </span>                :            :          * the register contains a 9-bit BUID, which makes sense so far.
+<span class="lineNum">     366 </span>                :            :          *
+<span class="lineNum">     367 </span>                :            :          * However, the initialization sequence says &quot;depends on which
+<span class="lineNum">     368 </span>                :            :          * GX bus) which doesn't since afaik the GX bus number is encoded
+<span class="lineNum">     369 </span>                :            :          * in the BUID Extension bit which is right *above* the 9-bit
+<span class="lineNum">     370 </span>                :            :          * BUID in the interrupt message.
+<span class="lineNum">     371 </span>                :            :          *
+<span class="lineNum">     372 </span>                :            :          * So I must be missing something here... For now I'll just
+<span class="lineNum">     373 </span>                :            :          * write my 9-bit BUID and we'll see what happens.
+<span class="lineNum">     374 </span>                :            :          *
+<span class="lineNum">     375 </span>                :            :          */
+<span class="lineNum">     376 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1800, (uint64_t)ioc-&gt;rgc_buid &lt;&lt; PPC_BITLSHIFT(31));</span>
+<span class="lineNum">     377 </span>                :            : 
+<span class="lineNum">     378 </span>                :            :         /* Init_17: Supposed to lock the IODA table but we aren't racing
+<span class="lineNum">     379 </span>                :            :          *          with anybody so there is little point.
+<span class="lineNum">     380 </span>                :            :          *
+<span class="lineNum">     381 </span>                :            :          * Note: If/when we support some kind of error recovery that
+<span class="lineNum">     382 </span>                :            :          *       involves re-initializing the IOC, then we might have
+<span class="lineNum">     383 </span>                :            :          *       to take some locks but it's assumed that the necessary
+<span class="lineNum">     384 </span>                :            :          *       lock(s) will be obtained by the caller.
+<span class="lineNum">     385 </span>                :            :          */
+<span class="lineNum">     386 </span>                :            :         //REGR(0x3e1840, 0x0000000000000000);
+<span class="lineNum">     387 </span>                :            : 
+<span class="lineNum">     388 </span>                :            :         /* Init_18: IODA Table Addr: Select IST*/
+<span class="lineNum">     389 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1820, 0x8001000000000000);</span>
+<span class="lineNum">     390 </span>                :            :         /* Init_19: IODA Table Data: IRPT 0 */
+<span class="lineNum">     391 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1830, 0x0000000000000000);</span>
+<span class="lineNum">     392 </span>                :            :         /* Init_20: IODA Table Data: IRPT 1 */
+<span class="lineNum">     393 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1830, 0x0000000000000000);</span>
+<span class="lineNum">     394 </span>                :            :         /* Init_21: IODA Table Addr: Select HRT */
+<span class="lineNum">     395 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1820, 0x8000000000000000);</span>
+<span class="lineNum">     396 </span>                :            :         /* Init_22: IODA Table Data: HRT
+<span class="lineNum">     397 </span>                :            :          *
+<span class="lineNum">     398 </span>                :            :          * XXX Figure out what this actually is and what value should
+<span class="lineNum">     399 </span>                :            :          *     we use. For now, do like BML and use 0
+<span class="lineNum">     400 </span>                :            :          */
+<span class="lineNum">     401 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; 4; i++)</span>
+<span class="lineNum">     402 </span>                :<span class="lineNoCov">          0 :                 REGW(0x3e1830, 0x0000000000000000);</span>
+<span class="lineNum">     403 </span>                :            : 
+<span class="lineNum">     404 </span>                :            :         /* Init_23: IODA Table Addr: select XIVT */
+<span class="lineNum">     405 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1820, 0x8002000000000000);</span>
+<span class="lineNum">     406 </span>                :            :         /* Init_24: IODA Table Data: Mask all interrupts */
+<span class="lineNum">     407 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; 16; i++)</span>
+<span class="lineNum">     408 </span>                :<span class="lineNoCov">          0 :                 REGW(0x3e1830, 0x000000ff00000000);</span>
+<span class="lineNum">     409 </span>                :            : 
+<span class="lineNum">     410 </span>                :            :         /* Init_25: Clear table lock if any was stale */
+<span class="lineNum">     411 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1840, 0x0000000000000000);</span>
+<span class="lineNum">     412 </span>                :            : 
+<span class="lineNum">     413 </span>                :            :         /* Init_32..37: Set the PHB AIB addresses. We configure those
+<span class="lineNum">     414 </span>                :            :          * to the values recommended in the p7IOC doc.
+<span class="lineNum">     415 </span>                :            :          *
+<span class="lineNum">     416 </span>                :            :          * XXX NOTE: I cannot find a documentation for these, I assume
+<span class="lineNum">     417 </span>                :            :          * they just take the full 64-bit address, but we may want to
+<span class="lineNum">     418 </span>                :            :          * dbl check just in case (it seems to be what BML does but
+<span class="lineNum">     419 </span>                :            :          * I'm good at mis-reading Milton's Perl).
+<span class="lineNum">     420 </span>                :            :          */
+<span class="lineNum">     421 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; P7IOC_NUM_PHBS; i++) {</span>
+<span class="lineNum">     422 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!p7ioc_phb_enabled(ioc, i))</span>
+<span class="lineNum">     423 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     424 </span>                :<span class="lineNoCov">          0 :                 REGW(0x3e1080 + (i &lt;&lt; 3),</span>
+<span class="lineNum">     425 </span>                :            :                      ioc-&gt;mmio1_win_start + PHBn_AIB_BASE(i));
+<span class="lineNum">     426 </span>                :            :         }
+<a name="427"><span class="lineNum">     427 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     428 </span>                :            : 
+<span class="lineNum">     429 </span>                :<span class="lineNoCov">          0 : static void p7ioc_init_ci_routing(struct p7ioc *ioc)</span>
+<span class="lineNum">     430 </span>                :            : {
+<span class="lineNum">     431 </span>                :<span class="lineNoCov">          0 :         unsigned int i, j = 0;</span>
+<span class="lineNum">     432 </span>                :            :         uint64_t rmatch[47];
+<span class="lineNum">     433 </span>                :            :         uint64_t rmask[47];
+<span class="lineNum">     434 </span>                :            :         uint64_t pmask;
+<span class="lineNum">     435 </span>                :            : 
+<span class="lineNum">     436 </span>                :            :         /* Init_130: clear all matches (except 47 which routes to the RGC) */
+<span class="lineNum">     437 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; 47; i++) {</span>
+<span class="lineNum">     438 </span>                :<span class="lineNoCov">          0 :                 rmatch[i] = REGR(P7IOC_CI_RMATC_REG(i)) &amp;</span>
+<span class="lineNum">     439 </span>                :            :                         ~(P7IOC_CI_RMATC_ADDR_VALID |
+<span class="lineNum">     440 </span>                :            :                           P7IOC_CI_RMATC_BUID_VALID |
+<span class="lineNum">     441 </span>                :            :                           P7IOC_CI_RMATC_TYPE_VALID);
+<span class="lineNum">     442 </span>                :<span class="lineNoCov">          0 :                 rmask[i] = 0;</span>
+<span class="lineNum">     443 </span>                :<span class="lineNoCov">          0 :                 REGW(P7IOC_CI_RMATC_REG(i), rmatch[i]);</span>
+<span class="lineNum">     444 </span>                :            :         }
+<span class="lineNum">     445 </span>                :            : 
+<span class="lineNum">     446 </span>                :            :         /* Init_131...224: configure routing for everything except RGC
+<span class="lineNum">     447 </span>                :            :          *
+<span class="lineNum">     448 </span>                :            :          * We are using a slightly different routing setup than the
+<span class="lineNum">     449 </span>                :            :          * example to make the code easier. We configure all PHB
+<span class="lineNum">     450 </span>                :            :          * routing entries by doing all of PHB0 first, then all of PHB1
+<span class="lineNum">     451 </span>                :            :          * etc...
+<span class="lineNum">     452 </span>                :            :          *
+<span class="lineNum">     453 </span>                :            :          * Then we append everything else except the RGC itself which
+<span class="lineNum">     454 </span>                :            :          * remains hard wired at entry 47. So the unused entries live
+<span class="lineNum">     455 </span>                :            :          * at 39..46.
+<span class="lineNum">     456 </span>                :            :          *
+<span class="lineNum">     457 </span>                :            :          *  -      0 : PHB0 LSI BUID
+<span class="lineNum">     458 </span>                :            :          *  -      1 : PHB0 MSI BUID
+<span class="lineNum">     459 </span>                :            :          *  -      2 : PHB0 AIB Registers
+<span class="lineNum">     460 </span>                :            :          *  -      3 : PHB0 IO Space
+<span class="lineNum">     461 </span>                :            :          *  -      4 : PHB0 M32 Space
+<span class="lineNum">     462 </span>                :            :          *  -      5 : PHB0 M64 Space
+<span class="lineNum">     463 </span>                :            :          *  -  6..11 : PHB1
+<span class="lineNum">     464 </span>                :            :          *  - 12..17 : PHB2
+<span class="lineNum">     465 </span>                :            :          *  - 18..23 : PHB3
+<span class="lineNum">     466 </span>                :            :          *  - 24..29 : PHB4
+<span class="lineNum">     467 </span>                :            :          *  - 30..35 : PHB5
+<span class="lineNum">     468 </span>                :            :          *  -     36 : Invalidates broadcast (FMTC)
+<span class="lineNum">     469 </span>                :            :          *  -     37 : Interrupt response for RGC
+<span class="lineNum">     470 </span>                :            :          *  -     38 : RGC GEM BUID
+<span class="lineNum">     471 </span>                :            :          *  - 39..46 : Unused (alternate M64 ?)
+<span class="lineNum">     472 </span>                :            :          *  -     47 : RGC ASB Registers (catch all)
+<span class="lineNum">     473 </span>                :            :          */
+<span class="lineNum">     474 </span>                :            : 
+<span class="lineNum">     475 </span>                :            :         /* Helper macro to set a rule */
+<span class="lineNum">     476 </span>                :            : #define CI_ADD_RULE(p, k, d, m) do {                            \
+<span class="lineNum">     477 </span>                :            :                 rmask[j] = P7IOC_CI_RMATC_ENCODE_##k(m);        \
+<span class="lineNum">     478 </span>                :            :                 rmatch[j]= P7IOC_CI_RMATC_PORT(p)     |         \
+<span class="lineNum">     479 </span>                :            :                            P7IOC_CI_RMATC_##k##_VALID |         \
+<span class="lineNum">     480 </span>                :            :                            P7IOC_CI_RMATC_ENCODE_##k(d);        \
+<span class="lineNum">     481 </span>                :            :                 j++;                                            \
+<span class="lineNum">     482 </span>                :            :         } while (0)
+<span class="lineNum">     483 </span>                :            : 
+<span class="lineNum">     484 </span>                :            :         pmask = 0;
+<span class="lineNum">     485 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; P7IOC_NUM_PHBS; i++) {</span>
+<span class="lineNum">     486 </span>                :<span class="lineNoCov">          0 :                 unsigned int buid_base = ioc-&gt;buid_base + PHBn_BUID_BASE(i);</span>
+<span class="lineNum">     487 </span>                :            : 
+<span class="lineNum">     488 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!p7ioc_phb_enabled(ioc, i))</span>
+<span class="lineNum">     489 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     490 </span>                :            : 
+<span class="lineNum">     491 </span>                :            :                 /* LSI BUIDs, match all 9 bits (1 BUID per PHB) */
+<span class="lineNum">     492 </span>                :<span class="lineNoCov">          0 :                 CI_ADD_RULE(P7IOC_CI_PHB_PORT(i), BUID,</span>
+<span class="lineNum">     493 </span>                :            :                             buid_base + PHB_BUID_LSI_OFFSET, 0x1ff);
+<span class="lineNum">     494 </span>                :            : 
+<span class="lineNum">     495 </span>                :            :                 /* MSI BUIDs, match 4 bits (16 BUIDs per PHB) */
+<span class="lineNum">     496 </span>                :<span class="lineNoCov">          0 :                 CI_ADD_RULE(P7IOC_CI_PHB_PORT(i), BUID,</span>
+<span class="lineNum">     497 </span>                :            :                             buid_base + PHB_BUID_MSI_OFFSET, 0x1f0);
+<span class="lineNum">     498 </span>                :            : 
+<span class="lineNum">     499 </span>                :            :                 /* AIB reg space */
+<span class="lineNum">     500 </span>                :<span class="lineNoCov">          0 :                 CI_ADD_RULE(P7IOC_CI_PHB_PORT(i), ADDR,</span>
+<span class="lineNum">     501 </span>                :            :                             ioc-&gt;mmio1_win_start + PHBn_AIB_BASE(i),
+<span class="lineNum">     502 </span>                :            :                             ~(PHBn_AIB_SIZE - 1));
+<span class="lineNum">     503 </span>                :            : 
+<span class="lineNum">     504 </span>                :            :                 /* IO space */
+<span class="lineNum">     505 </span>                :<span class="lineNoCov">          0 :                 CI_ADD_RULE(P7IOC_CI_PHB_PORT(i), ADDR,</span>
+<span class="lineNum">     506 </span>                :            :                             ioc-&gt;mmio1_win_start + PHBn_IO_BASE(i),
+<span class="lineNum">     507 </span>                :            :                             ~(PHB_IO_SIZE - 1));
+<span class="lineNum">     508 </span>                :            : 
+<span class="lineNum">     509 </span>                :            :                 /* M32 space */
+<span class="lineNum">     510 </span>                :<span class="lineNoCov">          0 :                 CI_ADD_RULE(P7IOC_CI_PHB_PORT(i), ADDR,</span>
+<span class="lineNum">     511 </span>                :            :                             ioc-&gt;mmio2_win_start + PHBn_M32_BASE(i),
+<span class="lineNum">     512 </span>                :            :                             ~(PHB_M32_SIZE - 1));
+<span class="lineNum">     513 </span>                :            : 
+<span class="lineNum">     514 </span>                :            :                 /* M64 space */
+<span class="lineNum">     515 </span>                :<span class="lineNoCov">          0 :                 CI_ADD_RULE(P7IOC_CI_PHB_PORT(i), ADDR,</span>
+<span class="lineNum">     516 </span>                :            :                             ioc-&gt;mmio2_win_start + PHBn_M64_BASE(i),
+<span class="lineNum">     517 </span>                :            :                             ~(PHB_M64_SIZE - 1));
+<span class="lineNum">     518 </span>                :            : 
+<span class="lineNum">     519 </span>                :            :                 /* For use with invalidate bcasts */
+<span class="lineNum">     520 </span>                :<span class="lineNoCov">          0 :                 pmask |= P7IOC_CI_PHB_PORT(i);</span>
+<span class="lineNum">     521 </span>                :            :         }
+<span class="lineNum">     522 </span>                :            : 
+<span class="lineNum">     523 </span>                :            :         /* Invalidates broadcast to all PHBs */
+<span class="lineNum">     524 </span>                :<span class="lineNoCov">          0 :         CI_ADD_RULE(pmask, TYPE, 0x80, 0xf0);</span>
+<span class="lineNum">     525 </span>                :            : 
+<span class="lineNum">     526 </span>                :            :         /* Interrupt responses go to RGC */
+<span class="lineNum">     527 </span>                :<span class="lineNoCov">          0 :         CI_ADD_RULE(P7IOC_CI_RGC_PORT, TYPE, 0x60, 0xf0);</span>
+<span class="lineNum">     528 </span>                :            : 
+<span class="lineNum">     529 </span>                :            :         /* RGC GEM BUID (1 BUID) */
+<span class="lineNum">     530 </span>                :<span class="lineNoCov">          0 :         CI_ADD_RULE(P7IOC_CI_RGC_PORT, BUID, ioc-&gt;rgc_buid, 0x1ff);</span>
+<span class="lineNum">     531 </span>                :            : 
+<span class="lineNum">     532 </span>                :            :         /* Program the values masks first */
+<span class="lineNum">     533 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; 47; i++)</span>
+<span class="lineNum">     534 </span>                :<span class="lineNoCov">          0 :                 REGW(P7IOC_CI_RMASK_REG(i), rmask[i]);</span>
+<span class="lineNum">     535 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; 47; i++)</span>
+<span class="lineNum">     536 </span>                :<span class="lineNoCov">          0 :                 REGW(P7IOC_CI_RMATC_REG(i), rmatch[i]);</span>
+<span class="lineNum">     537 </span>                :            : 
+<span class="lineNum">     538 </span>                :            :         /* Init_225: CI Match 47 (Configure RGC catch all) */
+<span class="lineNum">     539 </span>                :<span class="lineNoCov">          0 :         REGW(P7IOC_CI_RMASK_REG(47), 0x0000000000000000);</span>
+<span class="lineNum">     540 </span>                :<span class="lineNoCov">          0 :         REGW(P7IOC_CI_RMATC_REG(47), 0x4000800000000000);</span>
+<span class="lineNum">     541 </span>                :            : 
+<span class="lineNum">     542 </span>                :            : #ifdef DUMP_CI_ROUTING
+<span class="lineNum">     543 </span>                :            :         printf(&quot;P7IOC: CI Routing table:\n&quot;);
+<span class="lineNum">     544 </span>                :            :         for (i = 0; i &lt; 48; i++)
+<span class="lineNum">     545 </span>                :            :                 printf(&quot;  [%.2d] MTCH: %016llx MSK: %016llx\n&quot;, i,
+<span class="lineNum">     546 </span>                :            :                        REGR(P7IOC_CI_RMATC_REG(i)),
+<span class="lineNum">     547 </span>                :            :                        REGR(P7IOC_CI_RMASK_REG(i)));
+<span class="lineNum">     548 </span>                :            : #endif /* DUMP_CI_ROUTING */
+<a name="549"><span class="lineNum">     549 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     550 </span>                :            : 
+<span class="lineNum">     551 </span>                :<span class="lineNoCov">          0 : static void p7ioc_init_CI(struct p7ioc *ioc)</span>
+<span class="lineNum">     552 </span>                :            : {
+<span class="lineNum">     553 </span>                :<span class="lineNoCov">          0 :         printf(&quot;P7IOC: Init CI...\n&quot;);</span>
+<span class="lineNum">     554 </span>                :            : 
+<span class="lineNum">     555 </span>                :            :         /*** Clear ERPT macros ***/
+<span class="lineNum">     556 </span>                :            : 
+<span class="lineNum">     557 </span>                :            :         /* XXX NOTE: The doc seems to also provide &quot;alternate freq ratio&quot;
+<span class="lineNum">     558 </span>                :            :          * settings. Not sure what they are about, let's stick to the
+<span class="lineNum">     559 </span>                :            :          * original values for now.
+<span class="lineNum">     560 </span>                :            :          */
+<span class="lineNum">     561 </span>                :            : 
+<span class="lineNum">     562 </span>                :            :         /* Init_1: CI Port 0 Configuration */
+<span class="lineNum">     563 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0000, 0x420000C0073F0002);</span>
+<span class="lineNum">     564 </span>                :            :         /* Init_2: CI Port 0 Configuration */
+<span class="lineNum">     565 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0000, 0x020000C0073F0002);</span>
+<span class="lineNum">     566 </span>                :            :         /* Init_3: CI Port 1 Configuration */
+<span class="lineNum">     567 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d1000, 0x42000FCF07200002);</span>
+<span class="lineNum">     568 </span>                :            :         /* Init_4: CI Port 1 Configuration */
+<span class="lineNum">     569 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d1000, 0x02000FCF07200002);</span>
+<span class="lineNum">     570 </span>                :            :         /* Init_5: CI Port 2 Configuration */
+<span class="lineNum">     571 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d2000, 0x420000C307200002);</span>
+<span class="lineNum">     572 </span>                :            :         /* Init_6: CI Port 2 Configuration */
+<span class="lineNum">     573 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d2000, 0x020000C307200002);</span>
+<span class="lineNum">     574 </span>                :            :         /* Init_7: CI Port 3 Configuration */
+<span class="lineNum">     575 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d3000, 0x420000C307200002);</span>
+<span class="lineNum">     576 </span>                :            :         /* Init_8: CI Port 3 Configuration */
+<span class="lineNum">     577 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d3000, 0x020000C307200002);</span>
+<span class="lineNum">     578 </span>                :            :         /* Init_9: CI Port 4 Configuration */
+<span class="lineNum">     579 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d4000, 0x420000C307200002);</span>
+<span class="lineNum">     580 </span>                :            :         /* Init_10: CI Port 4 Configuration */
+<span class="lineNum">     581 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d4000, 0x020000C307200002);</span>
+<span class="lineNum">     582 </span>                :            :         /* Init_11: CI Port 5 Configuration */
+<span class="lineNum">     583 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d5000, 0x420000C307200002);</span>
+<span class="lineNum">     584 </span>                :            :         /* Init_12: CI Port 5 Configuration */
+<span class="lineNum">     585 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d5000, 0x020000C307200002);</span>
+<span class="lineNum">     586 </span>                :            :         /* Init_13: CI Port 6 Configuration */
+<span class="lineNum">     587 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d6000, 0x420000C307200002);</span>
+<span class="lineNum">     588 </span>                :            :         /* Init_14: CI Port 6 Configuration */
+<span class="lineNum">     589 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d6000, 0x020000C307200002);</span>
+<span class="lineNum">     590 </span>                :            :         /* Init_15: CI Port 7 Configuration */
+<span class="lineNum">     591 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d7000, 0x420000C307200002);</span>
+<span class="lineNum">     592 </span>                :            :         /* Init_16: CI Port 7 Configuration */
+<span class="lineNum">     593 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d7000, 0x020000C307200002);</span>
+<span class="lineNum">     594 </span>                :            : 
+<span class="lineNum">     595 </span>                :            :         /*** Set LEM regs (need to match recov.) ***/
+<span class="lineNum">     596 </span>                :            : 
+<span class="lineNum">     597 </span>                :            :         /* Init_17: CI Port 0 LEM FIR Accumulator */
+<span class="lineNum">     598 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0200, 0x0000000000000000);</span>
+<span class="lineNum">     599 </span>                :            :         /* Init_18: CI Port 0 LEM Action 0 */
+<span class="lineNum">     600 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0230, 0x0A00000000000000);</span>
+<span class="lineNum">     601 </span>                :            :         /* Init_19: CI Port 0 LEM Action 1 */
+<span class="lineNum">     602 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0238, 0x0000000000000000);</span>
+<span class="lineNum">     603 </span>                :            :         /* Init_20: CI Port 0 LEM WOF */
+<span class="lineNum">     604 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0240, 0x0000000000000000);</span>
+<span class="lineNum">     605 </span>                :            :         /* Init_21: CI Port 0 LEM Mask (AND write) */
+<span class="lineNum">     606 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0220, 0x0200000000000000);</span>
+<span class="lineNum">     607 </span>                :            :         /* Init_22: CI Port 1 LEM FIR Accumularor */
+<span class="lineNum">     608 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d1200, 0x0000000000000000);</span>
+<span class="lineNum">     609 </span>                :            :         /* Init_23: CI Port 1 LEM Action 0 */
+<span class="lineNum">     610 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d1230, 0x0000000000000000);</span>
+<span class="lineNum">     611 </span>                :            :         /* Init_24: CI Port 1 LEM Action 1 */
+<span class="lineNum">     612 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d1238, 0x0000000000000000);</span>
+<span class="lineNum">     613 </span>                :            :         /* Init_25: CI Port 1 LEM WOF */
+<span class="lineNum">     614 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d1240, 0x0000000000000000);</span>
+<span class="lineNum">     615 </span>                :            :         /* Init_26: CI Port 1 LEM Mask (AND write) */
+<span class="lineNum">     616 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d1220, 0x0000000000000000);</span>
+<span class="lineNum">     617 </span>                :            :         /* Init_27: CI Port 2 LEM FIR Accumulator */
+<span class="lineNum">     618 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d2200, 0x0000000000000000);</span>
+<span class="lineNum">     619 </span>                :            :         /* Init_28: CI Port 2 LEM Action 0 */
+<span class="lineNum">     620 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d2230, 0xA4F4000000000000);</span>
+<span class="lineNum">     621 </span>                :            :         /* Init_29: CI Port 2 LEM Action 1 */
+<span class="lineNum">     622 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d2238, 0x0000000000000000);</span>
+<span class="lineNum">     623 </span>                :            :         /* Init_30: CI Port 2 LEM WOF */
+<span class="lineNum">     624 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d2240, 0x0000000000000000);</span>
+<span class="lineNum">     625 </span>                :            :         /* Init_31: CI Port 2 LEM Mask (AND write) */
+<span class="lineNum">     626 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d2220, 0x0000000000000000);</span>
+<span class="lineNum">     627 </span>                :            :         /* Init_32: CI Port 3 LEM FIR Accumulator */
+<span class="lineNum">     628 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d3200, 0x0000000000000000);</span>
+<span class="lineNum">     629 </span>                :            :         /* Init_33: CI Port 3 LEM Action 0 */
+<span class="lineNum">     630 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d3230, 0xA4F4000000000000);</span>
+<span class="lineNum">     631 </span>                :            :         /* Init_34: CI Port 3 LEM Action 1 */
+<span class="lineNum">     632 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d3238, 0x0000000000000000);</span>
+<span class="lineNum">     633 </span>                :            :         /* Init_35: CI Port 3 LEM WOF */
+<span class="lineNum">     634 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d3240, 0x0000000000000000);</span>
+<span class="lineNum">     635 </span>                :            :         /* Init_36: CI Port 3 LEM Mask (AND write) */
+<span class="lineNum">     636 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d3220, 0x0000000000000000);</span>
+<span class="lineNum">     637 </span>                :            :         /* Init_37: CI Port 4 LEM FIR Accumulator */
+<span class="lineNum">     638 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d4200, 0x0000000000000000);</span>
+<span class="lineNum">     639 </span>                :            :         /* Init_38: CI Port 4 Action 0 */
+<span class="lineNum">     640 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d4230, 0xA4F4000000000000);</span>
+<span class="lineNum">     641 </span>                :            :         /* Init_39: CI Port 4 Action 1 */
+<span class="lineNum">     642 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d4238, 0x0000000000000000);</span>
+<span class="lineNum">     643 </span>                :            :         /* Init_40: CI Port 4 WOF */
+<span class="lineNum">     644 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d4240, 0x0000000000000000);</span>
+<span class="lineNum">     645 </span>                :            :         /* Init_41: CI Port 4 Mask (AND write) */
+<span class="lineNum">     646 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d4220, 0x0000000000000000);</span>
+<span class="lineNum">     647 </span>                :            :         /* Init_42: CI Port 5 LEM FIR Accumulator */
+<span class="lineNum">     648 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d5200, 0x0000000000000000);</span>
+<span class="lineNum">     649 </span>                :            :         /* Init_43: CI Port 5 Action 0 */
+<span class="lineNum">     650 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d5230, 0xA4F4000000000000);</span>
+<span class="lineNum">     651 </span>                :            :         /* Init_44: CI Port 5 Action 1 */
+<span class="lineNum">     652 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d5238, 0x0000000000000000);</span>
+<span class="lineNum">     653 </span>                :            :         /* Init_45: CI Port 4 WOF */
+<span class="lineNum">     654 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d5240, 0x0000000000000000);</span>
+<span class="lineNum">     655 </span>                :            :         /* Init_46: CI Port 5 Mask (AND write) */
+<span class="lineNum">     656 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d5220, 0x0000000000000000);</span>
+<span class="lineNum">     657 </span>                :            :         /* Init_47: CI Port 6 LEM FIR Accumulator */
+<span class="lineNum">     658 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d6200, 0x0000000000000000);</span>
+<span class="lineNum">     659 </span>                :            :         /* Init_48: CI Port 6 Action 0 */
+<span class="lineNum">     660 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d6230, 0xA4F4000000000000);</span>
+<span class="lineNum">     661 </span>                :            :         /* Init_49: CI Port 6 Action 1 */
+<span class="lineNum">     662 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d6238, 0x0000000000000000);</span>
+<span class="lineNum">     663 </span>                :            :         /* Init_50: CI Port 6 WOF */
+<span class="lineNum">     664 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d6240, 0x0000000000000000);</span>
+<span class="lineNum">     665 </span>                :            :         /* Init_51: CI Port 6 Mask (AND write) */
+<span class="lineNum">     666 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d6220, 0x0000000000000000);</span>
+<span class="lineNum">     667 </span>                :            :         /* Init_52: CI Port 7 LEM FIR Accumulator */
+<span class="lineNum">     668 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d7200, 0x0000000000000000);</span>
+<span class="lineNum">     669 </span>                :            :         /* Init_53: CI Port 7 Action 0 */
+<span class="lineNum">     670 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d7230, 0xA4F4000000000000);</span>
+<span class="lineNum">     671 </span>                :            :         /* Init_54: CI Port 7 Action 1 */
+<span class="lineNum">     672 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d7238, 0x0000000000000000);</span>
+<span class="lineNum">     673 </span>                :            :         /* Init_55: CI Port 7 WOF */
+<span class="lineNum">     674 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d7240, 0x0000000000000000);</span>
+<span class="lineNum">     675 </span>                :            :         /* Init_56: CI Port 7 Mask (AND write) */
+<span class="lineNum">     676 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d7220, 0x0000000000000000);</span>
+<span class="lineNum">     677 </span>                :            : 
+<span class="lineNum">     678 </span>                :            :         /*** Set Damage Controls (need match recov.) ***/
+<span class="lineNum">     679 </span>                :            : 
+<span class="lineNum">     680 </span>                :            :         /* Init_57: CI Port 0 LDCP*/
+<span class="lineNum">     681 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0010, 0x421A0000000075FF);</span>
+<span class="lineNum">     682 </span>                :            :         /* Init_58: CI Port 1 LDCP */
+<span class="lineNum">     683 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d1010, 0x421A000000007FFF);</span>
+<span class="lineNum">     684 </span>                :            :         /* Init_59: CI Port 2 LDCP */
+<span class="lineNum">     685 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d2010, 0x421A24F400005B0B);</span>
+<span class="lineNum">     686 </span>                :            :         /* Init_60: CI Port 3 LDCP */
+<span class="lineNum">     687 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d3010, 0x421A24F400005B0B);</span>
+<span class="lineNum">     688 </span>                :            :         /* Init_61: CI Port 4 LDCP */
+<span class="lineNum">     689 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d4010, 0x421A24F400005B0B);</span>
+<span class="lineNum">     690 </span>                :            :         /* Init_62: CI Port 5 LDCP */
+<span class="lineNum">     691 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d5010, 0x421A24F400005B0B);</span>
+<span class="lineNum">     692 </span>                :            :         /* Init_63: CI Port 6 LDCP */
+<span class="lineNum">     693 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d6010, 0x421A24F400005B0B);</span>
+<span class="lineNum">     694 </span>                :            :         /* Init_64: CI Port 7 LDCP */
+<span class="lineNum">     695 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d7010, 0x421A24F400005B0B);</span>
+<span class="lineNum">     696 </span>                :            : 
+<span class="lineNum">     697 </span>                :            :         /*** Setup Trace 0 ***/
+<span class="lineNum">     698 </span>                :            : 
+<span class="lineNum">     699 </span>                :            :         /* Init_65: CI Trc 0 DBG - Run/Status (stop trace) */
+<span class="lineNum">     700 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0810, 0x5000000000000000);</span>
+<span class="lineNum">     701 </span>                :            :         /* Init_66: CI Trc 0 DBG - Mode (not cross trig CA's) */
+<span class="lineNum">     702 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0808, 0xB0000000F0000000);</span>
+<span class="lineNum">     703 </span>                :            :         /* Init_66a: CI Trc 0 DBG - C0 (stop on error) */
+<span class="lineNum">     704 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0818, 0xF4F00FFF00000000);</span>
+<span class="lineNum">     705 </span>                :            :         /* Init_67: CI Trc 0 DBG - Select (port 0 mode 2) */
+<span class="lineNum">     706 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0878, 0x0002000000000000);</span>
+<span class="lineNum">     707 </span>                :            :         /* Init_68: CI Trc 0 CA0 - Pattern A (RX cmd val) */
+<span class="lineNum">     708 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0880, 0xC0200000DFFFFF00);</span>
+<span class="lineNum">     709 </span>                :            :         /* Init_69: CI Trc 0 CA0 - Trigger 0 (Pattern A) */
+<span class="lineNum">     710 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d08a0, 0x8000000000000000);</span>
+<span class="lineNum">     711 </span>                :            :         /* Init_70: CI Trc 0 - Mode */
+<span class="lineNum">     712 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d08b0, 0x8000000000000000);</span>
+<span class="lineNum">     713 </span>                :            :         /* Init_71: CI Trc 0 CA1 - Pattern A (TX cmd val) */
+<span class="lineNum">     714 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0900, 0xC0200000DFFFFF00);</span>
+<span class="lineNum">     715 </span>                :            :         /* Init_72: CI Trc 0 CA1 - Trigger 0 (Pattern A) */
+<span class="lineNum">     716 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0920, 0x8000000000000000);</span>
+<span class="lineNum">     717 </span>                :            :         /* Init_73: CI Trc 0 CA1 - Mode */
+<span class="lineNum">     718 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0930, 0x8000000000000000);</span>
+<span class="lineNum">     719 </span>                :            :         /* Init_74: CI Trc 0 DBG - Run/Status (start trace) */
+<span class="lineNum">     720 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0810, 0x8000000000000000);</span>
+<span class="lineNum">     721 </span>                :            : 
+<span class="lineNum">     722 </span>                :            :         /*** Setup Trace 1 ***/
+<span class="lineNum">     723 </span>                :            : 
+<span class="lineNum">     724 </span>                :            :         /* Init_75: CI Trc 1 DBG - Run/Status (stop trace) */
+<span class="lineNum">     725 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0c10, 0x5000000000000000);</span>
+<span class="lineNum">     726 </span>                :            :         /* Init_76: CI Trc 1 DBG - Mode (not cross trig CA's) */
+<span class="lineNum">     727 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0c08, 0xB0000000F0000000);</span>
+<span class="lineNum">     728 </span>                :            :         /* Init_76a: CI Trc 1 DBG - C0 (stop on error) */
+<span class="lineNum">     729 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0c18, 0xF4F00FFF00000000);</span>
+<span class="lineNum">     730 </span>                :            :         /* Init_77: CI Trc 1 DBG - Select (port 1 mode 2) */
+<span class="lineNum">     731 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0c78, 0x0102000000000000);</span>
+<span class="lineNum">     732 </span>                :            :         /* Init_78: CI Trc 1 CA0 - Pattern A (RX cmd val) */
+<span class="lineNum">     733 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0c80, 0xC0200000DFFFFF00);</span>
+<span class="lineNum">     734 </span>                :            :         /* Init_79: CI Trc 1 CA0 - Trigger 0 (Pattern A) */
+<span class="lineNum">     735 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0ca0, 0x8000000000000000);</span>
+<span class="lineNum">     736 </span>                :            :         /* Init_80: CI Trc 1 CA0 - Mode */
+<span class="lineNum">     737 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0cb0, 0x8000000000000000);</span>
+<span class="lineNum">     738 </span>                :            :         /* Init_81: CI Trc 1 CA1 - Pattern A (TX cmd val) */
+<span class="lineNum">     739 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0d00, 0xC0200000DFFFFF00);</span>
+<span class="lineNum">     740 </span>                :            :         /* Init_82: CI Trc 1 CA1 - Trigger 0 (Pattern A) */
+<span class="lineNum">     741 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0d20, 0x8000000000000000);</span>
+<span class="lineNum">     742 </span>                :            :         /* Init_83: CI Trc 1 CA1 - Mode */
+<span class="lineNum">     743 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0d30, 0x8000000000000000);</span>
+<span class="lineNum">     744 </span>                :            :         /* Init_84: CI Trc 1 DBG - Run/Status (start trace) */
+<span class="lineNum">     745 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0c10, 0x8000000000000000);</span>
+<span class="lineNum">     746 </span>                :            : 
+<span class="lineNum">     747 </span>                :            :         /* Init_85...92:
+<span class="lineNum">     748 </span>                :            :          *
+<span class="lineNum">     749 </span>                :            :          * XXX NOTE: Here we normally read the Port 0 to 7 status regs
+<span class="lineNum">     750 </span>                :            :          * which is optional. Eventually we might want to do it to check
+<span class="lineNum">     751 </span>                :            :          * if the status matches expectations
+<span class="lineNum">     752 </span>                :            :          *
+<span class="lineNum">     753 </span>                :            :          * (regs 0x3d0008 to 0x3d7008)
+<span class="lineNum">     754 </span>                :            :          */
+<span class="lineNum">     755 </span>                :            : 
+<span class="lineNum">     756 </span>                :            :         /*** Set buffer allocations (credits) ***/
+<span class="lineNum">     757 </span>                :            : 
+<span class="lineNum">     758 </span>                :            :         /* Init_93: CI Port 0 Rx Cmd Buffer Allocation */
+<span class="lineNum">     759 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0050, 0x0808040400000000);</span>
+<span class="lineNum">     760 </span>                :            :         /* Init_94: CI Port 0 Rx Dat Buffer Allocation */
+<span class="lineNum">     761 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0060, 0x0006000200000000);</span>
+<span class="lineNum">     762 </span>                :            :         /* Init_95: CI Port 1 Tx Cmd Buffer Allocation */
+<span class="lineNum">     763 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d1030, 0x0000040400000000);</span>
+<span class="lineNum">     764 </span>                :            :         /* Init_96: CI Port 1 Tx Dat Buffer Allocation */
+<span class="lineNum">     765 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d1040, 0x0000004800000000);</span>
+<span class="lineNum">     766 </span>                :            :         /* Init_97: CI Port 1 Rx Cmd Buffer Allocation */
+<span class="lineNum">     767 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d1050, 0x0008000000000000);</span>
+<span class="lineNum">     768 </span>                :            :         /* Init_98: CI Port 1 Rx Dat Buffer Allocation */
+<span class="lineNum">     769 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d1060, 0x0048000000000000);</span>
+<span class="lineNum">     770 </span>                :            :         /* Init_99: CI Port 2 Tx Cmd Buffer Allocation */
+<span class="lineNum">     771 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d2030, 0x0808080800000000);</span>
+<span class="lineNum">     772 </span>                :            :         /* Init_100: CI Port 2 Tx Dat Buffer Allocation */
+<span class="lineNum">     773 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d2040, 0x0086008200000000);</span>
+<span class="lineNum">     774 </span>                :            :         /* Init_101: CI Port 2 Rx Cmd Buffer Allocation */
+<span class="lineNum">     775 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d2050, 0x0808080800000000);</span>
+<span class="lineNum">     776 </span>                :            :         /* Init_102: CI Port 2 Rx Dat Buffer Allocation */
+<span class="lineNum">     777 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d2060, 0x8648000000000000);</span>
+<span class="lineNum">     778 </span>                :            :         /* Init_103: CI Port 3 Tx Cmd Buffer Allocation */
+<span class="lineNum">     779 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d3030, 0x0808080800000000);</span>
+<span class="lineNum">     780 </span>                :            :         /* Init_104: CI Port 3 Tx Dat Buffer Allocation */
+<span class="lineNum">     781 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d3040, 0x0086008200000000);</span>
+<span class="lineNum">     782 </span>                :            :         /* Init_105: CI Port 3 Rx Cmd Buffer Allocation */
+<span class="lineNum">     783 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d3050, 0x0808080800000000);</span>
+<span class="lineNum">     784 </span>                :            :         /* Init_106: CI Port 3 Rx Dat Buffer Allocation */
+<span class="lineNum">     785 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d3060, 0x8648000000000000);</span>
+<span class="lineNum">     786 </span>                :            :         /* Init_107: CI Port 4 Tx Cmd Buffer Allocation */
+<span class="lineNum">     787 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d4030, 0x0808080800000000);</span>
+<span class="lineNum">     788 </span>                :            :         /* Init_108: CI Port 4 Tx Dat Buffer Allocation */
+<span class="lineNum">     789 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d4040, 0x0086008200000000);</span>
+<span class="lineNum">     790 </span>                :            :         /* Init_109: CI Port 4 Rx Cmd Buffer Allocation */
+<span class="lineNum">     791 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d4050, 0x0808080800000000);</span>
+<span class="lineNum">     792 </span>                :            :         /* Init_110: CI Port 4 Rx Dat Buffer Allocation */
+<span class="lineNum">     793 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d4060, 0x8648000000000000);</span>
+<span class="lineNum">     794 </span>                :            :         /* Init_111: CI Port 5 Tx Cmd Buffer Allocation */
+<span class="lineNum">     795 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d5030, 0x0808080800000000);</span>
+<span class="lineNum">     796 </span>                :            :         /* Init_112: CI Port 5 Tx Dat Buffer Allocation */
+<span class="lineNum">     797 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d5040, 0x0086008200000000);</span>
+<span class="lineNum">     798 </span>                :            :         /* Init_113: CI Port 5 Rx Cmd Buffer Allocation */
+<span class="lineNum">     799 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d5050, 0x0808080800000000);</span>
+<span class="lineNum">     800 </span>                :            :         /* Init_114: CI Port 5 Rx Dat Buffer Allocation */
+<span class="lineNum">     801 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d5060, 0x8648000000000000);</span>
+<span class="lineNum">     802 </span>                :            :         /* Init_115: CI Port 6 Tx Cmd Buffer Allocation */
+<span class="lineNum">     803 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d6030, 0x0808080800000000);</span>
+<span class="lineNum">     804 </span>                :            :         /* Init_116: CI Port 6 Tx Dat Buffer Allocation */
+<span class="lineNum">     805 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d6040, 0x0086008200000000);</span>
+<span class="lineNum">     806 </span>                :            :         /* Init_117: CI Port 6 Rx Cmd Buffer Allocation */
+<span class="lineNum">     807 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d6050, 0x0808080800000000);</span>
+<span class="lineNum">     808 </span>                :            :         /* Init_118: CI Port 6 Rx Dat Buffer Allocation */
+<span class="lineNum">     809 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d6060, 0x8648000000000000);</span>
+<span class="lineNum">     810 </span>                :            :         /* Init_119: CI Port 7 Tx Cmd Buffer Allocation */
+<span class="lineNum">     811 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d7030, 0x0808080800000000);</span>
+<span class="lineNum">     812 </span>                :            :         /* Init_120: CI Port 7 Tx Dat Buffer Allocation */
+<span class="lineNum">     813 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d7040, 0x0086008200000000);</span>
+<span class="lineNum">     814 </span>                :            :         /* Init_121: CI Port 7 Rx Cmd Buffer Allocation */
+<span class="lineNum">     815 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d7050, 0x0808080800000000);</span>
+<span class="lineNum">     816 </span>                :            :         /* Init_122: CI Port 6 Rx Dat Buffer Allocation */
+<span class="lineNum">     817 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d7060, 0x8648000000000000);</span>
+<span class="lineNum">     818 </span>                :            : 
+<span class="lineNum">     819 </span>                :            :         /*** Channel ordering ***/
+<span class="lineNum">     820 </span>                :            : 
+<span class="lineNum">     821 </span>                :            :         /* Init_123: CI Port 1 Ordering */
+<span class="lineNum">     822 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d1070, 0x73D0735E00000000);</span>
+<span class="lineNum">     823 </span>                :            :         /* Init_124: CI Port 2 Ordering */
+<span class="lineNum">     824 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d2070, 0x73D0735E00000000);</span>
+<span class="lineNum">     825 </span>                :            :         /* Init_125: CI Port 3 Ordering */
+<span class="lineNum">     826 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d3070, 0x73D0735E00000000);</span>
+<span class="lineNum">     827 </span>                :            :         /* Init_126: CI Port 4 Ordering */
+<span class="lineNum">     828 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d4070, 0x73D0735E00000000);</span>
+<span class="lineNum">     829 </span>                :            :         /* Init_127: CI Port 5 Ordering */
+<span class="lineNum">     830 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d5070, 0x73D0735E00000000);</span>
+<span class="lineNum">     831 </span>                :            :         /* Init_128: CI Port 6 Ordering */
+<span class="lineNum">     832 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d6070, 0x73D0735E00000000);</span>
+<span class="lineNum">     833 </span>                :            :         /* Init_129: CI POrt 7 Ordering */
+<span class="lineNum">     834 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d7070, 0x73D0735E00000000);</span>
+<span class="lineNum">     835 </span>                :            : 
+<span class="lineNum">     836 </span>                :            :         /*** Setup routing (port 0 only) */
+<span class="lineNum">     837 </span>                :            : 
+<span class="lineNum">     838 </span>                :<span class="lineNoCov">          0 :         p7ioc_init_ci_routing(ioc);</span>
+<span class="lineNum">     839 </span>                :            : 
+<span class="lineNum">     840 </span>                :            :         /*** Set Running Configuration/Crd Init Timers ***
+<span class="lineNum">     841 </span>                :            :          *
+<span class="lineNum">     842 </span>                :            :          * XXX NOTE: Supposed to only modify bits 8:15
+<span class="lineNum">     843 </span>                :            :          */
+<span class="lineNum">     844 </span>                :            : 
+<span class="lineNum">     845 </span>                :            :         /* Init_226: CI Port 1 Configuration */
+<span class="lineNum">     846 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d1000, 0x023F0FCF07200002);</span>
+<span class="lineNum">     847 </span>                :            :         /* Init_227: CI Port 2 Configuration */
+<span class="lineNum">     848 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d2000, 0x023F00C307200002);</span>
+<span class="lineNum">     849 </span>                :            :         /* Init_228: CI Port 3 Configuration */
+<span class="lineNum">     850 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d3000, 0x023F00C307200002);</span>
+<span class="lineNum">     851 </span>                :            :         /* Init_229: CI Port 4 Configuration */
+<span class="lineNum">     852 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d4000, 0x023F00C307200002);</span>
+<span class="lineNum">     853 </span>                :            :         /* Init_230: CI Port 5 Configuration */
+<span class="lineNum">     854 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d5000, 0x023F00C307200002);</span>
+<span class="lineNum">     855 </span>                :            :         /* Init_231: CI Port 6 Configuration */
+<span class="lineNum">     856 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d6000, 0x023F00C307200002);</span>
+<span class="lineNum">     857 </span>                :            :         /* Init_232: CI Port 7 Configuration */
+<span class="lineNum">     858 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d7000, 0x023F00C307200002);</span>
+<span class="lineNum">     859 </span>                :            :         /* Init_233: CI Port 0 Configuration */
+<span class="lineNum">     860 </span>                :<span class="lineNoCov">          0 :         REGW(0x3d0000, 0x023F00C0073F0002);</span>
+<a name="861"><span class="lineNum">     861 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     862 </span>                :            : 
+<span class="lineNum">     863 </span>                :<span class="lineNoCov">          0 : static void p7ioc_init_PHBs(struct p7ioc *ioc)</span>
+<span class="lineNum">     864 </span>                :            : {
+<span class="lineNum">     865 </span>                :            :         unsigned int i;
+<span class="lineNum">     866 </span>                :            : 
+<span class="lineNum">     867 </span>                :<span class="lineNoCov">          0 :         printf(&quot;P7IOC: Init PHBs...\n&quot;);</span>
+<span class="lineNum">     868 </span>                :            : 
+<span class="lineNum">     869 </span>                :            :         /* We use the same reset sequence that we use for
+<span class="lineNum">     870 </span>                :            :          * fast reboot for consistency
+<span class="lineNum">     871 </span>                :            :          */
+<span class="lineNum">     872 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; P7IOC_NUM_PHBS; i++) {</span>
+<span class="lineNum">     873 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (p7ioc_phb_enabled(ioc, i))</span>
+<span class="lineNum">     874 </span>                :<span class="lineNoCov">          0 :                         p7ioc_phb_reset(&amp;ioc-&gt;phbs[i].phb);</span>
+<span class="lineNum">     875 </span>                :            :         }
+<a name="876"><span class="lineNum">     876 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     877 </span>                :            : 
+<span class="lineNum">     878 </span>                :<span class="lineNoCov">          0 : static void p7ioc_init_MISC(struct p7ioc *ioc)</span>
+<span class="lineNum">     879 </span>                :            : {
+<span class="lineNum">     880 </span>                :<span class="lineNoCov">          0 :         printf(&quot;P7IOC: Init MISC...\n&quot;);</span>
+<span class="lineNum">     881 </span>                :            : 
+<span class="lineNum">     882 </span>                :            :         /*** Set LEM regs ***/
+<span class="lineNum">     883 </span>                :            : 
+<span class="lineNum">     884 </span>                :            :         /* Init_1: LEM FIR Accumulator */
+<span class="lineNum">     885 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea000, 0x0000000000000000);</span>
+<span class="lineNum">     886 </span>                :            :         /* Init_2: LEM Action 0 */
+<span class="lineNum">     887 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea030, 0xFFFFFFFCEE3FFFFF);</span>
+<span class="lineNum">     888 </span>                :            :         /* Init_3: LEM Action 1 */
+<span class="lineNum">     889 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea038, 0x0000000001C00000);</span>
+<span class="lineNum">     890 </span>                :            :         /* Init_4: LEM WOF */
+<span class="lineNum">     891 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea040, 0x0000000000000000);</span>
+<span class="lineNum">     892 </span>                :            :         /* Init_5: LEM Mask (AND write) */
+<span class="lineNum">     893 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea020, 0x000F03F0CD3FFFFF);</span>
+<span class="lineNum">     894 </span>                :            :         /* Init_5.1: I2C LEM FIR Accumulator */
+<span class="lineNum">     895 </span>                :<span class="lineNoCov">          0 :         REGW(0x3eb000, 0x0000000000000000);</span>
+<span class="lineNum">     896 </span>                :            :         /* Init_5.2: I2C LEM Action 0 */
+<span class="lineNum">     897 </span>                :<span class="lineNoCov">          0 :         REGW(0x3eb030, 0xEE00000000000000);</span>
+<span class="lineNum">     898 </span>                :            :         /* Init_5.3: I2C LEM Action 1 */
+<span class="lineNum">     899 </span>                :<span class="lineNoCov">          0 :         REGW(0x3eb038, 0x0000000000000000);</span>
+<span class="lineNum">     900 </span>                :            :         /* Init_5.4: I2C LEM WOF */
+<span class="lineNum">     901 </span>                :<span class="lineNoCov">          0 :         REGW(0x3eb040, 0x0000000000000000);</span>
+<span class="lineNum">     902 </span>                :            :         /* Init_5.5: I2C LEM Mask (AND write) */
+<span class="lineNum">     903 </span>                :<span class="lineNoCov">          0 :         REGW(0x3eb020, 0x4600000000000000);</span>
+<span class="lineNum">     904 </span>                :            : 
+<span class="lineNum">     905 </span>                :            :         /*** Set RGC GP bits (error enables) ***/
+<span class="lineNum">     906 </span>                :            : 
+<span class="lineNum">     907 </span>                :            :         /* Init_7: RGC GP0 control (enable umux errors) */
+<span class="lineNum">     908 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e1018, 0x8888880000000000);</span>
+<span class="lineNum">     909 </span>                :            : 
+<span class="lineNum">     910 </span>                :            :         /*** Central Trace Setup ***
+<span class="lineNum">     911 </span>                :            :          *
+<span class="lineNum">     912 </span>                :            :          * By default trace 4 PHBs Rx/Tx, but this can be changed
+<span class="lineNum">     913 </span>                :            :          * for debugging purposes
+<span class="lineNum">     914 </span>                :            :          */
+<span class="lineNum">     915 </span>                :            : 
+<span class="lineNum">     916 </span>                :            :         /* Init_8: */
+<span class="lineNum">     917 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea810, 0x5000000000000000);</span>
+<span class="lineNum">     918 </span>                :            :         /* Init_9: */
+<span class="lineNum">     919 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea800, 0x0000000000000000);</span>
+<span class="lineNum">     920 </span>                :            :         /* Init_10: */
+<span class="lineNum">     921 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea808, 0xB0000000F0000000);</span>
+<span class="lineNum">     922 </span>                :            :         /* Init_11: */
+<span class="lineNum">     923 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea818, 0xF4F00FFF00000000);</span>
+<span class="lineNum">     924 </span>                :            :         /* Init_12: */
+<span class="lineNum">     925 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea820, 0x0000000000000000);</span>
+<span class="lineNum">     926 </span>                :            :         /* Init_13: */
+<span class="lineNum">     927 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea828, 0x0000000000000000);</span>
+<span class="lineNum">     928 </span>                :            :         /* Init_14: */
+<span class="lineNum">     929 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea830, 0x0000000000000000);</span>
+<span class="lineNum">     930 </span>                :            :         /* Init_15: */
+<span class="lineNum">     931 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea838, 0x0000000000000000);</span>
+<span class="lineNum">     932 </span>                :            :         /* Init_16: */
+<span class="lineNum">     933 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea840, 0x0000000000000000);</span>
+<span class="lineNum">     934 </span>                :            :         /* Init_17: */
+<span class="lineNum">     935 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea878, 0x0300000000000000);</span>
+<span class="lineNum">     936 </span>                :            : 
+<span class="lineNum">     937 </span>                :            :         /* Init_18: PHB0 mux select (Rx/Tx) */
+<span class="lineNum">     938 </span>                :<span class="lineNoCov">          0 :         REGW(0x000F80, 0x0000000000000000);</span>
+<span class="lineNum">     939 </span>                :            :         /* Init_19: PHB1 mux select (Rx/Tx) */
+<span class="lineNum">     940 </span>                :<span class="lineNoCov">          0 :         REGW(0x010F80, 0x0000000000000000);</span>
+<span class="lineNum">     941 </span>                :            :         /* Init_19.0: PHB2 mux select (Rx/Tx) */
+<span class="lineNum">     942 </span>                :<span class="lineNoCov">          0 :         REGW(0x020F80, 0x0000000000000000);</span>
+<span class="lineNum">     943 </span>                :            :         /* Init_19.1: PHB3 mux select (Rx/Tx) */
+<span class="lineNum">     944 </span>                :<span class="lineNoCov">          0 :         REGW(0x030F80, 0x0000000000000000);</span>
+<span class="lineNum">     945 </span>                :            :         /* Init_19.2: PHB4 mux select (Rx/Tx) */
+<span class="lineNum">     946 </span>                :<span class="lineNoCov">          0 :         REGW(0x040F80, 0x0000000000000000);</span>
+<span class="lineNum">     947 </span>                :            :         /* Init_19.3: PHB5 mux select (Rx/Tx) */
+<span class="lineNum">     948 </span>                :<span class="lineNoCov">          0 :         REGW(0x050F80, 0x0000000000000000);</span>
+<span class="lineNum">     949 </span>                :            : 
+<span class="lineNum">     950 </span>                :            :         /* Init_20: */
+<span class="lineNum">     951 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea880, 0x40008000FF7F0000);</span>
+<span class="lineNum">     952 </span>                :            :         /* Init_21: */
+<span class="lineNum">     953 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea888, 0x0000000000000000);</span>
+<span class="lineNum">     954 </span>                :            :         /* Init_22: */
+<span class="lineNum">     955 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea890, 0x0000000000000000);</span>
+<span class="lineNum">     956 </span>                :            :         /* Init_23: */
+<span class="lineNum">     957 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea898, 0x0000000000000000);</span>
+<span class="lineNum">     958 </span>                :            :         /* Init_24: */
+<span class="lineNum">     959 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea8a0, 0x8000000000000000);</span>
+<span class="lineNum">     960 </span>                :            :         /* Init_25: */
+<span class="lineNum">     961 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea8a8, 0x0000000000000000);</span>
+<span class="lineNum">     962 </span>                :            :         /* Init_26: */
+<span class="lineNum">     963 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea8b0, 0x8000000000000000);</span>
+<span class="lineNum">     964 </span>                :            :         /* Init_27: */
+<span class="lineNum">     965 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea8b8, 0x0000000000000000);</span>
+<span class="lineNum">     966 </span>                :            :         /* Init_28: */
+<span class="lineNum">     967 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea8c0, 0x0000000000000000);</span>
+<span class="lineNum">     968 </span>                :            :         /* Init_29: */
+<span class="lineNum">     969 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea900, 0x40008000FF7F0000);</span>
+<span class="lineNum">     970 </span>                :            :         /* Init_30: */
+<span class="lineNum">     971 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea908, 0x0000000000000000);</span>
+<span class="lineNum">     972 </span>                :            :         /* Init_31: */
+<span class="lineNum">     973 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea910, 0x0000000000000000);</span>
+<span class="lineNum">     974 </span>                :            :         /* Init_32: */
+<span class="lineNum">     975 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea918, 0x0000000000000000);</span>
+<span class="lineNum">     976 </span>                :            :         /* Init_33: */
+<span class="lineNum">     977 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea920, 0x8000000000000000);</span>
+<span class="lineNum">     978 </span>                :            :         /* Init_34: */
+<span class="lineNum">     979 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea928, 0x0000000000000000);</span>
+<span class="lineNum">     980 </span>                :            :         /* Init_35: */
+<span class="lineNum">     981 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea930, 0x8000000000000000);</span>
+<span class="lineNum">     982 </span>                :            :         /* Init_36: */
+<span class="lineNum">     983 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea938, 0x0000000000000000);</span>
+<span class="lineNum">     984 </span>                :            :         /* Init_37: */
+<span class="lineNum">     985 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea940, 0x0000000000000000);</span>
+<span class="lineNum">     986 </span>                :            :         /* Init_38: */
+<span class="lineNum">     987 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea980, 0x40008000FF7F0000);</span>
+<span class="lineNum">     988 </span>                :            :         /* Init_39: */
+<span class="lineNum">     989 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea988, 0x0000000000000000);</span>
+<span class="lineNum">     990 </span>                :            :         /* Init_40: */
+<span class="lineNum">     991 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea990, 0x0000000000000000);</span>
+<span class="lineNum">     992 </span>                :            :         /* Init_41: */
+<span class="lineNum">     993 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea998, 0x0000000000000000);</span>
+<span class="lineNum">     994 </span>                :            :         /* Init_42: */
+<span class="lineNum">     995 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea9a0, 0x8000000000000000);</span>
+<span class="lineNum">     996 </span>                :            :         /* Init_43: */
+<span class="lineNum">     997 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea9a8, 0x0000000000000000);</span>
+<span class="lineNum">     998 </span>                :            :         /* Init_44: */
+<span class="lineNum">     999 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea9b0, 0x8000000000000000);</span>
+<span class="lineNum">    1000 </span>                :            :         /* Init_45: */
+<span class="lineNum">    1001 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea9b8, 0x0000000000000000);</span>
+<span class="lineNum">    1002 </span>                :            :         /* Init_46: */
+<span class="lineNum">    1003 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea9c0, 0x0000000000000000);</span>
+<span class="lineNum">    1004 </span>                :            :         /* Init_47: */
+<span class="lineNum">    1005 </span>                :<span class="lineNoCov">          0 :         REGW(0x3eaa00, 0x40008000FF7F0000);</span>
+<span class="lineNum">    1006 </span>                :            :         /* Init_48: */
+<span class="lineNum">    1007 </span>                :<span class="lineNoCov">          0 :         REGW(0x3eaa08, 0x0000000000000000);</span>
+<span class="lineNum">    1008 </span>                :            :         /* Init_49: */
+<span class="lineNum">    1009 </span>                :<span class="lineNoCov">          0 :         REGW(0x3eaa10, 0x0000000000000000);</span>
+<span class="lineNum">    1010 </span>                :            :         /* Init_50: */
+<span class="lineNum">    1011 </span>                :<span class="lineNoCov">          0 :         REGW(0x3eaa18, 0x0000000000000000);</span>
+<span class="lineNum">    1012 </span>                :            :         /* Init_51: */
+<span class="lineNum">    1013 </span>                :<span class="lineNoCov">          0 :         REGW(0x3eaa20, 0x8000000000000000);</span>
+<span class="lineNum">    1014 </span>                :            :         /* Init_52: */
+<span class="lineNum">    1015 </span>                :<span class="lineNoCov">          0 :         REGW(0x3eaa28, 0x0000000000000000);</span>
+<span class="lineNum">    1016 </span>                :            :         /* Init_53: */
+<span class="lineNum">    1017 </span>                :<span class="lineNoCov">          0 :         REGW(0x3eaa30, 0x8000000000000000);</span>
+<span class="lineNum">    1018 </span>                :            :         /* Init_54: */
+<span class="lineNum">    1019 </span>                :<span class="lineNoCov">          0 :         REGW(0x3eaa38, 0x0000000000000000);</span>
+<span class="lineNum">    1020 </span>                :            :         /* Init_55: */
+<span class="lineNum">    1021 </span>                :<span class="lineNoCov">          0 :         REGW(0x3eaa40, 0x0000000000000000);</span>
+<span class="lineNum">    1022 </span>                :            :         /* Init_56: */
+<span class="lineNum">    1023 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea810, 0x1000000000000000);</span>
+<span class="lineNum">    1024 </span>                :            :         /* Init_57: */
+<span class="lineNum">    1025 </span>                :<span class="lineNoCov">          0 :         REGW(0x3ea810, 0x8000000000000000);</span>
+<span class="lineNum">    1026 </span>                :            : 
+<span class="lineNum">    1027 </span>                :            :         /*** I2C Master init fixup */
+<span class="lineNum">    1028 </span>                :            : 
+<span class="lineNum">    1029 </span>                :            :         /* Init_58: I2C Master Operation Control */
+<span class="lineNum">    1030 </span>                :<span class="lineNoCov">          0 :         REGW(0x3eb0a8, 0x8100000000000000);</span>
+<a name="1031"><span class="lineNum">    1031 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1032 </span>                :            : 
+<span class="lineNum">    1033 </span>                :<span class="lineNoCov">          0 : static void p7ioc_init_GEM(struct p7ioc *ioc)</span>
+<span class="lineNum">    1034 </span>                :            : {
+<span class="lineNum">    1035 </span>                :<span class="lineNoCov">          0 :         printf(&quot;P7IOC: Init GEM...\n&quot;);</span>
+<span class="lineNum">    1036 </span>                :            : 
+<span class="lineNum">    1037 </span>                :            :         /*** Check for errors */
+<span class="lineNum">    1038 </span>                :            : 
+<span class="lineNum">    1039 </span>                :            :         /* XXX TODO */
+<span class="lineNum">    1040 </span>                :            : #if 0
+<span class="lineNum">    1041 </span>                :            :         /* Init_1: */
+<span class="lineNum">    1042 </span>                :            :         REGR(0x3e0008, 0);
+<span class="lineNum">    1043 </span>                :            :         /* Init_2: */
+<span class="lineNum">    1044 </span>                :            :         REGR(0x3e0010, 0);
+<span class="lineNum">    1045 </span>                :            :         /* Init_3: */
+<span class="lineNum">    1046 </span>                :            :         REGR(0x3e0018, 0);
+<span class="lineNum">    1047 </span>                :            : #endif
+<span class="lineNum">    1048 </span>                :            : 
+<span class="lineNum">    1049 </span>                :            :         /*** Get ready for new errors, allow interrupts ***
+<span class="lineNum">    1050 </span>                :            :          *
+<span class="lineNum">    1051 </span>                :            :          * XXX: Need to leave all unused port masked to prevent
+<span class="lineNum">    1052 </span>                :            :          * invalid errors
+<span class="lineNum">    1053 </span>                :            :          */
+<span class="lineNum">    1054 </span>                :            : 
+<span class="lineNum">    1055 </span>                :            :         /* Init_4: GEM XFIR */
+<span class="lineNum">    1056 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e0008, 0x0000000000000000);</span>
+<span class="lineNum">    1057 </span>                :            :         /* Init_5: GEM Mask (See FIXME) */
+<span class="lineNum">    1058 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e0020, 0x000F033FFFFFFFFF);</span>
+<span class="lineNum">    1059 </span>                :            :         /* Init_6: GEM WOF */
+<span class="lineNum">    1060 </span>                :<span class="lineNoCov">          0 :         REGW(0x3e0028, 0x0000000000000000);</span>
+<a name="1061"><span class="lineNum">    1061 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">    1062 </span>                :            : 
+<span class="lineNum">    1063 </span>                :<span class="lineNoCov">          0 : int64_t p7ioc_inits(struct p7ioc *ioc)</span>
+<span class="lineNum">    1064 </span>                :            : {
+<span class="lineNum">    1065 </span>                :<span class="lineNoCov">          0 :         p7ioc_init_BI(ioc);</span>
+<span class="lineNum">    1066 </span>                :<span class="lineNoCov">          0 :         p7ioc_init_MISC_HSS(ioc);</span>
+<span class="lineNum">    1067 </span>                :<span class="lineNoCov">          0 :         p7ioc_init_RGC(ioc);</span>
+<span class="lineNum">    1068 </span>                :<span class="lineNoCov">          0 :         p7ioc_init_CI(ioc);</span>
+<span class="lineNum">    1069 </span>                :<span class="lineNoCov">          0 :         p7ioc_init_PHBs(ioc);</span>
+<span class="lineNum">    1070 </span>                :<span class="lineNoCov">          0 :         p7ioc_init_MISC(ioc);</span>
+<span class="lineNum">    1071 </span>                :<span class="lineNoCov">          0 :         p7ioc_init_GEM(ioc);</span>
+<span class="lineNum">    1072 </span>                :            : 
+<span class="lineNum">    1073 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<span class="lineNum">    1074 </span>                :            : 
+<a name="1075"><span class="lineNum">    1075 </span>                :            : }</a>
+<span class="lineNum">    1076 </span>                :            : 
+<span class="lineNum">    1077 </span>                :<span class="lineNoCov">          0 : void p7ioc_reset(struct io_hub *hub)</span>
+<span class="lineNum">    1078 </span>                :            : {
+<span class="lineNum">    1079 </span>                :<span class="lineNoCov">          0 :         struct p7ioc *ioc = iohub_to_p7ioc(hub);</span>
+<span class="lineNum">    1080 </span>                :            :         unsigned int i;
+<span class="lineNum">    1081 </span>                :            : 
+<span class="lineNum">    1082 </span>                :            :         /* We could do a full cold reset of P7IOC but for now, let's
+<span class="lineNum">    1083 </span>                :            :          * not bother and just try to clean up the interrupts as best
+<span class="lineNum">    1084 </span>                :            :          * as possible
+<span class="lineNum">    1085 </span>                :            :          */
+<span class="lineNum">    1086 </span>                :            : 
+<span class="lineNum">    1087 </span>                :            :         /* XXX TODO: RGC interrupts */
+<span class="lineNum">    1088 </span>                :            : 
+<span class="lineNum">    1089 </span>                :<span class="lineNoCov">          0 :         printf(&quot;P7IOC: Clearing IODA...\n&quot;);</span>
+<span class="lineNum">    1090 </span>                :            : 
+<span class="lineNum">    1091 </span>                :            :         /* First clear all IODA tables and wait a bit */
+<span class="lineNum">    1092 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; 6; i++) {</span>
+<span class="lineNum">    1093 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (p7ioc_phb_enabled(ioc, i))</span>
+<span class="lineNum">    1094 </span>                :<span class="lineNoCov">          0 :                         p7ioc_phb_reset(&amp;ioc-&gt;phbs[i].phb);</span>
+<span class="lineNum">    1095 </span>                :            :         }
+<span class="lineNum">    1096 </span>                :<span class="lineNoCov">          0 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

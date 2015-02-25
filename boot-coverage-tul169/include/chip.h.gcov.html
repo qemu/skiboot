@@ -1,0 +1,260 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - include/chip.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">include</a> - chip.h<span style="font-size: 80%;"> (source / <a href="chip.h.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #ifndef __CHIP_H
+<span class="lineNum">      18 </span>                :            : #define __CHIP_H
+<span class="lineNum">      19 </span>                :            : 
+<span class="lineNum">      20 </span>                :            : #include &lt;stdint.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : #include &lt;ccan/list/list.h&gt;
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :            : /*
+<span class="lineNum">      26 </span>                :            :  * Note on chip IDs:
+<span class="lineNum">      27 </span>                :            :  *
+<span class="lineNum">      28 </span>                :            :  * We carry a &quot;chip_id&quot; around, in the cpu_thread, but also as
+<span class="lineNum">      29 </span>                :            :  * ibm,chip-id properties.
+<span class="lineNum">      30 </span>                :            :  *
+<span class="lineNum">      31 </span>                :            :  * This ID is the HW fabric ID of a chip based on the XSCOM numbering,
+<span class="lineNum">      32 </span>                :            :  * also known as &quot;GCID&quot; (Global Chip ID).
+<span class="lineNum">      33 </span>                :            :  *
+<span class="lineNum">      34 </span>                :            :  * The format of this number is different between P7 and P8 and care must
+<span class="lineNum">      35 </span>                :            :  * be taken when trying to convert between this chip ID and some other
+<span class="lineNum">      36 </span>                :            :  * representation such as PIR values, interrupt-server numbers etc... :
+<span class="lineNum">      37 </span>                :            :  *
+<span class="lineNum">      38 </span>                :            :  * P7 GCID
+<span class="lineNum">      39 </span>                :            :  * -------
+<span class="lineNum">      40 </span>                :            :  *
+<span class="lineNum">      41 </span>                :            :  * Global chip ID is a 6 bit number:
+<span class="lineNum">      42 </span>                :            :  *
+<span class="lineNum">      43 </span>                :            :  *     NodeID    T   ChipID
+<span class="lineNum">      44 </span>                :            :  * |           |   |       |
+<span class="lineNum">      45 </span>                :            :  * |___|___|___|___|___|___|
+<span class="lineNum">      46 </span>                :            :  *
+<span class="lineNum">      47 </span>                :            :  * Where T is the &quot;torrent&quot; bit and is 0 for P7 chips and 1 for
+<span class="lineNum">      48 </span>                :            :  * directly XSCOM'able IO chips such as Torrent
+<span class="lineNum">      49 </span>                :            :  *
+<span class="lineNum">      50 </span>                :            :  * This macro converts a PIR to a GCID
+<span class="lineNum">      51 </span>                :            :  */
+<span class="lineNum">      52 </span>                :            : #define P7_PIR2GCID(pir) ({                             \
+<span class="lineNum">      53 </span>                :            :         uint32_t _pir = pir;                            \
+<span class="lineNum">      54 </span>                :            :         ((_pir &gt;&gt; 4) &amp; 0x38) | ((_pir &gt;&gt; 5) &amp; 0x3); })
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :            : #define P7_PIR2COREID(pir) (((pir) &gt;&gt; 2) &amp; 0x7)
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :            : #define P7_PIR2THREADID(pir) ((pir) &amp; 0x3)
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :            : /*
+<span class="lineNum">      61 </span>                :            :  * P8 GCID
+<span class="lineNum">      62 </span>                :            :  * -------
+<span class="lineNum">      63 </span>                :            :  *
+<span class="lineNum">      64 </span>                :            :  * Global chip ID is a 6 bit number:
+<span class="lineNum">      65 </span>                :            :  *
+<span class="lineNum">      66 </span>                :            :  *     NodeID      ChipID
+<span class="lineNum">      67 </span>                :            :  * |           |           |
+<span class="lineNum">      68 </span>                :            :  * |___|___|___|___|___|___|
+<span class="lineNum">      69 </span>                :            :  *
+<span class="lineNum">      70 </span>                :            :  * The difference with P7 is the absence of T bit, the ChipID
+<span class="lineNum">      71 </span>                :            :  * is 3 bits long. The GCID is thus the same as the high bits
+<span class="lineNum">      72 </span>                :            :  * if the PIR
+<span class="lineNum">      73 </span>                :            :  */
+<span class="lineNum">      74 </span>                :            : #define P8_PIR2GCID(pir) (((pir) &gt;&gt; 7) &amp; 0x3f)
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :            : #define P8_PIR2COREID(pir) (((pir) &gt;&gt; 3) &amp; 0xf)
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :            : #define P8_PIR2THREADID(pir) ((pir) &amp; 0x7)
+<span class="lineNum">      79 </span>                :            : 
+<span class="lineNum">      80 </span>                :            : struct dt_node;
+<span class="lineNum">      81 </span>                :            : struct centaur_chip;
+<span class="lineNum">      82 </span>                :            : 
+<span class="lineNum">      83 </span>                :            : /* Chip type */
+<span class="lineNum">      84 </span>                :            : enum proc_chip_type {
+<span class="lineNum">      85 </span>                :            :         PROC_CHIP_UNKNOWN,
+<span class="lineNum">      86 </span>                :            :         PROC_CHIP_P7,
+<span class="lineNum">      87 </span>                :            :         PROC_CHIP_P7P,
+<span class="lineNum">      88 </span>                :            :         PROC_CHIP_P8_MURANO,
+<span class="lineNum">      89 </span>                :            :         PROC_CHIP_P8_VENICE,
+<span class="lineNum">      90 </span>                :            : };
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :            : /* Simulator quirks */
+<span class="lineNum">      93 </span>                :            : enum proc_chip_quirks {
+<span class="lineNum">      94 </span>                :            :         QUIRK_NO_CHIPTOD        = 0x00000001,
+<span class="lineNum">      95 </span>                :            :         QUIRK_MAMBO_CALLOUTS    = 0x00000002,
+<span class="lineNum">      96 </span>                :            :         QUIRK_NO_F000F          = 0x00000004,
+<span class="lineNum">      97 </span>                :            :         QUIRK_NO_PBA            = 0x00000008,
+<span class="lineNum">      98 </span>                :            :         QUIRK_NO_OCC_IRQ        = 0x00000010,
+<span class="lineNum">      99 </span>                :            :         QUIRK_DISABLE_NAP       = 0x00000020,
+<span class="lineNum">     100 </span>                :            : } proc_chip_quirks;
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :            : static inline bool chip_quirk(unsigned int q)
+<span class="lineNum">     103 </span>                :            : {
+<span class="lineNum">     104 </span>                :<span class="lineCov">         13 :         return !!(proc_chip_quirks &amp; q);</span>
+<span class="lineNum">     105 </span>                :            : }
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :            : #define MAX_CHIPS       (1 &lt;&lt; 6)  /* 6-bit chip ID */
+<span class="lineNum">     108 </span>                :            : 
+<span class="lineNum">     109 </span>                :            : /*
+<span class="lineNum">     110 </span>                :            :  * For each chip in the system, we maintain this structure
+<span class="lineNum">     111 </span>                :            :  *
+<span class="lineNum">     112 </span>                :            :  * This contains fields used by different modules including
+<span class="lineNum">     113 </span>                :            :  * modules in hw/ but is handy to keep per-chip data
+<span class="lineNum">     114 </span>                :            :  */
+<span class="lineNum">     115 </span>                :            : struct proc_chip {
+<span class="lineNum">     116 </span>                :            :         uint32_t                id;             /* HW Chip ID (GCID) */
+<span class="lineNum">     117 </span>                :            :         struct dt_node          *devnode;       /* &quot;xscom&quot; chip node */
+<span class="lineNum">     118 </span>                :            : 
+<span class="lineNum">     119 </span>                :            :         /* These are only initialized after xcom_init */
+<span class="lineNum">     120 </span>                :            :         enum proc_chip_type     type;
+<span class="lineNum">     121 </span>                :            :         uint32_t                ec_level;       /* 0xMm (DD1.0 = 0x10) */
+<span class="lineNum">     122 </span>                :            : 
+<span class="lineNum">     123 </span>                :            :         /* Those two values are only populated on machines with an FSP
+<span class="lineNum">     124 </span>                :            :          * dbob_id = Drawer/Block/Octant/Blade (DBOBID)
+<span class="lineNum">     125 </span>                :            :          * pcid    = HDAT processor_chip_id
+<span class="lineNum">     126 </span>                :            :          */
+<span class="lineNum">     127 </span>                :            :         uint32_t                dbob_id;
+<span class="lineNum">     128 </span>                :            :         uint32_t                pcid;
+<span class="lineNum">     129 </span>                :            : 
+<span class="lineNum">     130 </span>                :            :         /* Used by hw/xscom.c */
+<span class="lineNum">     131 </span>                :            :         uint64_t                xscom_base;
+<span class="lineNum">     132 </span>                :            : 
+<span class="lineNum">     133 </span>                :            :         /* Used by hw/lpc.c */
+<span class="lineNum">     134 </span>                :            :         uint32_t                lpc_xbase;
+<span class="lineNum">     135 </span>                :            :         struct lock             lpc_lock;
+<span class="lineNum">     136 </span>                :            :         uint8_t                 lpc_fw_idsel;
+<span class="lineNum">     137 </span>                :            :         uint8_t                 lpc_fw_rdsz;
+<span class="lineNum">     138 </span>                :            : 
+<span class="lineNum">     139 </span>                :            :         /* Used by hw/slw.c */
+<span class="lineNum">     140 </span>                :            :         uint64_t                slw_base;
+<span class="lineNum">     141 </span>                :            :         uint64_t                slw_bar_size;
+<span class="lineNum">     142 </span>                :            :         uint64_t                slw_image_size;
+<span class="lineNum">     143 </span>                :            : 
+<span class="lineNum">     144 </span>                :            :         /* Used by hw/homer.c */
+<span class="lineNum">     145 </span>                :            :         uint64_t                homer_base;
+<span class="lineNum">     146 </span>                :            :         uint64_t                homer_size;
+<span class="lineNum">     147 </span>                :            :         uint64_t                occ_common_base;
+<span class="lineNum">     148 </span>                :            :         uint64_t                occ_common_size;
+<span class="lineNum">     149 </span>                :            : 
+<span class="lineNum">     150 </span>                :            :         /* Must hold capi_lock to change */
+<span class="lineNum">     151 </span>                :            :         u8                      capp_phb3_attached_mask;
+<span class="lineNum">     152 </span>                :            :         bool                    capp_ucode_loaded;
+<span class="lineNum">     153 </span>                :            : 
+<span class="lineNum">     154 </span>                :            :         /* Used by hw/centaur.c */
+<span class="lineNum">     155 </span>                :            :         struct centaur_chip     *centaurs;
+<span class="lineNum">     156 </span>                :            : 
+<span class="lineNum">     157 </span>                :            :         /* Used by hw/p8-i2c.c */
+<span class="lineNum">     158 </span>                :            :         struct list_head        i2cms;
+<span class="lineNum">     159 </span>                :            : };
+<span class="lineNum">     160 </span>                :            : 
+<span class="lineNum">     161 </span>                :            : extern uint32_t pir_to_chip_id(uint32_t pir);
+<span class="lineNum">     162 </span>                :            : extern uint32_t pir_to_core_id(uint32_t pir);
+<span class="lineNum">     163 </span>                :            : extern uint32_t pir_to_thread_id(uint32_t pir);
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :            : extern struct proc_chip *next_chip(struct proc_chip *chip);
+<span class="lineNum">     166 </span>                :            : 
+<span class="lineNum">     167 </span>                :            : #define for_each_chip(__c) for (__c=next_chip(NULL); __c; __c=next_chip(__c))
+<span class="lineNum">     168 </span>                :            : 
+<span class="lineNum">     169 </span>                :            : extern struct proc_chip *get_chip(uint32_t chip_id);
+<span class="lineNum">     170 </span>                :            : 
+<span class="lineNum">     171 </span>                :            : extern void init_chips(void);
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>                :            : 
+<span class="lineNum">     174 </span>                :            : #endif /* __CHIP_H */
+<span class="lineNum">     175 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

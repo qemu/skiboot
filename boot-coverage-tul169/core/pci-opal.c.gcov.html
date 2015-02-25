@@ -1,0 +1,798 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - core/pci-opal.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">core</a> - pci-opal.c<span style="font-size: 80%;"> (source / <a href="pci-opal.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">138</td>
+            <td class="headerCovTableEntry">282</td>
+            <td class="headerCovTableEntryLo">48.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">20</td>
+            <td class="headerCovTableEntry">36</td>
+            <td class="headerCovTableEntryLo">55.6 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">39</td>
+            <td class="headerCovTableEntry">165</td>
+            <td class="headerCovTableEntryLo">23.6 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;opal-api.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;pci.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;pci-cfg.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;timebase.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      23 </span>                :            : 
+<span class="lineNum">      24 </span>                :            : #define OPAL_PCICFG_ACCESS(op, cb, type)        \
+<span class="lineNum">      25 </span>                :            : static int64_t opal_pci_config_##op(uint64_t phb_id,                    \
+<span class="lineNum">      26 </span>                :            :                                     uint64_t bus_dev_func,              \
+<span class="lineNum">      27 </span>                :            :                                     uint64_t offset, type data)         \
+<span class="lineNum">      28 </span>                :            : {                                                                       \
+<span class="lineNum">      29 </span>                :            :         struct phb *phb = pci_get_phb(phb_id);                          \
+<span class="lineNum">      30 </span>                :            :         int64_t rc;                                                     \
+<span class="lineNum">      31 </span>                :            :                                                                         \
+<span class="lineNum">      32 </span>                :            :         if (!phb)                                                       \
+<span class="lineNum">      33 </span>                :            :                 return OPAL_PARAMETER;                                  \
+<span class="lineNum">      34 </span>                :            :         phb-&gt;ops-&gt;lock(phb);                                              \
+<span class="lineNum">      35 </span>                :            :         rc = phb-&gt;ops-&gt;cfg_##cb(phb, bus_dev_func, offset, data); \
+<span class="lineNum">      36 </span>                :            :         phb-&gt;ops-&gt;unlock(phb);                                            \
+<span class="lineNum">      37 </span>                :            :         pci_put_phb(phb);                                               \
+<span class="lineNum">      38 </span>                :            :                                                                         \
+<span class="lineNum">      39 </span>                :            :         return rc;                                                      \
+<a name="40"><span class="lineNum">      40 </span>                :            : }</a>
+<a name="41"><span class="lineNum">      41 </span>                :            : </a>
+<a name="42"><span class="lineNum">      42 </span>        [<span class="branchCov" title="Branch 1 was taken 2377 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       4754 : OPAL_PCICFG_ACCESS(read_byte,           read8, uint8_t *)</span></a>
+<a name="43"><span class="lineNum">      43 </span>        [<span class="branchCov" title="Branch 1 was taken 1604 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       3208 : OPAL_PCICFG_ACCESS(read_half_word,      read16, uint16_t *)</span></a>
+<a name="44"><span class="lineNum">      44 </span>        [<span class="branchCov" title="Branch 1 was taken 2642 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       5284 : OPAL_PCICFG_ACCESS(read_word,           read32, uint32_t *)</span></a>
+<a name="45"><span class="lineNum">      45 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 : OPAL_PCICFG_ACCESS(write_byte,          write8, uint8_t)</span></a>
+<span class="lineNum">      46 </span>        [<span class="branchCov" title="Branch 1 was taken 837 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       1674 : OPAL_PCICFG_ACCESS(write_half_word,     write16, uint16_t)</span>
+<span class="lineNum">      47 </span>        [<span class="branchCov" title="Branch 1 was taken 586 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">       1172 : OPAL_PCICFG_ACCESS(write_word,          write32, uint32_t)</span>
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :            : opal_call(OPAL_PCI_CONFIG_READ_BYTE, opal_pci_config_read_byte, 4);
+<span class="lineNum">      50 </span>                :            : opal_call(OPAL_PCI_CONFIG_READ_HALF_WORD, opal_pci_config_read_half_word, 4);
+<span class="lineNum">      51 </span>                :            : opal_call(OPAL_PCI_CONFIG_READ_WORD, opal_pci_config_read_word, 4);
+<span class="lineNum">      52 </span>                :            : opal_call(OPAL_PCI_CONFIG_WRITE_BYTE, opal_pci_config_write_byte, 4);
+<span class="lineNum">      53 </span>                :            : opal_call(OPAL_PCI_CONFIG_WRITE_HALF_WORD, opal_pci_config_write_half_word, 4);
+<a name="54"><span class="lineNum">      54 </span>                :            : opal_call(OPAL_PCI_CONFIG_WRITE_WORD, opal_pci_config_write_word, 4);</a>
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :<span class="lineCov">       4770 : static int64_t opal_pci_eeh_freeze_status(uint64_t phb_id, uint64_t pe_number,</span>
+<span class="lineNum">      57 </span>                :            :                                           uint8_t *freeze_state,
+<span class="lineNum">      58 </span>                :            :                                           uint16_t *pci_error_type,
+<span class="lineNum">      59 </span>                :            :                                           uint64_t *phb_status)
+<span class="lineNum">      60 </span>                :            : {
+<span class="lineNum">      61 </span>                :<span class="lineCov">       4770 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">      62 </span>                :            :         int64_t rc;
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>        [<span class="branchCov" title="Branch 0 was taken 4770 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       4770 :         if (!phb)</span>
+<span class="lineNum">      65 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">      66 </span>        [<span class="branchCov" title="Branch 0 was taken 4770 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       4770 :         if (!phb-&gt;ops-&gt;eeh_freeze_status)</span>
+<span class="lineNum">      67 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">      68 </span>                :<span class="lineCov">       4770 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">      69 </span>                :<span class="lineCov">       4770 :         rc = phb-&gt;ops-&gt;eeh_freeze_status(phb, pe_number, freeze_state,</span>
+<span class="lineNum">      70 </span>                :            :                                          pci_error_type, NULL, phb_status);
+<span class="lineNum">      71 </span>                :<span class="lineCov">       4770 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">       4770 :         pci_put_phb(phb);</span>
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :<span class="lineCov">       4770 :         return rc;</span>
+<span class="lineNum">      75 </span>                :            : }
+<a name="76"><span class="lineNum">      76 </span>                :            : opal_call(OPAL_PCI_EEH_FREEZE_STATUS, opal_pci_eeh_freeze_status, 5);</a>
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :<span class="lineCov">         18 : static int64_t opal_pci_eeh_freeze_clear(uint64_t phb_id, uint64_t pe_number,</span>
+<span class="lineNum">      79 </span>                :            :                                          uint64_t eeh_action_token)
+<span class="lineNum">      80 </span>                :            : {
+<span class="lineNum">      81 </span>                :<span class="lineCov">         18 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">      82 </span>                :            :         int64_t rc;
+<span class="lineNum">      83 </span>                :            : 
+<span class="lineNum">      84 </span>        [<span class="branchCov" title="Branch 0 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         18 :         if (!phb)</span>
+<span class="lineNum">      85 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">      86 </span>        [<span class="branchCov" title="Branch 0 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         18 :         if (!phb-&gt;ops-&gt;eeh_freeze_clear)</span>
+<span class="lineNum">      87 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">      88 </span>                :<span class="lineCov">         18 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">      89 </span>                :<span class="lineCov">         18 :         rc = phb-&gt;ops-&gt;eeh_freeze_clear(phb, pe_number, eeh_action_token);</span>
+<span class="lineNum">      90 </span>                :<span class="lineCov">         18 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">      91 </span>                :<span class="lineCov">         18 :         pci_put_phb(phb);</span>
+<span class="lineNum">      92 </span>                :            : 
+<span class="lineNum">      93 </span>                :<span class="lineCov">         18 :         return rc;</span>
+<span class="lineNum">      94 </span>                :            : }
+<a name="95"><span class="lineNum">      95 </span>                :            : opal_call(OPAL_PCI_EEH_FREEZE_CLEAR, opal_pci_eeh_freeze_clear, 3);</a>
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>                :<span class="lineNoCov">          0 : static int64_t opal_pci_eeh_freeze_set(uint64_t phb_id, uint64_t pe_number,</span>
+<span class="lineNum">      98 </span>                :            :                                        uint64_t eeh_action_token)
+<span class="lineNum">      99 </span>                :            : {
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     101 </span>                :            :         int64_t rc;
+<span class="lineNum">     102 </span>                :            : 
+<span class="lineNum">     103 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb)</span>
+<span class="lineNum">     104 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     105 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb-&gt;ops-&gt;eeh_freeze_set)</span>
+<span class="lineNum">     106 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 :         rc = phb-&gt;ops-&gt;eeh_freeze_set(phb, pe_number, eeh_action_token);</span>
+<span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :         pci_put_phb(phb);</span>
+<span class="lineNum">     111 </span>                :            : 
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     113 </span>                :            : }
+<a name="114"><span class="lineNum">     114 </span>                :            : opal_call(OPAL_PCI_EEH_FREEZE_SET, opal_pci_eeh_freeze_set, 3);</a>
+<span class="lineNum">     115 </span>                :            : 
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 : static int64_t opal_pci_err_inject(uint64_t phb_id, uint32_t pe_no,</span>
+<span class="lineNum">     117 </span>                :            :                                    uint32_t type, uint32_t func,
+<span class="lineNum">     118 </span>                :            :                                    uint64_t addr, uint64_t mask)
+<span class="lineNum">     119 </span>                :            : {
+<span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     121 </span>                :            :         int64_t rc;
+<span class="lineNum">     122 </span>                :            : 
+<span class="lineNum">     123 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb)</span>
+<span class="lineNum">     124 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     125 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb-&gt;ops || !phb-&gt;ops-&gt;err_inject)</span>
+<span class="lineNum">     126 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (type != OPAL_ERR_INJECT_TYPE_IOA_BUS_ERR &amp;&amp;</span>
+<span class="lineNum">     129 </span>                :            :             type != OPAL_ERR_INJECT_TYPE_IOA_BUS_ERR64)
+<span class="lineNum">     130 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 :         rc = phb-&gt;ops-&gt;err_inject(phb, pe_no, type, func, addr, mask);</span>
+<span class="lineNum">     134 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     135 </span>                :<span class="lineNoCov">          0 :         pci_put_phb(phb);</span>
+<span class="lineNum">     136 </span>                :            : 
+<span class="lineNum">     137 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     138 </span>                :            : }
+<a name="139"><span class="lineNum">     139 </span>                :            : opal_call(OPAL_PCI_ERR_INJECT, opal_pci_err_inject, 6);</a>
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>                :<span class="lineCov">          4 : static int64_t opal_pci_phb_mmio_enable(uint64_t phb_id, uint16_t window_type,</span>
+<span class="lineNum">     142 </span>                :            :                                         uint16_t window_num, uint16_t enable)
+<span class="lineNum">     143 </span>                :            : {
+<span class="lineNum">     144 </span>                :<span class="lineCov">          4 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     145 </span>                :            :         int64_t rc;
+<span class="lineNum">     146 </span>                :            : 
+<span class="lineNum">     147 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :         if (!phb)</span>
+<span class="lineNum">     148 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     149 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :         if (!phb-&gt;ops-&gt;phb_mmio_enable)</span>
+<span class="lineNum">     150 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     151 </span>                :<span class="lineCov">          4 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     152 </span>                :<span class="lineCov">          4 :         rc = phb-&gt;ops-&gt;phb_mmio_enable(phb, window_type, window_num, enable);</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">          4 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     154 </span>                :<span class="lineCov">          4 :         pci_put_phb(phb);</span>
+<span class="lineNum">     155 </span>                :            : 
+<span class="lineNum">     156 </span>                :<span class="lineCov">          4 :         return rc;</span>
+<span class="lineNum">     157 </span>                :            : }
+<a name="158"><span class="lineNum">     158 </span>                :            : opal_call(OPAL_PCI_PHB_MMIO_ENABLE, opal_pci_phb_mmio_enable, 4);</a>
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>                :<span class="lineCov">          4 : static int64_t opal_pci_set_phb_mem_window(uint64_t phb_id,</span>
+<span class="lineNum">     161 </span>                :            :                                            uint16_t window_type,
+<span class="lineNum">     162 </span>                :            :                                            uint16_t window_num,
+<span class="lineNum">     163 </span>                :            :                                            uint64_t addr,
+<span class="lineNum">     164 </span>                :            :                                            uint64_t pci_addr,
+<span class="lineNum">     165 </span>                :            :                                            uint64_t size)
+<span class="lineNum">     166 </span>                :            : {
+<span class="lineNum">     167 </span>                :<span class="lineCov">          4 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     168 </span>                :            :         int64_t rc;
+<span class="lineNum">     169 </span>                :            : 
+<span class="lineNum">     170 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :         if (!phb)</span>
+<span class="lineNum">     171 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     172 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :         if (!phb-&gt;ops-&gt;set_phb_mem_window)</span>
+<span class="lineNum">     173 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     174 </span>                :<span class="lineCov">          4 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     175 </span>                :<span class="lineCov">          4 :         rc = phb-&gt;ops-&gt;set_phb_mem_window(phb, window_type, window_num,</span>
+<span class="lineNum">     176 </span>                :            :                                           addr, pci_addr, size);
+<span class="lineNum">     177 </span>                :<span class="lineCov">          4 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     178 </span>                :<span class="lineCov">          4 :         pci_put_phb(phb);</span>
+<span class="lineNum">     179 </span>                :            : 
+<span class="lineNum">     180 </span>                :<span class="lineCov">          4 :         return rc;</span>
+<span class="lineNum">     181 </span>                :            : }
+<a name="182"><span class="lineNum">     182 </span>                :            : opal_call(OPAL_PCI_SET_PHB_MEM_WINDOW, opal_pci_set_phb_mem_window, 6);</a>
+<span class="lineNum">     183 </span>                :            : 
+<span class="lineNum">     184 </span>                :<span class="lineCov">       1052 : static int64_t opal_pci_map_pe_mmio_window(uint64_t phb_id, uint16_t pe_number,</span>
+<span class="lineNum">     185 </span>                :            :                                            uint16_t window_type,
+<span class="lineNum">     186 </span>                :            :                                            uint16_t window_num,
+<span class="lineNum">     187 </span>                :            :                                            uint16_t segment_num)
+<span class="lineNum">     188 </span>                :            : {
+<span class="lineNum">     189 </span>                :<span class="lineCov">       1052 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     190 </span>                :            :         int64_t rc;
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>        [<span class="branchCov" title="Branch 0 was taken 1052 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       1052 :         if (!phb)</span>
+<span class="lineNum">     193 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     194 </span>        [<span class="branchCov" title="Branch 0 was taken 1052 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       1052 :         if (!phb-&gt;ops-&gt;map_pe_mmio_window)</span>
+<span class="lineNum">     195 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     196 </span>                :<span class="lineCov">       1052 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     197 </span>                :<span class="lineCov">       1052 :         rc = phb-&gt;ops-&gt;map_pe_mmio_window(phb, pe_number, window_type,</span>
+<span class="lineNum">     198 </span>                :            :                                           window_num, segment_num);
+<span class="lineNum">     199 </span>                :<span class="lineCov">       1052 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     200 </span>                :<span class="lineCov">       1052 :         pci_put_phb(phb);</span>
+<span class="lineNum">     201 </span>                :            : 
+<span class="lineNum">     202 </span>                :<span class="lineCov">       1052 :         return rc;</span>
+<span class="lineNum">     203 </span>                :            : }
+<a name="204"><span class="lineNum">     204 </span>                :            : opal_call(OPAL_PCI_MAP_PE_MMIO_WINDOW, opal_pci_map_pe_mmio_window, 5);</a>
+<span class="lineNum">     205 </span>                :            : 
+<span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 : static int64_t opal_pci_set_phb_table_memory(uint64_t phb_id __unused,</span>
+<span class="lineNum">     207 </span>                :            :                                              uint64_t rtt_addr __unused,
+<span class="lineNum">     208 </span>                :            :                                              uint64_t ivt_addr __unused,
+<span class="lineNum">     209 </span>                :            :                                              uint64_t ivt_len __unused,
+<span class="lineNum">     210 </span>                :            :                                              uint64_t rej_array_addr __unused,
+<span class="lineNum">     211 </span>                :            :                                              uint64_t peltv_addr __unused)
+<span class="lineNum">     212 </span>                :            : {
+<span class="lineNum">     213 </span>                :            :         /* IODA2 (P8) stuff, TODO */
+<span class="lineNum">     214 </span>                :<span class="lineNoCov">          0 :         return OPAL_UNSUPPORTED;</span>
+<span class="lineNum">     215 </span>                :            : }
+<a name="216"><span class="lineNum">     216 </span>                :            : opal_call(OPAL_PCI_SET_PHB_TABLE_MEMORY, opal_pci_set_phb_table_memory, 6);</a>
+<span class="lineNum">     217 </span>                :            : 
+<span class="lineNum">     218 </span>                :<span class="lineCov">         18 : static int64_t opal_pci_set_pe(uint64_t phb_id, uint64_t pe_number,</span>
+<span class="lineNum">     219 </span>                :            :                                uint64_t bus_dev_func, uint8_t bus_compare,
+<span class="lineNum">     220 </span>                :            :                                uint8_t dev_compare, uint8_t func_compare,
+<span class="lineNum">     221 </span>                :            :                                uint8_t pe_action)
+<span class="lineNum">     222 </span>                :            : {
+<span class="lineNum">     223 </span>                :<span class="lineCov">         18 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     224 </span>                :            :         int64_t rc;
+<span class="lineNum">     225 </span>                :            : 
+<span class="lineNum">     226 </span>        [<span class="branchCov" title="Branch 0 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         18 :         if (!phb)</span>
+<span class="lineNum">     227 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     228 </span>        [<span class="branchCov" title="Branch 0 was taken 18 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         18 :         if (!phb-&gt;ops-&gt;set_pe)</span>
+<span class="lineNum">     229 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     230 </span>                :<span class="lineCov">         18 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     231 </span>                :<span class="lineCov">         18 :         rc = phb-&gt;ops-&gt;set_pe(phb, pe_number, bus_dev_func, bus_compare,</span>
+<span class="lineNum">     232 </span>                :            :                               dev_compare, func_compare, pe_action);
+<span class="lineNum">     233 </span>                :<span class="lineCov">         18 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     234 </span>                :<span class="lineCov">         18 :         pci_put_phb(phb);</span>
+<span class="lineNum">     235 </span>                :            : 
+<span class="lineNum">     236 </span>                :<span class="lineCov">         18 :         return rc;</span>
+<span class="lineNum">     237 </span>                :            : }
+<a name="238"><span class="lineNum">     238 </span>                :            : opal_call(OPAL_PCI_SET_PE, opal_pci_set_pe, 7);</a>
+<span class="lineNum">     239 </span>                :            : 
+<span class="lineNum">     240 </span>                :<span class="lineCov">         50 : static int64_t opal_pci_set_peltv(uint64_t phb_id, uint32_t parent_pe,</span>
+<span class="lineNum">     241 </span>                :            :                                   uint32_t child_pe, uint8_t state)
+<span class="lineNum">     242 </span>                :            : {
+<span class="lineNum">     243 </span>                :<span class="lineCov">         50 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     244 </span>                :            :         int64_t rc;
+<span class="lineNum">     245 </span>                :            : 
+<span class="lineNum">     246 </span>        [<span class="branchCov" title="Branch 0 was taken 50 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         50 :         if (!phb)</span>
+<span class="lineNum">     247 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     248 </span>        [<span class="branchCov" title="Branch 0 was taken 50 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         50 :         if (!phb-&gt;ops-&gt;set_peltv)</span>
+<span class="lineNum">     249 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     250 </span>                :<span class="lineCov">         50 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     251 </span>                :<span class="lineCov">         50 :         rc = phb-&gt;ops-&gt;set_peltv(phb, parent_pe, child_pe, state);</span>
+<span class="lineNum">     252 </span>                :<span class="lineCov">         50 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     253 </span>                :<span class="lineCov">         50 :         pci_put_phb(phb);</span>
+<span class="lineNum">     254 </span>                :            : 
+<span class="lineNum">     255 </span>                :<span class="lineCov">         50 :         return rc;</span>
+<span class="lineNum">     256 </span>                :            : }
+<a name="257"><span class="lineNum">     257 </span>                :            : opal_call(OPAL_PCI_SET_PELTV, opal_pci_set_peltv, 4);</a>
+<span class="lineNum">     258 </span>                :            : 
+<span class="lineNum">     259 </span>                :<span class="lineNoCov">          0 : static int64_t opal_pci_set_mve(uint64_t phb_id, uint32_t mve_number,</span>
+<span class="lineNum">     260 </span>                :            :                                 uint32_t pe_number)
+<span class="lineNum">     261 </span>                :            : {
+<span class="lineNum">     262 </span>                :<span class="lineNoCov">          0 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     263 </span>                :            :         int64_t rc;
+<span class="lineNum">     264 </span>                :            : 
+<span class="lineNum">     265 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb)</span>
+<span class="lineNum">     266 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     267 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb-&gt;ops-&gt;set_mve)</span>
+<span class="lineNum">     268 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     269 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     270 </span>                :<span class="lineNoCov">          0 :         rc = phb-&gt;ops-&gt;set_mve(phb, mve_number, pe_number);</span>
+<span class="lineNum">     271 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     272 </span>                :<span class="lineNoCov">          0 :         pci_put_phb(phb);</span>
+<span class="lineNum">     273 </span>                :            : 
+<span class="lineNum">     274 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     275 </span>                :            : }
+<a name="276"><span class="lineNum">     276 </span>                :            : opal_call(OPAL_PCI_SET_MVE, opal_pci_set_mve, 3);</a>
+<span class="lineNum">     277 </span>                :            : 
+<span class="lineNum">     278 </span>                :<span class="lineNoCov">          0 : static int64_t opal_pci_set_mve_enable(uint64_t phb_id, uint32_t mve_number,</span>
+<span class="lineNum">     279 </span>                :            :                                        uint32_t state)
+<span class="lineNum">     280 </span>                :            : {
+<span class="lineNum">     281 </span>                :<span class="lineNoCov">          0 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     282 </span>                :            :         int64_t rc;
+<span class="lineNum">     283 </span>                :            : 
+<span class="lineNum">     284 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb)</span>
+<span class="lineNum">     285 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     286 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb-&gt;ops-&gt;set_mve_enable)</span>
+<span class="lineNum">     287 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     288 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     289 </span>                :<span class="lineNoCov">          0 :         rc = phb-&gt;ops-&gt;set_mve_enable(phb, mve_number, state);</span>
+<span class="lineNum">     290 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     291 </span>                :<span class="lineNoCov">          0 :         pci_put_phb(phb);</span>
+<span class="lineNum">     292 </span>                :            : 
+<span class="lineNum">     293 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     294 </span>                :            : }
+<a name="295"><span class="lineNum">     295 </span>                :            : opal_call(OPAL_PCI_SET_MVE_ENABLE, opal_pci_set_mve_enable, 3);</a>
+<span class="lineNum">     296 </span>                :            : 
+<span class="lineNum">     297 </span>                :<span class="lineNoCov">          0 : static int64_t opal_pci_get_xive_reissue(uint64_t phb_id __unused,</span>
+<span class="lineNum">     298 </span>                :            :                                          uint32_t xive_number __unused,
+<span class="lineNum">     299 </span>                :            :                                          uint8_t *p_bit __unused,
+<span class="lineNum">     300 </span>                :            :                                          uint8_t *q_bit __unused)
+<span class="lineNum">     301 </span>                :            : {
+<span class="lineNum">     302 </span>                :            :         /* IODA2 (P8) stuff, TODO */
+<span class="lineNum">     303 </span>                :<span class="lineNoCov">          0 :         return OPAL_UNSUPPORTED;</span>
+<span class="lineNum">     304 </span>                :            : }
+<a name="305"><span class="lineNum">     305 </span>                :            : opal_call(OPAL_PCI_GET_XIVE_REISSUE, opal_pci_get_xive_reissue, 4);</a>
+<span class="lineNum">     306 </span>                :            : 
+<span class="lineNum">     307 </span>                :<span class="lineNoCov">          0 : static int64_t opal_pci_set_xive_reissue(uint64_t phb_id __unused,</span>
+<span class="lineNum">     308 </span>                :            :                                          uint32_t xive_number __unused,
+<span class="lineNum">     309 </span>                :            :                                          uint8_t p_bit __unused,
+<span class="lineNum">     310 </span>                :            :                                          uint8_t q_bit __unused)
+<span class="lineNum">     311 </span>                :            : {
+<span class="lineNum">     312 </span>                :            :         /* IODA2 (P8) stuff, TODO */
+<span class="lineNum">     313 </span>                :<span class="lineNoCov">          0 :         return OPAL_UNSUPPORTED;</span>
+<span class="lineNum">     314 </span>                :            : }
+<a name="315"><span class="lineNum">     315 </span>                :            : opal_call(OPAL_PCI_SET_XIVE_REISSUE, opal_pci_set_xive_reissue, 4);</a>
+<span class="lineNum">     316 </span>                :            : 
+<span class="lineNum">     317 </span>                :<span class="lineCov">      59804 : static int64_t opal_pci_msi_eoi(uint64_t phb_id,</span>
+<span class="lineNum">     318 </span>                :            :                                 uint32_t hwirq)
+<span class="lineNum">     319 </span>                :            : {
+<span class="lineNum">     320 </span>                :<span class="lineCov">      59804 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     321 </span>                :            :         int64_t rc;
+<span class="lineNum">     322 </span>                :            : 
+<span class="lineNum">     323 </span>        [<span class="branchCov" title="Branch 0 was taken 59804 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">      59804 :         if (!phb)</span>
+<span class="lineNum">     324 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     325 </span>           [<span class="branchCov" title="Branch 0 was taken 59806 times"> + </span>]:<span class="lineCov">      59804 :         if (!phb-&gt;ops-&gt;pci_msi_eoi)</span>
+<span class="lineNum">     326 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     327 </span>                :<span class="lineCov">      59806 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     328 </span>                :<span class="lineCov">      59806 :         rc = phb-&gt;ops-&gt;pci_msi_eoi(phb, hwirq);</span>
+<span class="lineNum">     329 </span>                :<span class="lineCov">      59806 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     330 </span>                :<span class="lineCov">      59806 :         pci_put_phb(phb);</span>
+<span class="lineNum">     331 </span>                :            : 
+<span class="lineNum">     332 </span>                :<span class="lineCov">      59806 :         return rc;</span>
+<span class="lineNum">     333 </span>                :            : }
+<a name="334"><span class="lineNum">     334 </span>                :            : opal_call(OPAL_PCI_MSI_EOI, opal_pci_msi_eoi, 2);</a>
+<span class="lineNum">     335 </span>                :            : 
+<span class="lineNum">     336 </span>                :<span class="lineCov">        121 : static int64_t opal_pci_set_xive_pe(uint64_t phb_id, uint32_t pe_number,</span>
+<span class="lineNum">     337 </span>                :            :                                     uint32_t xive_num)
+<span class="lineNum">     338 </span>                :            : {
+<span class="lineNum">     339 </span>                :<span class="lineCov">        121 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     340 </span>                :            :         int64_t rc;
+<span class="lineNum">     341 </span>                :            : 
+<span class="lineNum">     342 </span>        [<span class="branchCov" title="Branch 0 was taken 121 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        121 :         if (!phb)</span>
+<span class="lineNum">     343 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     344 </span>        [<span class="branchCov" title="Branch 0 was taken 121 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        121 :         if (!phb-&gt;ops-&gt;set_xive_pe)</span>
+<span class="lineNum">     345 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     346 </span>                :<span class="lineCov">        121 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     347 </span>                :<span class="lineCov">        121 :         rc = phb-&gt;ops-&gt;set_xive_pe(phb, pe_number, xive_num);</span>
+<span class="lineNum">     348 </span>                :<span class="lineCov">        121 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     349 </span>                :<span class="lineCov">        121 :         pci_put_phb(phb);</span>
+<span class="lineNum">     350 </span>                :            : 
+<span class="lineNum">     351 </span>                :<span class="lineCov">        121 :         return rc;</span>
+<span class="lineNum">     352 </span>                :            : }
+<a name="353"><span class="lineNum">     353 </span>                :            : opal_call(OPAL_PCI_SET_XIVE_PE, opal_pci_set_xive_pe, 3);</a>
+<span class="lineNum">     354 </span>                :            : 
+<span class="lineNum">     355 </span>                :<span class="lineNoCov">          0 : static int64_t opal_get_xive_source(uint64_t phb_id, uint32_t xive_num,</span>
+<span class="lineNum">     356 </span>                :            :                                     int32_t *interrupt_source_number)
+<span class="lineNum">     357 </span>                :            : {
+<span class="lineNum">     358 </span>                :<span class="lineNoCov">          0 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     359 </span>                :            :         int64_t rc;
+<span class="lineNum">     360 </span>                :            : 
+<span class="lineNum">     361 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb)</span>
+<span class="lineNum">     362 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     363 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb-&gt;ops-&gt;get_xive_source)</span>
+<span class="lineNum">     364 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     365 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     366 </span>                :<span class="lineNoCov">          0 :         rc = phb-&gt;ops-&gt;get_xive_source(phb, xive_num, interrupt_source_number);</span>
+<span class="lineNum">     367 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     368 </span>                :<span class="lineNoCov">          0 :         pci_put_phb(phb);</span>
+<span class="lineNum">     369 </span>                :            : 
+<span class="lineNum">     370 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     371 </span>                :            : }
+<a name="372"><span class="lineNum">     372 </span>                :            : opal_call(OPAL_GET_XIVE_SOURCE, opal_get_xive_source, 3);</a>
+<span class="lineNum">     373 </span>                :            : 
+<span class="lineNum">     374 </span>                :<span class="lineNoCov">          0 : static int64_t opal_get_msi_32(uint64_t phb_id, uint32_t mve_number,</span>
+<span class="lineNum">     375 </span>                :            :                                uint32_t xive_num, uint8_t msi_range,
+<span class="lineNum">     376 </span>                :            :                                uint32_t *msi_address, uint32_t *message_data)
+<span class="lineNum">     377 </span>                :            : {
+<span class="lineNum">     378 </span>                :<span class="lineNoCov">          0 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     379 </span>                :            :         int64_t rc;
+<span class="lineNum">     380 </span>                :            : 
+<span class="lineNum">     381 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb)</span>
+<span class="lineNum">     382 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     383 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb-&gt;ops-&gt;get_msi_32)</span>
+<span class="lineNum">     384 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     385 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     386 </span>                :<span class="lineNoCov">          0 :         rc = phb-&gt;ops-&gt;get_msi_32(phb, mve_number, xive_num, msi_range,</span>
+<span class="lineNum">     387 </span>                :            :                                   msi_address, message_data);
+<span class="lineNum">     388 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     389 </span>                :<span class="lineNoCov">          0 :         pci_put_phb(phb);</span>
+<span class="lineNum">     390 </span>                :            : 
+<span class="lineNum">     391 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     392 </span>                :            : }
+<a name="393"><span class="lineNum">     393 </span>                :            : opal_call(OPAL_GET_MSI_32, opal_get_msi_32, 6);</a>
+<span class="lineNum">     394 </span>                :            : 
+<span class="lineNum">     395 </span>                :<span class="lineCov">        121 : static int64_t opal_get_msi_64(uint64_t phb_id, uint32_t mve_number,</span>
+<span class="lineNum">     396 </span>                :            :                                uint32_t xive_num, uint8_t msi_range,
+<span class="lineNum">     397 </span>                :            :                                uint64_t *msi_address, uint32_t *message_data)
+<span class="lineNum">     398 </span>                :            : {
+<span class="lineNum">     399 </span>                :<span class="lineCov">        121 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     400 </span>                :            :         int64_t rc;
+<span class="lineNum">     401 </span>                :            : 
+<span class="lineNum">     402 </span>        [<span class="branchCov" title="Branch 0 was taken 121 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        121 :         if (!phb)</span>
+<span class="lineNum">     403 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     404 </span>        [<span class="branchCov" title="Branch 0 was taken 121 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        121 :         if (!phb-&gt;ops-&gt;get_msi_64)</span>
+<span class="lineNum">     405 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     406 </span>                :<span class="lineCov">        121 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     407 </span>                :<span class="lineCov">        121 :         rc = phb-&gt;ops-&gt;get_msi_64(phb, mve_number, xive_num, msi_range,</span>
+<span class="lineNum">     408 </span>                :            :                                   msi_address, message_data);
+<span class="lineNum">     409 </span>                :<span class="lineCov">        121 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     410 </span>                :<span class="lineCov">        121 :         pci_put_phb(phb);</span>
+<span class="lineNum">     411 </span>                :            : 
+<span class="lineNum">     412 </span>                :<span class="lineCov">        121 :         return rc;</span>
+<span class="lineNum">     413 </span>                :            : }
+<a name="414"><span class="lineNum">     414 </span>                :            : opal_call(OPAL_GET_MSI_64, opal_get_msi_64, 6);</a>
+<span class="lineNum">     415 </span>                :            : 
+<span class="lineNum">     416 </span>                :<span class="lineCov">          4 : static int64_t opal_pci_map_pe_dma_window(uint64_t phb_id, uint16_t pe_number,</span>
+<span class="lineNum">     417 </span>                :            :                                           uint16_t window_id,
+<span class="lineNum">     418 </span>                :            :                                           uint16_t tce_levels,
+<span class="lineNum">     419 </span>                :            :                                           uint64_t tce_table_addr,
+<span class="lineNum">     420 </span>                :            :                                           uint64_t tce_table_size,
+<span class="lineNum">     421 </span>                :            :                                           uint64_t tce_page_size)
+<span class="lineNum">     422 </span>                :            : {
+<span class="lineNum">     423 </span>                :<span class="lineCov">          4 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     424 </span>                :            :         int64_t rc;
+<span class="lineNum">     425 </span>                :            : 
+<span class="lineNum">     426 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :         if (!phb)</span>
+<span class="lineNum">     427 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     428 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :         if (!phb-&gt;ops-&gt;map_pe_dma_window)</span>
+<span class="lineNum">     429 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     430 </span>                :<span class="lineCov">          4 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     431 </span>                :<span class="lineCov">          4 :         rc = phb-&gt;ops-&gt;map_pe_dma_window(phb, pe_number, window_id,</span>
+<span class="lineNum">     432 </span>                :            :                                          tce_levels, tce_table_addr,
+<span class="lineNum">     433 </span>                :            :                                          tce_table_size, tce_page_size);
+<span class="lineNum">     434 </span>                :<span class="lineCov">          4 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     435 </span>                :<span class="lineCov">          4 :         pci_put_phb(phb);</span>
+<span class="lineNum">     436 </span>                :            : 
+<span class="lineNum">     437 </span>                :<span class="lineCov">          4 :         return rc;</span>
+<span class="lineNum">     438 </span>                :            : }
+<a name="439"><span class="lineNum">     439 </span>                :            : opal_call(OPAL_PCI_MAP_PE_DMA_WINDOW, opal_pci_map_pe_dma_window, 7);</a>
+<span class="lineNum">     440 </span>                :            : 
+<span class="lineNum">     441 </span>                :<span class="lineCov">          4 : static int64_t opal_pci_map_pe_dma_window_real(uint64_t phb_id,</span>
+<span class="lineNum">     442 </span>                :            :                                                uint16_t pe_number,
+<span class="lineNum">     443 </span>                :            :                                                uint16_t window_id,
+<span class="lineNum">     444 </span>                :            :                                                uint64_t pci_start_addr,
+<span class="lineNum">     445 </span>                :            :                                                uint64_t pci_mem_size)
+<span class="lineNum">     446 </span>                :            : {
+<span class="lineNum">     447 </span>                :<span class="lineCov">          4 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     448 </span>                :            :         int64_t rc;
+<span class="lineNum">     449 </span>                :            : 
+<span class="lineNum">     450 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :         if (!phb)</span>
+<span class="lineNum">     451 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     452 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :         if (!phb-&gt;ops-&gt;map_pe_dma_window_real)</span>
+<span class="lineNum">     453 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     454 </span>                :<span class="lineCov">          4 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     455 </span>                :<span class="lineCov">          4 :         rc = phb-&gt;ops-&gt;map_pe_dma_window_real(phb, pe_number, window_id,</span>
+<span class="lineNum">     456 </span>                :            :                                               pci_start_addr, pci_mem_size);
+<span class="lineNum">     457 </span>                :<span class="lineCov">          4 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     458 </span>                :<span class="lineCov">          4 :         pci_put_phb(phb);</span>
+<span class="lineNum">     459 </span>                :            : 
+<span class="lineNum">     460 </span>                :<span class="lineCov">          4 :         return rc;</span>
+<span class="lineNum">     461 </span>                :            : }
+<a name="462"><span class="lineNum">     462 </span>                :            : opal_call(OPAL_PCI_MAP_PE_DMA_WINDOW_REAL, opal_pci_map_pe_dma_window_real, 5);</a>
+<span class="lineNum">     463 </span>                :            : 
+<span class="lineNum">     464 </span>                :<span class="lineCov">          4 : static int64_t opal_pci_reset(uint64_t phb_id, uint8_t reset_scope,</span>
+<span class="lineNum">     465 </span>                :            :                               uint8_t assert_state)
+<span class="lineNum">     466 </span>                :            : {
+<span class="lineNum">     467 </span>                :<span class="lineCov">          4 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     468 </span>                :<span class="lineCov">          4 :         int64_t rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     469 </span>                :            : 
+<span class="lineNum">     470 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :         if (!phb)</span>
+<span class="lineNum">     471 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     472 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :         if (!phb-&gt;ops)</span>
+<span class="lineNum">     473 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     474 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :         if (assert_state != OPAL_ASSERT_RESET &amp;&amp;</span>
+<span class="lineNum">     475 </span>                :            :             assert_state != OPAL_DEASSERT_RESET)
+<span class="lineNum">     476 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     477 </span>                :            : 
+<span class="lineNum">     478 </span>                :<span class="lineCov">          4 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     479 </span>                :            : 
+<span class="lineNum">     480 </span>  [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span> :<span class="lineCov">          4 :         switch(reset_scope) {</span>
+<span class="lineNum">         </span>         <span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
+<span class="lineNum">     481 </span>                :            :         case OPAL_RESET_PHB_COMPLETE:
+<span class="lineNum">     482 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!phb-&gt;ops-&gt;complete_reset) {</span>
+<span class="lineNum">     483 </span>                :            :                         rc = OPAL_UNSUPPORTED;
+<span class="lineNum">     484 </span>                :            :                         break;
+<span class="lineNum">     485 </span>                :            :                 }
+<span class="lineNum">     486 </span>                :            : 
+<span class="lineNum">     487 </span>                :<span class="lineNoCov">          0 :                 rc = phb-&gt;ops-&gt;complete_reset(phb, assert_state);</span>
+<span class="lineNum">     488 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc &lt; 0)</span>
+<span class="lineNum">     489 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;PHB#%d: Failure on complete reset, rc=%lld\n&quot;,</span>
+<span class="lineNum">     490 </span>                :            :                                 phb-&gt;opal_id, rc);
+<span class="lineNum">     491 </span>                :            :                 break;
+<span class="lineNum">     492 </span>                :            :         case OPAL_RESET_PCI_FUNDAMENTAL:
+<span class="lineNum">     493 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!phb-&gt;ops-&gt;fundamental_reset) {</span>
+<span class="lineNum">     494 </span>                :            :                         rc = OPAL_UNSUPPORTED;
+<span class="lineNum">     495 </span>                :            :                         break;
+<span class="lineNum">     496 </span>                :            :                 }
+<span class="lineNum">     497 </span>                :            : 
+<span class="lineNum">     498 </span>                :            :                 /* We need do nothing on deassert time */
+<span class="lineNum">     499 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (assert_state != OPAL_ASSERT_RESET)</span>
+<span class="lineNum">     500 </span>                :            :                         break;
+<span class="lineNum">     501 </span>                :            : 
+<span class="lineNum">     502 </span>                :<span class="lineNoCov">          0 :                 rc = phb-&gt;ops-&gt;fundamental_reset(phb);</span>
+<span class="lineNum">     503 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc &lt; 0)</span>
+<span class="lineNum">     504 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;PHB#%d: Failure on fundamental reset, rc=%lld\n&quot;,</span>
+<span class="lineNum">     505 </span>                :            :                                 phb-&gt;opal_id, rc);
+<span class="lineNum">     506 </span>                :            :                 break;
+<span class="lineNum">     507 </span>                :            :         case OPAL_RESET_PCI_HOT:
+<span class="lineNum">     508 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!phb-&gt;ops-&gt;hot_reset) {</span>
+<span class="lineNum">     509 </span>                :            :                         rc = OPAL_UNSUPPORTED;
+<span class="lineNum">     510 </span>                :            :                         break;
+<span class="lineNum">     511 </span>                :            :                 }
+<span class="lineNum">     512 </span>                :            : 
+<span class="lineNum">     513 </span>                :            :                 /* We need do nothing on deassert time */
+<span class="lineNum">     514 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (assert_state != OPAL_ASSERT_RESET)</span>
+<span class="lineNum">     515 </span>                :            :                         break;
+<span class="lineNum">     516 </span>                :            : 
+<span class="lineNum">     517 </span>                :<span class="lineNoCov">          0 :                 rc = phb-&gt;ops-&gt;hot_reset(phb);</span>
+<span class="lineNum">     518 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc &lt; 0)</span>
+<span class="lineNum">     519 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;PHB#%d: Failure on hot reset, rc=%lld\n&quot;,</span>
+<span class="lineNum">     520 </span>                :            :                                 phb-&gt;opal_id, rc);
+<span class="lineNum">     521 </span>                :            :                 break;
+<span class="lineNum">     522 </span>                :            :         case OPAL_RESET_PCI_IODA_TABLE:
+<span class="lineNum">     523 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :                 if (assert_state != OPAL_ASSERT_RESET)</span>
+<span class="lineNum">     524 </span>                :            :                         break;
+<span class="lineNum">     525 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :                 if (phb-&gt;ops-&gt;ioda_reset)</span>
+<span class="lineNum">     526 </span>                :<span class="lineCov">          4 :                         phb-&gt;ops-&gt;ioda_reset(phb, true);</span>
+<span class="lineNum">     527 </span>                :            :                 break;
+<span class="lineNum">     528 </span>                :            :         case OPAL_RESET_PHB_ERROR:
+<span class="lineNum">     529 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (assert_state != OPAL_ASSERT_RESET)</span>
+<span class="lineNum">     530 </span>                :            :                         break;
+<span class="lineNum">     531 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (phb-&gt;ops-&gt;papr_errinjct_reset)</span>
+<span class="lineNum">     532 </span>                :<span class="lineNoCov">          0 :                         phb-&gt;ops-&gt;papr_errinjct_reset(phb);</span>
+<span class="lineNum">     533 </span>                :            :                 break;
+<span class="lineNum">     534 </span>                :            :         default:
+<span class="lineNum">     535 </span>                :            :                 rc = OPAL_UNSUPPORTED;
+<span class="lineNum">     536 </span>                :            :         }
+<span class="lineNum">     537 </span>                :<span class="lineCov">          4 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     538 </span>                :<span class="lineCov">          4 :         pci_put_phb(phb);</span>
+<span class="lineNum">     539 </span>                :            : 
+<span class="lineNum">     540 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :         return (rc &gt; 0) ? tb_to_msecs(rc) : rc;</span>
+<span class="lineNum">     541 </span>                :            : }
+<a name="542"><span class="lineNum">     542 </span>                :            : opal_call(OPAL_PCI_RESET, opal_pci_reset, 3);</a>
+<span class="lineNum">     543 </span>                :            : 
+<span class="lineNum">     544 </span>                :<span class="lineNoCov">          0 : static int64_t opal_pci_reinit(uint64_t phb_id,</span>
+<span class="lineNum">     545 </span>                :            :                                uint64_t reinit_scope,
+<span class="lineNum">     546 </span>                :            :                                uint64_t data)
+<span class="lineNum">     547 </span>                :            : {
+<span class="lineNum">     548 </span>                :<span class="lineNoCov">          0 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     549 </span>                :            :         int64_t rc;
+<span class="lineNum">     550 </span>                :            : 
+<span class="lineNum">     551 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb)</span>
+<span class="lineNum">     552 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     553 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb-&gt;ops || !phb-&gt;ops-&gt;pci_reinit)</span>
+<span class="lineNum">     554 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     555 </span>                :            : 
+<span class="lineNum">     556 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     557 </span>                :<span class="lineNoCov">          0 :         rc = phb-&gt;ops-&gt;pci_reinit(phb, reinit_scope, data);</span>
+<span class="lineNum">     558 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     559 </span>                :<span class="lineNoCov">          0 :         pci_put_phb(phb);</span>
+<span class="lineNum">     560 </span>                :            : 
+<span class="lineNum">     561 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     562 </span>                :            : }
+<a name="563"><span class="lineNum">     563 </span>                :            : opal_call(OPAL_PCI_REINIT, opal_pci_reinit, 3);</a>
+<span class="lineNum">     564 </span>                :            : 
+<span class="lineNum">     565 </span>                :<span class="lineNoCov">          0 : static int64_t opal_pci_poll(uint64_t phb_id)</span>
+<span class="lineNum">     566 </span>                :            : {
+<span class="lineNum">     567 </span>                :<span class="lineNoCov">          0 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     568 </span>                :            :         int64_t rc;
+<span class="lineNum">     569 </span>                :            : 
+<span class="lineNum">     570 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb)</span>
+<span class="lineNum">     571 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     572 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb-&gt;ops || !phb-&gt;ops-&gt;poll)</span>
+<span class="lineNum">     573 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     574 </span>                :            : 
+<span class="lineNum">     575 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     576 </span>                :<span class="lineNoCov">          0 :         rc = phb-&gt;ops-&gt;poll(phb);</span>
+<span class="lineNum">     577 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     578 </span>                :<span class="lineNoCov">          0 :         pci_put_phb(phb);</span>
+<span class="lineNum">     579 </span>                :            : 
+<span class="lineNum">     580 </span>                :            :         /* Return milliseconds for caller to sleep: round up */
+<span class="lineNum">     581 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc &gt; 0) {</span>
+<span class="lineNum">     582 </span>                :<span class="lineNoCov">          0 :                 rc = tb_to_msecs(rc);</span>
+<span class="lineNum">     583 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc == 0)</span>
+<span class="lineNum">     584 </span>                :<span class="lineNoCov">          0 :                         rc = 1;</span>
+<span class="lineNum">     585 </span>                :            :         }
+<span class="lineNum">     586 </span>                :            : 
+<span class="lineNum">     587 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     588 </span>                :            : }
+<a name="589"><span class="lineNum">     589 </span>                :            : opal_call(OPAL_PCI_POLL, opal_pci_poll, 1);</a>
+<span class="lineNum">     590 </span>                :            : 
+<span class="lineNum">     591 </span>                :<span class="lineNoCov">          0 : static int64_t opal_pci_set_phb_tce_memory(uint64_t phb_id,</span>
+<span class="lineNum">     592 </span>                :            :                                            uint64_t tce_mem_addr,
+<span class="lineNum">     593 </span>                :            :                                            uint64_t tce_mem_size)
+<span class="lineNum">     594 </span>                :            : {
+<span class="lineNum">     595 </span>                :<span class="lineNoCov">          0 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     596 </span>                :            :         int64_t rc;
+<span class="lineNum">     597 </span>                :            : 
+<span class="lineNum">     598 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb)</span>
+<span class="lineNum">     599 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     600 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb-&gt;ops-&gt;set_phb_tce_memory)</span>
+<span class="lineNum">     601 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     602 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     603 </span>                :<span class="lineNoCov">          0 :         rc = phb-&gt;ops-&gt;set_phb_tce_memory(phb, tce_mem_addr, tce_mem_size);</span>
+<span class="lineNum">     604 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     605 </span>                :<span class="lineNoCov">          0 :         pci_put_phb(phb);</span>
+<span class="lineNum">     606 </span>                :            : 
+<span class="lineNum">     607 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     608 </span>                :            : }
+<a name="609"><span class="lineNum">     609 </span>                :            : opal_call(OPAL_PCI_SET_PHB_TCE_MEMORY, opal_pci_set_phb_tce_memory, 3);</a>
+<span class="lineNum">     610 </span>                :            : 
+<span class="lineNum">     611 </span>                :<span class="lineNoCov">          0 : static int64_t opal_pci_get_phb_diag_data(uint64_t phb_id,</span>
+<span class="lineNum">     612 </span>                :            :                                           void *diag_buffer,
+<span class="lineNum">     613 </span>                :            :                                           uint64_t diag_buffer_len)
+<span class="lineNum">     614 </span>                :            : {
+<span class="lineNum">     615 </span>                :<span class="lineNoCov">          0 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     616 </span>                :            :         int64_t rc;
+<span class="lineNum">     617 </span>                :            : 
+<span class="lineNum">     618 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb)</span>
+<span class="lineNum">     619 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     620 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb-&gt;ops-&gt;get_diag_data)</span>
+<span class="lineNum">     621 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     622 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     623 </span>                :<span class="lineNoCov">          0 :         rc = phb-&gt;ops-&gt;get_diag_data(phb, diag_buffer, diag_buffer_len);</span>
+<span class="lineNum">     624 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     625 </span>                :<span class="lineNoCov">          0 :         pci_put_phb(phb);</span>
+<span class="lineNum">     626 </span>                :            : 
+<span class="lineNum">     627 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     628 </span>                :            : }
+<a name="629"><span class="lineNum">     629 </span>                :            : opal_call(OPAL_PCI_GET_PHB_DIAG_DATA, opal_pci_get_phb_diag_data, 3);</a>
+<span class="lineNum">     630 </span>                :            : 
+<span class="lineNum">     631 </span>                :<span class="lineNoCov">          0 : static int64_t opal_pci_get_phb_diag_data2(uint64_t phb_id,</span>
+<span class="lineNum">     632 </span>                :            :                                            void *diag_buffer,
+<span class="lineNum">     633 </span>                :            :                                            uint64_t diag_buffer_len)
+<span class="lineNum">     634 </span>                :            : {
+<span class="lineNum">     635 </span>                :<span class="lineNoCov">          0 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     636 </span>                :            :         int64_t rc;
+<span class="lineNum">     637 </span>                :            : 
+<span class="lineNum">     638 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb)</span>
+<span class="lineNum">     639 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     640 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb-&gt;ops-&gt;get_diag_data2)</span>
+<span class="lineNum">     641 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     642 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     643 </span>                :<span class="lineNoCov">          0 :         rc = phb-&gt;ops-&gt;get_diag_data2(phb, diag_buffer, diag_buffer_len);</span>
+<span class="lineNum">     644 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     645 </span>                :<span class="lineNoCov">          0 :         pci_put_phb(phb);</span>
+<span class="lineNum">     646 </span>                :            : 
+<span class="lineNum">     647 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     648 </span>                :            : }
+<a name="649"><span class="lineNum">     649 </span>                :            : opal_call(OPAL_PCI_GET_PHB_DIAG_DATA2, opal_pci_get_phb_diag_data2, 3);</a>
+<span class="lineNum">     650 </span>                :            : 
+<span class="lineNum">     651 </span>                :<span class="lineCov">          8 : static int64_t opal_pci_next_error(uint64_t phb_id, uint64_t *first_frozen_pe,</span>
+<span class="lineNum">     652 </span>                :            :                                    uint16_t *pci_error_type, uint16_t *severity)
+<span class="lineNum">     653 </span>                :            : {
+<span class="lineNum">     654 </span>                :<span class="lineCov">          8 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     655 </span>                :            :         int64_t rc;
+<span class="lineNum">     656 </span>                :            : 
+<span class="lineNum">     657 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          8 :         if (!phb)</span>
+<span class="lineNum">     658 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     659 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          8 :         if (!phb-&gt;ops-&gt;next_error)</span>
+<span class="lineNum">     660 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     661 </span>                :<span class="lineCov">          8 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     662 </span>                :            : 
+<span class="lineNum">     663 </span>                :            :         /* Any call to this function clears the error event */
+<span class="lineNum">     664 </span>                :<span class="lineCov">          8 :         opal_update_pending_evt(OPAL_EVENT_PCI_ERROR, 0);</span>
+<span class="lineNum">     665 </span>                :<span class="lineCov">          8 :         rc = phb-&gt;ops-&gt;next_error(phb, first_frozen_pe, pci_error_type,</span>
+<span class="lineNum">     666 </span>                :            :                                   severity);
+<span class="lineNum">     667 </span>                :<span class="lineCov">          8 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     668 </span>                :<span class="lineCov">          8 :         pci_put_phb(phb);</span>
+<span class="lineNum">     669 </span>                :            : 
+<span class="lineNum">     670 </span>                :<span class="lineCov">          8 :         return rc;</span>
+<span class="lineNum">     671 </span>                :            : }
+<a name="672"><span class="lineNum">     672 </span>                :            : opal_call(OPAL_PCI_NEXT_ERROR, opal_pci_next_error, 4);</a>
+<span class="lineNum">     673 </span>                :            : 
+<span class="lineNum">     674 </span>                :<span class="lineNoCov">          0 : static int64_t opal_pci_eeh_freeze_status2(uint64_t phb_id, uint64_t pe_number,</span>
+<span class="lineNum">     675 </span>                :            :                                            uint8_t *freeze_state,
+<span class="lineNum">     676 </span>                :            :                                            uint16_t *pci_error_type,
+<span class="lineNum">     677 </span>                :            :                                            uint16_t *severity,
+<span class="lineNum">     678 </span>                :            :                                            uint64_t *phb_status)
+<span class="lineNum">     679 </span>                :            : {
+<span class="lineNum">     680 </span>                :<span class="lineNoCov">          0 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     681 </span>                :            :         int64_t rc;
+<span class="lineNum">     682 </span>                :            : 
+<span class="lineNum">     683 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb)</span>
+<span class="lineNum">     684 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     685 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb-&gt;ops-&gt;eeh_freeze_status)</span>
+<span class="lineNum">     686 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     687 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     688 </span>                :<span class="lineNoCov">          0 :         rc = phb-&gt;ops-&gt;eeh_freeze_status(phb, pe_number, freeze_state,</span>
+<span class="lineNum">     689 </span>                :            :                                          pci_error_type, severity, phb_status);
+<span class="lineNum">     690 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     691 </span>                :<span class="lineNoCov">          0 :         pci_put_phb(phb);</span>
+<span class="lineNum">     692 </span>                :            : 
+<span class="lineNum">     693 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     694 </span>                :            : }
+<a name="695"><span class="lineNum">     695 </span>                :            : opal_call(OPAL_PCI_EEH_FREEZE_STATUS2, opal_pci_eeh_freeze_status2, 6);</a>
+<span class="lineNum">     696 </span>                :            : 
+<span class="lineNum">     697 </span>                :<span class="lineNoCov">          0 : static int64_t opal_pci_set_phb_capi_mode(uint64_t phb_id, uint64_t mode, uint64_t pe_number)</span>
+<span class="lineNum">     698 </span>                :            : {
+<span class="lineNum">     699 </span>                :<span class="lineNoCov">          0 :         struct phb *phb = pci_get_phb(phb_id);</span>
+<span class="lineNum">     700 </span>                :            :         int64_t rc;
+<span class="lineNum">     701 </span>                :            : 
+<span class="lineNum">     702 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb)</span>
+<span class="lineNum">     703 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     704 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!phb-&gt;ops-&gt;set_capi_mode)</span>
+<span class="lineNum">     705 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     706 </span>                :            : 
+<span class="lineNum">     707 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;lock(phb);</span>
+<span class="lineNum">     708 </span>                :<span class="lineNoCov">          0 :         rc = phb-&gt;ops-&gt;set_capi_mode(phb, mode, pe_number);</span>
+<span class="lineNum">     709 </span>                :<span class="lineNoCov">          0 :         phb-&gt;ops-&gt;unlock(phb);</span>
+<span class="lineNum">     710 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     711 </span>                :            : }
+<span class="lineNum">     712 </span>                :            : opal_call(OPAL_PCI_SET_PHB_CAPI_MODE, opal_pci_set_phb_capi_mode, 3);
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

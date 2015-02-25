@@ -1,0 +1,305 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - include/cpu.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">include</a> - cpu.h<span style="font-size: 80%;"> (source / <a href="cpu.h.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryMed">81.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">25.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #ifndef __CPU_H
+<span class="lineNum">      18 </span>                :            : #define __CPU_H
+<span class="lineNum">      19 </span>                :            : 
+<span class="lineNum">      20 </span>                :            : #include &lt;processor.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;ccan/list/list.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;device.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;opal.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;stack.h&gt;
+<span class="lineNum">      26 </span>                :            : 
+<span class="lineNum">      27 </span>                :            : /*
+<span class="lineNum">      28 </span>                :            :  * cpu_thread is our internal structure representing each
+<span class="lineNum">      29 </span>                :            :  * thread in the system
+<span class="lineNum">      30 </span>                :            :  */
+<span class="lineNum">      31 </span>                :            : 
+<span class="lineNum">      32 </span>                :            : enum cpu_thread_state {
+<span class="lineNum">      33 </span>                :            :         cpu_state_no_cpu        = 0,    /* Nothing there */
+<span class="lineNum">      34 </span>                :            :         cpu_state_unknown,              /* In PACA, not called in yet */
+<span class="lineNum">      35 </span>                :            :         cpu_state_unavailable,          /* Not available */
+<span class="lineNum">      36 </span>                :            :         cpu_state_present,              /* Assumed to spin in asm entry */
+<span class="lineNum">      37 </span>                :            :         cpu_state_active,               /* Secondary called in */
+<span class="lineNum">      38 </span>                :            :         cpu_state_os,                   /* Under OS control */
+<span class="lineNum">      39 </span>                :            :         cpu_state_disabled,             /* Disabled by us due to error */
+<span class="lineNum">      40 </span>                :            :         cpu_state_rvwinkle,             /* Doing an rvwinkle cycle */
+<span class="lineNum">      41 </span>                :            : };
+<span class="lineNum">      42 </span>                :            : 
+<span class="lineNum">      43 </span>                :            : struct cpu_job;
+<span class="lineNum">      44 </span>                :            : 
+<span class="lineNum">      45 </span>                :            : struct cpu_thread {
+<span class="lineNum">      46 </span>                :            :         uint32_t                        pir;
+<span class="lineNum">      47 </span>                :            :         uint32_t                        server_no;
+<span class="lineNum">      48 </span>                :            :         uint32_t                        chip_id;
+<span class="lineNum">      49 </span>                :            :         bool                            is_secondary;
+<span class="lineNum">      50 </span>                :            :         bool                            current_hile;
+<span class="lineNum">      51 </span>                :            :         struct cpu_thread               *primary;
+<span class="lineNum">      52 </span>                :            :         enum cpu_thread_state           state;
+<span class="lineNum">      53 </span>                :            :         struct dt_node                  *node;
+<span class="lineNum">      54 </span>                :            :         struct trace_info               *trace;
+<span class="lineNum">      55 </span>                :            :         uint64_t                        save_r1;
+<span class="lineNum">      56 </span>                :            :         void                            *icp_regs;
+<span class="lineNum">      57 </span>                :            :         uint32_t                        lock_depth;
+<span class="lineNum">      58 </span>                :            :         uint32_t                        con_suspend;
+<span class="lineNum">      59 </span>                :            :         bool                            con_need_flush;
+<span class="lineNum">      60 </span>                :            :         bool                            in_mcount;
+<span class="lineNum">      61 </span>                :            :         uint32_t                        hbrt_spec_wakeup; /* primary only */
+<span class="lineNum">      62 </span>                :            :         uint64_t                        save_l2_fir_action1;
+<span class="lineNum">      63 </span>                :            :         uint64_t                        current_token;
+<span class="lineNum">      64 </span>                :            : #ifdef STACK_CHECK_ENABLED
+<span class="lineNum">      65 </span>                :            :         int64_t                         stack_bot_mark;
+<span class="lineNum">      66 </span>                :            :         uint64_t                        stack_bot_pc;
+<span class="lineNum">      67 </span>                :            :         uint64_t                        stack_bot_tok;
+<span class="lineNum">      68 </span>                :            : #define CPU_BACKTRACE_SIZE      60
+<span class="lineNum">      69 </span>                :            :         struct bt_entry                 stack_bot_bt[CPU_BACKTRACE_SIZE];
+<span class="lineNum">      70 </span>                :            :         unsigned int                    stack_bot_bt_count;
+<span class="lineNum">      71 </span>                :            : #endif
+<span class="lineNum">      72 </span>                :            :         struct lock                     job_lock;
+<span class="lineNum">      73 </span>                :            :         struct list_head                job_queue;
+<span class="lineNum">      74 </span>                :            : };
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :            : /* This global is set to 1 to allow secondaries to callin,
+<span class="lineNum">      77 </span>                :            :  * typically set after the primary has allocated the cpu_thread
+<span class="lineNum">      78 </span>                :            :  * array and stacks
+<span class="lineNum">      79 </span>                :            :  */
+<span class="lineNum">      80 </span>                :            : extern unsigned long cpu_secondary_start;
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>                :            : /* Max PIR in the system */
+<span class="lineNum">      83 </span>                :            : extern unsigned int cpu_max_pir;
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :            : /* Max # of threads per core */
+<span class="lineNum">      86 </span>                :            : extern unsigned int cpu_thread_count;
+<span class="lineNum">      87 </span>                :            : 
+<span class="lineNum">      88 </span>                :            : /* Boot CPU. */
+<span class="lineNum">      89 </span>                :            : extern struct cpu_thread *boot_cpu;
+<span class="lineNum">      90 </span>                :            : 
+<span class="lineNum">      91 </span>                :            : extern void cpu_relax(void);
+<span class="lineNum">      92 </span>                :            : 
+<span class="lineNum">      93 </span>                :            : /* Initialize CPUs */
+<span class="lineNum">      94 </span>                :            : void pre_init_boot_cpu(void);
+<span class="lineNum">      95 </span>                :            : void init_boot_cpu(void);
+<span class="lineNum">      96 </span>                :            : void init_all_cpus(void);
+<span class="lineNum">      97 </span>                :            : 
+<span class="lineNum">      98 </span>                :            : /* This brings up our secondaries */
+<span class="lineNum">      99 </span>                :            : extern void cpu_bringup(void);
+<span class="lineNum">     100 </span>                :            : 
+<span class="lineNum">     101 </span>                :            : /* This is called by secondaries as they call in */
+<span class="lineNum">     102 </span>                :            : extern void cpu_callin(struct cpu_thread *cpu);
+<span class="lineNum">     103 </span>                :            : 
+<span class="lineNum">     104 </span>                :            : /* For cpus which fail to call in. */
+<span class="lineNum">     105 </span>                :            : extern void cpu_remove_node(const struct cpu_thread *t);
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :            : /* Find CPUs using different methods */
+<span class="lineNum">     108 </span>                :            : extern struct cpu_thread *find_cpu_by_chip_id(u32 chip_id);
+<span class="lineNum">     109 </span>                :            : extern struct cpu_thread *find_cpu_by_node(struct dt_node *cpu);
+<span class="lineNum">     110 </span>                :            : extern struct cpu_thread *find_cpu_by_server(u32 server_no);
+<span class="lineNum">     111 </span>                :            : extern struct cpu_thread *find_cpu_by_pir(u32 pir);
+<span class="lineNum">     112 </span>                :            : 
+<span class="lineNum">     113 </span>                :            : extern struct dt_node *get_cpu_node(u32 pir);
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>                :            : /* Iterator */
+<span class="lineNum">     116 </span>                :            : extern struct cpu_thread *first_cpu(void);
+<span class="lineNum">     117 </span>                :            : extern struct cpu_thread *next_cpu(struct cpu_thread *cpu);
+<span class="lineNum">     118 </span>                :            : 
+<span class="lineNum">     119 </span>                :            : /* WARNING: CPUs that have been picked up by the OS are no longer
+<span class="lineNum">     120 </span>                :            :  *          appearing as available and can not have jobs scheduled
+<span class="lineNum">     121 </span>                :            :  *          on them. Essentially that means that after the OS is
+<span class="lineNum">     122 </span>                :            :  *          fully started, all CPUs are seen as unavailable from
+<span class="lineNum">     123 </span>                :            :  *          this API standpoint.
+<a name="124"><span class="lineNum">     124 </span>                :            :  */</a>
+<span class="lineNum">     125 </span>                :            : 
+<span class="lineNum">     126 </span>                :<span class="lineCov">        808 : static inline bool cpu_is_available(struct cpu_thread *cpu)</span>
+<span class="lineNum">     127 </span>                :            : {
+<span class="lineNum">     128 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 404 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">        404 :         return cpu-&gt;state == cpu_state_active ||</span>
+<span class="lineNum">     129 </span>                :            :                 cpu-&gt;state == cpu_state_rvwinkle;
+<span class="lineNum">     130 </span>                :            : }
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :            : extern struct cpu_thread *first_available_cpu(void);
+<span class="lineNum">     133 </span>                :            : extern struct cpu_thread *next_available_cpu(struct cpu_thread *cpu);
+<span class="lineNum">     134 </span>                :            : 
+<span class="lineNum">     135 </span>                :            : #define for_each_cpu(cpu)       \
+<span class="lineNum">     136 </span>                :            :         for (cpu = first_cpu(); cpu; cpu = next_cpu(cpu))
+<span class="lineNum">     137 </span>                :            : 
+<span class="lineNum">     138 </span>                :            : #define for_each_available_cpu(cpu)     \
+<span class="lineNum">     139 </span>                :            :         for (cpu = first_available_cpu(); cpu; cpu = next_available_cpu(cpu))
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>                :            : extern struct cpu_thread *first_available_core_in_chip(u32 chip_id);
+<span class="lineNum">     142 </span>                :            : extern struct cpu_thread *next_available_core_in_chip(struct cpu_thread *cpu, u32 chip_id);
+<span class="lineNum">     143 </span>                :            : 
+<span class="lineNum">     144 </span>                :            : #define for_each_available_core_in_chip(core, chip_id)  \
+<span class="lineNum">     145 </span>                :            :         for (core = first_available_core_in_chip(chip_id); core; \
+<span class="lineNum">     146 </span>                :            :                 core = next_available_core_in_chip(core, chip_id))
+<span class="lineNum">     147 </span>                :            : 
+<span class="lineNum">     148 </span>                :            : /* Return the caller CPU (only after init_cpu_threads) */
+<span class="lineNum">     149 </span>                :            : register struct cpu_thread *__this_cpu asm(&quot;r13&quot;);
+<span class="lineNum">     150 </span>                :            : static inline __nomcount struct cpu_thread *this_cpu(void)
+<span class="lineNum">     151 </span>                :            : {
+<span class="lineNum">     152 </span>                :<span class="lineCov">    7636140 :         return __this_cpu;</span>
+<span class="lineNum">     153 </span>                :            : }
+<span class="lineNum">     154 </span>                :            : 
+<span class="lineNum">     155 </span>                :            : /* Get the thread # of a cpu within the core */
+<span class="lineNum">     156 </span>                :            : static inline uint32_t cpu_get_thread_index(struct cpu_thread *cpu)
+<span class="lineNum">     157 </span>                :            : {
+<span class="lineNum">     158 </span>                :<span class="lineCov">        120 :         return cpu-&gt;pir - cpu-&gt;primary-&gt;pir;</span>
+<span class="lineNum">     159 </span>                :            : }
+<span class="lineNum">     160 </span>                :            : 
+<span class="lineNum">     161 </span>                :            : /* Get the core # of a cpu within the core */
+<span class="lineNum">     162 </span>                :            : extern uint32_t cpu_get_core_index(struct cpu_thread *cpu);
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>                :            : /* Get the PIR of thread 0 of the same core */
+<span class="lineNum">     165 </span>                :            : static inline uint32_t cpu_get_thread0(struct cpu_thread *cpu)
+<span class="lineNum">     166 </span>                :            : {
+<span class="lineNum">     167 </span>                :<span class="lineNoCov">          0 :         return cpu-&gt;primary-&gt;pir;</span>
+<span class="lineNum">     168 </span>                :            : }
+<span class="lineNum">     169 </span>                :            : 
+<span class="lineNum">     170 </span>                :            : static inline bool cpu_is_thread0(struct cpu_thread *cpu)
+<span class="lineNum">     171 </span>                :            : {
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :         return cpu-&gt;primary == cpu;</span>
+<span class="lineNum">     173 </span>                :            : }
+<span class="lineNum">     174 </span>                :            : 
+<span class="lineNum">     175 </span>                :            : static inline bool cpu_is_sibling(struct cpu_thread *cpu1,
+<span class="lineNum">     176 </span>                :            :                                   struct cpu_thread *cpu2)
+<span class="lineNum">     177 </span>                :            : {
+<span class="lineNum">     178 </span>                :            :         return cpu1-&gt;primary == cpu2-&gt;primary;
+<span class="lineNum">     179 </span>                :            : }
+<span class="lineNum">     180 </span>                :            : 
+<span class="lineNum">     181 </span>                :            : /* Called when some error condition requires disabling a core */
+<span class="lineNum">     182 </span>                :            : void cpu_disable_all_threads(struct cpu_thread *cpu);
+<span class="lineNum">     183 </span>                :            : 
+<span class="lineNum">     184 </span>                :            : /* Allocate &amp; queue a job on target CPU */
+<span class="lineNum">     185 </span>                :            : extern struct cpu_job *__cpu_queue_job(struct cpu_thread *cpu,
+<span class="lineNum">     186 </span>                :            :                                        void (*func)(void *data), void *data,
+<a name="187"><span class="lineNum">     187 </span>                :            :                                        bool no_return);</a>
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :<span class="lineCov">         36 : static inline struct cpu_job *cpu_queue_job(struct cpu_thread *cpu,</span>
+<span class="lineNum">     190 </span>                :            :                                             void (*func)(void *data),
+<span class="lineNum">     191 </span>                :            :                                             void *data)
+<span class="lineNum">     192 </span>                :            : {
+<span class="lineNum">     193 </span>                :<span class="lineCov">         36 :         return __cpu_queue_job(cpu, func, data, false);</span>
+<span class="lineNum">     194 </span>                :            : }
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>                :            : 
+<span class="lineNum">     197 </span>                :            : /* Poll job status, returns true if completed */
+<span class="lineNum">     198 </span>                :            : extern bool cpu_poll_job(struct cpu_job *job);
+<span class="lineNum">     199 </span>                :            : 
+<span class="lineNum">     200 </span>                :            : /* Synchronously wait for a job to complete, this will
+<span class="lineNum">     201 </span>                :            :  * continue handling the FSP mailbox if called from the
+<span class="lineNum">     202 </span>                :            :  * boot CPU. Set free_it to free it automatically.
+<span class="lineNum">     203 </span>                :            :  */
+<span class="lineNum">     204 </span>                :            : extern void cpu_wait_job(struct cpu_job *job, bool free_it);
+<span class="lineNum">     205 </span>                :            : 
+<span class="lineNum">     206 </span>                :            : /* Free a CPU job, only call on a completed job */
+<span class="lineNum">     207 </span>                :            : extern void cpu_free_job(struct cpu_job *job);
+<span class="lineNum">     208 </span>                :            : 
+<span class="lineNum">     209 </span>                :            : /* Called by init to process jobs */
+<a name="210"><span class="lineNum">     210 </span>                :            : extern void cpu_process_jobs(void);</a>
+<span class="lineNum">     211 </span>                :            : 
+<span class="lineNum">     212 </span>                :<span class="lineCov">         32 : static inline void cpu_give_self_os(void)</span>
+<span class="lineNum">     213 </span>                :            : {
+<span class="lineNum">     214 </span>                :<span class="lineCov">         32 :         __this_cpu-&gt;state = cpu_state_os;</span>
+<span class="lineNum">     215 </span>                :<span class="lineCov">         32 : }</span>
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>                :            : extern unsigned long cpu_stack_bottom(unsigned int pir);
+<span class="lineNum">     218 </span>                :            : extern unsigned long cpu_stack_top(unsigned int pir);
+<span class="lineNum">     219 </span>                :            : 
+<span class="lineNum">     220 </span>                :            : #endif /* __CPU_H */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

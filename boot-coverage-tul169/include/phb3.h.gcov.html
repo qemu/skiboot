@@ -1,0 +1,440 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - include/phb3.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">include</a> - phb3.h<span style="font-size: 80%;"> (source / <a href="phb3.h.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : /*
+<span class="lineNum">      18 </span>                :            : */
+<span class="lineNum">      19 </span>                :            : #ifndef __PHB3_H
+<span class="lineNum">      20 </span>                :            : #define __PHB3_H
+<span class="lineNum">      21 </span>                :            : 
+<span class="lineNum">      22 </span>                :            : #include &lt;interrupts.h&gt;
+<span class="lineNum">      23 </span>                :            : 
+<span class="lineNum">      24 </span>                :            : /*
+<span class="lineNum">      25 </span>                :            :  * Memory map
+<span class="lineNum">      26 </span>                :            :  *
+<span class="lineNum">      27 </span>                :            :  * In addition to the 4K MMIO registers window, the PBCQ will
+<span class="lineNum">      28 </span>                :            :  * forward down one or two large MMIO regions for use by the
+<span class="lineNum">      29 </span>                :            :  * PHB.
+<span class="lineNum">      30 </span>                :            :  *
+<span class="lineNum">      31 </span>                :            :  * We try to use the largest MMIO window for the M64 space and
+<span class="lineNum">      32 </span>                :            :  * the smallest for the M32 space, but we require at least 2G
+<span class="lineNum">      33 </span>                :            :  * of M32, otherwise we carve it out of M64.
+<span class="lineNum">      34 </span>                :            :  */
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :            : #define M32_PCI_START           0x080000000     /* Offset of the actual M32 window in PCI */
+<span class="lineNum">      37 </span>                :            : #define M32_PCI_SIZE            0x80000000ul    /* Size for M32 */
+<span class="lineNum">      38 </span>                :            : 
+<span class="lineNum">      39 </span>                :            : /*
+<span class="lineNum">      40 </span>                :            :  * Interrupt map.
+<span class="lineNum">      41 </span>                :            :  *
+<span class="lineNum">      42 </span>                :            :  * Each PHB supports 2K interrupt sources, which is shared by
+<span class="lineNum">      43 </span>                :            :  * LSI and MSI. With default configuration, MSI would use range
+<span class="lineNum">      44 </span>                :            :  * [0, 0x7f7] and LSI would use [0x7f8, 0x7ff]. The interrupt
+<span class="lineNum">      45 </span>                :            :  * source should be combined with IRSN to form final hardware
+<span class="lineNum">      46 </span>                :            :  * IRQ.
+<span class="lineNum">      47 </span>                :            :  */
+<span class="lineNum">      48 </span>                :            : #define PHB3_MSI_IRQ_MIN                0x000
+<span class="lineNum">      49 </span>                :            : #define PHB3_MSI_IRQ_COUNT              0x7F8
+<span class="lineNum">      50 </span>                :            : #define PHB3_MSI_IRQ_MAX                (PHB3_MSI_IRQ_MIN+PHB3_MSI_IRQ_COUNT-1)
+<span class="lineNum">      51 </span>                :            : #define PHB3_LSI_IRQ_MIN                (PHB3_MSI_IRQ_COUNT)
+<span class="lineNum">      52 </span>                :            : #define PHB3_LSI_IRQ_COUNT              8
+<span class="lineNum">      53 </span>                :            : #define PHB3_LSI_IRQ_MAX                (PHB3_LSI_IRQ_MIN+PHB3_LSI_IRQ_COUNT-1)
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            : #define PHB3_MSI_IRQ_BASE(chip, phb)    (P8_CHIP_IRQ_PHB_BASE(chip, phb) | \
+<span class="lineNum">      56 </span>                :            :                                          PHB3_MSI_IRQ_MIN)
+<span class="lineNum">      57 </span>                :            : #define PHB3_LSI_IRQ_BASE(chip, phb)    (P8_CHIP_IRQ_PHB_BASE(chip, phb) | \
+<span class="lineNum">      58 </span>                :            :                                          PHB3_LSI_IRQ_MIN)
+<span class="lineNum">      59 </span>                :            : #define PHB3_IRQ_NUM(irq)               (irq &amp; 0x7FF)
+<span class="lineNum">      60 </span>                :            : 
+<span class="lineNum">      61 </span>                :            : /*
+<span class="lineNum">      62 </span>                :            :  * LSI interrupts
+<span class="lineNum">      63 </span>                :            :  *
+<span class="lineNum">      64 </span>                :            :  * The LSI interrupt block supports 8 interrupts. 4 of them are the
+<span class="lineNum">      65 </span>                :            :  * standard PCIe INTA..INTB. The rest is for additional functions
+<span class="lineNum">      66 </span>                :            :  * of the PHB
+<span class="lineNum">      67 </span>                :            :  */
+<span class="lineNum">      68 </span>                :            : #define PHB3_LSI_PCIE_INTA              0
+<span class="lineNum">      69 </span>                :            : #define PHB3_LSI_PCIE_INTB              1
+<span class="lineNum">      70 </span>                :            : #define PHB3_LSI_PCIE_INTC              2
+<span class="lineNum">      71 </span>                :            : #define PHB3_LSI_PCIE_INTD              3
+<span class="lineNum">      72 </span>                :            : #define PHB3_LSI_PCIE_INF               6
+<span class="lineNum">      73 </span>                :            : #define PHB3_LSI_PCIE_ER                7
+<span class="lineNum">      74 </span>                :            : 
+<span class="lineNum">      75 </span>                :            : /*
+<span class="lineNum">      76 </span>                :            :  * In-memory tables
+<span class="lineNum">      77 </span>                :            :  *
+<span class="lineNum">      78 </span>                :            :  * PHB3 requires a bunch of tables to be in memory instead of
+<span class="lineNum">      79 </span>                :            :  * arrays inside the chip (unlike previous versions of the
+<span class="lineNum">      80 </span>                :            :  * design).
+<span class="lineNum">      81 </span>                :            :  *
+<span class="lineNum">      82 </span>                :            :  * Some of them (IVT, etc...) will be provided by the OS via an
+<span class="lineNum">      83 </span>                :            :  * OPAL call, not only not all of them, we also need to make sure
+<span class="lineNum">      84 </span>                :            :  * some like PELT-V exist before we do our internal slot probing
+<span class="lineNum">      85 </span>                :            :  * or bad thing would happen on error (the whole PHB would go into
+<span class="lineNum">      86 </span>                :            :  * Fatal error state).
+<span class="lineNum">      87 </span>                :            :  *
+<span class="lineNum">      88 </span>                :            :  * So we maintain a set of tables internally for those mandatory
+<span class="lineNum">      89 </span>                :            :  * ones within our core memory. They are fairly small. They can
+<span class="lineNum">      90 </span>                :            :  * still be replaced by OS provided ones via OPAL APIs (and reset
+<span class="lineNum">      91 </span>                :            :  * to the internal ones) so the OS can provide node local allocation
+<span class="lineNum">      92 </span>                :            :  * for better performances.
+<span class="lineNum">      93 </span>                :            :  *
+<span class="lineNum">      94 </span>                :            :  * All those tables have to be naturally aligned
+<span class="lineNum">      95 </span>                :            :  */
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>                :            : /* RTT Table : 128KB - Maps RID to PE# 
+<span class="lineNum">      98 </span>                :            :  *
+<span class="lineNum">      99 </span>                :            :  * Entries are 2 bytes indexed by PCIe RID
+<span class="lineNum">     100 </span>                :            :  */
+<span class="lineNum">     101 </span>                :            : #define RTT_TABLE_ENTRIES       0x10000
+<span class="lineNum">     102 </span>                :            : #define RTT_TABLE_SIZE          (RTT_TABLE_ENTRIES * sizeof(struct rtt_entry))
+<span class="lineNum">     103 </span>                :            : struct rtt_entry {
+<span class="lineNum">     104 </span>                :            :         uint16_t pe_num;
+<span class="lineNum">     105 </span>                :            : };
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :            : /* IVT Table : MSI Interrupt vectors * state.
+<span class="lineNum">     108 </span>                :            :  *
+<span class="lineNum">     109 </span>                :            :  * We're sure that simics has 16-bytes IVE, totally 32KB.
+<span class="lineNum">     110 </span>                :            :  * However the real HW possiblly has 128-bytes IVE, totally 256KB.
+<span class="lineNum">     111 </span>                :            :  */
+<span class="lineNum">     112 </span>                :            : #define IVT_TABLE_ENTRIES       0x800
+<span class="lineNum">     113 </span>                :            : 
+<span class="lineNum">     114 </span>                :            : /* Default to 128-bytes IVEs, uncomment that to force it back to 16-bytes */
+<span class="lineNum">     115 </span>                :            : //#define IVT_TABLE_IVE_16B
+<span class="lineNum">     116 </span>                :            : 
+<span class="lineNum">     117 </span>                :            : #ifdef IVT_TABLE_IVE_16B
+<span class="lineNum">     118 </span>                :            : #define IVT_TABLE_SIZE          0x8000
+<span class="lineNum">     119 </span>                :            : #define IVT_TABLE_STRIDE        2               /* double-words */
+<span class="lineNum">     120 </span>                :            : #else
+<span class="lineNum">     121 </span>                :            : #define IVT_TABLE_SIZE          0x40000
+<span class="lineNum">     122 </span>                :            : #define IVT_TABLE_STRIDE        16              /* double-words */
+<span class="lineNum">     123 </span>                :            : #endif
+<span class="lineNum">     124 </span>                :            : 
+<span class="lineNum">     125 </span>                :            : /* PELT-V Table : 8KB - Maps PE# to PE# dependencies
+<span class="lineNum">     126 </span>                :            :  *
+<span class="lineNum">     127 </span>                :            :  * 256 entries of 256 bits (32 bytes) each
+<span class="lineNum">     128 </span>                :            :  */
+<span class="lineNum">     129 </span>                :            : #define PELTV_TABLE_SIZE        0x2000
+<span class="lineNum">     130 </span>                :            : 
+<span class="lineNum">     131 </span>                :            : /* PEST Table : 4KB - PE state table
+<span class="lineNum">     132 </span>                :            :  *
+<span class="lineNum">     133 </span>                :            :  * 256 entries of 16 bytes each containing state bits for each PE
+<span class="lineNum">     134 </span>                :            :  *
+<span class="lineNum">     135 </span>                :            :  * AFAIK: This acts as a backup for an on-chip cache and shall be
+<span class="lineNum">     136 </span>                :            :  * accessed via the indirect IODA table access registers only
+<span class="lineNum">     137 </span>                :            :  */
+<span class="lineNum">     138 </span>                :            : #define PEST_TABLE_SIZE         0x1000
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>                :            : /* RBA Table : 256 bytes - Reject Bit Array
+<span class="lineNum">     141 </span>                :            :  *
+<span class="lineNum">     142 </span>                :            :  * 2048 interrupts, 1 bit each, indiates the reject state of interrupts
+<span class="lineNum">     143 </span>                :            :  */
+<span class="lineNum">     144 </span>                :            : #define RBA_TABLE_SIZE          0x100
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :            : /*
+<span class="lineNum">     147 </span>                :            :  * Maximal supported PE# in PHB3. We probably probe it from EEH
+<span class="lineNum">     148 </span>                :            :  * capability register later.
+<span class="lineNum">     149 </span>                :            :  */
+<span class="lineNum">     150 </span>                :            : #define PHB3_MAX_PE_NUM         256
+<span class="lineNum">     151 </span>                :            : 
+<span class="lineNum">     152 </span>                :            : /*
+<span class="lineNum">     153 </span>                :            :  * State structure for a PHB
+<span class="lineNum">     154 </span>                :            :  */
+<span class="lineNum">     155 </span>                :            : 
+<span class="lineNum">     156 </span>                :            : /*
+<span class="lineNum">     157 </span>                :            :  * (Comment copied from p7ioc.h, please update both when relevant)
+<span class="lineNum">     158 </span>                :            :  *
+<span class="lineNum">     159 </span>                :            :  * The PHB State structure is essentially used during PHB reset
+<span class="lineNum">     160 </span>                :            :  * or recovery operations to indicate that the PHB cannot currently
+<span class="lineNum">     161 </span>                :            :  * be used for normal operations.
+<span class="lineNum">     162 </span>                :            :  *
+<span class="lineNum">     163 </span>                :            :  * Some states involve waiting for the timebase to reach a certain
+<span class="lineNum">     164 </span>                :            :  * value. In which case the field &quot;delay_tgt_tb&quot; is set and the
+<span class="lineNum">     165 </span>                :            :  * state machine will be run from the &quot;state_poll&quot; callback.
+<span class="lineNum">     166 </span>                :            :  *
+<span class="lineNum">     167 </span>                :            :  * At IPL time, we call this repeatedly during the various sequences
+<span class="lineNum">     168 </span>                :            :  * however under OS control, this will require a change in API.
+<span class="lineNum">     169 </span>                :            :  *
+<span class="lineNum">     170 </span>                :            :  * Fortunately, the OPAL API for slot power &amp; reset are not currently
+<span class="lineNum">     171 </span>                :            :  * used by Linux, so changing them isn't going to be an issue. The idea
+<span class="lineNum">     172 </span>                :            :  * here is that some of these APIs will return a positive integer when
+<span class="lineNum">     173 </span>                :            :  * neededing such a delay to proceed. The OS will then be required to
+<span class="lineNum">     174 </span>                :            :  * call a new function opal_poll_phb() after that delay. That function
+<span class="lineNum">     175 </span>                :            :  * will potentially return a new delay, or OPAL_SUCCESS when the original
+<span class="lineNum">     176 </span>                :            :  * operation has completed successfully. If the operation has completed
+<span class="lineNum">     177 </span>                :            :  * with an error, then opal_poll_phb() will return that error.
+<span class="lineNum">     178 </span>                :            :  *
+<span class="lineNum">     179 </span>                :            :  * Note: Should we consider also returning optionally some indication
+<span class="lineNum">     180 </span>                :            :  * of what operation is in progress for OS debug/diag purposes ?
+<span class="lineNum">     181 </span>                :            :  *
+<span class="lineNum">     182 </span>                :            :  * Any attempt at starting a new &quot;asynchronous&quot; operation while one is
+<span class="lineNum">     183 </span>                :            :  * already in progress will result in an error.
+<span class="lineNum">     184 </span>                :            :  *
+<span class="lineNum">     185 </span>                :            :  * Internally, this is represented by the state being P7IOC_PHB_STATE_FUNCTIONAL
+<span class="lineNum">     186 </span>                :            :  * when no operation is in progress, which it reaches at the end of the
+<span class="lineNum">     187 </span>                :            :  * boot time initializations. Any attempt at performing a slot operation
+<span class="lineNum">     188 </span>                :            :  * on a PHB in that state will change the state to the corresponding
+<span class="lineNum">     189 </span>                :            :  * operation state machine. Any attempt while not in that state will
+<span class="lineNum">     190 </span>                :            :  * return an error.
+<span class="lineNum">     191 </span>                :            :  *
+<span class="lineNum">     192 </span>                :            :  * Some operations allow for a certain amount of retries, this is
+<span class="lineNum">     193 </span>                :            :  * provided for by the &quot;retries&quot; structure member for use by the state
+<span class="lineNum">     194 </span>                :            :  * machine as it sees fit.
+<span class="lineNum">     195 </span>                :            :  */
+<span class="lineNum">     196 </span>                :            : enum phb3_state {
+<span class="lineNum">     197 </span>                :            :         /* First init state */
+<span class="lineNum">     198 </span>                :            :         PHB3_STATE_UNINITIALIZED,
+<span class="lineNum">     199 </span>                :            : 
+<span class="lineNum">     200 </span>                :            :         /* During PHB HW inits */
+<span class="lineNum">     201 </span>                :            :         PHB3_STATE_INITIALIZING,
+<span class="lineNum">     202 </span>                :            : 
+<span class="lineNum">     203 </span>                :            :         /* Set if the PHB is for some reason unusable */
+<span class="lineNum">     204 </span>                :            :         PHB3_STATE_BROKEN,
+<span class="lineNum">     205 </span>                :            : 
+<span class="lineNum">     206 </span>                :            :         /* PHB fenced */
+<span class="lineNum">     207 </span>                :            :         PHB3_STATE_FENCED,
+<span class="lineNum">     208 </span>                :            : 
+<span class="lineNum">     209 </span>                :            :         /* Normal PHB functional state */
+<span class="lineNum">     210 </span>                :            :         PHB3_STATE_FUNCTIONAL,
+<span class="lineNum">     211 </span>                :            : 
+<span class="lineNum">     212 </span>                :            :         /* Hot reset */
+<span class="lineNum">     213 </span>                :            :         PHB3_STATE_HRESET_DELAY,
+<span class="lineNum">     214 </span>                :            :         PHB3_STATE_HRESET_DELAY2,
+<span class="lineNum">     215 </span>                :            : 
+<span class="lineNum">     216 </span>                :            :         /* Fundamental reset */
+<span class="lineNum">     217 </span>                :            :         PHB3_STATE_FRESET_ASSERT_DELAY,
+<span class="lineNum">     218 </span>                :            :         PHB3_STATE_FRESET_DEASSERT_DELAY,
+<span class="lineNum">     219 </span>                :            : 
+<span class="lineNum">     220 </span>                :            :         /* Complete reset */
+<span class="lineNum">     221 </span>                :            :         PHB3_STATE_CRESET_WAIT_CQ,
+<span class="lineNum">     222 </span>                :            :         PHB3_STATE_CRESET_REINIT,
+<span class="lineNum">     223 </span>                :            :         PHB3_STATE_CRESET_FRESET,
+<span class="lineNum">     224 </span>                :            : 
+<span class="lineNum">     225 </span>                :            :         /* Link state machine */
+<span class="lineNum">     226 </span>                :            :         PHB3_STATE_WAIT_LINK_ELECTRICAL,
+<span class="lineNum">     227 </span>                :            :         PHB3_STATE_WAIT_LINK,
+<span class="lineNum">     228 </span>                :            : };
+<span class="lineNum">     229 </span>                :            : 
+<span class="lineNum">     230 </span>                :            : /*
+<span class="lineNum">     231 </span>                :            :  * PHB3 error descriptor. Errors from all components (PBCQ, PHB)
+<span class="lineNum">     232 </span>                :            :  * will be cached to PHB3 instance. However, PBCQ errors would
+<span class="lineNum">     233 </span>                :            :  * have higher priority than those from PHB
+<span class="lineNum">     234 </span>                :            :  */
+<span class="lineNum">     235 </span>                :            : #define PHB3_ERR_SRC_NONE       0
+<span class="lineNum">     236 </span>                :            : #define PHB3_ERR_SRC_PBCQ       1
+<span class="lineNum">     237 </span>                :            : #define PHB3_ERR_SRC_PHB        2
+<span class="lineNum">     238 </span>                :            : 
+<span class="lineNum">     239 </span>                :            : #define PHB3_ERR_CLASS_NONE     0
+<span class="lineNum">     240 </span>                :            : #define PHB3_ERR_CLASS_DEAD     1
+<span class="lineNum">     241 </span>                :            : #define PHB3_ERR_CLASS_FENCED   2
+<span class="lineNum">     242 </span>                :            : #define PHB3_ERR_CLASS_ER       3
+<span class="lineNum">     243 </span>                :            : #define PHB3_ERR_CLASS_INF      4
+<span class="lineNum">     244 </span>                :            : #define PHB3_ERR_CLASS_LAST     5
+<span class="lineNum">     245 </span>                :            : 
+<span class="lineNum">     246 </span>                :            : struct phb3_err {
+<span class="lineNum">     247 </span>                :            :         uint32_t err_src;
+<span class="lineNum">     248 </span>                :            :         uint32_t err_class;
+<span class="lineNum">     249 </span>                :            :         uint32_t err_bit;
+<span class="lineNum">     250 </span>                :            : };
+<span class="lineNum">     251 </span>                :            : 
+<span class="lineNum">     252 </span>                :            : /* Link timeouts, increments of 100ms */
+<span class="lineNum">     253 </span>                :            : #define PHB3_LINK_WAIT_RETRIES          20
+<span class="lineNum">     254 </span>                :            : #define PHB3_LINK_ELECTRICAL_RETRIES    10
+<span class="lineNum">     255 </span>                :            : 
+<span class="lineNum">     256 </span>                :            : /* PHB3 flags */
+<span class="lineNum">     257 </span>                :            : #define PHB3_AIB_FENCED         0x00000001
+<span class="lineNum">     258 </span>                :            : #define PHB3_CFG_USE_ASB        0x00000002
+<span class="lineNum">     259 </span>                :            : #define PHB3_CFG_BLOCKED        0x00000004
+<span class="lineNum">     260 </span>                :            : #define PHB3_RESTORE_BUS_NUM    0x00000008
+<span class="lineNum">     261 </span>                :            : #define PHB3_CAPP_RECOVERY      0x00000010
+<span class="lineNum">     262 </span>                :            : 
+<span class="lineNum">     263 </span>                :            : struct phb3 {
+<span class="lineNum">     264 </span>                :            :         unsigned int            index;      /* 0..2 index inside P8 */
+<span class="lineNum">     265 </span>                :            :         unsigned int            flags;
+<span class="lineNum">     266 </span>                :            :         unsigned int            chip_id;    /* Chip ID (== GCID on P8) */
+<span class="lineNum">     267 </span>                :            :         unsigned int            rev;        /* 00MMmmmm */
+<span class="lineNum">     268 </span>                :            : #define PHB3_REV_MURANO_DD10    0xa30001
+<span class="lineNum">     269 </span>                :            : #define PHB3_REV_VENICE_DD10    0xa30002
+<span class="lineNum">     270 </span>                :            : #define PHB3_REV_MURANO_DD20    0xa30003
+<span class="lineNum">     271 </span>                :            : #define PHB3_REV_MURANO_DD21    0xa30004
+<span class="lineNum">     272 </span>                :            : #define PHB3_REV_VENICE_DD20    0xa30005
+<span class="lineNum">     273 </span>                :            :         void                    *regs;
+<span class="lineNum">     274 </span>                :            :         uint64_t                pe_xscom;   /* XSCOM bases */
+<span class="lineNum">     275 </span>                :            :         uint64_t                pci_xscom;
+<span class="lineNum">     276 </span>                :            :         uint64_t                spci_xscom;
+<span class="lineNum">     277 </span>                :            :         struct lock             lock;
+<span class="lineNum">     278 </span>                :            :         uint64_t                mm0_base;    /* Full MM window to PHB */
+<span class="lineNum">     279 </span>                :            :         uint64_t                mm0_size;    /* '' '' '' */
+<span class="lineNum">     280 </span>                :            :         uint64_t                mm1_base;    /* Full MM window to PHB */
+<span class="lineNum">     281 </span>                :            :         uint64_t                mm1_size;    /* '' '' '' */
+<span class="lineNum">     282 </span>                :            :         uint32_t                base_msi;
+<span class="lineNum">     283 </span>                :            :         uint32_t                base_lsi;
+<span class="lineNum">     284 </span>                :            : 
+<span class="lineNum">     285 </span>                :            :         /* SkiBoot owned in-memory tables */
+<span class="lineNum">     286 </span>                :            :         uint64_t                tbl_rtt;
+<span class="lineNum">     287 </span>                :            :         uint64_t                tbl_peltv;
+<span class="lineNum">     288 </span>                :            :         uint64_t                tbl_pest;
+<span class="lineNum">     289 </span>                :            :         uint64_t                tbl_ivt;
+<span class="lineNum">     290 </span>                :            :         uint64_t                tbl_rba;
+<span class="lineNum">     291 </span>                :            : 
+<span class="lineNum">     292 </span>                :            :         bool                    skip_perst; /* Skip first perst */
+<span class="lineNum">     293 </span>                :            :         bool                    has_link;
+<span class="lineNum">     294 </span>                :            :         bool                    use_ab_detect;
+<span class="lineNum">     295 </span>                :            :         enum phb3_state         state;
+<span class="lineNum">     296 </span>                :            :         uint64_t                delay_tgt_tb;
+<span class="lineNum">     297 </span>                :            :         uint64_t                retries;
+<span class="lineNum">     298 </span>                :            :         int64_t                 ecap;       /* cached PCI-E cap offset */
+<span class="lineNum">     299 </span>                :            :         int64_t                 aercap;     /* cached AER ecap offset */
+<span class="lineNum">     300 </span>                :            :         const __be64            *lane_eq;
+<span class="lineNum">     301 </span>                :            :         unsigned int            max_link_speed;
+<span class="lineNum">     302 </span>                :            : 
+<span class="lineNum">     303 </span>                :            :         uint16_t                rte_cache[RTT_TABLE_SIZE/2];
+<span class="lineNum">     304 </span>                :            :         uint8_t                 peltv_cache[PELTV_TABLE_SIZE];
+<span class="lineNum">     305 </span>                :            :         uint64_t                lxive_cache[8];
+<span class="lineNum">     306 </span>                :            :         uint64_t                ive_cache[IVT_TABLE_ENTRIES];
+<span class="lineNum">     307 </span>                :            :         uint64_t                tve_cache[512];
+<span class="lineNum">     308 </span>                :            :         uint64_t                m32d_cache[256];
+<span class="lineNum">     309 </span>                :            :         uint64_t                m64b_cache[16];
+<span class="lineNum">     310 </span>                :            :         uint64_t                nfir_cache;     /* Used by complete reset */
+<span class="lineNum">     311 </span>                :            :         bool                    err_pending;
+<span class="lineNum">     312 </span>                :            :         struct phb3_err         err;
+<span class="lineNum">     313 </span>                :            : 
+<span class="lineNum">     314 </span>                :            :         struct phb              phb;
+<span class="lineNum">     315 </span>                :            : };
+<span class="lineNum">     316 </span>                :            : 
+<span class="lineNum">     317 </span>                :            : static inline struct phb3 *phb_to_phb3(struct phb *phb)
+<span class="lineNum">     318 </span>                :            : {
+<span class="lineNum">     319 </span>                :            :         return container_of(phb, struct phb3, phb);
+<a name="320"><span class="lineNum">     320 </span>                :            : }</a>
+<span class="lineNum">     321 </span>                :            : 
+<span class="lineNum">     322 </span>                :<span class="lineCov">         10 : static inline uint64_t phb3_read_reg_asb(struct phb3 *p, uint64_t offset)</span>
+<span class="lineNum">     323 </span>                :            : {
+<span class="lineNum">     324 </span>                :            :         uint64_t val;
+<span class="lineNum">     325 </span>                :            : 
+<span class="lineNum">     326 </span>                :<span class="lineCov">         10 :         xscom_write(p-&gt;chip_id, p-&gt;spci_xscom, offset);</span>
+<span class="lineNum">     327 </span>                :<span class="lineCov">         10 :         xscom_read(p-&gt;chip_id, p-&gt;spci_xscom + 0x2, &amp;val);</span>
+<span class="lineNum">     328 </span>                :            : 
+<span class="lineNum">     329 </span>                :<span class="lineCov">         10 :         return val;</span>
+<a name="330"><span class="lineNum">     330 </span>                :            : }</a>
+<span class="lineNum">     331 </span>                :            : 
+<span class="lineNum">     332 </span>                :<span class="lineCov">         28 : static inline void phb3_write_reg_asb(struct phb3 *p,</span>
+<span class="lineNum">     333 </span>                :            :                                       uint64_t offset, uint64_t val)
+<span class="lineNum">     334 </span>                :            : {
+<span class="lineNum">     335 </span>                :<span class="lineCov">         28 :         xscom_write(p-&gt;chip_id, p-&gt;spci_xscom, offset);</span>
+<span class="lineNum">     336 </span>                :<span class="lineCov">         28 :         xscom_write(p-&gt;chip_id, p-&gt;spci_xscom + 0x2, val);</span>
+<span class="lineNum">     337 </span>                :<span class="lineCov">         28 : }</span>
+<span class="lineNum">     338 </span>                :            : 
+<span class="lineNum">     339 </span>                :            : static inline bool phb3_err_pending(struct phb3 *p)
+<span class="lineNum">     340 </span>                :            : {
+<span class="lineNum">     341 </span>                :            :         return p-&gt;err_pending;
+<a name="342"><span class="lineNum">     342 </span>                :            : }</a>
+<span class="lineNum">     343 </span>                :            : 
+<span class="lineNum">     344 </span>                :<span class="lineCov">        142 : static inline void phb3_set_err_pending(struct phb3 *p, bool pending)</span>
+<span class="lineNum">     345 </span>                :            : {
+<span class="lineNum">     346 </span>        [<span class="branchCov" title="Branch 0 was taken 80 times"> + </span><span class="branchCov" title="Branch 1 was taken 62 times"> + </span>]:<span class="lineCov">        142 :         if (!pending) {</span>
+<span class="lineNum">     347 </span>                :<span class="lineCov">         80 :                 p-&gt;err.err_src   = PHB3_ERR_SRC_NONE;</span>
+<span class="lineNum">     348 </span>                :<span class="lineCov">         80 :                 p-&gt;err.err_class = PHB3_ERR_CLASS_NONE;</span>
+<span class="lineNum">     349 </span>                :<span class="lineCov">         80 :                 p-&gt;err.err_bit   = -1;</span>
+<span class="lineNum">     350 </span>                :            :         }
+<span class="lineNum">     351 </span>                :            : 
+<span class="lineNum">     352 </span>                :<span class="lineCov">        142 :         p-&gt;err_pending = pending;</span>
+<span class="lineNum">     353 </span>                :<span class="lineCov">        142 : }</span>
+<span class="lineNum">     354 </span>                :            : 
+<span class="lineNum">     355 </span>                :            : #endif /* __PHB3_H */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,517 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/fsp/fsp-elog-write.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">hw/fsp</a> - fsp-elog-write.c<span style="font-size: 80%;"> (source / <a href="fsp-elog-write.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">23</td>
+            <td class="headerCovTableEntry">197</td>
+            <td class="headerCovTableEntryLo">11.7 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryLo">21.4 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">76</td>
+            <td class="headerCovTableEntryLo">7.9 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : 
+<span class="lineNum">      18 </span>                :            : /*
+<span class="lineNum">      19 </span>                :            :  * This code will enable generation and pushing of error log
+<span class="lineNum">      20 </span>                :            :  * from powernv, sapphire to FSP
+<span class="lineNum">      21 </span>                :            :  * Critical events from sapphire that needs to be reported
+<span class="lineNum">      22 </span>                :            :  * will be pushed on to FSP after converting the
+<span class="lineNum">      23 </span>                :            :  * error log to Platform Error Log (PEL) format.
+<span class="lineNum">      24 </span>                :            :  * This is termed as WRITE action to FSP.
+<span class="lineNum">      25 </span>                :            :  */
+<span class="lineNum">      26 </span>                :            : 
+<span class="lineNum">      27 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      28 </span>                :            : #include &lt;fsp.h&gt;
+<span class="lineNum">      29 </span>                :            : #include &lt;cpu.h&gt;
+<span class="lineNum">      30 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      31 </span>                :            : #include &lt;errno.h&gt;
+<span class="lineNum">      32 </span>                :            : #include &lt;fsp-elog.h&gt;
+<span class="lineNum">      33 </span>                :            : #include &lt;timebase.h&gt;
+<span class="lineNum">      34 </span>                :            : #include &lt;pel.h&gt;
+<span class="lineNum">      35 </span>                :            : #include &lt;pool.h&gt;
+<span class="lineNum">      36 </span>                :            : #include &lt;opal-api.h&gt;
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :            : static LIST_HEAD(elog_write_to_fsp_pending);
+<span class="lineNum">      39 </span>                :            : static LIST_HEAD(elog_write_to_host_pending);
+<span class="lineNum">      40 </span>                :            : static LIST_HEAD(elog_write_to_host_processed);
+<span class="lineNum">      41 </span>                :            : 
+<span class="lineNum">      42 </span>                :            : static struct lock elog_write_lock = LOCK_UNLOCKED;
+<span class="lineNum">      43 </span>                :            : static struct lock elog_panic_write_lock = LOCK_UNLOCKED;
+<span class="lineNum">      44 </span>                :            : static struct lock elog_write_to_host_lock = LOCK_UNLOCKED;
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :            : /* log buffer  to copy FSP log for READ */
+<span class="lineNum">      47 </span>                :            : #define ELOG_WRITE_TO_FSP_BUFFER_SIZE   0x00040000
+<span class="lineNum">      48 </span>                :            : static void *elog_write_to_fsp_buffer;
+<span class="lineNum">      49 </span>                :            : 
+<span class="lineNum">      50 </span>                :            : #define ELOG_PANIC_WRITE_BUFFER_SIZE    0x0010000
+<span class="lineNum">      51 </span>                :            : static void *elog_panic_write_buffer;
+<span class="lineNum">      52 </span>                :            : 
+<span class="lineNum">      53 </span>                :            : #define ELOG_WRITE_TO_HOST_BUFFER_SIZE  0x0010000
+<span class="lineNum">      54 </span>                :            : static void *elog_write_to_host_buffer;
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :            : static uint32_t elog_write_retries;
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :            : /* Manipulate this only with write_lock held */
+<span class="lineNum">      59 </span>                :            : static uint32_t elog_plid_fsp_commit = -1;
+<span class="lineNum">      60 </span>                :            : enum elog_head_state elog_write_to_host_head_state = ELOG_STATE_NONE;
+<span class="lineNum">      61 </span>                :            : 
+<span class="lineNum">      62 </span>                :            : /* Need forward declaration because of Circular dependency */
+<a name="63"><span class="lineNum">      63 </span>                :            : static int opal_send_elog_to_fsp(void);</a>
+<span class="lineNum">      64 </span>                :            : 
+<span class="lineNum">      65 </span>                :<span class="lineNoCov">          0 : static void remove_elog_head_entry(void)</span>
+<span class="lineNum">      66 </span>                :            : {
+<span class="lineNum">      67 </span>                :            :         struct errorlog *head, *entry;
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 :         lock(&amp;elog_write_lock);</span>
+<span class="lineNum">      70 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!list_empty(&amp;elog_write_to_fsp_pending)) {</span>
+<span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 :                 head = list_top(&amp;elog_write_to_fsp_pending,</span>
+<span class="lineNum">      72 </span>                :            :                                         struct errorlog, link);
+<span class="lineNum">      73 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (head-&gt;plid == elog_plid_fsp_commit) {</span>
+<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 :                         entry = list_pop(&amp;elog_write_to_fsp_pending,</span>
+<span class="lineNum">      75 </span>                :            :                                         struct errorlog, link);
+<span class="lineNum">      76 </span>                :<span class="lineNoCov">          0 :                         opal_elog_complete(entry, elog_write_retries &lt; MAX_RETRIES);</span>
+<span class="lineNum">      77 </span>                :            :                         /* Reset the counter */
+<span class="lineNum">      78 </span>                :<span class="lineNoCov">          0 :                         elog_plid_fsp_commit = -1;</span>
+<span class="lineNum">      79 </span>                :            :                 }
+<span class="lineNum">      80 </span>                :            :         }
+<span class="lineNum">      81 </span>                :<span class="lineNoCov">          0 :         elog_write_retries = 0;</span>
+<span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;elog_write_lock);</span>
+<a name="83"><span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 : static void opal_fsp_write_complete(struct fsp_msg *read_msg)</span>
+<span class="lineNum">      86 </span>                :            : {
+<span class="lineNum">      87 </span>                :            :         uint8_t val;
+<span class="lineNum">      88 </span>                :            : 
+<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :         val = (read_msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :         fsp_freemsg(read_msg);</span>
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (val) {</span>
+<span class="lineNum">      93 </span>                :            :         case FSP_STATUS_SUCCESS:
+<span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 :                         remove_elog_head_entry();</span>
+<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>                :            :         default:
+<span class="lineNum">      98 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (elog_write_retries++ &gt;= MAX_RETRIES) {</span>
+<span class="lineNum">      99 </span>                :<span class="lineNoCov">          0 :                         remove_elog_head_entry();</span>
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;ELOG: Error in writing to FSP!\n&quot;);</span>
+<span class="lineNum">     101 </span>                :            :                 }
+<span class="lineNum">     102 </span>                :            :                 break;
+<span class="lineNum">     103 </span>                :            :         }
+<span class="lineNum">     104 </span>                :            : 
+<span class="lineNum">     105 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (opal_send_elog_to_fsp() != OPAL_SUCCESS)</span>
+<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;ELOG: Error sending elog to FSP !\n&quot;);</span>
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="108"><span class="lineNum">     108 </span>                :            : </a>
+<span class="lineNum">     109 </span>                :            : /* write PEL format hex dump of the log to FSP */
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_opal_elog_write(size_t opal_elog_size)</span>
+<span class="lineNum">     111 </span>                :            : {
+<span class="lineNum">     112 </span>                :            :         struct fsp_msg *elog_msg;
+<span class="lineNum">     113 </span>                :            : 
+<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :         elog_msg = fsp_mkmsg(FSP_CMD_CREATE_ERRLOG, 3, opal_elog_size,</span>
+<span class="lineNum">     115 </span>                :            :                                                  0, PSI_DMA_ERRLOG_WRITE_BUF);
+<span class="lineNum">     116 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!elog_msg) {</span>
+<span class="lineNum">     117 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;ELOG: Failed to create message for WRITE to FSP\n&quot;);</span>
+<span class="lineNum">     118 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     119 </span>                :            :         }
+<span class="lineNum">     120 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_queue_msg(elog_msg, opal_fsp_write_complete)) {</span>
+<span class="lineNum">     121 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(elog_msg);</span>
+<span class="lineNum">     122 </span>                :<span class="lineNoCov">          0 :                 elog_msg = NULL;</span>
+<span class="lineNum">     123 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FSP: Error queueing elog update\n&quot;);</span>
+<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     125 </span>                :            :         }
+<span class="lineNum">     126 </span>                :            :         return OPAL_SUCCESS;
+<a name="127"><span class="lineNum">     127 </span>                :            : }</a>
+<span class="lineNum">     128 </span>                :            : 
+<span class="lineNum">     129 </span>                :<span class="lineNoCov">          0 : bool opal_elog_info(uint64_t *opal_elog_id, uint64_t *opal_elog_size)</span>
+<span class="lineNum">     130 </span>                :            : {
+<span class="lineNum">     131 </span>                :            :         struct errorlog *head;
+<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :         bool rc = false;</span>
+<span class="lineNum">     133 </span>                :            : 
+<span class="lineNum">     134 </span>                :<span class="lineNoCov">          0 :         lock(&amp;elog_write_to_host_lock);</span>
+<span class="lineNum">     135 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (elog_write_to_host_head_state == ELOG_STATE_FETCHED_DATA) {</span>
+<span class="lineNum">     136 </span>                :<span class="lineNoCov">          0 :                 head = list_top(&amp;elog_write_to_host_pending,</span>
+<span class="lineNum">     137 </span>                :            :                                         struct errorlog, link);
+<span class="lineNum">     138 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!head) {</span>
+<span class="lineNum">     139 </span>                :<span class="lineNoCov">          0 :                         prlog(PR_ERR,</span>
+<span class="lineNum">     140 </span>                :            :                               &quot;%s: Inconsistent internal list state !\n&quot;,
+<span class="lineNum">     141 </span>                :            :                               __func__);
+<span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 :                         elog_write_to_host_head_state = ELOG_STATE_NONE;</span>
+<span class="lineNum">     143 </span>                :            :                 } else {
+<span class="lineNum">     144 </span>                :<span class="lineNoCov">          0 :                         *opal_elog_id = head-&gt;plid;</span>
+<span class="lineNum">     145 </span>                :<span class="lineNoCov">          0 :                         *opal_elog_size = head-&gt;log_size;</span>
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :                         elog_write_to_host_head_state = ELOG_STATE_FETCHED_INFO;</span>
+<span class="lineNum">     147 </span>                :<span class="lineNoCov">          0 :                         rc = true;</span>
+<span class="lineNum">     148 </span>                :            :                 }
+<span class="lineNum">     149 </span>                :            :         }
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;elog_write_to_host_lock);</span>
+<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="152"><span class="lineNum">     152 </span>                :            : }</a>
+<span class="lineNum">     153 </span>                :            : 
+<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 : static void opal_commit_elog_in_host(void)</span>
+<span class="lineNum">     155 </span>                :            : {
+<span class="lineNum">     156 </span>                :            : 
+<span class="lineNum">     157 </span>                :            :         struct errorlog *buf;
+<span class="lineNum">     158 </span>                :            : 
+<span class="lineNum">     159 </span>                :<span class="lineNoCov">          0 :         lock(&amp;elog_write_to_host_lock);</span>
+<span class="lineNum">     160 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!list_empty(&amp;elog_write_to_host_pending) &amp;&amp;</span>
+<span class="lineNum">     161 </span>                :<span class="lineNoCov">          0 :                         (elog_write_to_host_head_state == ELOG_STATE_NONE)) {</span>
+<span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :                 buf = list_top(&amp;elog_write_to_host_pending,</span>
+<span class="lineNum">     163 </span>                :            :                                 struct errorlog, link);
+<span class="lineNum">     164 </span>                :<span class="lineNoCov">          0 :                 buf-&gt;log_size = create_pel_log(buf,</span>
+<span class="lineNum">     165 </span>                :            :                                                (char *)elog_write_to_host_buffer,
+<span class="lineNum">     166 </span>                :            :                                                ELOG_WRITE_TO_HOST_BUFFER_SIZE);
+<span class="lineNum">     167 </span>                :<span class="lineNoCov">          0 :                 elog_write_to_host_head_state = ELOG_STATE_FETCHED_DATA;</span>
+<span class="lineNum">     168 </span>                :<span class="lineNoCov">          0 :                 opal_update_pending_evt(OPAL_EVENT_ERROR_LOG_AVAIL,</span>
+<span class="lineNum">     169 </span>                :            :                                         OPAL_EVENT_ERROR_LOG_AVAIL);
+<span class="lineNum">     170 </span>                :            :         }
+<span class="lineNum">     171 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;elog_write_to_host_lock);</span>
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="173"><span class="lineNum">     173 </span>                :            : </a>
+<span class="lineNum">     174 </span>                :            : 
+<span class="lineNum">     175 </span>                :<span class="lineNoCov">          0 : bool opal_elog_read(uint64_t *buffer, uint64_t opal_elog_size,</span>
+<span class="lineNum">     176 </span>                :            :                     uint64_t opal_elog_id)
+<span class="lineNum">     177 </span>                :            : {
+<span class="lineNum">     178 </span>                :            :         struct errorlog *log_data;
+<span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :         bool rc = false;</span>
+<span class="lineNum">     180 </span>                :            : 
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :         lock(&amp;elog_write_to_host_lock);</span>
+<span class="lineNum">     182 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (elog_write_to_host_head_state == ELOG_STATE_FETCHED_INFO) {</span>
+<span class="lineNum">     183 </span>                :<span class="lineNoCov">          0 :                 log_data = list_top(&amp;elog_write_to_host_pending,</span>
+<span class="lineNum">     184 </span>                :            :                                         struct errorlog, link);
+<span class="lineNum">     185 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!log_data) {</span>
+<span class="lineNum">     186 </span>                :<span class="lineNoCov">          0 :                         elog_write_to_host_head_state = ELOG_STATE_NONE;</span>
+<span class="lineNum">     187 </span>                :<span class="lineNoCov">          0 :                         unlock(&amp;elog_write_to_host_lock);</span>
+<span class="lineNum">     188 </span>                :<span class="lineNoCov">          0 :                         return rc;</span>
+<span class="lineNum">     189 </span>                :            :                 }
+<span class="lineNum">     190 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if ((opal_elog_id != log_data-&gt;plid) &amp;&amp;</span>
+<span class="lineNum">     191 </span>                :<span class="lineNoCov">          0 :                     (opal_elog_size != log_data-&gt;log_size)) {</span>
+<span class="lineNum">     192 </span>                :<span class="lineNoCov">          0 :                         unlock(&amp;elog_write_to_host_lock);</span>
+<span class="lineNum">     193 </span>                :<span class="lineNoCov">          0 :                         return rc;</span>
+<span class="lineNum">     194 </span>                :            :                 }
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>                :<span class="lineNoCov">          0 :                 memcpy((void *)buffer, elog_write_to_host_buffer,</span>
+<span class="lineNum">     197 </span>                :            :                                                         opal_elog_size);
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 :                 list_del(&amp;log_data-&gt;link);</span>
+<span class="lineNum">     200 </span>                :<span class="lineNoCov">          0 :                 list_add(&amp;elog_write_to_host_processed, &amp;log_data-&gt;link);</span>
+<span class="lineNum">     201 </span>                :<span class="lineNoCov">          0 :                 elog_write_to_host_head_state = ELOG_STATE_NONE;</span>
+<span class="lineNum">     202 </span>                :<span class="lineNoCov">          0 :                 rc = true;</span>
+<span class="lineNum">     203 </span>                :            :         }
+<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;elog_write_to_host_lock);</span>
+<span class="lineNum">     205 </span>                :<span class="lineNoCov">          0 :         opal_commit_elog_in_host();</span>
+<span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="207"><span class="lineNum">     207 </span>                :            : }</a>
+<span class="lineNum">     208 </span>                :            : 
+<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 : bool opal_elog_ack(uint64_t ack_id)</span>
+<span class="lineNum">     210 </span>                :            : {
+<span class="lineNum">     211 </span>                :<span class="lineNoCov">          0 :         bool rc = false;</span>
+<span class="lineNum">     212 </span>                :            :         struct errorlog *log_data;
+<span class="lineNum">     213 </span>                :            :         struct errorlog *record, *next_record;
+<span class="lineNum">     214 </span>                :            : 
+<span class="lineNum">     215 </span>                :<span class="lineNoCov">          0 :         lock(&amp;elog_write_to_host_lock);</span>
+<span class="lineNum">     216 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!list_empty(&amp;elog_write_to_host_processed)) {</span>
+<span class="lineNum">     217 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 list_for_each_safe(&amp;elog_write_to_host_processed, record,</span>
+<span class="lineNum">     218 </span>                :            :                                                         next_record, link) {
+<span class="lineNum">     219 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (record-&gt;plid != ack_id)</span>
+<span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">     221 </span>                :<span class="lineNoCov">          0 :                         list_del(&amp;record-&gt;link);</span>
+<span class="lineNum">     222 </span>                :<span class="lineNoCov">          0 :                         opal_elog_complete(record, true);</span>
+<span class="lineNum">     223 </span>                :<span class="lineNoCov">          0 :                         rc = true;</span>
+<span class="lineNum">     224 </span>                :            :                 }
+<span class="lineNum">     225 </span>                :            :         }
+<span class="lineNum">     226 </span>                :            : 
+<span class="lineNum">     227 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((!rc) &amp;&amp; (!list_empty(&amp;elog_write_to_host_pending))) {</span>
+<span class="lineNum">     228 </span>                :<span class="lineNoCov">          0 :                 log_data = list_top(&amp;elog_write_to_host_pending,</span>
+<span class="lineNum">     229 </span>                :            :                                         struct errorlog, link);
+<span class="lineNum">     230 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (ack_id == log_data-&gt;plid)</span>
+<span class="lineNum">     231 </span>                :<span class="lineNoCov">          0 :                         elog_write_to_host_head_state = ELOG_STATE_NONE;</span>
+<span class="lineNum">     232 </span>                :            : 
+<span class="lineNum">     233 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 list_for_each_safe(&amp;elog_write_to_host_pending, record,</span>
+<span class="lineNum">     234 </span>                :            :                                                         next_record, link) {
+<span class="lineNum">     235 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (record-&gt;plid != ack_id)</span>
+<span class="lineNum">     236 </span>                :<span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">     237 </span>                :<span class="lineNoCov">          0 :                         list_del(&amp;record-&gt;link);</span>
+<span class="lineNum">     238 </span>                :<span class="lineNoCov">          0 :                         opal_elog_complete(record, true);</span>
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :                         rc = true;</span>
+<span class="lineNum">     240 </span>                :            :                 }
+<span class="lineNum">     241 </span>                :            :         }
+<span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;elog_write_to_host_lock);</span>
+<span class="lineNum">     243 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="244"><span class="lineNum">     244 </span>                :            : }</a>
+<span class="lineNum">     245 </span>                :            : 
+<span class="lineNum">     246 </span>                :<span class="lineCov">          1 : void opal_resend_pending_logs(void)</span>
+<span class="lineNum">     247 </span>                :            : {
+<span class="lineNum">     248 </span>                :            :         struct errorlog *record;
+<span class="lineNum">     249 </span>                :            : 
+<span class="lineNum">     250 </span>                :<span class="lineCov">          1 :         lock(&amp;elog_write_to_host_lock);</span>
+<span class="lineNum">     251 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (list_empty(&amp;elog_write_to_host_processed)) {</span>
+<span class="lineNum">     252 </span>                :<span class="lineCov">          1 :                 unlock(&amp;elog_write_to_host_lock);</span>
+<span class="lineNum">     253 </span>                :<span class="lineCov">          1 :                 return;</span>
+<span class="lineNum">     254 </span>                :            :         }
+<span class="lineNum">     255 </span>                :            : 
+<span class="lineNum">     256 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while (!list_empty(&amp;elog_write_to_host_processed)) {</span>
+<span class="lineNum">     257 </span>                :<span class="lineNoCov">          0 :                 record = list_pop(&amp;elog_write_to_host_processed,</span>
+<span class="lineNum">     258 </span>                :            :                                         struct errorlog, link);
+<span class="lineNum">     259 </span>                :<span class="lineNoCov">          0 :                 list_add_tail(&amp;elog_write_to_host_pending, &amp;record-&gt;link);</span>
+<span class="lineNum">     260 </span>                :            :         }
+<span class="lineNum">     261 </span>                :<span class="lineNoCov">          0 :         elog_write_to_host_head_state = ELOG_STATE_NONE;</span>
+<span class="lineNum">     262 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;elog_write_to_host_lock);</span>
+<span class="lineNum">     263 </span>                :<span class="lineNoCov">          0 :         opal_commit_elog_in_host();</span>
+<a name="264"><span class="lineNum">     264 </span>                :            : }</a>
+<span class="lineNum">     265 </span>                :            : 
+<span class="lineNum">     266 </span>                :<span class="lineNoCov">          0 : static int opal_send_elog_to_fsp(void)</span>
+<span class="lineNum">     267 </span>                :            : {
+<span class="lineNum">     268 </span>                :            :         struct errorlog *head;
+<span class="lineNum">     269 </span>                :<span class="lineNoCov">          0 :         int rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     270 </span>                :            : 
+<span class="lineNum">     271 </span>                :            :         /* Convert entry to PEL
+<span class="lineNum">     272 </span>                :            :          * and push it down to FSP. We wait for the ack from
+<span class="lineNum">     273 </span>                :            :          * FSP.
+<span class="lineNum">     274 </span>                :            :          */
+<span class="lineNum">     275 </span>                :<span class="lineNoCov">          0 :         lock(&amp;elog_write_lock);</span>
+<span class="lineNum">     276 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!list_empty(&amp;elog_write_to_fsp_pending)) {</span>
+<span class="lineNum">     277 </span>                :<span class="lineNoCov">          0 :                 head = list_top(&amp;elog_write_to_fsp_pending,</span>
+<span class="lineNum">     278 </span>                :            :                                          struct errorlog, link);
+<span class="lineNum">     279 </span>                :<span class="lineNoCov">          0 :                 elog_plid_fsp_commit = head-&gt;plid;</span>
+<span class="lineNum">     280 </span>                :<span class="lineNoCov">          0 :                 head-&gt;log_size = create_pel_log(head,</span>
+<span class="lineNum">     281 </span>                :            :                                                 (char *)elog_write_to_fsp_buffer,
+<span class="lineNum">     282 </span>                :            :                                                 ELOG_WRITE_TO_FSP_BUFFER_SIZE);
+<span class="lineNum">     283 </span>                :<span class="lineNoCov">          0 :                 rc = fsp_opal_elog_write(head-&gt;log_size);</span>
+<span class="lineNum">     284 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;elog_write_lock);</span>
+<span class="lineNum">     285 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
+<span class="lineNum">     286 </span>                :            :         }
+<span class="lineNum">     287 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;elog_write_lock);</span>
+<span class="lineNum">     288 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="289"><span class="lineNum">     289 </span>                :            : }</a>
+<span class="lineNum">     290 </span>                :            : 
+<span class="lineNum">     291 </span>                :<span class="lineNoCov">          0 : static int opal_push_logs_sync_to_fsp(struct errorlog *buf)</span>
+<span class="lineNum">     292 </span>                :            : {
+<span class="lineNum">     293 </span>                :            :         struct fsp_msg *elog_msg;
+<span class="lineNum">     294 </span>                :<span class="lineNoCov">          0 :         int opal_elog_size = 0;</span>
+<span class="lineNum">     295 </span>                :<span class="lineNoCov">          0 :         int rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     296 </span>                :            : 
+<span class="lineNum">     297 </span>                :<span class="lineNoCov">          0 :         lock(&amp;elog_panic_write_lock);</span>
+<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 :         opal_elog_size = create_pel_log(buf,</span>
+<span class="lineNum">     299 </span>                :            :                                         (char *)elog_panic_write_buffer,
+<span class="lineNum">     300 </span>                :            :                                         ELOG_PANIC_WRITE_BUFFER_SIZE);
+<span class="lineNum">     301 </span>                :            : 
+<span class="lineNum">     302 </span>                :<span class="lineNoCov">          0 :         elog_msg = fsp_mkmsg(FSP_CMD_CREATE_ERRLOG, 3, opal_elog_size,</span>
+<span class="lineNum">     303 </span>                :            :                                         0, PSI_DMA_ELOG_PANIC_WRITE_BUF);
+<span class="lineNum">     304 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!elog_msg) {</span>
+<span class="lineNum">     305 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;ELOG: PLID: 0x%x Failed to create message for WRITE &quot;</span>
+<span class="lineNum">     306 </span>                :            :                                                         &quot;to FSP\n&quot;, buf-&gt;plid);
+<span class="lineNum">     307 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;elog_panic_write_lock);</span>
+<span class="lineNum">     308 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     309 </span>                :            :         }
+<span class="lineNum">     310 </span>                :            : 
+<span class="lineNum">     311 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_sync_msg(elog_msg, false)) {</span>
+<span class="lineNum">     312 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(elog_msg);</span>
+<span class="lineNum">     313 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     314 </span>                :            :         } else {
+<span class="lineNum">     315 </span>                :<span class="lineNoCov">          0 :                 rc = (elog_msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     316 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(elog_msg);</span>
+<span class="lineNum">     317 </span>                :            :         }
+<span class="lineNum">     318 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;elog_panic_write_lock);</span>
+<span class="lineNum">     319 </span>                :            : 
+<span class="lineNum">     320 </span>                :<span class="lineNoCov">          0 :         opal_elog_complete(buf, true);</span>
+<span class="lineNum">     321 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     322 </span>                :            : }
+<span class="lineNum">     323 </span>                :            : 
+<a name="324"><span class="lineNum">     324 </span>                :            : static inline u64 get_elog_timeout(void)</a>
+<span class="lineNum">     325 </span>                :            : {
+<span class="lineNum">     326 </span>                :<span class="lineNoCov">          0 :         return (mftb() + secs_to_tb(ERRORLOG_TIMEOUT_INTERVAL));</span>
+<span class="lineNum">     327 </span>                :            : }
+<span class="lineNum">     328 </span>                :            : 
+<span class="lineNum">     329 </span>                :<span class="lineNoCov">          0 : int elog_fsp_commit(struct errorlog *buf)</span>
+<span class="lineNum">     330 </span>                :            : {
+<span class="lineNum">     331 </span>                :<span class="lineNoCov">          0 :         int rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     332 </span>                :            : 
+<span class="lineNum">     333 </span>                :            :         /* Error needs to be committed, update the time out value */
+<span class="lineNum">     334 </span>                :<span class="lineNoCov">          0 :         buf-&gt;elog_timeout = get_elog_timeout();</span>
+<span class="lineNum">     335 </span>                :            : 
+<span class="lineNum">     336 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (buf-&gt;event_severity == OPAL_ERROR_PANIC) {</span>
+<span class="lineNum">     337 </span>                :<span class="lineNoCov">          0 :                 rc = opal_push_logs_sync_to_fsp(buf);</span>
+<span class="lineNum">     338 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
+<span class="lineNum">     339 </span>                :            :         }
+<span class="lineNum">     340 </span>                :            : 
+<span class="lineNum">     341 </span>                :<span class="lineNoCov">          0 :         lock(&amp;elog_write_lock);</span>
+<span class="lineNum">     342 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (list_empty(&amp;elog_write_to_fsp_pending)) {</span>
+<span class="lineNum">     343 </span>                :<span class="lineNoCov">          0 :                 list_add_tail(&amp;elog_write_to_fsp_pending, &amp;buf-&gt;link);</span>
+<span class="lineNum">     344 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;elog_write_lock);</span>
+<span class="lineNum">     345 </span>                :<span class="lineNoCov">          0 :                 rc = opal_send_elog_to_fsp();</span>
+<span class="lineNum">     346 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
+<span class="lineNum">     347 </span>                :            :         }
+<span class="lineNum">     348 </span>                :<span class="lineNoCov">          0 :         list_add_tail(&amp;elog_write_to_fsp_pending, &amp;buf-&gt;link);</span>
+<span class="lineNum">     349 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;elog_write_lock);</span>
+<span class="lineNum">     350 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="351"><span class="lineNum">     351 </span>                :            : }</a>
+<span class="lineNum">     352 </span>                :            : 
+<span class="lineNum">     353 </span>                :<span class="lineNoCov">          0 : static void elog_append_write_to_host(struct errorlog *buf)</span>
+<span class="lineNum">     354 </span>                :            : {
+<span class="lineNum">     355 </span>                :            : 
+<span class="lineNum">     356 </span>                :<span class="lineNoCov">          0 :         lock(&amp;elog_write_to_host_lock);</span>
+<span class="lineNum">     357 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (list_empty(&amp;elog_write_to_host_pending)) {</span>
+<span class="lineNum">     358 </span>                :<span class="lineNoCov">          0 :                 list_add(&amp;elog_write_to_host_pending, &amp;buf-&gt;link);</span>
+<span class="lineNum">     359 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;elog_write_to_host_lock);</span>
+<span class="lineNum">     360 </span>                :<span class="lineNoCov">          0 :                 opal_commit_elog_in_host();</span>
+<span class="lineNum">     361 </span>                :            :         } else {
+<span class="lineNum">     362 </span>                :<span class="lineNoCov">          0 :                 list_add_tail(&amp;elog_write_to_host_pending, &amp;buf-&gt;link);</span>
+<span class="lineNum">     363 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;elog_write_to_host_lock);</span>
+<span class="lineNum">     364 </span>                :            :         }
+<a name="365"><span class="lineNum">     365 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     366 </span>                :            : 
+<span class="lineNum">     367 </span>                :<span class="lineCov">     221310 : static void elog_timeout_poll(void *data __unused)</span>
+<span class="lineNum">     368 </span>                :            : {
+<span class="lineNum">     369 </span>                :            :         uint64_t now;
+<span class="lineNum">     370 </span>                :            :         struct errorlog *head, *entry;
+<span class="lineNum">     371 </span>                :            : 
+<span class="lineNum">     372 </span>                :<span class="lineCov">     221310 :         lock(&amp;elog_write_lock);</span>
+<span class="lineNum">     373 </span>        [<span class="branchCov" title="Branch 0 was taken 221311 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">     221311 :         if (list_empty(&amp;elog_write_to_fsp_pending)) {</span>
+<span class="lineNum">     374 </span>                :<span class="lineCov">     221311 :                 unlock(&amp;elog_write_lock);</span>
+<span class="lineNum">     375 </span>                :<span class="lineCov">     221311 :                 return;</span>
+<span class="lineNum">     376 </span>                :            :         } else {
+<span class="lineNum">     377 </span>                :<span class="lineNoCov">          0 :                 head = list_top(&amp;elog_write_to_fsp_pending,</span>
+<span class="lineNum">     378 </span>                :            :                                         struct errorlog, link);
+<span class="lineNum">     379 </span>                :<span class="lineNoCov">          0 :                 now = mftb();</span>
+<span class="lineNum">     380 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if ((tb_compare(now, head-&gt;elog_timeout) == TB_AAFTERB) ||</span>
+<span class="lineNum">     381 </span>                :            :                         (tb_compare(now, head-&gt;elog_timeout) == TB_AEQUALB)) {
+<span class="lineNum">     382 </span>                :<span class="lineNoCov">          0 :                                 entry = list_pop(&amp;elog_write_to_fsp_pending,</span>
+<span class="lineNum">     383 </span>                :            :                                                 struct errorlog, link);
+<span class="lineNum">     384 </span>                :<span class="lineNoCov">          0 :                                 unlock(&amp;elog_write_lock);</span>
+<span class="lineNum">     385 </span>                :<span class="lineNoCov">          0 :                                 elog_append_write_to_host(entry);</span>
+<span class="lineNum">     386 </span>                :            :                 } else
+<span class="lineNum">     387 </span>                :<span class="lineNoCov">          0 :                         unlock(&amp;elog_write_lock);</span>
+<span class="lineNum">     388 </span>                :            :         }
+<span class="lineNum">     389 </span>                :            : }
+<a name="390"><span class="lineNum">     390 </span>                :            : </a>
+<span class="lineNum">     391 </span>                :            : /* fsp elog init function */
+<span class="lineNum">     392 </span>                :<span class="lineCov">          1 : void fsp_elog_write_init(void)</span>
+<span class="lineNum">     393 </span>                :            : {
+<span class="lineNum">     394 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!fsp_present())</span>
+<span class="lineNum">     395 </span>                :            :                 return;
+<span class="lineNum">     396 </span>                :            : 
+<span class="lineNum">     397 </span>                :<span class="lineCov">          1 :         elog_panic_write_buffer = memalign(TCE_PSIZE,</span>
+<span class="lineNum">     398 </span>                :            :                                            ELOG_PANIC_WRITE_BUFFER_SIZE);
+<span class="lineNum">     399 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!elog_panic_write_buffer) {</span>
+<span class="lineNum">     400 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FSP: could not allocate ELOG_PANIC_WRITE_BUFFER!\n&quot;);</span>
+<span class="lineNum">     401 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     402 </span>                :            :         }
+<span class="lineNum">     403 </span>                :            : 
+<span class="lineNum">     404 </span>                :<span class="lineCov">          1 :         elog_write_to_fsp_buffer = memalign(TCE_PSIZE,</span>
+<span class="lineNum">     405 </span>                :            :                                                 ELOG_WRITE_TO_FSP_BUFFER_SIZE);
+<span class="lineNum">     406 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!elog_write_to_fsp_buffer) {</span>
+<span class="lineNum">     407 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FSP: could not allocate ELOG_WRITE_BUFFER!\n&quot;);</span>
+<span class="lineNum">     408 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     409 </span>                :            :         }
+<span class="lineNum">     410 </span>                :            : 
+<span class="lineNum">     411 </span>                :<span class="lineCov">          1 :         elog_write_to_host_buffer = memalign(TCE_PSIZE,</span>
+<span class="lineNum">     412 </span>                :            :                                         ELOG_WRITE_TO_HOST_BUFFER_SIZE);
+<span class="lineNum">     413 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!elog_write_to_host_buffer) {</span>
+<span class="lineNum">     414 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FSP: could not allocate ELOG_WRITE_TO_HOST_BUFFER!\n&quot;);</span>
+<span class="lineNum">     415 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     416 </span>                :            :         }
+<span class="lineNum">     417 </span>                :            : 
+<span class="lineNum">     418 </span>                :            :         /* Map TCEs */
+<span class="lineNum">     419 </span>                :<span class="lineCov">          1 :         fsp_tce_map(PSI_DMA_ELOG_PANIC_WRITE_BUF, elog_panic_write_buffer,</span>
+<span class="lineNum">     420 </span>                :            :                                         PSI_DMA_ELOG_PANIC_WRITE_BUF_SZ);
+<span class="lineNum">     421 </span>                :            : 
+<span class="lineNum">     422 </span>                :<span class="lineCov">          1 :         fsp_tce_map(PSI_DMA_ERRLOG_WRITE_BUF, elog_write_to_fsp_buffer,</span>
+<span class="lineNum">     423 </span>                :            :                                         PSI_DMA_ERRLOG_WRITE_BUF_SZ);
+<span class="lineNum">     424 </span>                :            : 
+<span class="lineNum">     425 </span>                :<span class="lineCov">          1 :         fsp_tce_map(PSI_DMA_ELOG_WR_TO_HOST_BUF, elog_write_to_host_buffer,</span>
+<span class="lineNum">     426 </span>                :            :                                         PSI_DMA_ELOG_WR_TO_HOST_BUF_SZ);
+<span class="lineNum">     427 </span>                :            : 
+<span class="lineNum">     428 </span>                :<span class="lineCov">          1 :         elog_init();</span>
+<span class="lineNum">     429 </span>                :            : 
+<span class="lineNum">     430 </span>                :            :         /* Add a poller */
+<span class="lineNum">     431 </span>                :<span class="lineCov">          1 :         opal_add_poller(elog_timeout_poll, NULL);</span>
+<span class="lineNum">     432 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

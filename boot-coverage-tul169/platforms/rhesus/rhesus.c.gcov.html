@@ -1,0 +1,370 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - platforms/rhesus/rhesus.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">platforms/rhesus</a> - rhesus.c<span style="font-size: 80%;"> (source / <a href="rhesus.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">84</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">11</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">42</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : 
+<span class="lineNum">      18 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;device.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;lpc.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;console.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;opal.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;libflash/libflash.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;libflash/libffs.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;sfc-ctrl.h&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;ec/config.h&gt;
+<span class="lineNum">      27 </span>                :            : #include &lt;ec/gpio.h&gt;
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            : /*
+<span class="lineNum">      30 </span>                :            :  * EC GPIO mapping
+<span class="lineNum">      31 </span>                :            :  */
+<span class="lineNum">      32 </span>                :            : #define RHESUS_RST_UCD90160_N   EC_GPIO_PORT_J, 3
+<span class="lineNum">      33 </span>                :            : #define RHESUS_FM_PWR_CYCLE_N   EC_GPIO_PORT_K, 2
+<span class="lineNum">      34 </span>                :            : #define RHESUS_EN_PWR_ON_SEQ    EC_GPIO_PORT_R, 1
+<span class="lineNum">      35 </span>                :            : #define RHESUS_BOARD_REVISION0  EC_GPIO_PORT_F, 3
+<span class="lineNum">      36 </span>                :            : #define RHESUS_BOARD_REVISION1  EC_GPIO_PORT_F, 2
+<span class="lineNum">      37 </span>                :            : #define RHESUS_BOARD_REVISION2  EC_GPIO_PORT_E, 5
+<span class="lineNum">      38 </span>                :            : #define RHESUS_BOARD_REVISION3  EC_GPIO_PORT_E, 4
+<span class="lineNum">      39 </span>                :            : #define RHESUS_BOARD_REVISION4  EC_GPIO_PORT_E, 1
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :            : 
+<span class="lineNum">      42 </span>                :            : /*
+<a name="43"><span class="lineNum">      43 </span>                :            :  * IO accessors for the EC driver</a>
+<span class="lineNum">      44 </span>                :            :  */
+<span class="lineNum">      45 </span>                :<span class="lineNoCov">          0 : void ec_outb(uint16_t addr, uint8_t data)</span>
+<span class="lineNum">      46 </span>                :            : {
+<span class="lineNum">      47 </span>                :<span class="lineNoCov">          0 :         lpc_outb(data, addr);</span>
+<a name="48"><span class="lineNum">      48 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      49 </span>                :            : 
+<span class="lineNum">      50 </span>                :<span class="lineNoCov">          0 : uint8_t ec_inb(uint16_t addr)</span>
+<span class="lineNum">      51 </span>                :            : {
+<span class="lineNum">      52 </span>                :<span class="lineNoCov">          0 :         return lpc_inb(addr);</span>
+<a name="53"><span class="lineNum">      53 </span>                :            : }</a>
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :<span class="lineNoCov">          0 : static int rhesus_board_revision(void)</span>
+<span class="lineNum">      56 </span>                :            : {
+<span class="lineNum">      57 </span>                :<span class="lineNoCov">          0 :     int revision = 0, ret = 0, i = 0;</span>
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :            :     static const struct {
+<span class="lineNum">      60 </span>                :            :         EcGpioPort port;
+<span class="lineNum">      61 </span>                :            :         uint8_t pin;
+<span class="lineNum">      62 </span>                :            :     } revision_gpios[] = {
+<span class="lineNum">      63 </span>                :            :         { RHESUS_BOARD_REVISION0 },
+<span class="lineNum">      64 </span>                :            :         { RHESUS_BOARD_REVISION1 },
+<span class="lineNum">      65 </span>                :            :         { RHESUS_BOARD_REVISION2 },
+<span class="lineNum">      66 </span>                :            :         { RHESUS_BOARD_REVISION3 },
+<span class="lineNum">      67 </span>                :            :         { RHESUS_BOARD_REVISION4 },
+<span class="lineNum">      68 </span>                :            :     };
+<span class="lineNum">      69 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (i = 0; i &lt; sizeof(revision_gpios) / sizeof(revision_gpios[0]); ++i)</span>
+<span class="lineNum">      70 </span>                :            :     {
+<span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 :         ret = ec_gpio_read(revision_gpios[i].port, revision_gpios[i].pin);</span>
+<span class="lineNum">      72 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ret &lt; 0)</span>
+<span class="lineNum">      73 </span>                :            :             return ret;
+<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 :         revision &lt;&lt;= 1; revision |= ret;</span>
+<span class="lineNum">      75 </span>                :            :     }
+<span class="lineNum">      76 </span>                :            : 
+<span class="lineNum">      77 </span>                :            :     return revision;
+<a name="78"><span class="lineNum">      78 </span>                :            : }</a>
+<span class="lineNum">      79 </span>                :            : 
+<span class="lineNum">      80 </span>                :<span class="lineNoCov">          0 : static int64_t rhesus_reboot(void)</span>
+<span class="lineNum">      81 </span>                :            : {
+<span class="lineNum">      82 </span>                :            :     // TODO(rlippert): This should use EC_SYS_RST_N, but there is nothing to
+<span class="lineNum">      83 </span>                :            :     // deassert that at the moment.
+<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :     int ret = 0;</span>
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 :     ret = ec_gpio_set(RHESUS_FM_PWR_CYCLE_N, 0);</span>
+<span class="lineNum">      86 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (ret &lt; 0) {</span>
+<span class="lineNum">      87 </span>                :<span class="lineNoCov">          0 :         return ret;</span>
+<span class="lineNum">      88 </span>                :            :     }
+<span class="lineNum">      89 </span>                :            : 
+<span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :     ret = ec_gpio_setup(RHESUS_FM_PWR_CYCLE_N,</span>
+<span class="lineNum">      91 </span>                :            :                         EC_GPIO_OUTPUT,
+<span class="lineNum">      92 </span>                :            :                         EC_GPIO_PULLUP_DISABLE);
+<span class="lineNum">      93 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (ret &lt; 0) {</span>
+<span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 :         return ret;</span>
+<span class="lineNum">      95 </span>                :            :     }
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>                :            :     return 0;
+<a name="98"><span class="lineNum">      98 </span>                :            : }</a>
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 : static int64_t rhesus_power_down(uint64_t request __unused)</span>
+<span class="lineNum">     101 </span>                :            : {
+<span class="lineNum">     102 </span>                :<span class="lineNoCov">          0 :     int ret = 0;</span>
+<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :     ret = ec_gpio_set(RHESUS_EN_PWR_ON_SEQ, 0);</span>
+<span class="lineNum">     104 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (ret &lt; 0) {</span>
+<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 :         return ret;</span>
+<span class="lineNum">     106 </span>                :            :     }
+<span class="lineNum">     107 </span>                :            : 
+<span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 :     ret = ec_gpio_setup(RHESUS_EN_PWR_ON_SEQ,</span>
+<span class="lineNum">     109 </span>                :            :                         EC_GPIO_OUTPUT,
+<span class="lineNum">     110 </span>                :            :                         EC_GPIO_PULLUP_DISABLE);
+<span class="lineNum">     111 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (ret &lt; 0) {</span>
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :         return ret;</span>
+<span class="lineNum">     113 </span>                :            :     }
+<span class="lineNum">     114 </span>                :            : 
+<span class="lineNum">     115 </span>                :            :     return 0;
+<a name="116"><span class="lineNum">     116 </span>                :            : }</a>
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>                :<span class="lineNoCov">          0 : static int rhesus_pnor_init(void)</span>
+<span class="lineNum">     119 </span>                :            : {
+<span class="lineNum">     120 </span>                :            :         struct spi_flash_ctrl *pnor_ctrl;
+<span class="lineNum">     121 </span>                :            :         struct flash_chip *pnor_chip;
+<span class="lineNum">     122 </span>                :            :         int rc;
+<span class="lineNum">     123 </span>                :            : 
+<span class="lineNum">     124 </span>                :            :         /* Open controller, flash and ffs */
+<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :         rc = sfc_open(&amp;pnor_ctrl);</span>
+<span class="lineNum">     126 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     127 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;PLAT: Failed to open PNOR flash controller\n&quot;);</span>
+<span class="lineNum">     128 </span>                :<span class="lineNoCov">          0 :                 goto fail;</span>
+<span class="lineNum">     129 </span>                :            :         }
+<span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :         rc = flash_init(pnor_ctrl, &amp;pnor_chip);</span>
+<span class="lineNum">     131 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;PLAT: Failed to open init PNOR driver\n&quot;);</span>
+<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 :                 goto fail;</span>
+<span class="lineNum">     134 </span>                :            :         }
+<span class="lineNum">     135 </span>                :            : 
+<span class="lineNum">     136 </span>                :<span class="lineNoCov">          0 :         rc = flash_register(pnor_chip, true);</span>
+<span class="lineNum">     137 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!rc)</span>
+<span class="lineNum">     138 </span>                :            :                 return 0;
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>                :            :  fail:
+<span class="lineNum">     141 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (pnor_chip)</span>
+<span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 :                 flash_exit(pnor_chip);</span>
+<span class="lineNum">     143 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (pnor_ctrl)</span>
+<span class="lineNum">     144 </span>                :<span class="lineNoCov">          0 :                 sfc_close(pnor_ctrl);</span>
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="147"><span class="lineNum">     147 </span>                :            : }</a>
+<span class="lineNum">     148 </span>                :            : 
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 : static void rhesus_init(void)</span>
+<span class="lineNum">     150 </span>                :            : {
+<span class="lineNum">     151 </span>                :            :         /* Initialize PNOR/NVRAM */
+<span class="lineNum">     152 </span>                :<span class="lineNoCov">          0 :         rhesus_pnor_init();</span>
+<span class="lineNum">     153 </span>                :            : 
+<span class="lineNum">     154 </span>                :            :         /* Setup UART for direct use by Linux */
+<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :         uart_setup_linux_passthrough();</span>
+<a name="156"><span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     157 </span>                :            : 
+<span class="lineNum">     158 </span>                :<span class="lineNoCov">          0 : static void rhesus_dt_fixup_uart(struct dt_node *lpc)</span>
+<span class="lineNum">     159 </span>                :            : {
+<span class="lineNum">     160 </span>                :            :         /*
+<span class="lineNum">     161 </span>                :            :          * The official OF ISA/LPC binding is a bit odd, it prefixes
+<span class="lineNum">     162 </span>                :            :          * the unit address for IO with &quot;i&quot;. It uses 2 cells, the first
+<span class="lineNum">     163 </span>                :            :          * one indicating IO vs. Memory space (along with bits to
+<span class="lineNum">     164 </span>                :            :          * represent aliasing).
+<span class="lineNum">     165 </span>                :            :          *
+<span class="lineNum">     166 </span>                :            :          * We pickup that binding and add to it &quot;2&quot; as a indication
+<span class="lineNum">     167 </span>                :            :          * of FW space.
+<span class="lineNum">     168 </span>                :            :          *
+<span class="lineNum">     169 </span>                :            :          * TODO: Probe the UART instead if the LPC bus allows for it
+<span class="lineNum">     170 </span>                :            :          */
+<span class="lineNum">     171 </span>                :            :         struct dt_node *uart;
+<span class="lineNum">     172 </span>                :            :         char namebuf[32];
+<span class="lineNum">     173 </span>                :            : #define UART_IO_BASE    0x3f8
+<span class="lineNum">     174 </span>                :            : #define UART_IO_COUNT   8
+<span class="lineNum">     175 </span>                :            : 
+<span class="lineNum">     176 </span>                :<span class="lineNoCov">          0 :         snprintf(namebuf, sizeof(namebuf), &quot;serial@i%x&quot;, UART_IO_BASE);</span>
+<span class="lineNum">     177 </span>                :<span class="lineNoCov">          0 :         uart = dt_new(lpc, namebuf);</span>
+<span class="lineNum">     178 </span>                :            : 
+<span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(uart, &quot;reg&quot;,</span>
+<span class="lineNum">     180 </span>                :            :                               1, /* IO space */
+<span class="lineNum">     181 </span>                :            :                               UART_IO_BASE, UART_IO_COUNT);
+<span class="lineNum">     182 </span>                :<span class="lineNoCov">          0 :         dt_add_property_strings(uart, &quot;compatible&quot;,</span>
+<span class="lineNum">     183 </span>                :            :                                 &quot;ns16550&quot;,
+<span class="lineNum">     184 </span>                :            :                                 &quot;pnpPNP,501&quot;);
+<span class="lineNum">     185 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(uart, &quot;clock-frequency&quot;, 1843200);</span>
+<span class="lineNum">     186 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(uart, &quot;current-speed&quot;, 115200);</span>
+<span class="lineNum">     187 </span>                :            : 
+<span class="lineNum">     188 </span>                :            :         /*
+<span class="lineNum">     189 </span>                :            :          * This is needed by Linux for some obscure reasons,
+<span class="lineNum">     190 </span>                :            :          * we'll eventually need to sanitize it but in the meantime
+<span class="lineNum">     191 </span>                :            :          * let's make sure it's there
+<span class="lineNum">     192 </span>                :            :          */
+<span class="lineNum">     193 </span>                :<span class="lineNoCov">          0 :         dt_add_property_strings(uart, &quot;device_type&quot;, &quot;serial&quot;);</span>
+<span class="lineNum">     194 </span>                :            : 
+<span class="lineNum">     195 </span>                :            :         /*
+<span class="lineNum">     196 </span>                :            :          * Add interrupt. This simulates coming from HostBoot which
+<span class="lineNum">     197 </span>                :            :          * does not know our interrupt numbering scheme. Instead, it
+<span class="lineNum">     198 </span>                :            :          * just tells us which chip the interrupt is wired to, it will
+<span class="lineNum">     199 </span>                :            :          * be the PSI &quot;host error&quot; interrupt of that chip. For now we
+<span class="lineNum">     200 </span>                :            :          * assume the same chip as the LPC bus is on.
+<span class="lineNum">     201 </span>                :            :          */
+<span class="lineNum">     202 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(uart, &quot;ibm,irq-chip-id&quot;, dt_get_chip_id(lpc));</span>
+<span class="lineNum">     203 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     204 </span>                :            : 
+<span class="lineNum">     205 </span>                :            : /*
+<span class="lineNum">     206 </span>                :            :  * This adds the legacy RTC device to the device-tree
+<a name="207"><span class="lineNum">     207 </span>                :            :  * for Linux to use</a>
+<span class="lineNum">     208 </span>                :            :  */
+<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 : static void rhesus_dt_fixup_rtc(struct dt_node *lpc)</span>
+<span class="lineNum">     210 </span>                :            : {
+<span class="lineNum">     211 </span>                :            :         struct dt_node *rtc;
+<span class="lineNum">     212 </span>                :            : 
+<span class="lineNum">     213 </span>                :            :         /*
+<span class="lineNum">     214 </span>                :            :          * Follows the structure expected by the kernel file
+<span class="lineNum">     215 </span>                :            :          * arch/powerpc/sysdev/rtc_cmos_setup.c
+<span class="lineNum">     216 </span>                :            :          */
+<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :         rtc = dt_new_addr(lpc, &quot;rtc&quot;, EC_RTC_PORT_BASE);</span>
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :         dt_add_property_string(rtc, &quot;compatible&quot;, &quot;pnpPNP,b00&quot;);</span>
+<span class="lineNum">     219 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(rtc, &quot;reg&quot;,</span>
+<span class="lineNum">     220 </span>                :            :                               1, /* IO space */
+<span class="lineNum">     221 </span>                :            :                               EC_RTC_PORT_BASE,
+<span class="lineNum">     222 </span>                :            :                               /* 1 index/data pair per 128 bytes */
+<span class="lineNum">     223 </span>                :            :                               (EC_RTC_BLOCK_SIZE / 128) * 2);
+<a name="224"><span class="lineNum">     224 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     225 </span>                :            : 
+<span class="lineNum">     226 </span>                :<span class="lineNoCov">          0 : static void rhesus_dt_fixup(void)</span>
+<span class="lineNum">     227 </span>                :            : {
+<span class="lineNum">     228 </span>                :<span class="lineNoCov">          0 :         struct dt_node *n, *primary_lpc = NULL;</span>
+<span class="lineNum">     229 </span>                :            : 
+<span class="lineNum">     230 </span>                :            :         /* Find the primary LPC bus */
+<span class="lineNum">     231 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         dt_for_each_compatible(dt_root, n, &quot;ibm,power8-lpc&quot;) {</span>
+<span class="lineNum">     232 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!primary_lpc || dt_has_node_property(n, &quot;primary&quot;, NULL))</span>
+<span class="lineNum">     233 </span>                :<span class="lineNoCov">          0 :                         primary_lpc = n;</span>
+<span class="lineNum">     234 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (dt_has_node_property(n, &quot;#address-cells&quot;, NULL))</span>
+<span class="lineNum">     235 </span>                :            :                         break;
+<span class="lineNum">     236 </span>                :            :         }
+<span class="lineNum">     237 </span>                :            : 
+<span class="lineNum">     238 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!primary_lpc)</span>
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     240 </span>                :            : 
+<span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 :         rhesus_dt_fixup_rtc(primary_lpc);</span>
+<span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 :         rhesus_dt_fixup_uart(primary_lpc);</span>
+<a name="243"><span class="lineNum">     243 </span>                :            : }</a>
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>                :<span class="lineNoCov">          0 : static bool rhesus_probe(void)</span>
+<span class="lineNum">     246 </span>                :            : {
+<span class="lineNum">     247 </span>                :            :         const char *model;
+<span class="lineNum">     248 </span>                :            :         int rev;
+<span class="lineNum">     249 </span>                :            : 
+<span class="lineNum">     250 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!dt_node_is_compatible(dt_root, &quot;ibm,powernv&quot;))</span>
+<span class="lineNum">     251 </span>                :            :                 return false;
+<span class="lineNum">     252 </span>                :            : 
+<span class="lineNum">     253 </span>                :<span class="lineNoCov">          0 :         model = dt_prop_get_def(dt_root, &quot;model&quot;, NULL);</span>
+<span class="lineNum">     254 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!model || !(strstr(model, &quot;rhesus&quot;) || strstr(model, &quot;RHESUS&quot;)))</span>
+<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
+<span class="lineNum">     255 </span>                :            :                 return false;
+<span class="lineNum">     256 </span>                :            : 
+<span class="lineNum">     257 </span>                :            :         /* Grab board version from EC */
+<span class="lineNum">     258 </span>                :<span class="lineNoCov">          0 :         rev = rhesus_board_revision();</span>
+<span class="lineNum">     259 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rev &gt;= 0) {</span>
+<span class="lineNum">     260 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;Rhesus board rev %d\n&quot;, rev);</span>
+<span class="lineNum">     261 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_cells(dt_root, &quot;revision-id&quot;, rev);</span>
+<span class="lineNum">     262 </span>                :            :         } else
+<span class="lineNum">     263 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;Rhesus board revision not found !\n&quot;);</span>
+<span class="lineNum">     264 </span>                :            : 
+<span class="lineNum">     265 </span>                :            :         /* Add missing bits of device-tree such as the UART */
+<span class="lineNum">     266 </span>                :<span class="lineNoCov">          0 :         rhesus_dt_fixup();</span>
+<span class="lineNum">     267 </span>                :            : 
+<span class="lineNum">     268 </span>                :            :         /*
+<span class="lineNum">     269 </span>                :            :          * Setup UART and use it as console. For now, we
+<span class="lineNum">     270 </span>                :            :          * don't expose the interrupt as we know it's not
+<span class="lineNum">     271 </span>                :            :          * working properly yet
+<span class="lineNum">     272 </span>                :            :          */
+<span class="lineNum">     273 </span>                :<span class="lineNoCov">          0 :         uart_init(false);</span>
+<span class="lineNum">     274 </span>                :            : 
+<span class="lineNum">     275 </span>                :<span class="lineNoCov">          0 :         return true;</span>
+<span class="lineNum">     276 </span>                :            : }
+<span class="lineNum">     277 </span>                :            : 
+<span class="lineNum">     278 </span>                :            : DECLARE_PLATFORM(rhesus) = {
+<span class="lineNum">     279 </span>                :            :         .name           = &quot;Rhesus&quot;,
+<span class="lineNum">     280 </span>                :            :         .probe          = rhesus_probe,
+<span class="lineNum">     281 </span>                :            :         .init           = rhesus_init,
+<span class="lineNum">     282 </span>                :            :         .cec_power_down = rhesus_power_down,
+<span class="lineNum">     283 </span>                :            :         .cec_reboot     = rhesus_reboot,
+<span class="lineNum">     284 </span>                :            : };
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

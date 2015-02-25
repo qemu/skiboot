@@ -1,0 +1,627 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/xscom.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">hw</a> - xscom.c<span style="font-size: 80%;"> (source / <a href="xscom.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">72</td>
+            <td class="headerCovTableEntry">168</td>
+            <td class="headerCovTableEntryLo">42.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">19</td>
+            <td class="headerCovTableEntryLo">63.2 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntry">103</td>
+            <td class="headerCovTableEntryLo">21.4 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;xscom.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;io.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;processor.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;device.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;chip.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;centaur.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;errorlog.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;opal-api.h&gt;
+<span class="lineNum">      26 </span>                :            : 
+<span class="lineNum">      27 </span>                :            : /* Mask of bits to clear in HMER before an access */
+<span class="lineNum">      28 </span>                :            : #define HMER_CLR_MASK   (~(SPR_HMER_XSCOM_FAIL | \
+<span class="lineNum">      29 </span>                :            :                            SPR_HMER_XSCOM_DONE | \
+<span class="lineNum">      30 </span>                :            :                            SPR_HMER_XSCOM_STATUS))
+<span class="lineNum">      31 </span>                :            : 
+<span class="lineNum">      32 </span>                :            : #define XSCOM_ADDR_IND_FLAG             PPC_BIT(0)
+<span class="lineNum">      33 </span>                :            : #define XSCOM_ADDR_IND_ADDR             PPC_BITMASK(12,31)
+<span class="lineNum">      34 </span>                :            : #define XSCOM_ADDR_IND_DATA             PPC_BITMASK(48,63)
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :            : #define XSCOM_DATA_IND_READ             PPC_BIT(0)
+<span class="lineNum">      37 </span>                :            : #define XSCOM_DATA_IND_COMPLETE         PPC_BIT(32)
+<span class="lineNum">      38 </span>                :            : #define XSCOM_DATA_IND_ERR              PPC_BITMASK(33,35)
+<span class="lineNum">      39 </span>                :            : #define XSCOM_DATA_IND_DATA             PPC_BITMASK(48,63)
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :            : /* HB folks say: try 10 time for now */
+<span class="lineNum">      42 </span>                :            : #define XSCOM_IND_MAX_RETRIES           10
+<span class="lineNum">      43 </span>                :            : 
+<span class="lineNum">      44 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_XSCOM_RW, OPAL_PLATFORM_ERR_EVT, OPAL_XSCOM,
+<span class="lineNum">      45 </span>                :            :                 OPAL_CEC_HARDWARE, OPAL_PREDICTIVE_ERR_GENERAL,
+<span class="lineNum">      46 </span>                :            :                 OPAL_NA, NULL);
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_XSCOM_INDIRECT_RW, OPAL_PLATFORM_ERR_EVT, OPAL_XSCOM,
+<span class="lineNum">      49 </span>                :            :                 OPAL_CEC_HARDWARE, OPAL_PREDICTIVE_ERR_GENERAL,
+<span class="lineNum">      50 </span>                :            :                 OPAL_NA, NULL);
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_XSCOM_RESET, OPAL_PLATFORM_ERR_EVT, OPAL_XSCOM,
+<span class="lineNum">      53 </span>                :            :                 OPAL_CEC_HARDWARE, OPAL_PREDICTIVE_ERR_GENERAL,
+<span class="lineNum">      54 </span>                :            :                 OPAL_NA, NULL);
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :            : /*
+<span class="lineNum">      57 </span>                :            :  * Locking notes:
+<span class="lineNum">      58 </span>                :            :  *
+<span class="lineNum">      59 </span>                :            :  * We used to have a per-target lock. However due to errata HW822317
+<span class="lineNum">      60 </span>                :            :  * we can have issues on the issuer side if multiple threads try to
+<span class="lineNum">      61 </span>                :            :  * send XSCOMs simultaneously (HMER responses get mixed up), so just
+<span class="lineNum">      62 </span>                :            :  * use a global lock instead
+<span class="lineNum">      63 </span>                :            :  */
+<a name="64"><span class="lineNum">      64 </span>                :            : static struct lock xscom_lock = LOCK_UNLOCKED;</a>
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :<span class="lineCov">      35194 : static inline void *xscom_addr(uint32_t gcid, uint32_t pcb_addr)</span>
+<span class="lineNum">      67 </span>                :            : {
+<span class="lineNum">      68 </span>                :<span class="lineCov">      35194 :         struct proc_chip *chip = get_chip(gcid);</span>
+<span class="lineNum">      69 </span>                :            :         uint64_t addr;
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 35194 times"> + </span>]:<span class="lineCov">      35194 :         assert(chip);</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">      35194 :         addr  = chip-&gt;xscom_base;</span>
+<span class="lineNum">      73 </span>                :<span class="lineCov">      35194 :         addr |= ((uint64_t)pcb_addr &lt;&lt; 4) &amp; ~0xfful;</span>
+<span class="lineNum">      74 </span>                :<span class="lineCov">      35194 :         addr |= (pcb_addr &lt;&lt; 3) &amp; 0x78;</span>
+<span class="lineNum">      75 </span>                :            : 
+<span class="lineNum">      76 </span>                :<span class="lineCov">      35194 :         return (void *)addr;</span>
+<a name="77"><span class="lineNum">      77 </span>                :            : }</a>
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>                :<span class="lineCov">      70388 : static uint64_t xscom_wait_done(void)</span>
+<span class="lineNum">      80 </span>                :            : {
+<span class="lineNum">      81 </span>                :            :         uint64_t hmer;
+<span class="lineNum">      82 </span>                :            : 
+<span class="lineNum">      83 </span>                :            :         do
+<span class="lineNum">      84 </span>                :<span class="lineCov">     428304 :                 hmer = mfspr(SPR_HMER);</span>
+<span class="lineNum">      85 </span>        [<span class="branchCov" title="Branch 0 was taken 393110 times"> + </span><span class="branchCov" title="Branch 1 was taken 35194 times"> + </span>]:<span class="lineCov">     428304 :         while(!(hmer &amp; SPR_HMER_XSCOM_DONE));</span>
+<span class="lineNum">      86 </span>                :            : 
+<span class="lineNum">      87 </span>                :            :         /*
+<span class="lineNum">      88 </span>                :            :          * HW822317: We need to read a second time as the actual
+<span class="lineNum">      89 </span>                :            :          * status can be delayed by 1 cycle after DONE
+<span class="lineNum">      90 </span>                :            :          */
+<span class="lineNum">      91 </span>                :<span class="lineCov">      35194 :         return mfspr(SPR_HMER);</span>
+<a name="92"><span class="lineNum">      92 </span>                :            : }</a>
+<span class="lineNum">      93 </span>                :            : 
+<span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 : static void xscom_reset(uint32_t gcid)</span>
+<span class="lineNum">      95 </span>                :            : {
+<span class="lineNum">      96 </span>                :            :         u64 hmer;
+<span class="lineNum">      97 </span>                :            : 
+<span class="lineNum">      98 </span>                :            :         /* Clear errors in HMER */
+<span class="lineNum">      99 </span>                :            :         mtspr(SPR_HMER, HMER_CLR_MASK);
+<span class="lineNum">     100 </span>                :            : 
+<span class="lineNum">     101 </span>                :            :         /* First we need to write 0 to a register on our chip */
+<span class="lineNum">     102 </span>                :<span class="lineNoCov">          0 :         out_be64(xscom_addr(this_cpu()-&gt;chip_id, 0x202000f), 0);</span>
+<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :         hmer = xscom_wait_done();</span>
+<span class="lineNum">     104 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (hmer &amp; SPR_HMER_XSCOM_FAIL)</span>
+<span class="lineNum">     105 </span>                :            :                 goto fail;
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :            :         /* Then we need to clear those two other registers on the target */
+<span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 :         out_be64(xscom_addr(gcid, 0x2020007), 0);</span>
+<span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 :         hmer = xscom_wait_done();</span>
+<span class="lineNum">     110 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (hmer &amp; SPR_HMER_XSCOM_FAIL)</span>
+<span class="lineNum">     111 </span>                :            :                 goto fail;
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :         out_be64(xscom_addr(gcid, 0x2020009), 0);</span>
+<span class="lineNum">     113 </span>                :<span class="lineNoCov">          0 :         hmer = xscom_wait_done();</span>
+<span class="lineNum">     114 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (hmer &amp; SPR_HMER_XSCOM_FAIL)</span>
+<span class="lineNum">     115 </span>                :            :                 goto fail;
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     117 </span>                :            :  fail:
+<span class="lineNum">     118 </span>                :            :         /* Fatal error resetting XSCOM */
+<span class="lineNum">     119 </span>                :<span class="lineNoCov">          0 :         log_simple_error(&amp;e_info(OPAL_RC_XSCOM_RESET),</span>
+<span class="lineNum">     120 </span>                :            :                 &quot;XSCOM: Fatal error resetting engine after failed access !\n&quot;);
+<span class="lineNum">     121 </span>                :            : 
+<span class="lineNum">     122 </span>                :            :         /* XXX Generate error log ? attn ? panic ?
+<span class="lineNum">     123 </span>                :            :          * If we decide to panic, change the above severity to PANIC
+<span class="lineNum">     124 </span>                :            :          */
+<a name="125"><span class="lineNum">     125 </span>                :            : }</a>
+<span class="lineNum">     126 </span>                :            : 
+<span class="lineNum">     127 </span>                :<span class="lineNoCov">          0 : static bool xscom_handle_error(uint64_t hmer, uint32_t gcid, uint32_t pcb_addr,</span>
+<span class="lineNum">     128 </span>                :            :                                bool is_write)
+<span class="lineNum">     129 </span>                :            : {
+<span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :         unsigned int stat = GETFIELD(SPR_HMER_XSCOM_STATUS, hmer);</span>
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :            :         /* XXX Figure out error codes from doc and error
+<span class="lineNum">     133 </span>                :            :          * recovery procedures
+<span class="lineNum">     134 </span>                :            :          */
+<span class="lineNum">     135 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch(stat) {</span>
+<span class="lineNum">     136 </span>                :            :         /* XSCOM blocked, just retry */
+<span class="lineNum">     137 </span>                :            :         case 1:
+<span class="lineNum">     138 </span>                :            :                 return true;
+<span class="lineNum">     139 </span>                :            :         }
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>                :            :         /* XXX: Create error log entry ? */
+<span class="lineNum">     142 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         log_simple_error(&amp;e_info(OPAL_RC_XSCOM_RW),</span>
+<span class="lineNum">     143 </span>                :            :                 &quot;XSCOM: %s error gcid=0x%x pcb_addr=0x%x stat=0x%x\n&quot;,
+<span class="lineNum">     144 </span>                :            :                 is_write ? &quot;write&quot; : &quot;read&quot;, gcid, pcb_addr, stat);
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :            :         /* We need to reset the XSCOM or we'll hang on the next access */
+<span class="lineNum">     147 </span>                :<span class="lineNoCov">          0 :         xscom_reset(gcid);</span>
+<span class="lineNum">     148 </span>                :            : 
+<span class="lineNum">     149 </span>                :            :         /* Non recovered ... just fail */
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :         return false;</span>
+<a name="151"><span class="lineNum">     151 </span>                :            : }</a>
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 : static void xscom_handle_ind_error(uint64_t data, uint32_t gcid,</span>
+<span class="lineNum">     154 </span>                :            :                                    uint64_t pcb_addr, bool is_write)
+<span class="lineNum">     155 </span>                :            : {
+<span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 :         unsigned int stat = GETFIELD(XSCOM_DATA_IND_ERR, data);</span>
+<span class="lineNum">     157 </span>                :<span class="lineNoCov">          0 :         bool timeout = !(data &amp; XSCOM_DATA_IND_COMPLETE);</span>
+<span class="lineNum">     158 </span>                :            : 
+<span class="lineNum">     159 </span>                :            :         /* XXX: Create error log entry ? */
+<span class="lineNum">     160 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (timeout)</span>
+<span class="lineNum">     161 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_XSCOM_INDIRECT_RW),</span>
+<span class="lineNum">     162 </span>                :            :                         &quot;XSCOM: %s indirect timeout, gcid=0x%x pcb_addr=0x%llx&quot;
+<span class="lineNum">     163 </span>                :            :                         &quot; stat=0x%x\n&quot;,
+<span class="lineNum">     164 </span>                :            :                         is_write ? &quot;write&quot; : &quot;read&quot;, gcid, pcb_addr, stat);
+<span class="lineNum">     165 </span>                :            :         else
+<span class="lineNum">     166 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_XSCOM_INDIRECT_RW),</span>
+<span class="lineNum">     167 </span>                :            :                         &quot;XSCOM: %s indirect error, gcid=0x%x pcb_addr=0x%llx&quot;
+<span class="lineNum">     168 </span>                :            :                         &quot; stat=0x%x\n&quot;,
+<span class="lineNum">     169 </span>                :            :                         is_write ? &quot;write&quot; : &quot;read&quot;, gcid, pcb_addr, stat);
+<a name="170"><span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     171 </span>                :            : 
+<span class="lineNum">     172 </span>                :<span class="lineCov">      35194 : static bool xscom_gcid_ok(uint32_t gcid)</span>
+<span class="lineNum">     173 </span>                :            : {
+<span class="lineNum">     174 </span>                :<span class="lineCov">      35194 :         return get_chip(gcid) != NULL;</span>
+<span class="lineNum">     175 </span>                :            : }
+<span class="lineNum">     176 </span>                :            : 
+<span class="lineNum">     177 </span>                :            : /*
+<span class="lineNum">     178 </span>                :            :  * Low level XSCOM access functions, perform a single direct xscom
+<a name="179"><span class="lineNum">     179 </span>                :            :  * access via MMIO</a>
+<span class="lineNum">     180 </span>                :            :  */
+<span class="lineNum">     181 </span>                :<span class="lineCov">      14904 : static int __xscom_read(uint32_t gcid, uint32_t pcb_addr, uint64_t *val)</span>
+<span class="lineNum">     182 </span>                :            : {
+<span class="lineNum">     183 </span>                :            :         uint64_t hmer;
+<span class="lineNum">     184 </span>                :            : 
+<span class="lineNum">     185 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 14904 times"> + </span>]:<span class="lineCov">      14904 :         if (!xscom_gcid_ok(gcid)) {</span>
+<span class="lineNum">     186 </span>                :<span class="lineCov">      14904 :                 prerror(&quot;%s: invalid XSCOM gcid 0x%x\n&quot;, __func__, gcid);</span>
+<span class="lineNum">     187 </span>                :<span class="lineNoCov">          0 :                 return OPAL_PARAMETER;</span>
+<span class="lineNum">     188 </span>                :            :         }
+<span class="lineNum">     189 </span>                :            : 
+<span class="lineNum">     190 </span>                :            :         for (;;) {
+<span class="lineNum">     191 </span>                :            :                 /* Clear status bits in HMER (HMER is special
+<span class="lineNum">     192 </span>                :            :                  * writing to it *ands* bits
+<span class="lineNum">     193 </span>                :            :                  */
+<span class="lineNum">     194 </span>                :            :                 mtspr(SPR_HMER, HMER_CLR_MASK);
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>                :            :                 /* Read value from SCOM */
+<span class="lineNum">     197 </span>                :<span class="lineCov">      14904 :                 *val = in_be64(xscom_addr(gcid, pcb_addr));</span>
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>                :            :                 /* Wait for done bit */
+<span class="lineNum">     200 </span>                :<span class="lineCov">      14904 :                 hmer = xscom_wait_done();</span>
+<span class="lineNum">     201 </span>                :            : 
+<span class="lineNum">     202 </span>                :            :                 /* Check for error */
+<span class="lineNum">     203 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 14904 times"> + </span>]:<span class="lineCov">      14904 :                 if (!(hmer &amp; SPR_HMER_XSCOM_FAIL))</span>
+<span class="lineNum">     204 </span>                :            :                         break;
+<span class="lineNum">     205 </span>                :            : 
+<span class="lineNum">     206 </span>                :            :                 /* Handle error and eventually retry */
+<span class="lineNum">     207 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!xscom_handle_error(hmer, gcid, pcb_addr, false))</span>
+<span class="lineNum">     208 </span>                :            :                         return OPAL_HARDWARE;
+<span class="lineNum">     209 </span>                :            :         }
+<span class="lineNum">     210 </span>                :            :         return 0;
+<a name="211"><span class="lineNum">     211 </span>                :            : }</a>
+<span class="lineNum">     212 </span>                :            : 
+<span class="lineNum">     213 </span>                :<span class="lineCov">      20290 : static int __xscom_write(uint32_t gcid, uint32_t pcb_addr, uint64_t val)</span>
+<span class="lineNum">     214 </span>                :            : {
+<span class="lineNum">     215 </span>                :            :         uint64_t hmer;
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 20290 times"> + </span>]:<span class="lineCov">      20290 :         if (!xscom_gcid_ok(gcid)) {</span>
+<span class="lineNum">     218 </span>                :<span class="lineCov">      20290 :                 prerror(&quot;%s: invalid XSCOM gcid 0x%x\n&quot;, __func__, gcid);</span>
+<span class="lineNum">     219 </span>                :<span class="lineNoCov">          0 :                 return OPAL_PARAMETER;</span>
+<span class="lineNum">     220 </span>                :            :         }
+<span class="lineNum">     221 </span>                :            : 
+<span class="lineNum">     222 </span>                :            :         for (;;) {
+<span class="lineNum">     223 </span>                :            :                 /* Clear status bits in HMER (HMER is special
+<span class="lineNum">     224 </span>                :            :                  * writing to it *ands* bits
+<span class="lineNum">     225 </span>                :            :                  */
+<span class="lineNum">     226 </span>                :            :                 mtspr(SPR_HMER, HMER_CLR_MASK);
+<span class="lineNum">     227 </span>                :            : 
+<span class="lineNum">     228 </span>                :            :                 /* Write value to SCOM */
+<span class="lineNum">     229 </span>                :<span class="lineCov">      20290 :                 out_be64(xscom_addr(gcid, pcb_addr), val);</span>
+<span class="lineNum">     230 </span>                :            : 
+<span class="lineNum">     231 </span>                :            :                 /* Wait for done bit */
+<span class="lineNum">     232 </span>                :<span class="lineCov">      20290 :                 hmer = xscom_wait_done();</span>
+<span class="lineNum">     233 </span>                :            : 
+<span class="lineNum">     234 </span>                :            :                 /* Check for error */
+<span class="lineNum">     235 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 20290 times"> + </span>]:<span class="lineCov">      20290 :                 if (!(hmer &amp; SPR_HMER_XSCOM_FAIL))</span>
+<span class="lineNum">     236 </span>                :            :                         break;
+<span class="lineNum">     237 </span>                :            : 
+<span class="lineNum">     238 </span>                :            :                 /* Handle error and eventually retry */
+<span class="lineNum">     239 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!xscom_handle_error(hmer, gcid, pcb_addr, true))</span>
+<span class="lineNum">     240 </span>                :            :                         return OPAL_HARDWARE;
+<span class="lineNum">     241 </span>                :            :         }
+<span class="lineNum">     242 </span>                :            :         return 0;
+<span class="lineNum">     243 </span>                :            : }
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>                :            : /*
+<a name="246"><span class="lineNum">     246 </span>                :            :  * Indirect XSCOM access functions</a>
+<span class="lineNum">     247 </span>                :            :  */
+<span class="lineNum">     248 </span>                :<span class="lineNoCov">          0 : static int xscom_indirect_read(uint32_t gcid, uint64_t pcb_addr, uint64_t *val)</span>
+<span class="lineNum">     249 </span>                :            : {
+<span class="lineNum">     250 </span>                :            :         uint32_t addr;
+<span class="lineNum">     251 </span>                :            :         uint64_t data;
+<span class="lineNum">     252 </span>                :            :         int rc, retries;
+<span class="lineNum">     253 </span>                :            : 
+<span class="lineNum">     254 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (proc_gen != proc_gen_p8) {</span>
+<span class="lineNum">     255 </span>                :<span class="lineNoCov">          0 :                 *val = (uint64_t)-1;</span>
+<span class="lineNum">     256 </span>                :<span class="lineNoCov">          0 :                 return OPAL_UNSUPPORTED;</span>
+<span class="lineNum">     257 </span>                :            :         }
+<span class="lineNum">     258 </span>                :            : 
+<span class="lineNum">     259 </span>                :            :         /* Write indirect address */
+<span class="lineNum">     260 </span>                :<span class="lineNoCov">          0 :         addr = pcb_addr &amp; 0x7fffffff;</span>
+<span class="lineNum">     261 </span>                :<span class="lineNoCov">          0 :         data = XSCOM_DATA_IND_READ |</span>
+<span class="lineNum">     262 </span>                :<span class="lineNoCov">          0 :                 (pcb_addr &amp; XSCOM_ADDR_IND_ADDR);</span>
+<span class="lineNum">     263 </span>                :<span class="lineNoCov">          0 :         rc = __xscom_write(gcid, addr, data);</span>
+<span class="lineNum">     264 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     265 </span>                :            :                 goto bail;
+<span class="lineNum">     266 </span>                :            : 
+<span class="lineNum">     267 </span>                :            :         /* Wait for completion */
+<span class="lineNum">     268 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (retries = 0; retries &lt; XSCOM_IND_MAX_RETRIES; retries++) {</span>
+<span class="lineNum">     269 </span>                :<span class="lineNoCov">          0 :                 rc = __xscom_read(gcid, addr, &amp;data);</span>
+<span class="lineNum">     270 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     271 </span>                :            :                         goto bail;
+<span class="lineNum">     272 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if ((data &amp; XSCOM_DATA_IND_COMPLETE) &amp;&amp;</span>
+<span class="lineNum">     273 </span>                :            :                     ((data &amp; XSCOM_DATA_IND_ERR) == 0)) {
+<span class="lineNum">     274 </span>                :<span class="lineNoCov">          0 :                         *val = data &amp; XSCOM_DATA_IND_DATA;</span>
+<span class="lineNum">     275 </span>                :<span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     276 </span>                :            :                 }
+<span class="lineNum">     277 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if ((data &amp; XSCOM_DATA_IND_COMPLETE) ||</span>
+<span class="lineNum">     278 </span>                :            :                     (retries &gt;= XSCOM_IND_MAX_RETRIES)) {
+<span class="lineNum">     279 </span>                :<span class="lineNoCov">          0 :                         xscom_handle_ind_error(data, gcid, pcb_addr,</span>
+<span class="lineNum">     280 </span>                :            :                                                false);
+<span class="lineNum">     281 </span>                :<span class="lineNoCov">          0 :                         rc = OPAL_HARDWARE;</span>
+<span class="lineNum">     282 </span>                :<span class="lineNoCov">          0 :                         goto bail;</span>
+<span class="lineNum">     283 </span>                :            :                 }
+<span class="lineNum">     284 </span>                :            :         }
+<span class="lineNum">     285 </span>                :            :  bail:
+<span class="lineNum">     286 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     287 </span>                :<span class="lineNoCov">          0 :                 *val = (uint64_t)-1;</span>
+<span class="lineNum">     288 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="289"><span class="lineNum">     289 </span>                :            : }</a>
+<span class="lineNum">     290 </span>                :            : 
+<span class="lineNum">     291 </span>                :<span class="lineNoCov">          0 : static int xscom_indirect_write(uint32_t gcid, uint64_t pcb_addr, uint64_t val)</span>
+<span class="lineNum">     292 </span>                :            : {
+<span class="lineNum">     293 </span>                :            :         uint32_t addr;
+<span class="lineNum">     294 </span>                :            :         uint64_t data;
+<span class="lineNum">     295 </span>                :            :         int rc, retries;
+<span class="lineNum">     296 </span>                :            : 
+<span class="lineNum">     297 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (proc_gen != proc_gen_p8)</span>
+<span class="lineNum">     298 </span>                :            :                 return OPAL_UNSUPPORTED;
+<span class="lineNum">     299 </span>                :            : 
+<span class="lineNum">     300 </span>                :            :         /* Write indirect address &amp; data */
+<span class="lineNum">     301 </span>                :<span class="lineNoCov">          0 :         addr = pcb_addr &amp; 0x7fffffff;</span>
+<span class="lineNum">     302 </span>                :<span class="lineNoCov">          0 :         data = pcb_addr &amp; XSCOM_ADDR_IND_ADDR;</span>
+<span class="lineNum">     303 </span>                :<span class="lineNoCov">          0 :         data |= val &amp; XSCOM_ADDR_IND_DATA;</span>
+<span class="lineNum">     304 </span>                :            : 
+<span class="lineNum">     305 </span>                :<span class="lineNoCov">          0 :         rc = __xscom_write(gcid, addr, data);</span>
+<span class="lineNum">     306 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     307 </span>                :            :                 goto bail;
+<span class="lineNum">     308 </span>                :            : 
+<span class="lineNum">     309 </span>                :            :         /* Wait for completion */
+<span class="lineNum">     310 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (retries = 0; retries &lt; XSCOM_IND_MAX_RETRIES; retries++) {</span>
+<span class="lineNum">     311 </span>                :<span class="lineNoCov">          0 :                 rc = __xscom_read(gcid, addr, &amp;data);</span>
+<span class="lineNum">     312 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc)</span>
+<span class="lineNum">     313 </span>                :            :                         goto bail;
+<span class="lineNum">     314 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if ((data &amp; XSCOM_DATA_IND_COMPLETE) &amp;&amp;</span>
+<span class="lineNum">     315 </span>                :            :                     ((data &amp; XSCOM_DATA_IND_ERR) == 0))
+<span class="lineNum">     316 </span>                :            :                         break;
+<span class="lineNum">     317 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if ((data &amp; XSCOM_DATA_IND_COMPLETE) ||</span>
+<span class="lineNum">     318 </span>                :            :                     (retries &gt;= XSCOM_IND_MAX_RETRIES)) {
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :                         xscom_handle_ind_error(data, gcid, pcb_addr,</span>
+<span class="lineNum">     320 </span>                :            :                                                false);
+<span class="lineNum">     321 </span>                :<span class="lineNoCov">          0 :                         rc = OPAL_HARDWARE;</span>
+<span class="lineNum">     322 </span>                :<span class="lineNoCov">          0 :                         goto bail;</span>
+<span class="lineNum">     323 </span>                :            :                 }
+<span class="lineNum">     324 </span>                :            :         }
+<span class="lineNum">     325 </span>                :            :  bail:
+<span class="lineNum">     326 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="327"><span class="lineNum">     327 </span>                :            : }</a>
+<span class="lineNum">     328 </span>                :            : 
+<span class="lineNum">     329 </span>                :<span class="lineNoCov">          0 : static uint32_t xscom_decode_chiplet(uint32_t partid, uint64_t *pcb_addr)</span>
+<span class="lineNum">     330 </span>                :            : {
+<span class="lineNum">     331 </span>                :<span class="lineNoCov">          0 :         uint32_t gcid = (partid &amp; 0x0fffffff) &gt;&gt; 4;</span>
+<span class="lineNum">     332 </span>                :<span class="lineNoCov">          0 :         uint32_t core = partid &amp; 0xf;</span>
+<span class="lineNum">     333 </span>                :            : 
+<span class="lineNum">     334 </span>                :<span class="lineNoCov">          0 :         *pcb_addr |= P8_EX_PCB_SLAVE_BASE;</span>
+<span class="lineNum">     335 </span>                :<span class="lineNoCov">          0 :         *pcb_addr |= core &lt;&lt; 24;</span>
+<span class="lineNum">     336 </span>                :            : 
+<span class="lineNum">     337 </span>                :<span class="lineNoCov">          0 :         return gcid;</span>
+<span class="lineNum">     338 </span>                :            : }
+<span class="lineNum">     339 </span>                :            : 
+<span class="lineNum">     340 </span>                :            : /*
+<a name="341"><span class="lineNum">     341 </span>                :            :  * External API</a>
+<span class="lineNum">     342 </span>                :            :  */
+<span class="lineNum">     343 </span>                :<span class="lineCov">      14904 : int xscom_read(uint32_t partid, uint64_t pcb_addr, uint64_t *val)</span>
+<span class="lineNum">     344 </span>                :            : {
+<span class="lineNum">     345 </span>                :            :         bool need_unlock;
+<span class="lineNum">     346 </span>                :            :         uint32_t gcid;
+<span class="lineNum">     347 </span>                :            :         int rc;
+<span class="lineNum">     348 </span>                :            : 
+<span class="lineNum">     349 </span>                :            :         /* Handle part ID decoding */
+<span class="lineNum">     350 </span>  [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 14904 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">      14904 :         switch(partid &gt;&gt; 28) {</span>
+<span class="lineNum">     351 </span>                :            :         case 0: /* Normal processor chip */
+<span class="lineNum">     352 </span>                :            :                 gcid = partid;
+<span class="lineNum">     353 </span>                :            :                 break;
+<span class="lineNum">     354 </span>                :            :         case 8: /* Centaur */
+<span class="lineNum">     355 </span>                :<span class="lineNoCov">          0 :                 return centaur_xscom_read(partid, pcb_addr, val);</span>
+<span class="lineNum">     356 </span>                :            :         case 4: /* EX chiplet */
+<span class="lineNum">     357 </span>                :<span class="lineNoCov">          0 :                 gcid = xscom_decode_chiplet(partid, &amp;pcb_addr);</span>
+<span class="lineNum">     358 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     359 </span>                :            :         default:
+<span class="lineNum">     360 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     361 </span>                :            :         }
+<span class="lineNum">     362 </span>                :            : 
+<span class="lineNum">     363 </span>                :            :         /*
+<span class="lineNum">     364 </span>                :            :          * HW822317 requires locking. We use a recursive lock as error
+<span class="lineNum">     365 </span>                :            :          * conditions might cause printf's which might then try to take
+<span class="lineNum">     366 </span>                :            :          * the lock again
+<span class="lineNum">     367 </span>                :            :          */
+<span class="lineNum">     368 </span>                :<span class="lineCov">      14904 :         need_unlock = lock_recursive(&amp;xscom_lock);</span>
+<span class="lineNum">     369 </span>                :            : 
+<span class="lineNum">     370 </span>                :            :         /* Direct vs indirect access */
+<span class="lineNum">     371 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 14904 times"> + </span>]:<span class="lineCov">      14904 :         if (pcb_addr &amp; XSCOM_ADDR_IND_FLAG)</span>
+<span class="lineNum">     372 </span>                :<span class="lineNoCov">          0 :                 rc = xscom_indirect_read(gcid, pcb_addr, val);</span>
+<span class="lineNum">     373 </span>                :            :         else
+<span class="lineNum">     374 </span>                :<span class="lineCov">      14904 :                 rc = __xscom_read(gcid, pcb_addr &amp; 0x7fffffff, val);</span>
+<span class="lineNum">     375 </span>                :            : 
+<span class="lineNum">     376 </span>                :            :         /* Unlock it */
+<span class="lineNum">     377 </span>        [<span class="branchCov" title="Branch 0 was taken 14904 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">      14904 :         if (need_unlock)</span>
+<span class="lineNum">     378 </span>                :<span class="lineCov">      14904 :                 unlock(&amp;xscom_lock);</span>
+<span class="lineNum">     379 </span>                :<span class="lineCov">      14904 :         return rc;</span>
+<span class="lineNum">     380 </span>                :            : }
+<span class="lineNum">     381 </span>                :            : 
+<a name="382"><span class="lineNum">     382 </span>                :            : opal_call(OPAL_XSCOM_READ, xscom_read, 3);</a>
+<span class="lineNum">     383 </span>                :            : 
+<span class="lineNum">     384 </span>                :<span class="lineCov">      20290 : int xscom_write(uint32_t partid, uint64_t pcb_addr, uint64_t val)</span>
+<span class="lineNum">     385 </span>                :            : {
+<span class="lineNum">     386 </span>                :            :         bool need_unlock;
+<span class="lineNum">     387 </span>                :            :         uint32_t gcid;
+<span class="lineNum">     388 </span>                :            :         int rc;
+<span class="lineNum">     389 </span>                :            : 
+<span class="lineNum">     390 </span>                :            :         /* Handle part ID decoding */
+<span class="lineNum">     391 </span>  [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 20290 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">      20290 :         switch(partid &gt;&gt; 28) {</span>
+<span class="lineNum">     392 </span>                :            :         case 0: /* Normal processor chip */
+<span class="lineNum">     393 </span>                :            :                 gcid = partid;
+<span class="lineNum">     394 </span>                :            :                 break;
+<span class="lineNum">     395 </span>                :            :         case 8: /* Centaur */
+<span class="lineNum">     396 </span>                :<span class="lineNoCov">          0 :                 return centaur_xscom_write(partid, pcb_addr, val);</span>
+<span class="lineNum">     397 </span>                :            :         case 4: /* EX chiplet */
+<span class="lineNum">     398 </span>                :<span class="lineNoCov">          0 :                 gcid = xscom_decode_chiplet(partid, &amp;pcb_addr);</span>
+<span class="lineNum">     399 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     400 </span>                :            :         default:
+<span class="lineNum">     401 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     402 </span>                :            :         }
+<span class="lineNum">     403 </span>                :            : 
+<span class="lineNum">     404 </span>                :            :         /*
+<span class="lineNum">     405 </span>                :            :          * HW822317 requires locking. We use a recursive lock as error
+<span class="lineNum">     406 </span>                :            :          * conditions might cause printf's which might then try to take
+<span class="lineNum">     407 </span>                :            :          * the lock again
+<span class="lineNum">     408 </span>                :            :          */
+<span class="lineNum">     409 </span>                :<span class="lineCov">      20290 :         need_unlock = lock_recursive(&amp;xscom_lock);</span>
+<span class="lineNum">     410 </span>                :            : 
+<span class="lineNum">     411 </span>                :            :         /* Direct vs indirect access */
+<span class="lineNum">     412 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 20290 times"> + </span>]:<span class="lineCov">      20290 :         if (pcb_addr &amp; XSCOM_ADDR_IND_FLAG)</span>
+<span class="lineNum">     413 </span>                :<span class="lineNoCov">          0 :                 rc = xscom_indirect_write(gcid, pcb_addr, val);</span>
+<span class="lineNum">     414 </span>                :            :         else
+<span class="lineNum">     415 </span>                :<span class="lineCov">      20290 :                 rc = __xscom_write(gcid, pcb_addr &amp; 0x7fffffff, val);</span>
+<span class="lineNum">     416 </span>                :            : 
+<span class="lineNum">     417 </span>                :            :         /* Unlock it */
+<span class="lineNum">     418 </span>        [<span class="branchCov" title="Branch 0 was taken 20290 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">      20290 :         if (need_unlock)</span>
+<span class="lineNum">     419 </span>                :<span class="lineCov">      20290 :                 unlock(&amp;xscom_lock);</span>
+<span class="lineNum">     420 </span>                :<span class="lineCov">      20290 :         return rc;</span>
+<span class="lineNum">     421 </span>                :            : }
+<a name="422"><span class="lineNum">     422 </span>                :            : opal_call(OPAL_XSCOM_WRITE, xscom_write, 3);</a>
+<span class="lineNum">     423 </span>                :            : 
+<span class="lineNum">     424 </span>                :<span class="lineCov">       2894 : int xscom_readme(uint64_t pcb_addr, uint64_t *val)</span>
+<span class="lineNum">     425 </span>                :            : {
+<span class="lineNum">     426 </span>                :<span class="lineCov">       2894 :         return xscom_read(this_cpu()-&gt;chip_id, pcb_addr, val);</span>
+<a name="427"><span class="lineNum">     427 </span>                :            : }</a>
+<span class="lineNum">     428 </span>                :            : 
+<span class="lineNum">     429 </span>                :<span class="lineCov">       5791 : int xscom_writeme(uint64_t pcb_addr, uint64_t val)</span>
+<span class="lineNum">     430 </span>                :            : {
+<span class="lineNum">     431 </span>                :<span class="lineCov">       5791 :         return xscom_write(this_cpu()-&gt;chip_id, pcb_addr, val);</span>
+<a name="432"><span class="lineNum">     432 </span>                :            : }</a>
+<span class="lineNum">     433 </span>                :            : 
+<span class="lineNum">     434 </span>                :<span class="lineCov">          4 : int64_t xscom_read_cfam_chipid(uint32_t partid, uint32_t *chip_id)</span>
+<span class="lineNum">     435 </span>                :            : {
+<span class="lineNum">     436 </span>                :            :         uint64_t val;
+<span class="lineNum">     437 </span>                :<span class="lineCov">          4 :         int64_t rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     438 </span>                :            : 
+<span class="lineNum">     439 </span>                :            :         /* Mambo chip model lacks the f000f register, just make
+<span class="lineNum">     440 </span>                :            :          * something up (Murano DD2.1)
+<span class="lineNum">     441 </span>                :            :          */
+<span class="lineNum">     442 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :         if (chip_quirk(QUIRK_NO_F000F))</span>
+<span class="lineNum">     443 </span>                :<span class="lineNoCov">          0 :                 val = 0x221EF04980000000;</span>
+<span class="lineNum">     444 </span>                :            :         else
+<span class="lineNum">     445 </span>                :<span class="lineCov">          4 :                 rc = xscom_read(partid, 0xf000f, &amp;val);</span>
+<span class="lineNum">     446 </span>                :            : 
+<span class="lineNum">     447 </span>                :            :         /* Extract CFAM id */
+<span class="lineNum">     448 </span>                :<span class="lineCov">          4 :         *chip_id = (uint32_t)(val &gt;&gt; 44);</span>
+<span class="lineNum">     449 </span>                :            : 
+<span class="lineNum">     450 </span>                :<span class="lineCov">          4 :         return rc;</span>
+<a name="451"><span class="lineNum">     451 </span>                :            : }</a>
+<span class="lineNum">     452 </span>                :            : 
+<span class="lineNum">     453 </span>                :<span class="lineCov">          2 : static void xscom_init_chip_info(struct proc_chip *chip)</span>
+<span class="lineNum">     454 </span>                :            : {
+<span class="lineNum">     455 </span>                :            :         uint32_t val;
+<span class="lineNum">     456 </span>                :            :         int64_t rc;
+<span class="lineNum">     457 </span>                :            : 
+<span class="lineNum">     458 </span>                :<span class="lineCov">          2 :         rc = xscom_read_cfam_chipid(chip-&gt;id, &amp;val);</span>
+<span class="lineNum">     459 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (rc) {</span>
+<span class="lineNum">     460 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;XSCOM: Error %lld reading 0xf000f register\n&quot;, rc);</span>
+<span class="lineNum">     461 </span>                :            :                 /* We leave chip type to UNKNOWN */
+<span class="lineNum">     462 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     463 </span>                :            :         }
+<span class="lineNum">     464 </span>                :            : 
+<span class="lineNum">     465 </span>                :            :         /* Identify chip */
+<span class="lineNum">     466 </span>  [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span> :<span class="lineCov">          2 :         switch(val &amp; 0xff) {</span>
+<span class="lineNum">         </span>            <span class="branchNoCov" title="Branch 4 was not taken"> - </span>]
+<span class="lineNum">     467 </span>                :            :         case 0xf9:
+<span class="lineNum">     468 </span>                :<span class="lineNoCov">          0 :                 chip-&gt;type = PROC_CHIP_P7;</span>
+<span class="lineNum">     469 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 assert(proc_gen == proc_gen_p7);</span>
+<span class="lineNum">     470 </span>                :            :                 break;
+<span class="lineNum">     471 </span>                :            :         case 0xe8:
+<span class="lineNum">     472 </span>                :<span class="lineNoCov">          0 :                 chip-&gt;type = PROC_CHIP_P7P;</span>
+<span class="lineNum">     473 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 assert(proc_gen == proc_gen_p7);</span>
+<span class="lineNum">     474 </span>                :            :                 break;
+<span class="lineNum">     475 </span>                :            :         case 0xef:
+<span class="lineNum">     476 </span>                :<span class="lineCov">          2 :                 chip-&gt;type = PROC_CHIP_P8_MURANO;</span>
+<span class="lineNum">     477 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 assert(proc_gen == proc_gen_p8);</span>
+<span class="lineNum">     478 </span>                :            :                 break;
+<span class="lineNum">     479 </span>                :            :         case 0xea:
+<span class="lineNum">     480 </span>                :<span class="lineNoCov">          0 :                 chip-&gt;type = PROC_CHIP_P8_VENICE;</span>
+<span class="lineNum">     481 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 assert(proc_gen == proc_gen_p8);</span>
+<span class="lineNum">     482 </span>                :            :                 break;
+<span class="lineNum">     483 </span>                :            :         default:
+<span class="lineNum">     484 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;CHIP: Unknown chip type 0x%02x !!!\n&quot;,</span>
+<span class="lineNum">     485 </span>                :            :                        (unsigned char)(val &amp; 0xff));
+<span class="lineNum">     486 </span>                :            :         }
+<span class="lineNum">     487 </span>                :            : 
+<span class="lineNum">     488 </span>                :            :         /* Get EC level from CFAM ID */
+<span class="lineNum">     489 </span>                :<span class="lineCov">          2 :         chip-&gt;ec_level = ((val &gt;&gt; 16) &amp; 0xf) &lt;&lt; 4;</span>
+<span class="lineNum">     490 </span>                :<span class="lineCov">          2 :         chip-&gt;ec_level |= (val &gt;&gt; 8) &amp; 0xf;</span>
+<a name="491"><span class="lineNum">     491 </span>                :            : }</a>
+<span class="lineNum">     492 </span>                :            : 
+<span class="lineNum">     493 </span>                :<span class="lineCov">          1 : void xscom_init(void)</span>
+<span class="lineNum">     494 </span>                :            : {
+<span class="lineNum">     495 </span>                :            :         struct dt_node *xn;
+<span class="lineNum">     496 </span>                :            : 
+<span class="lineNum">     497 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         dt_for_each_compatible(dt_root, xn, &quot;ibm,xscom&quot;) {</span>
+<span class="lineNum">     498 </span>                :<span class="lineCov">          2 :                 uint32_t gcid = dt_get_chip_id(xn);</span>
+<span class="lineNum">     499 </span>                :            :                 const struct dt_property *reg;
+<span class="lineNum">     500 </span>                :            :                 struct proc_chip *chip;
+<span class="lineNum">     501 </span>                :            :                 const char *chip_name;
+<span class="lineNum">     502 </span>                :            :                 static const char *chip_names[] = {
+<span class="lineNum">     503 </span>                :            :                         &quot;UNKNOWN&quot;, &quot;P7&quot;, &quot;P7+&quot;, &quot;P8E&quot;, &quot;P8&quot;,
+<span class="lineNum">     504 </span>                :            :                 };
+<span class="lineNum">     505 </span>                :            : 
+<span class="lineNum">     506 </span>                :<span class="lineCov">          2 :                 chip = get_chip(gcid);</span>
+<span class="lineNum">     507 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 assert(chip);</span>
+<span class="lineNum">     508 </span>                :            : 
+<span class="lineNum">     509 </span>                :            :                 /* XXX We need a proper address parsing. For now, we just
+<span class="lineNum">     510 </span>                :            :                  * &quot;know&quot; that we are looking at a u64
+<span class="lineNum">     511 </span>                :            :                  */
+<span class="lineNum">     512 </span>                :<span class="lineCov">          2 :                 reg = dt_find_property(xn, &quot;reg&quot;);</span>
+<span class="lineNum">     513 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 assert(reg);</span>
+<span class="lineNum">     514 </span>                :            : 
+<span class="lineNum">     515 </span>                :<span class="lineCov">          2 :                 chip-&gt;xscom_base = dt_translate_address(xn, 0, NULL);</span>
+<span class="lineNum">     516 </span>                :            : 
+<span class="lineNum">     517 </span>                :            :                 /* Grab processor type and EC level */
+<span class="lineNum">     518 </span>                :<span class="lineCov">          2 :                 xscom_init_chip_info(chip);</span>
+<span class="lineNum">     519 </span>                :            : 
+<span class="lineNum">     520 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :                 chip_name = chip-&gt;type &gt; PROC_CHIP_P8_VENICE ? &quot;INVALID&quot; :</span>
+<span class="lineNum">     521 </span>                :            :                         chip_names[chip-&gt;type];
+<span class="lineNum">     522 </span>                :<span class="lineCov">          2 :                 printf(&quot;XSCOM: chip 0x%x at 0x%llx [%s DD%x.%x]\n&quot;,</span>
+<span class="lineNum">     523 </span>                :            :                        gcid, chip-&gt;xscom_base,
+<span class="lineNum">     524 </span>                :            :                        chip_name,
+<span class="lineNum">     525 </span>                :<span class="lineCov">          2 :                        chip-&gt;ec_level &gt;&gt; 4,</span>
+<span class="lineNum">     526 </span>                :            :                        chip-&gt;ec_level &amp; 0xf);
+<span class="lineNum">     527 </span>                :            :         }
+<a name="528"><span class="lineNum">     528 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     529 </span>                :            : 
+<span class="lineNum">     530 </span>                :<span class="lineNoCov">          0 : void xscom_used_by_console(void)</span>
+<span class="lineNum">     531 </span>                :            : {
+<span class="lineNum">     532 </span>                :<span class="lineNoCov">          0 :         xscom_lock.in_con_path = true;</span>
+<span class="lineNum">     533 </span>                :            : 
+<span class="lineNum">     534 </span>                :            :         /*
+<span class="lineNum">     535 </span>                :            :          * Some other processor might hold it without having
+<span class="lineNum">     536 </span>                :            :          * disabled the console locally so let's make sure that
+<span class="lineNum">     537 </span>                :            :          * is over by taking/releasing the lock ourselves
+<span class="lineNum">     538 </span>                :            :          */
+<span class="lineNum">     539 </span>                :<span class="lineNoCov">          0 :         lock(&amp;xscom_lock);</span>
+<span class="lineNum">     540 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;xscom_lock);</span>
+<span class="lineNum">     541 </span>                :<span class="lineNoCov">          0 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

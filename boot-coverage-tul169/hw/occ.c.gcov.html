@@ -1,0 +1,733 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/occ.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">hw</a> - occ.c<span style="font-size: 80%;"> (source / <a href="occ.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">164</td>
+            <td class="headerCovTableEntry">242</td>
+            <td class="headerCovTableEntryLo">67.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">14</td>
+            <td class="headerCovTableEntryMed">85.7 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">57</td>
+            <td class="headerCovTableEntry">127</td>
+            <td class="headerCovTableEntryLo">44.9 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;xscom.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;io.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;cpu.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;chip.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;mem_region.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;fsp.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;timebase.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;hostservices.h&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;errorlog.h&gt;
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            : /* OCC Communication Area for PStates */
+<span class="lineNum">      29 </span>                :            : 
+<span class="lineNum">      30 </span>                :            : #define P8_HOMER_SAPPHIRE_DATA_OFFSET   0x1F8000
+<span class="lineNum">      31 </span>                :            : 
+<span class="lineNum">      32 </span>                :            : #define MAX_PSTATES 256
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            : struct occ_pstate_entry {
+<span class="lineNum">      35 </span>                :            :         s8 id;
+<span class="lineNum">      36 </span>                :            :         u8 flags;
+<span class="lineNum">      37 </span>                :            :         u8 vdd;
+<span class="lineNum">      38 </span>                :            :         u8 vcs;
+<span class="lineNum">      39 </span>                :            :         u32 freq_khz;
+<span class="lineNum">      40 </span>                :            : };
+<span class="lineNum">      41 </span>                :            : 
+<span class="lineNum">      42 </span>                :            : struct occ_pstate_table {
+<span class="lineNum">      43 </span>                :            :         u8 valid;
+<span class="lineNum">      44 </span>                :            :         u8 version;
+<span class="lineNum">      45 </span>                :            :         u8 throttle;
+<span class="lineNum">      46 </span>                :            :         s8 pstate_min;
+<span class="lineNum">      47 </span>                :            :         s8 pstate_nom;
+<span class="lineNum">      48 </span>                :            :         s8 pstate_max;
+<span class="lineNum">      49 </span>                :            :         u8 spare1;
+<span class="lineNum">      50 </span>                :            :         u8 spare2;
+<span class="lineNum">      51 </span>                :            :         u64 reserved;
+<span class="lineNum">      52 </span>                :            :         struct occ_pstate_entry pstates[MAX_PSTATES];
+<span class="lineNum">      53 </span>                :            : };
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_OCC_LOAD, OPAL_PLATFORM_ERR_EVT, OPAL_OCC,
+<span class="lineNum">      56 </span>                :            :                 OPAL_CEC_HARDWARE, OPAL_PREDICTIVE_ERR_GENERAL,
+<span class="lineNum">      57 </span>                :            :                 OPAL_NA, NULL);
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_OCC_RESET, OPAL_PLATFORM_ERR_EVT, OPAL_OCC,
+<span class="lineNum">      60 </span>                :            :                 OPAL_CEC_HARDWARE, OPAL_PREDICTIVE_ERR_GENERAL,
+<span class="lineNum">      61 </span>                :            :                 OPAL_NA, NULL);
+<span class="lineNum">      62 </span>                :            : 
+<span class="lineNum">      63 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_OCC_PSTATE_INIT, OPAL_PLATFORM_ERR_EVT, OPAL_OCC,
+<span class="lineNum">      64 </span>                :            :                 OPAL_CEC_HARDWARE, OPAL_INFO,
+<span class="lineNum">      65 </span>                :            :                 OPAL_NA, NULL);
+<span class="lineNum">      66 </span>                :            : 
+<span class="lineNum">      67 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_OCC_TIMEOUT, OPAL_PLATFORM_ERR_EVT, OPAL_OCC,
+<span class="lineNum">      68 </span>                :            :                  OPAL_CEC_HARDWARE, OPAL_UNRECOVERABLE_ERR_GENERAL,
+<span class="lineNum">      69 </span>                :            :                  OPAL_NA, NULL);
+<a name="70"><span class="lineNum">      70 </span>                :            : </a>
+<span class="lineNum">      71 </span>                :            : /* Check each chip's HOMER/Sapphire area for PState valid bit */
+<span class="lineNum">      72 </span>                :<span class="lineCov">          1 : static bool wait_for_all_occ_init(void)</span>
+<span class="lineNum">      73 </span>                :            : {
+<span class="lineNum">      74 </span>                :            :         struct proc_chip *chip;
+<span class="lineNum">      75 </span>                :            :         uint64_t occ_data_area;
+<span class="lineNum">      76 </span>                :            :         struct occ_pstate_table *occ_data;
+<span class="lineNum">      77 </span>                :            :         int tries;
+<span class="lineNum">      78 </span>                :            :         uint64_t start_time, end_time;
+<span class="lineNum">      79 </span>                :<span class="lineCov">          1 :         uint32_t timeout = 0;</span>
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (platform.occ_timeout)</span>
+<span class="lineNum">      82 </span>                :<span class="lineCov">          1 :                 timeout = platform.occ_timeout();</span>
+<span class="lineNum">      83 </span>                :            : 
+<span class="lineNum">      84 </span>                :<span class="lineCov">          1 :         start_time = mftb();</span>
+<span class="lineNum">      85 </span>        [<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         for_each_chip(chip) {</span>
+<span class="lineNum">      86 </span>                :            :                 /* Check for valid homer address */
+<span class="lineNum">      87 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 if (!chip-&gt;homer_base) {</span>
+<span class="lineNum">      88 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;OCC: Chip: %x homer_base is not valid\n&quot;,</span>
+<span class="lineNum">      89 </span>                :            :                                 chip-&gt;id);
+<span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :                         return false;</span>
+<span class="lineNum">      91 </span>                :            :                 }
+<span class="lineNum">      92 </span>                :            :                 /* Get PState table address */
+<span class="lineNum">      93 </span>                :<span class="lineCov">          2 :                 occ_data_area = chip-&gt;homer_base + P8_HOMER_SAPPHIRE_DATA_OFFSET;</span>
+<span class="lineNum">      94 </span>                :<span class="lineCov">          2 :                 occ_data = (struct occ_pstate_table *)occ_data_area;</span>
+<span class="lineNum">      95 </span>                :            : 
+<span class="lineNum">      96 </span>                :            :                 /*
+<span class="lineNum">      97 </span>                :            :                  * Checking for occ_data-&gt;valid == 1 is ok because we clear all
+<span class="lineNum">      98 </span>                :            :                  * homer_base+size before passing memory to host services.
+<span class="lineNum">      99 </span>                :            :                  * This ensures occ_data-&gt;valid == 0 before OCC load
+<span class="lineNum">     100 </span>                :            :                  */
+<span class="lineNum">     101 </span>                :<span class="lineCov">          2 :                 tries = timeout * 10;</span>
+<span class="lineNum">     102 </span>[<span class="branchCov" title="Branch 0 was taken 379 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 379 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        381 :                 while((occ_data-&gt;valid != 1) &amp;&amp; tries--) {</span>
+<span class="lineNum">     103 </span>                :<span class="lineCov">        379 :                         time_wait_ms(100);</span>
+<span class="lineNum">     104 </span>                :            :                 }
+<span class="lineNum">     105 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 if (occ_data-&gt;valid != 1) {</span>
+<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;OCC: Chip: %x PState table is not valid\n&quot;,</span>
+<span class="lineNum">     107 </span>                :            :                                 chip-&gt;id);
+<span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 :                         return false;</span>
+<span class="lineNum">     109 </span>                :            :                 }
+<span class="lineNum">     110 </span>                :<span class="lineCov">          2 :                 prlog(PR_DEBUG, &quot;OCC: Chip %02x Data (%016llx) = %016llx\n&quot;,</span>
+<span class="lineNum">     111 </span>                :            :                       chip-&gt;id, occ_data_area,
+<span class="lineNum">     112 </span>                :            :                       *(uint64_t *)occ_data_area);
+<span class="lineNum">     113 </span>                :            :         }
+<span class="lineNum">     114 </span>                :<span class="lineCov">          1 :         end_time = mftb();</span>
+<span class="lineNum">     115 </span>                :<span class="lineCov">          1 :         prlog(PR_NOTICE, &quot;OCC: All Chip Rdy after %lld ms\n&quot;,</span>
+<span class="lineNum">     116 </span>                :<span class="lineCov">          1 :               (end_time - start_time) / 512 / 1000);</span>
+<span class="lineNum">     117 </span>                :<span class="lineCov">          1 :         return true;</span>
+<span class="lineNum">     118 </span>                :            : }
+<span class="lineNum">     119 </span>                :            : 
+<a name="120"><span class="lineNum">     120 </span>                :            : /* Add device tree properties to describe pstates states */</a>
+<span class="lineNum">     121 </span>                :            : /* Retrun nominal pstate to set in each core */
+<span class="lineNum">     122 </span>                :<span class="lineCov">          1 : static bool add_cpu_pstate_properties(s8 *pstate_nom)</span>
+<span class="lineNum">     123 </span>                :            : {
+<span class="lineNum">     124 </span>                :            :         struct proc_chip *chip;
+<span class="lineNum">     125 </span>                :            :         uint64_t occ_data_area;
+<span class="lineNum">     126 </span>                :            :         struct occ_pstate_table *occ_data;
+<span class="lineNum">     127 </span>                :            :         struct dt_node *power_mgt;
+<span class="lineNum">     128 </span>                :            :         u8 nr_pstates;
+<span class="lineNum">     129 </span>                :            :         /* Arrays for device tree */
+<span class="lineNum">     130 </span>                :            :         u32 *dt_id, *dt_freq;
+<span class="lineNum">     131 </span>                :            :         u8 *dt_vdd, *dt_vcs;
+<span class="lineNum">     132 </span>                :            :         bool rc;
+<span class="lineNum">     133 </span>                :            :         int i;
+<span class="lineNum">     134 </span>                :            : 
+<span class="lineNum">     135 </span>                :<span class="lineCov">          1 :         prlog(PR_DEBUG, &quot;OCC: CPU pstate state device tree init\n&quot;);</span>
+<span class="lineNum">     136 </span>                :            : 
+<span class="lineNum">     137 </span>                :            :         /* Find first chip and core */
+<span class="lineNum">     138 </span>                :<span class="lineCov">          1 :         chip = next_chip(NULL);</span>
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>                :            :         /* Extract PState information from OCC */
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :            :         /* Dump state table */
+<span class="lineNum">     143 </span>                :<span class="lineCov">          1 :         occ_data_area = chip-&gt;homer_base + P8_HOMER_SAPPHIRE_DATA_OFFSET;</span>
+<span class="lineNum">     144 </span>                :            : 
+<span class="lineNum">     145 </span>                :<span class="lineCov">          1 :         prlog(PR_DEBUG, &quot;OCC: Data (%16llx) = %16llx %16llx\n&quot;,</span>
+<span class="lineNum">     146 </span>                :            :               occ_data_area,
+<span class="lineNum">     147 </span>                :<span class="lineCov">          1 :               *(uint64_t *)occ_data_area,</span>
+<span class="lineNum">     148 </span>                :<span class="lineCov">          1 :               *(uint64_t *)(occ_data_area+8));</span>
+<span class="lineNum">     149 </span>                :            :         
+<span class="lineNum">     150 </span>                :<span class="lineCov">          1 :         occ_data = (struct occ_pstate_table *)occ_data_area;</span>
+<span class="lineNum">     151 </span>                :            : 
+<span class="lineNum">     152 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!occ_data-&gt;valid) {</span>
+<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;OCC: PState table is not valid\n&quot;);</span>
+<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     155 </span>                :            :         }
+<span class="lineNum">     156 </span>                :            : 
+<span class="lineNum">     157 </span>                :<span class="lineCov">          1 :         nr_pstates = occ_data-&gt;pstate_max - occ_data-&gt;pstate_min + 1;</span>
+<span class="lineNum">     158 </span>                :<span class="lineCov">          1 :         prlog(PR_DEBUG, &quot;OCC: Min %d Nom %d Max %d Nr States %d\n&quot;, </span>
+<span class="lineNum">     159 </span>                :<span class="lineCov">          1 :               occ_data-&gt;pstate_min, occ_data-&gt;pstate_nom,</span>
+<span class="lineNum">     160 </span>                :            :               occ_data-&gt;pstate_max, nr_pstates);
+<span class="lineNum">     161 </span>                :            : 
+<span class="lineNum">     162 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (nr_pstates &lt;= 1 || nr_pstates &gt; 128) {</span>
+<span class="lineNum">     163 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;OCC: OCC range is not valid\n&quot;);</span>
+<span class="lineNum">     164 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     165 </span>                :            :         }
+<span class="lineNum">     166 </span>                :            : 
+<span class="lineNum">     167 </span>                :<span class="lineCov">          1 :         power_mgt = dt_find_by_path(dt_root, &quot;/ibm,opal/power-mgt&quot;);</span>
+<span class="lineNum">     168 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!power_mgt) {</span>
+<span class="lineNum">     169 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;OCC: dt node /ibm,opal/power-mgt not found\n&quot;);</span>
+<span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     171 </span>                :            :         }
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>                :<span class="lineCov">          1 :         rc = false;</span>
+<span class="lineNum">     174 </span>                :            : 
+<span class="lineNum">     175 </span>                :            :         /* Setup arrays for device-tree */
+<span class="lineNum">     176 </span>                :            :         /* Allocate memory */
+<span class="lineNum">     177 </span>                :<span class="lineCov">          1 :         dt_id = (u32 *) malloc(MAX_PSTATES * sizeof(u32));</span>
+<span class="lineNum">     178 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!dt_id) {</span>
+<span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;OCC: dt_id array alloc failure\n&quot;);</span>
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :                 goto out;</span>
+<span class="lineNum">     181 </span>                :            :         }
+<span class="lineNum">     182 </span>                :            : 
+<span class="lineNum">     183 </span>                :<span class="lineCov">          1 :         dt_freq = (u32 *) malloc(MAX_PSTATES * sizeof(u32));</span>
+<span class="lineNum">     184 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!dt_freq) {</span>
+<span class="lineNum">     185 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;OCC: dt_freq array alloc failure\n&quot;);</span>
+<span class="lineNum">     186 </span>                :<span class="lineNoCov">          0 :                 goto out_free_id;</span>
+<span class="lineNum">     187 </span>                :            :         }
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :<span class="lineCov">          1 :         dt_vdd = (u8 *) malloc(MAX_PSTATES * sizeof(u8));</span>
+<span class="lineNum">     190 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!dt_vdd) {</span>
+<span class="lineNum">     191 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;OCC: dt_vdd array alloc failure\n&quot;);</span>
+<span class="lineNum">     192 </span>                :<span class="lineNoCov">          0 :                 goto out_free_freq;</span>
+<span class="lineNum">     193 </span>                :            :         }
+<span class="lineNum">     194 </span>                :            : 
+<span class="lineNum">     195 </span>                :<span class="lineCov">          1 :         dt_vcs = (u8 *) malloc(MAX_PSTATES * sizeof(u8));</span>
+<span class="lineNum">     196 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (!dt_vcs) {</span>
+<span class="lineNum">     197 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;OCC: dt_vcs array alloc failure\n&quot;);</span>
+<span class="lineNum">     198 </span>                :<span class="lineNoCov">          0 :                 goto out_free_vdd;</span>
+<span class="lineNum">     199 </span>                :            :         }
+<span class="lineNum">     200 </span>                :            : 
+<span class="lineNum">     201 </span>        [<span class="branchCov" title="Branch 0 was taken 66 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">         67 :         for( i=0; i &lt; nr_pstates; i++) {</span>
+<span class="lineNum">     202 </span>                :<span class="lineCov">         66 :                 dt_id[i] = occ_data-&gt;pstates[i].id;</span>
+<span class="lineNum">     203 </span>                :<span class="lineCov">         66 :                 dt_freq[i] = occ_data-&gt;pstates[i].freq_khz/1000;</span>
+<span class="lineNum">     204 </span>                :<span class="lineCov">         66 :                 dt_vdd[i] = occ_data-&gt;pstates[i].vdd;</span>
+<span class="lineNum">     205 </span>                :<span class="lineCov">         66 :                 dt_vcs[i] = occ_data-&gt;pstates[i].vcs;</span>
+<span class="lineNum">     206 </span>                :            :         }
+<span class="lineNum">     207 </span>                :            : 
+<span class="lineNum">     208 </span>                :            :         /* Add the device-tree entries */
+<span class="lineNum">     209 </span>                :<span class="lineCov">          1 :         dt_add_property(power_mgt, &quot;ibm,pstate-ids&quot;, dt_id, nr_pstates * 4);</span>
+<span class="lineNum">     210 </span>                :<span class="lineCov">          1 :         dt_add_property(power_mgt, &quot;ibm,pstate-frequencies-mhz&quot;, dt_freq, nr_pstates * 4);</span>
+<span class="lineNum">     211 </span>                :<span class="lineCov">          1 :         dt_add_property(power_mgt, &quot;ibm,pstate-vdds&quot;, dt_vdd, nr_pstates);</span>
+<span class="lineNum">     212 </span>                :<span class="lineCov">          1 :         dt_add_property(power_mgt, &quot;ibm,pstate-vcss&quot;, dt_vcs, nr_pstates);</span>
+<span class="lineNum">     213 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(power_mgt, &quot;ibm,pstate-min&quot;, occ_data-&gt;pstate_min);</span>
+<span class="lineNum">     214 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(power_mgt, &quot;ibm,pstate-nominal&quot;, occ_data-&gt;pstate_nom);</span>
+<span class="lineNum">     215 </span>                :<span class="lineCov">          1 :         dt_add_property_cells(power_mgt, &quot;ibm,pstate-max&quot;, occ_data-&gt;pstate_max);</span>
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>                :            :         /* Return pstate to set for each core */
+<span class="lineNum">     218 </span>                :<span class="lineCov">          1 :         *pstate_nom = occ_data-&gt;pstate_nom;</span>
+<span class="lineNum">     219 </span>                :<span class="lineCov">          1 :         rc = true;</span>
+<span class="lineNum">     220 </span>                :            : 
+<span class="lineNum">     221 </span>                :<span class="lineCov">          1 :         free(dt_vcs);</span>
+<span class="lineNum">     222 </span>                :            : out_free_vdd:
+<span class="lineNum">     223 </span>                :<span class="lineCov">          1 :         free(dt_vdd);</span>
+<span class="lineNum">     224 </span>                :            : out_free_id:
+<span class="lineNum">     225 </span>                :<span class="lineCov">          1 :         free(dt_id);</span>
+<span class="lineNum">     226 </span>                :            : out_free_freq:
+<span class="lineNum">     227 </span>                :<span class="lineCov">          1 :         free(dt_freq);</span>
+<span class="lineNum">     228 </span>                :            : out:
+<span class="lineNum">     229 </span>                :<span class="lineCov">          1 :         return rc;</span>
+<span class="lineNum">     230 </span>                :            : }
+<span class="lineNum">     231 </span>                :            : 
+<span class="lineNum">     232 </span>                :            : /*
+<span class="lineNum">     233 </span>                :            :  * Prepare chip for pstate transitions
+<a name="234"><span class="lineNum">     234 </span>                :            :  */</a>
+<span class="lineNum">     235 </span>                :            : 
+<span class="lineNum">     236 </span>                :<span class="lineCov">          8 : static bool cpu_pstates_prepare_core(struct proc_chip *chip, struct cpu_thread *c, s8 pstate_nom)</span>
+<span class="lineNum">     237 </span>                :            : {
+<span class="lineNum">     238 </span>                :<span class="lineCov">          4 :         uint32_t core = pir_to_core_id(c-&gt;pir);</span>
+<span class="lineNum">     239 </span>                :            :         uint64_t tmp, pstate;
+<span class="lineNum">     240 </span>                :            :         int rc;
+<span class="lineNum">     241 </span>                :            : 
+<span class="lineNum">     242 </span>                :            :         /*
+<span class="lineNum">     243 </span>                :            :          * Currently Fastsleep init clears EX_PM_SPR_OVERRIDE_EN.
+<span class="lineNum">     244 </span>                :            :          * Need to ensure only relevant bits are inited
+<span class="lineNum">     245 </span>                :            :          */
+<span class="lineNum">     246 </span>                :            : 
+<span class="lineNum">     247 </span>                :            :         /* Init PM GP1 for SCOM based PSTATE control to set nominal freq
+<span class="lineNum">     248 </span>                :            :          *
+<span class="lineNum">     249 </span>                :            :          * Use the OR SCOM to set the required bits in PM_GP1 register
+<span class="lineNum">     250 </span>                :            :          * since the OCC might be mainpulating the PM_GP1 register as well.
+<span class="lineNum">     251 </span>                :            :          */ 
+<span class="lineNum">     252 </span>                :<span class="lineCov">          4 :         rc = xscom_write(chip-&gt;id, XSCOM_ADDR_P8_EX_SLAVE(core, EX_PM_SET_GP1),</span>
+<span class="lineNum">     253 </span>                :            :                          EX_PM_SETUP_GP1_PM_SPR_OVERRIDE_EN);
+<span class="lineNum">     254 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :         if (rc) {</span>
+<span class="lineNum">     255 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_OCC_PSTATE_INIT),</span>
+<span class="lineNum">     256 </span>                :            :                         &quot;OCC: Failed to write PM_GP1 in pstates init\n&quot;);
+<span class="lineNum">     257 </span>                :            :                 return false;
+<span class="lineNum">     258 </span>                :            :         }
+<span class="lineNum">     259 </span>                :            : 
+<span class="lineNum">     260 </span>                :            :         /* Set new pstate to core */
+<span class="lineNum">     261 </span>                :<span class="lineCov">          4 :         rc = xscom_read(chip-&gt;id, XSCOM_ADDR_P8_EX_SLAVE(core, EX_PM_PPMCR), &amp;tmp);</span>
+<span class="lineNum">     262 </span>                :<span class="lineCov">          4 :         tmp = tmp &amp; ~0xFFFF000000000000ULL;</span>
+<span class="lineNum">     263 </span>                :<span class="lineCov">          4 :         pstate = ((uint64_t) pstate_nom) &amp; 0xFF;</span>
+<span class="lineNum">     264 </span>                :<span class="lineCov">          4 :         tmp = tmp | (pstate &lt;&lt; 56) | (pstate &lt;&lt; 48);</span>
+<span class="lineNum">     265 </span>                :<span class="lineCov">          4 :         rc = xscom_write(chip-&gt;id, XSCOM_ADDR_P8_EX_SLAVE(core, EX_PM_PPMCR), tmp);</span>
+<span class="lineNum">     266 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :         if (rc) {</span>
+<span class="lineNum">     267 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_OCC_PSTATE_INIT),</span>
+<span class="lineNum">     268 </span>                :            :                         &quot;OCC: Failed to write PM_GP1 in pstates init\n&quot;);
+<span class="lineNum">     269 </span>                :            :                 return false;
+<span class="lineNum">     270 </span>                :            :         }
+<span class="lineNum">     271 </span>                :<span class="lineCov">          4 :         time_wait_ms(1); /* Wait for PState to change */</span>
+<span class="lineNum">     272 </span>                :            :         /*
+<span class="lineNum">     273 </span>                :            :          * Init PM GP1 for SPR based PSTATE control.
+<span class="lineNum">     274 </span>                :            :          * Once OCC is active EX_PM_SETUP_GP1_DPLL_FREQ_OVERRIDE_EN will be
+<span class="lineNum">     275 </span>                :            :          * cleared by OCC.  Sapphire need not clear.
+<span class="lineNum">     276 </span>                :            :          * However wait for DVFS state machine to become idle after min-&gt;nominal
+<span class="lineNum">     277 </span>                :            :          * transition initiated above.  If not switch over to SPR control could fail.
+<span class="lineNum">     278 </span>                :            :          *
+<span class="lineNum">     279 </span>                :            :          * Use the AND SCOM to clear the required bits in PM_GP1 register
+<span class="lineNum">     280 </span>                :            :          * since the OCC might be mainpulating the PM_GP1 register as well.
+<span class="lineNum">     281 </span>                :            :          */
+<span class="lineNum">     282 </span>                :<span class="lineCov">          4 :         tmp = ~EX_PM_SETUP_GP1_PM_SPR_OVERRIDE_EN;</span>
+<span class="lineNum">     283 </span>                :<span class="lineCov">          4 :         rc = xscom_write(chip-&gt;id, XSCOM_ADDR_P8_EX_SLAVE(core, EX_PM_CLEAR_GP1),</span>
+<span class="lineNum">     284 </span>                :            :                         tmp);
+<span class="lineNum">     285 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :         if (rc) {</span>
+<span class="lineNum">     286 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_OCC_PSTATE_INIT),</span>
+<span class="lineNum">     287 </span>                :            :                         &quot;OCC: Failed to write PM_GP1 in pstates init\n&quot;);
+<span class="lineNum">     288 </span>                :            :                 return false;
+<span class="lineNum">     289 </span>                :            :         }
+<span class="lineNum">     290 </span>                :            : 
+<span class="lineNum">     291 </span>                :            :         /* Just debug */
+<span class="lineNum">     292 </span>                :<span class="lineCov">          4 :         rc = xscom_read(chip-&gt;id, XSCOM_ADDR_P8_EX_SLAVE(core, EX_PM_PPMSR), &amp;tmp);</span>
+<span class="lineNum">     293 </span>                :<span class="lineCov">          4 :         prlog(PR_DEBUG, &quot;OCC: Chip %x Core %x PPMSR %016llx\n&quot;,</span>
+<span class="lineNum">     294 </span>                :            :               chip-&gt;id, core, tmp);
+<span class="lineNum">     295 </span>                :            : 
+<span class="lineNum">     296 </span>                :            :         /*
+<span class="lineNum">     297 </span>                :            :          * If PMSR is still in transition at this point due to PState change
+<span class="lineNum">     298 </span>                :            :          * initiated above, then the switchover to SPR may not work.
+<span class="lineNum">     299 </span>                :            :          * ToDo: Check for DVFS state machine idle before change.
+<span class="lineNum">     300 </span>                :            :          */
+<span class="lineNum">     301 </span>                :            : 
+<span class="lineNum">     302 </span>                :            :         return true;
+<span class="lineNum">     303 </span>                :            : }
+<span class="lineNum">     304 </span>                :            : 
+<a name="305"><span class="lineNum">     305 </span>                :            : /* CPU-OCC PState init */</a>
+<span class="lineNum">     306 </span>                :            : /* Called after OCC init on P8 */
+<span class="lineNum">     307 </span>                :<span class="lineCov">          1 : void occ_pstates_init(void)</span>
+<span class="lineNum">     308 </span>                :            : {
+<span class="lineNum">     309 </span>                :            :         struct proc_chip *chip;
+<span class="lineNum">     310 </span>                :<span class="lineCov">          4 :         struct cpu_thread *c;</span>
+<span class="lineNum">     311 </span>                :            :         s8 pstate_nom;
+<span class="lineNum">     312 </span>                :            : 
+<span class="lineNum">     313 </span>                :            :         /* OCC is P8 only */
+<span class="lineNum">     314 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (proc_gen != proc_gen_p8)</span>
+<span class="lineNum">     315 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     316 </span>                :            : 
+<span class="lineNum">     317 </span>                :<span class="lineCov">          1 :         chip = next_chip(NULL);</span>
+<span class="lineNum">     318 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!chip-&gt;homer_base) {</span>
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_OCC_PSTATE_INIT),</span>
+<span class="lineNum">     320 </span>                :            :                         &quot;OCC: No HOMER detected, assuming no pstates\n&quot;);
+<span class="lineNum">     321 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     322 </span>                :            :         }
+<span class="lineNum">     323 </span>                :            : 
+<span class="lineNum">     324 </span>                :            :         /* Wait for all OCC to boot up */
+<span class="lineNum">     325 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if(!wait_for_all_occ_init()) {</span>
+<span class="lineNum">     326 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_OCC_TIMEOUT),</span>
+<span class="lineNum">     327 </span>                :            :                          &quot;OCC: Initialization on all chips did not complete&quot;
+<span class="lineNum">     328 </span>                :            :                          &quot;(timed out)\n&quot;);
+<span class="lineNum">     329 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     330 </span>                :            :         }
+<span class="lineNum">     331 </span>                :            : 
+<span class="lineNum">     332 </span>                :            :         /*
+<span class="lineNum">     333 </span>                :            :          * Check boundary conditions and add device tree nodes
+<span class="lineNum">     334 </span>                :            :          * and return nominal pstate to set for the core
+<span class="lineNum">     335 </span>                :            :          */
+<span class="lineNum">     336 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!add_cpu_pstate_properties(&amp;pstate_nom)) {</span>
+<span class="lineNum">     337 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_OCC_PSTATE_INIT),</span>
+<span class="lineNum">     338 </span>                :            :                         &quot;Skiping core cpufreq init due to OCC error\n&quot;);
+<span class="lineNum">     339 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     340 </span>                :            :         }
+<span class="lineNum">     341 </span>                :            : 
+<span class="lineNum">     342 </span>                :            :         /* Setup host based pstates and set nominal frequency */
+<span class="lineNum">     343 </span>        [<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          3 :         for_each_chip(chip) {</span>
+<span class="lineNum">     344 </span>        [<span class="branchCov" title="Branch 2 was taken 4 times"> + </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          6 :                 for_each_available_core_in_chip(c, chip-&gt;id) {</span>
+<span class="lineNum">     345 </span>                :<span class="lineCov">          4 :                         cpu_pstates_prepare_core(chip, c, pstate_nom);</span>
+<span class="lineNum">     346 </span>                :            :                 }
+<span class="lineNum">     347 </span>                :            :         }
+<span class="lineNum">     348 </span>                :            : }
+<span class="lineNum">     349 </span>                :            : 
+<span class="lineNum">     350 </span>                :            : struct occ_load_req {
+<span class="lineNum">     351 </span>                :            :         u8 scope;
+<span class="lineNum">     352 </span>                :            :         u32 dbob_id;
+<span class="lineNum">     353 </span>                :            :         u32 seq_id;
+<span class="lineNum">     354 </span>                :            :         struct list_node link;
+<span class="lineNum">     355 </span>                :            : };
+<a name="356"><span class="lineNum">     356 </span>                :            : static LIST_HEAD(occ_load_req_list);</a>
+<span class="lineNum">     357 </span>                :            : 
+<span class="lineNum">     358 </span>                :<span class="lineNoCov">          0 : static void occ_queue_load(u8 scope, u32 dbob_id, u32 seq_id)</span>
+<span class="lineNum">     359 </span>                :            : {
+<span class="lineNum">     360 </span>                :            :         struct occ_load_req *occ_req;
+<span class="lineNum">     361 </span>                :            : 
+<span class="lineNum">     362 </span>                :<span class="lineNoCov">          0 :         occ_req = zalloc(sizeof(struct occ_load_req));</span>
+<span class="lineNum">     363 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!occ_req) {</span>
+<span class="lineNum">     364 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;OCC: Could not allocate occ_load_req\n&quot;);</span>
+<span class="lineNum">     365 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     366 </span>                :            :         }
+<span class="lineNum">     367 </span>                :            : 
+<span class="lineNum">     368 </span>                :<span class="lineNoCov">          0 :         occ_req-&gt;scope = scope;</span>
+<span class="lineNum">     369 </span>                :<span class="lineNoCov">          0 :         occ_req-&gt;dbob_id = dbob_id;</span>
+<span class="lineNum">     370 </span>                :<span class="lineNoCov">          0 :         occ_req-&gt;seq_id = seq_id;</span>
+<span class="lineNum">     371 </span>                :<span class="lineNoCov">          0 :         list_add_tail(&amp;occ_load_req_list, &amp;occ_req-&gt;link);</span>
+<a name="372"><span class="lineNum">     372 </span>                :            : }</a>
+<span class="lineNum">     373 </span>                :            : 
+<span class="lineNum">     374 </span>                :<span class="lineCov">          1 : static void __occ_do_load(u8 scope, u32 dbob_id __unused, u32 seq_id)</span>
+<span class="lineNum">     375 </span>                :            : {
+<span class="lineNum">     376 </span>                :            :         struct fsp_msg *stat;
+<span class="lineNum">     377 </span>                :<span class="lineCov">          1 :         int rc = -ENOMEM;</span>
+<span class="lineNum">     378 </span>                :<span class="lineCov">          1 :         int status_word = 0;</span>
+<span class="lineNum">     379 </span>                :<span class="lineCov">          1 :         struct proc_chip *chip = next_chip(NULL);</span>
+<span class="lineNum">     380 </span>                :            : 
+<span class="lineNum">     381 </span>                :            :         /* Call HBRT... */
+<span class="lineNum">     382 </span>                :<span class="lineCov">          1 :         rc = host_services_occ_load();</span>
+<span class="lineNum">     383 </span>                :            : 
+<span class="lineNum">     384 </span>                :            :         /* Handle fallback to preload */
+<span class="lineNum">     385 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :         if (rc == -ENOENT &amp;&amp; chip-&gt;homer_base) {</span>
+<span class="lineNum">     386 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_INFO, &quot;OCC: Load: Fallback to preloaded image\n&quot;);</span>
+<span class="lineNum">     387 </span>                :<span class="lineNoCov">          0 :                 rc = 0;</span>
+<span class="lineNum">     388 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         } else if (!rc) {</span>
+<span class="lineNum">     389 </span>                :            :                 /* Success, start OCC */
+<span class="lineNum">     390 </span>                :<span class="lineCov">          1 :                 rc = host_services_occ_start();</span>
+<span class="lineNum">     391 </span>                :            :         }
+<span class="lineNum">     392 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (rc) {</span>
+<span class="lineNum">     393 </span>                :            :                 /* If either of hostservices call fail, send fail to FSP */
+<span class="lineNum">     394 </span>                :            :                 /* Find a chip ID to send failure */
+<span class="lineNum">     395 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 for_each_chip(chip) {</span>
+<span class="lineNum">     396 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (scope == 0x01 &amp;&amp; dbob_id != chip-&gt;dbob_id)</span>
+<span class="lineNum">     397 </span>                :<span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">     398 </span>                :<span class="lineNoCov">          0 :                         status_word = 0xB500 | (chip-&gt;pcid &amp; 0xff);</span>
+<span class="lineNum">     399 </span>                :<span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     400 </span>                :            :                 }
+<span class="lineNum">     401 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_OCC_LOAD),</span>
+<span class="lineNum">     402 </span>                :            :                         &quot;OCC: Error %d in load/start OCC\n&quot;, rc);
+<span class="lineNum">     403 </span>                :            :         }
+<span class="lineNum">     404 </span>                :            : 
+<span class="lineNum">     405 </span>                :            :         /* Send a single response for all chips */
+<span class="lineNum">     406 </span>                :<span class="lineCov">          1 :         stat = fsp_mkmsg(FSP_CMD_LOAD_OCC_STAT, 2, status_word, seq_id);</span>
+<span class="lineNum">     407 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (stat)</span>
+<span class="lineNum">     408 </span>                :<span class="lineCov">          1 :                 rc = fsp_queue_msg(stat, fsp_freemsg);</span>
+<span class="lineNum">     409 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (rc) {</span>
+<span class="lineNum">     410 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_OCC_LOAD),</span>
+<span class="lineNum">     411 </span>                :            :                         &quot;OCC: Error %d queueing FSP OCC LOAD STATUS msg&quot;, rc);
+<span class="lineNum">     412 </span>                :            :         }
+<a name="413"><span class="lineNum">     413 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     414 </span>                :            : 
+<span class="lineNum">     415 </span>                :<span class="lineCov">          1 : void occ_poke_load_queue(void)</span>
+<span class="lineNum">     416 </span>                :            : {
+<span class="lineNum">     417 </span>                :            :         struct occ_load_req *occ_req;
+<span class="lineNum">     418 </span>                :            : 
+<span class="lineNum">     419 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (list_empty(&amp;occ_load_req_list))</span>
+<span class="lineNum">     420 </span>                :<span class="lineCov">          1 :                 return;</span>
+<span class="lineNum">     421 </span>                :            : 
+<span class="lineNum">     422 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         list_for_each(&amp;occ_load_req_list, occ_req, link) {</span>
+<span class="lineNum">     423 </span>                :<span class="lineNoCov">          0 :                 __occ_do_load(occ_req-&gt;scope, occ_req-&gt;dbob_id,</span>
+<span class="lineNum">     424 </span>                :            :                                 occ_req-&gt;seq_id);
+<span class="lineNum">     425 </span>                :<span class="lineNoCov">          0 :                 list_del(&amp;occ_req-&gt;link);</span>
+<span class="lineNum">     426 </span>                :<span class="lineNoCov">          0 :                 free(occ_req);</span>
+<span class="lineNum">     427 </span>                :            :         }
+<a name="428"><span class="lineNum">     428 </span>                :            : }</a>
+<span class="lineNum">     429 </span>                :            : 
+<span class="lineNum">     430 </span>                :<span class="lineCov">          1 : static void occ_do_load(u8 scope, u32 dbob_id __unused, u32 seq_id)</span>
+<span class="lineNum">     431 </span>                :            : {
+<span class="lineNum">     432 </span>                :            :         struct fsp_msg *rsp;
+<span class="lineNum">     433 </span>                :<span class="lineCov">          1 :         int rc = -ENOMEM;</span>
+<span class="lineNum">     434 </span>                :<span class="lineCov">          1 :         u8 err = 0;</span>
+<span class="lineNum">     435 </span>                :            : 
+<span class="lineNum">     436 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (scope != 0x01 &amp;&amp; scope != 0x02) {</span>
+<span class="lineNum">     437 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;OCC: Load message with invalid scope 0x%x\n&quot;,</span>
+<span class="lineNum">     438 </span>                :            :                                 scope);
+<span class="lineNum">     439 </span>                :<span class="lineNoCov">          0 :                 err = 0x22;</span>
+<span class="lineNum">     440 </span>                :            :         }
+<span class="lineNum">     441 </span>                :            : 
+<span class="lineNum">     442 </span>                :            :         /* First queue up an OK response to the load message itself */
+<span class="lineNum">     443 </span>                :<span class="lineCov">          1 :         rsp = fsp_mkmsg(FSP_RSP_LOAD_OCC | err, 0);</span>
+<span class="lineNum">     444 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (rsp)</span>
+<span class="lineNum">     445 </span>                :<span class="lineCov">          1 :                 rc = fsp_queue_msg(rsp, fsp_freemsg);</span>
+<span class="lineNum">     446 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (rc) {</span>
+<span class="lineNum">     447 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_OCC_LOAD),</span>
+<span class="lineNum">     448 </span>                :            :                         &quot;OCC: Error %d queueing FSP OCC LOAD reply\n&quot;, rc);
+<span class="lineNum">     449 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     450 </span>                :            :         }
+<span class="lineNum">     451 </span>                :            : 
+<span class="lineNum">     452 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (err)</span>
+<span class="lineNum">     453 </span>                :            :                 return;
+<span class="lineNum">     454 </span>                :            : 
+<span class="lineNum">     455 </span>                :            :         /*
+<span class="lineNum">     456 </span>                :            :          * Check if hostservices lid caching is complete. If not, queue
+<span class="lineNum">     457 </span>                :            :          * the load request.
+<span class="lineNum">     458 </span>                :            :          */
+<span class="lineNum">     459 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!hservices_lid_preload_complete())</span>
+<span class="lineNum">     460 </span>                :<span class="lineNoCov">          0 :                 occ_queue_load(scope, dbob_id, seq_id);</span>
+<span class="lineNum">     461 </span>                :            : 
+<span class="lineNum">     462 </span>                :<span class="lineCov">          1 :         __occ_do_load(scope, dbob_id, seq_id);</span>
+<a name="463"><span class="lineNum">     463 </span>                :            : }</a>
+<span class="lineNum">     464 </span>                :            : 
+<span class="lineNum">     465 </span>                :<span class="lineCov">          2 : static void occ_do_reset(u8 scope, u32 dbob_id, u32 seq_id)</span>
+<span class="lineNum">     466 </span>                :            : {
+<span class="lineNum">     467 </span>                :            :         struct fsp_msg *rsp, *stat;
+<span class="lineNum">     468 </span>                :<span class="lineCov">          2 :         struct proc_chip *chip = next_chip(NULL);</span>
+<span class="lineNum">     469 </span>                :<span class="lineCov">          2 :         int rc = -ENOMEM;</span>
+<span class="lineNum">     470 </span>                :<span class="lineCov">          2 :         u8 err = 0;</span>
+<span class="lineNum">     471 </span>                :            : 
+<span class="lineNum">     472 </span>                :            :         /* Check arguments */
+<span class="lineNum">     473 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (scope != 0x01 &amp;&amp; scope != 0x02) {</span>
+<span class="lineNum">     474 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;OCC: Reset message with invalid scope 0x%x\n&quot;,</span>
+<span class="lineNum">     475 </span>                :            :                         scope);
+<span class="lineNum">     476 </span>                :<span class="lineNoCov">          0 :                 err = 0x22;</span>
+<span class="lineNum">     477 </span>                :            :         }
+<span class="lineNum">     478 </span>                :            : 
+<span class="lineNum">     479 </span>                :            :         /* First queue up an OK response to the reset message itself */
+<span class="lineNum">     480 </span>                :<span class="lineCov">          2 :         rsp = fsp_mkmsg(FSP_RSP_RESET_OCC | err, 0);</span>
+<span class="lineNum">     481 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (rsp)</span>
+<span class="lineNum">     482 </span>                :<span class="lineCov">          2 :                 rc = fsp_queue_msg(rsp, fsp_freemsg);</span>
+<span class="lineNum">     483 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (rc) {</span>
+<span class="lineNum">     484 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_OCC_RESET),</span>
+<span class="lineNum">     485 </span>                :            :                         &quot;OCC: Error %d queueing FSP OCC RESET reply\n&quot;, rc);
+<span class="lineNum">     486 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     487 </span>                :            :         }
+<span class="lineNum">     488 </span>                :            : 
+<span class="lineNum">     489 </span>                :            :         /* If we had an error, return */
+<span class="lineNum">     490 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (err)</span>
+<span class="lineNum">     491 </span>                :            :                 return;
+<span class="lineNum">     492 </span>                :            : 
+<span class="lineNum">     493 </span>                :            :         /*
+<span class="lineNum">     494 </span>                :            :          * Call HBRT to stop OCC and leave it stopped.  FSP will send load/start
+<span class="lineNum">     495 </span>                :            :          * request subsequently.  Also after few runtime restarts (currently 3),
+<span class="lineNum">     496 </span>                :            :          * FSP will request OCC to left in stopped state.
+<span class="lineNum">     497 </span>                :            :          */
+<span class="lineNum">     498 </span>                :            : 
+<span class="lineNum">     499 </span>                :<span class="lineCov">          2 :         rc = host_services_occ_stop();</span>
+<span class="lineNum">     500 </span>                :            : 
+<span class="lineNum">     501 </span>                :            :         /* Handle fallback to preload */
+<span class="lineNum">     502 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          2 :         if (rc == -ENOENT &amp;&amp; chip-&gt;homer_base) {</span>
+<span class="lineNum">     503 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_INFO, &quot;OCC: Reset: Fallback to preloaded image\n&quot;);</span>
+<span class="lineNum">     504 </span>                :<span class="lineNoCov">          0 :                 rc = 0;</span>
+<span class="lineNum">     505 </span>                :            :         }
+<span class="lineNum">     506 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!rc) {</span>
+<span class="lineNum">     507 </span>                :            :                 /* Send a single success response for all chips */
+<span class="lineNum">     508 </span>                :<span class="lineCov">          2 :                 stat = fsp_mkmsg(FSP_CMD_RESET_OCC_STAT, 2, 0, seq_id);</span>
+<span class="lineNum">     509 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :                 if (stat)</span>
+<span class="lineNum">     510 </span>                :<span class="lineCov">          2 :                         rc = fsp_queue_msg(stat, fsp_freemsg);</span>
+<span class="lineNum">     511 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 if (rc) {</span>
+<span class="lineNum">     512 </span>                :<span class="lineNoCov">          0 :                         log_simple_error(&amp;e_info(OPAL_RC_OCC_RESET),</span>
+<span class="lineNum">     513 </span>                :            :                                 &quot;OCC: Error %d queueing FSP OCC RESET&quot;
+<span class="lineNum">     514 </span>                :            :                                         &quot; STATUS message\n&quot;, rc);
+<span class="lineNum">     515 </span>                :            :                 }
+<span class="lineNum">     516 </span>                :            :         } else {
+<span class="lineNum">     517 </span>                :            : 
+<span class="lineNum">     518 </span>                :            :                 /*
+<span class="lineNum">     519 </span>                :            :                  * Then send a matching OCC Reset Status message with an 0xFE
+<span class="lineNum">     520 </span>                :            :                  * (fail) response code as well to the first matching chip
+<span class="lineNum">     521 </span>                :            :                  */
+<span class="lineNum">     522 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 for_each_chip(chip) {</span>
+<span class="lineNum">     523 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (scope == 0x01 &amp;&amp; dbob_id != chip-&gt;dbob_id)</span>
+<span class="lineNum">     524 </span>                :<span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">     525 </span>                :<span class="lineNoCov">          0 :                         rc = -ENOMEM;</span>
+<span class="lineNum">     526 </span>                :<span class="lineNoCov">          0 :                         stat = fsp_mkmsg(FSP_CMD_RESET_OCC_STAT, 2,</span>
+<span class="lineNum">     527 </span>                :<span class="lineNoCov">          0 :                                          0xfe00 | (chip-&gt;pcid &amp; 0xff), seq_id);</span>
+<span class="lineNum">     528 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (stat)</span>
+<span class="lineNum">     529 </span>                :<span class="lineNoCov">          0 :                                 rc = fsp_queue_msg(stat, fsp_freemsg);</span>
+<span class="lineNum">     530 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (rc) {</span>
+<span class="lineNum">     531 </span>                :<span class="lineNoCov">          0 :                                 log_simple_error(&amp;e_info(OPAL_RC_OCC_RESET),</span>
+<span class="lineNum">     532 </span>                :            :                                         &quot;OCC: Error %d queueing FSP OCC RESET&quot;
+<span class="lineNum">     533 </span>                :            :                                                 &quot; STATUS message\n&quot;, rc);
+<span class="lineNum">     534 </span>                :            :                         }
+<span class="lineNum">     535 </span>                :            :                         break;
+<span class="lineNum">     536 </span>                :            :                 }
+<span class="lineNum">     537 </span>                :            :         }
+<a name="538"><span class="lineNum">     538 </span>                :            : }</a>
+<span class="lineNum">     539 </span>                :            : 
+<span class="lineNum">     540 </span>                :<span class="lineCov">          3 : static bool fsp_occ_msg(u32 cmd_sub_mod, struct fsp_msg *msg)</span>
+<span class="lineNum">     541 </span>                :            : {
+<span class="lineNum">     542 </span>                :            :         u32 dbob_id, seq_id;
+<span class="lineNum">     543 </span>                :            :         u8 scope;
+<span class="lineNum">     544 </span>                :            : 
+<span class="lineNum">     545 </span>     [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          3 :         switch (cmd_sub_mod) {</span>
+<span class="lineNum">     546 </span>                :            :         case FSP_CMD_LOAD_OCC:
+<span class="lineNum">     547 </span>                :            :                 /*
+<span class="lineNum">     548 </span>                :            :                  * We get the &quot;Load OCC&quot; command at boot. We don't currently
+<span class="lineNum">     549 </span>                :            :                  * support loading it ourselves (we don't have the procedures,
+<span class="lineNum">     550 </span>                :            :                  * they will come with Host Services). For now HostBoot will
+<span class="lineNum">     551 </span>                :            :                  * have loaded a OCC firmware for us, but we still need to
+<span class="lineNum">     552 </span>                :            :                  * be nice and respond to OCC.
+<span class="lineNum">     553 </span>                :            :                  */
+<span class="lineNum">     554 </span>                :<span class="lineCov">          1 :                 scope = msg-&gt;data.bytes[3];</span>
+<span class="lineNum">     555 </span>                :<span class="lineCov">          1 :                 dbob_id = msg-&gt;data.words[1];</span>
+<span class="lineNum">     556 </span>                :<span class="lineCov">          1 :                 seq_id = msg-&gt;data.words[2];</span>
+<span class="lineNum">     557 </span>                :<span class="lineCov">          1 :                 prlog(PR_INFO, &quot;OCC: Got OCC Load message, scope=0x%x&quot;</span>
+<span class="lineNum">     558 </span>                :            :                       &quot; dbob=0x%x seq=0x%x\n&quot;, scope, dbob_id, seq_id);
+<span class="lineNum">     559 </span>                :<span class="lineCov">          1 :                 occ_do_load(scope, dbob_id, seq_id);</span>
+<span class="lineNum">     560 </span>                :<span class="lineCov">          1 :                 return true;</span>
+<span class="lineNum">     561 </span>                :            : 
+<span class="lineNum">     562 </span>                :            :         case FSP_CMD_RESET_OCC:
+<span class="lineNum">     563 </span>                :            :                 /*
+<span class="lineNum">     564 </span>                :            :                  * We shouldn't be getting this one, but if we do, we have
+<span class="lineNum">     565 </span>                :            :                  * to reply something sensible or the FSP will get upset
+<span class="lineNum">     566 </span>                :            :                  */
+<span class="lineNum">     567 </span>                :<span class="lineCov">          2 :                 scope = msg-&gt;data.bytes[3];</span>
+<span class="lineNum">     568 </span>                :<span class="lineCov">          2 :                 dbob_id = msg-&gt;data.words[1];</span>
+<span class="lineNum">     569 </span>                :<span class="lineCov">          2 :                 seq_id = msg-&gt;data.words[2];</span>
+<span class="lineNum">     570 </span>                :<span class="lineCov">          2 :                 prlog(PR_INFO, &quot;OCC: Got OCC Reset message, scope=0x%x&quot;</span>
+<span class="lineNum">     571 </span>                :            :                       &quot; dbob=0x%x seq=0x%x\n&quot;, scope, dbob_id, seq_id);
+<span class="lineNum">     572 </span>                :<span class="lineCov">          2 :                 occ_do_reset(scope, dbob_id, seq_id);</span>
+<span class="lineNum">     573 </span>                :<span class="lineCov">          2 :                 return true;</span>
+<span class="lineNum">     574 </span>                :            :         }
+<span class="lineNum">     575 </span>                :            :         return false;
+<span class="lineNum">     576 </span>                :            : }
+<span class="lineNum">     577 </span>                :            : 
+<span class="lineNum">     578 </span>                :            : static struct fsp_client fsp_occ_client = {
+<span class="lineNum">     579 </span>                :            :         .message = fsp_occ_msg,
+<span class="lineNum">     580 </span>                :            : };
+<span class="lineNum">     581 </span>                :            : 
+<span class="lineNum">     582 </span>                :            : #define OCB_OCI_OCCMISC         0x6a020
+<span class="lineNum">     583 </span>                :            : #define OCB_OCI_OCCMISC_AND     0x6a021
+<span class="lineNum">     584 </span>                :            : #define OCB_OCI_OCCMISC_OR      0x6a022
+<span class="lineNum">     585 </span>                :            : #define OCB_OCI_OCIMISC_IRQ             PPC_BIT(0)
+<span class="lineNum">     586 </span>                :            : #define OCB_OCI_OCIMISC_IRQ_TMGT        PPC_BIT(1)
+<span class="lineNum">     587 </span>                :            : #define OCB_OCI_OCIMISC_IRQ_OPAL_DUMMY  PPC_BIT(15)
+<span class="lineNum">     588 </span>                :            : #define OCB_OCI_OCIMISC_MASK            (OCB_OCI_OCIMISC_IRQ_TMGT | \
+<a name="589"><span class="lineNum">     589 </span>                :            :                                          OCB_OCI_OCIMISC_IRQ_OPAL_DUMMY )</a>
+<span class="lineNum">     590 </span>                :            : 
+<span class="lineNum">     591 </span>                :<span class="lineCov">          5 : void occ_send_dummy_interrupt(void)</span>
+<span class="lineNum">     592 </span>                :            : {
+<span class="lineNum">     593 </span>                :            :         /* Emulators and P7 doesn't do this */
+<span class="lineNum">     594 </span>[<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          5 :         if (proc_gen != proc_gen_p8 || chip_quirk(QUIRK_NO_OCC_IRQ))</span>
+<span class="lineNum">     595 </span>                :<span class="lineCov">          5 :                 return;</span>
+<span class="lineNum">     596 </span>                :<span class="lineCov">          5 :         xscom_writeme(OCB_OCI_OCCMISC_OR,</span>
+<span class="lineNum">     597 </span>                :            :                       OCB_OCI_OCIMISC_IRQ |
+<span class="lineNum">     598 </span>                :            :                       OCB_OCI_OCIMISC_IRQ_OPAL_DUMMY);
+<a name="599"><span class="lineNum">     599 </span>                :            : }</a>
+<span class="lineNum">     600 </span>                :            : 
+<span class="lineNum">     601 </span>                :<span class="lineNoCov">          0 : static void occ_tmgt_interrupt(void)</span>
+<span class="lineNum">     602 </span>                :            : {
+<span class="lineNum">     603 </span>                :            :         /* Not currently expected */
+<span class="lineNum">     604 </span>                :<span class="lineNoCov">          0 :         printf(&quot;OCC: TMGT interrupt !\n&quot;);</span>
+<a name="605"><span class="lineNum">     605 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     606 </span>                :            : 
+<span class="lineNum">     607 </span>                :<span class="lineCov">          1 : void occ_interrupt(uint32_t chip_id)</span>
+<span class="lineNum">     608 </span>                :            : {
+<span class="lineNum">     609 </span>                :            :         uint64_t ireg;
+<span class="lineNum">     610 </span>                :            :         int64_t rc;
+<span class="lineNum">     611 </span>                :            : 
+<span class="lineNum">     612 </span>                :            :         /* The OCC interrupt is used to mux up to 15 different sources */
+<span class="lineNum">     613 </span>                :<span class="lineCov">          1 :         rc = xscom_read(chip_id, OCB_OCI_OCCMISC, &amp;ireg);</span>
+<span class="lineNum">     614 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (rc) {</span>
+<span class="lineNum">     615 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;OCC: Failed to read interrupt status !\n&quot;);</span>
+<span class="lineNum">     616 </span>                :            :                 /* Should we mask it in the XIVR ? */
+<span class="lineNum">     617 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     618 </span>                :            :         }
+<span class="lineNum">     619 </span>                :<span class="lineCov">          1 :         prlog(PR_TRACE, &quot;OCC: IRQ received: %04llx\n&quot;, ireg &gt;&gt; 48);</span>
+<span class="lineNum">     620 </span>                :            : 
+<span class="lineNum">     621 </span>                :            :         /* Clear the bits */
+<span class="lineNum">     622 </span>                :<span class="lineCov">          1 :         xscom_write(chip_id, OCB_OCI_OCCMISC_AND, ~ireg);</span>
+<span class="lineNum">     623 </span>                :            : 
+<span class="lineNum">     624 </span>                :            :         /* Dispatch */
+<span class="lineNum">     625 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (ireg &amp; OCB_OCI_OCIMISC_IRQ_TMGT)</span>
+<span class="lineNum">     626 </span>                :<span class="lineNoCov">          0 :                 occ_tmgt_interrupt();</span>
+<span class="lineNum">     627 </span>                :            : 
+<span class="lineNum">     628 </span>                :            :         /* We may have masked-out OCB_OCI_OCIMISC_IRQ in the previous
+<span class="lineNum">     629 </span>                :            :          * OCCMISC_AND write. Check if there are any new source bits set,
+<span class="lineNum">     630 </span>                :            :          * and trigger another interrupt if so.
+<span class="lineNum">     631 </span>                :            :          */
+<span class="lineNum">     632 </span>                :<span class="lineCov">          1 :         rc = xscom_read(chip_id, OCB_OCI_OCCMISC, &amp;ireg);</span>
+<span class="lineNum">     633 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!rc &amp;&amp; (ireg &amp; OCB_OCI_OCIMISC_MASK))</span>
+<span class="lineNum">     634 </span>                :<span class="lineCov">          1 :                 xscom_write(chip_id, OCB_OCI_OCCMISC_OR, OCB_OCI_OCIMISC_IRQ);</span>
+<a name="635"><span class="lineNum">     635 </span>                :            : }</a>
+<span class="lineNum">     636 </span>                :            : 
+<span class="lineNum">     637 </span>                :<span class="lineCov">          1 : void occ_fsp_init(void)</span>
+<span class="lineNum">     638 </span>                :            : {
+<span class="lineNum">     639 </span>                :            :         /* OCC is P8 only */
+<span class="lineNum">     640 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (proc_gen != proc_gen_p8)</span>
+<span class="lineNum">     641 </span>                :<span class="lineCov">          1 :                 return;</span>
+<span class="lineNum">     642 </span>                :            : 
+<span class="lineNum">     643 </span>                :            :         /* If we have an FSP, register for notifications */
+<span class="lineNum">     644 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          1 :         if (fsp_present())</span>
+<span class="lineNum">     645 </span>                :<span class="lineCov">          1 :                 fsp_register_client(&amp;fsp_occ_client, FSP_MCLASS_OCC);</span>
+<span class="lineNum">     646 </span>                :            : }
+<span class="lineNum">     647 </span>                :            : 
+<span class="lineNum">     648 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

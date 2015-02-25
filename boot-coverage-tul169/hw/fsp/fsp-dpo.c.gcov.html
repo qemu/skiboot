@@ -1,0 +1,254 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/fsp/fsp-dpo.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">hw/fsp</a> - fsp-dpo.c<span style="font-size: 80%;"> (source / <a href="fsp-dpo.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">9</td>
+            <td class="headerCovTableEntry">59</td>
+            <td class="headerCovTableEntryLo">15.3 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">28</td>
+            <td class="headerCovTableEntryLo">3.6 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : /*
+<span class="lineNum">      17 </span>                :            :  * Handle FSP DPO (Delayed Power Off) event notification
+<span class="lineNum">      18 </span>                :            :  */
+<span class="lineNum">      19 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;console.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;fsp.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;device.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;stdio.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;timebase.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;opal.h&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;opal-api.h&gt;
+<span class="lineNum">      27 </span>                :            : #include &lt;opal-msg.h&gt;
+<span class="lineNum">      28 </span>                :            : 
+<span class="lineNum">      29 </span>                :            : #define PREFIX &quot;FSPDPO: &quot;
+<span class="lineNum">      30 </span>                :            : 
+<span class="lineNum">      31 </span>                :            : #define DPO_CMD_SGN_BYTE0       0xf4 /* Byte[0] signature */
+<span class="lineNum">      32 </span>                :            : #define DPO_CMD_SGN_BYTE1       0x20 /* Byte[1] signature */
+<span class="lineNum">      33 </span>                :            : #define DPO_TIMEOUT             2700 /* 45 minutes in seconds */
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : static bool fsp_dpo_pending = false;
+<span class="lineNum">      36 </span>                :            : unsigned long fsp_dpo_init_tb = 0;
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :            : /*
+<span class="lineNum">      39 </span>                :            :  * OPAL DPO interface
+<span class="lineNum">      40 </span>                :            :  *
+<span class="lineNum">      41 </span>                :            :  * Returns zero if DPO is not active, positive value indicating number
+<span class="lineNum">      42 </span>                :            :  * of seconds remaining for a forced system shutdown. This will enable
+<a name="43"><span class="lineNum">      43 </span>                :            :  * the host to schedule for shutdown voluntarily before timeout occurs.</a>
+<span class="lineNum">      44 </span>                :            :  */
+<span class="lineNum">      45 </span>                :<span class="lineCov">          1 : static int64_t fsp_opal_get_dpo_status(int64_t *dpo_timeout)</span>
+<span class="lineNum">      46 </span>                :            : {
+<span class="lineNum">      47 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          1 :         if (fsp_dpo_init_tb &amp;&amp; fsp_dpo_pending) {</span>
+<span class="lineNum">      48 </span>                :<span class="lineNoCov">          0 :                 *dpo_timeout = DPO_TIMEOUT - tb_to_secs(mftb() - fsp_dpo_init_tb);</span>
+<span class="lineNum">      49 </span>                :<span class="lineNoCov">          0 :                 return OPAL_SUCCESS;</span>
+<span class="lineNum">      50 </span>                :            :         } else {
+<span class="lineNum">      51 </span>                :<span class="lineCov">          1 :                 *dpo_timeout = 0;</span>
+<span class="lineNum">      52 </span>                :<span class="lineCov">          1 :                 return OPAL_WRONG_STATE;</span>
+<span class="lineNum">      53 </span>                :            :         }
+<span class="lineNum">      54 </span>                :            : }
+<a name="55"><span class="lineNum">      55 </span>                :            : </a>
+<span class="lineNum">      56 </span>                :            : /* Process FSP DPO init message */
+<span class="lineNum">      57 </span>                :<span class="lineNoCov">          0 : static void fsp_process_dpo(struct fsp_msg *msg)</span>
+<span class="lineNum">      58 </span>                :            : {
+<span class="lineNum">      59 </span>                :            :         struct fsp_msg *resp;
+<span class="lineNum">      60 </span>                :<span class="lineNoCov">          0 :         u32 cmd = FSP_RSP_INIT_DPO;</span>
+<span class="lineNum">      61 </span>                :            :         int rc;
+<span class="lineNum">      62 </span>                :            : 
+<span class="lineNum">      63 </span>                :            :         /* DPO message does not have the correct signatures */
+<span class="lineNum">      64 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((msg-&gt;data.bytes[0] != DPO_CMD_SGN_BYTE0)</span>
+<span class="lineNum">      65 </span>                :<span class="lineNoCov">          0 :                         || (msg-&gt;data.bytes[1] != DPO_CMD_SGN_BYTE1)) {</span>
+<span class="lineNum">      66 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR, PREFIX &quot;Message signatures did not match\n&quot;);</span>
+<span class="lineNum">      67 </span>                :<span class="lineNoCov">          0 :                 cmd |= FSP_STATUS_INVALID_CMD;</span>
+<span class="lineNum">      68 </span>                :<span class="lineNoCov">          0 :                 resp = fsp_mkmsg(cmd, 0);</span>
+<span class="lineNum">      69 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (resp == NULL) {</span>
+<span class="lineNum">      70 </span>                :<span class="lineNoCov">          0 :                         prerror(PREFIX &quot;%s : Message allocation failed\n&quot;,</span>
+<span class="lineNum">      71 </span>                :            :                                 __func__);
+<span class="lineNum">      72 </span>                :<span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">      73 </span>                :            :                 }
+<span class="lineNum">      74 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (fsp_queue_msg(resp, fsp_freemsg)) {</span>
+<span class="lineNum">      75 </span>                :<span class="lineNoCov">          0 :                         fsp_freemsg(resp);</span>
+<span class="lineNum">      76 </span>                :<span class="lineNoCov">          0 :                         prerror(PREFIX &quot;%s : Failed to queue response &quot;</span>
+<span class="lineNum">      77 </span>                :            :                                 &quot;message\n&quot;, __func__);
+<span class="lineNum">      78 </span>                :            :                 }
+<span class="lineNum">      79 </span>                :            :                 return;
+<span class="lineNum">      80 </span>                :            :         }
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>                :            :         /* Sapphire is already in &quot;DPO pending&quot; state */
+<span class="lineNum">      83 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_dpo_pending) {</span>
+<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR, PREFIX &quot;OPAL is already in DPO pending state\n&quot;);</span>
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 :                 cmd |= FSP_STATUS_INVALID_DPOSTATE;</span>
+<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 :                 resp = fsp_mkmsg(cmd, 0);</span>
+<span class="lineNum">      87 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (resp == NULL) {</span>
+<span class="lineNum">      88 </span>                :<span class="lineNoCov">          0 :                         prerror(PREFIX &quot;%s : Message allocation failed\n&quot;,</span>
+<span class="lineNum">      89 </span>                :            :                                 __func__);
+<span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">      91 </span>                :            :                 }
+<span class="lineNum">      92 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (fsp_queue_msg(resp, fsp_freemsg)) {</span>
+<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 :                         fsp_freemsg(resp);</span>
+<span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 :                         prerror(PREFIX &quot;%s : Failed to queue response &quot;</span>
+<span class="lineNum">      95 </span>                :            :                                 &quot;message\n&quot;, __func__);
+<span class="lineNum">      96 </span>                :            :                 }
+<span class="lineNum">      97 </span>                :            :                 return;
+<span class="lineNum">      98 </span>                :            :         }
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :            :         /* Record the DPO init time */
+<span class="lineNum">     101 </span>                :<span class="lineNoCov">          0 :         fsp_dpo_init_tb = mftb();</span>
+<span class="lineNum">     102 </span>                :            : 
+<span class="lineNum">     103 </span>                :            :         /* Inform the host about DPO */
+<span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 :         rc = opal_queue_msg(OPAL_MSG_DPO, NULL, NULL);</span>
+<span class="lineNum">     105 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR, PREFIX &quot;OPAL message queuing failed\n&quot;);</span>
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 :                 cmd |= FSP_STATUS_GENERIC_ERROR;</span>
+<span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 :                 resp = fsp_mkmsg(cmd, 0);</span>
+<span class="lineNum">     109 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (resp == NULL) {</span>
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :                         prerror(PREFIX &quot;%s : Message allocation failed\n&quot;,</span>
+<span class="lineNum">     111 </span>                :            :                                 __func__);
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     113 </span>                :            :                 }
+<span class="lineNum">     114 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (fsp_queue_msg(resp, fsp_freemsg)) {</span>
+<span class="lineNum">     115 </span>                :<span class="lineNoCov">          0 :                         fsp_freemsg(resp);</span>
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :                         prerror(PREFIX &quot;%s : Failed to queue response &quot;</span>
+<span class="lineNum">     117 </span>                :            :                                 &quot;message\n&quot;, __func__);
+<span class="lineNum">     118 </span>                :            :                 }
+<span class="lineNum">     119 </span>                :            :                 return;
+<span class="lineNum">     120 </span>                :            :         }
+<span class="lineNum">     121 </span>                :            : 
+<span class="lineNum">     122 </span>                :            :         /* Acknowledge the FSP on DPO */
+<span class="lineNum">     123 </span>                :<span class="lineNoCov">          0 :         resp = fsp_mkmsg(cmd, 0);</span>
+<span class="lineNum">     124 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (resp == NULL) {</span>
+<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :                 prerror(PREFIX &quot;%s : Message allocation failed\n&quot;, __func__);</span>
+<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     127 </span>                :            :         }
+<span class="lineNum">     128 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_queue_msg(resp, fsp_freemsg)) {</span>
+<span class="lineNum">     129 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(resp);</span>
+<span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :                 prerror(PREFIX &quot;%s : Failed to queue response message\n&quot;,</span>
+<span class="lineNum">     131 </span>                :            :                         __func__);
+<span class="lineNum">     132 </span>                :            :         }
+<span class="lineNum">     133 </span>                :            : 
+<span class="lineNum">     134 </span>                :<span class="lineNoCov">          0 :         fsp_dpo_pending = true;</span>
+<span class="lineNum">     135 </span>                :            : 
+<span class="lineNum">     136 </span>                :            :         /*
+<span class="lineNum">     137 </span>                :            :          * Sapphire is now in DPO pending state. After first detecting DPO
+<span class="lineNum">     138 </span>                :            :          * condition from Sapphire, the host will have 45 minutes to prepare
+<span class="lineNum">     139 </span>                :            :          * the system for shutdown. The host must take all necessary actions
+<span class="lineNum">     140 </span>                :            :          * required in that regard and at the end shutdown itself. The host
+<span class="lineNum">     141 </span>                :            :          * shutdown sequence eventually will make the call OPAL_CEC_POWER_DOWN
+<span class="lineNum">     142 </span>                :            :          * which in turn ask the FSP to shutdown the CEC. If the FSP does not
+<span class="lineNum">     143 </span>                :            :          * receive the cec power down command from Sapphire within 45 minutes,
+<span class="lineNum">     144 </span>                :            :          * it will assume that the host and the Sapphire has processed the DPO
+<span class="lineNum">     145 </span>                :            :          * sequence successfully and hence force power off the system.
+<span class="lineNum">     146 </span>                :            :          */
+<span class="lineNum">     147 </span>                :            : }
+<a name="148"><span class="lineNum">     148 </span>                :            : </a>
+<span class="lineNum">     149 </span>                :            : /* Handle DPO sub-command from FSP */
+<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 : static bool fsp_dpo_message(u32 cmd_sub_mod, struct fsp_msg *msg)</span>
+<span class="lineNum">     151 </span>                :            : {
+<span class="lineNum">     152 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (cmd_sub_mod == FSP_CMD_INIT_DPO) {</span>
+<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_TRACE, PREFIX &quot;SP initiated Delayed Power Off (DPO)\n&quot;);</span>
+<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 :                 fsp_process_dpo(msg);</span>
+<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :                 return true;</span>
+<span class="lineNum">     156 </span>                :            :         }
+<span class="lineNum">     157 </span>                :            :         return false;
+<span class="lineNum">     158 </span>                :            : }
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>                :            : static struct fsp_client fsp_dpo_client = {
+<span class="lineNum">     161 </span>                :            :         .message = fsp_dpo_message,
+<a name="162"><span class="lineNum">     162 </span>                :            : };</a>
+<span class="lineNum">     163 </span>                :            : 
+<span class="lineNum">     164 </span>                :<span class="lineCov">          1 : void fsp_dpo_init(void)</span>
+<span class="lineNum">     165 </span>                :            : {
+<span class="lineNum">     166 </span>                :<span class="lineCov">          1 :         fsp_register_client(&amp;fsp_dpo_client, FSP_MCLASS_SERVICE);</span>
+<span class="lineNum">     167 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_GET_DPO_STATUS, fsp_opal_get_dpo_status, 1);</span>
+<span class="lineNum">     168 </span>                :<span class="lineCov">          1 :         prlog(PR_TRACE, PREFIX &quot;FSP DPO support initialized\n&quot;);</span>
+<span class="lineNum">     169 </span>                :<span class="lineCov">          1 : }</span>
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

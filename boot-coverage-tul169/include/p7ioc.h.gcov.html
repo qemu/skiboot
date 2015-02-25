@@ -1,0 +1,520 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - include/p7ioc.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">include</a> - p7ioc.h<span style="font-size: 80%;"> (source / <a href="p7ioc.h.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #ifndef __P7IOC_H
+<span class="lineNum">      18 </span>                :            : #define __P7IOC_H
+<span class="lineNum">      19 </span>                :            : 
+<span class="lineNum">      20 </span>                :            : #include &lt;cec.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;pci.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      23 </span>                :            : 
+<span class="lineNum">      24 </span>                :            : #include &lt;ccan/container_of/container_of.h&gt;
+<span class="lineNum">      25 </span>                :            : 
+<span class="lineNum">      26 </span>                :            : /*
+<span class="lineNum">      27 </span>                :            :  * Memory windows and BUID assignment
+<span class="lineNum">      28 </span>                :            :  *
+<span class="lineNum">      29 </span>                :            :  * - GX BAR assignment
+<span class="lineNum">      30 </span>                :            :  *
+<span class="lineNum">      31 </span>                :            :  *   I don't know of any spec here, so we're going to mimmic what
+<span class="lineNum">      32 </span>                :            :  *   OPAL seems to be doing:
+<span class="lineNum">      33 </span>                :            :  *
+<span class="lineNum">      34 </span>                :            :  *     - BAR 0 :   32M, disabled. We just leave it alone.
+<span class="lineNum">      35 </span>                :            :  *     - BAR 1 :    8G, enabled. Appears to correspond to the MMIO
+<span class="lineNum">      36 </span>                :            :  *                      space of the IOC itself and the PCI IO space
+<span class="lineNum">      37 </span>                :            :  *     - BAR 2:   128G,
+<span class="lineNum">      38 </span>                :            :  *     - BAR 3:   128G,
+<span class="lineNum">      39 </span>                :            :  *     - BAR 4:   128G, all 3 contiguous, forming a single 368G region
+<span class="lineNum">      40 </span>                :            :  *                      and is used for M32 and M64 PHB windows.
+<span class="lineNum">      41 </span>                :            :  *
+<span class="lineNum">      42 </span>                :            :  * - Memory map
+<span class="lineNum">      43 </span>                :            :  *
+<span class="lineNum">      44 </span>                :            :  *    MWIN1 = BAR1 (8G)
+<span class="lineNum">      45 </span>                :            :  *    MWIN2 = BAR2,3,4 (384G)
+<span class="lineNum">      46 </span>                :            :  *
+<span class="lineNum">      47 </span>                :            :  *    MWIN2 is divided into 6 * 4G regions for use by M32's (*) and
+<span class="lineNum">      48 </span>                :            :  *    6 * 32G regions for use by M64's.
+<span class="lineNum">      49 </span>                :            :  *
+<span class="lineNum">      50 </span>                :            :  * (*) The M32 will typically be configured to only 2G or so, however
+<span class="lineNum">      51 </span>                :            :  *     the OS is in control of that setting, and since we have to reserve
+<span class="lineNum">      52 </span>                :            :  *     a power of two, we reserve the whole 4G.
+<span class="lineNum">      53 </span>                :            :  *
+<span class="lineNum">      54 </span>                :            :  *    - RGC registers: MWIN1 + 0x00000000
+<span class="lineNum">      55 </span>                :            :  *    - PHBn IO space: MWIN1 + 0x01000000 + n * 0x00800000 (8M each)
+<span class="lineNum">      56 </span>                :            :  *    - PHBn M32     : MWIN2 + n * 0x1_00000000 (4G each)
+<span class="lineNum">      57 </span>                :            :  *    - PHBn M64     : MWIN2 + (n + 1) * 0x8_00000000 (32G each)
+<span class="lineNum">      58 </span>                :            :  *
+<span class="lineNum">      59 </span>                :            :  * - BUID map. The RGC has interrupts, each PHB has then its own
+<span class="lineNum">      60 </span>                :            :  *             interrupts (errors etc...), 4 LSIs and 256 LSIs so
+<span class="lineNum">      61 </span>                :            :  *             respectively 1 BUID for self, 1 for LSIs and 16 for LSIs
+<span class="lineNum">      62 </span>                :            :  *
+<span class="lineNum">      63 </span>                :            :  *   We keep all BUIDs below 0x10 reserved. They will be used for things
+<span class="lineNum">      64 </span>                :            :  *   like the PSI controller, the NX unit, etc.. in the P7 chip.
+<span class="lineNum">      65 </span>                :            :  *
+<span class="lineNum">      66 </span>                :            :  *    RGC       : 0x010
+<span class="lineNum">      67 </span>                :            :  *    PHBn LSI  : 0x040 + n * 0x40 (   1 BUID)
+<span class="lineNum">      68 </span>                :            :  *    PHBn MSI  : 0x060 + n * 0x40 (0x10 BUIDs)
+<span class="lineNum">      69 </span>                :            :  *
+<span class="lineNum">      70 </span>                :            :  * -&gt; For routing, each PHB gets a block of 0x40 BUIDs:
+<span class="lineNum">      71 </span>                :            :  *
+<span class="lineNum">      72 </span>                :            :  *      from 0x40 * (n + 1) to 0x7f * (n + 1)
+<span class="lineNum">      73 </span>                :            :  */
+<span class="lineNum">      74 </span>                :            : 
+<span class="lineNum">      75 </span>                :            : /* Some definitions resulting from the above description
+<span class="lineNum">      76 </span>                :            :  *
+<span class="lineNum">      77 </span>                :            :  * Note: A better approach might be to read the GX BAR content
+<span class="lineNum">      78 </span>                :            :  *       and isolate the biggest contiguous windows. From there
+<span class="lineNum">      79 </span>                :            :  *       we could divide things algorithmically and thus be
+<span class="lineNum">      80 </span>                :            :  *       less sensitive to a change in the memory map by the FSP
+<span class="lineNum">      81 </span>                :            :  */
+<span class="lineNum">      82 </span>                :            : #define MWIN1_SIZE      0x200000000ul   /* MWIN1 is 8G */
+<span class="lineNum">      83 </span>                :            : #define MWIN2_SIZE     0x6000000000ul   /* MWIN2 is 384G */
+<span class="lineNum">      84 </span>                :            : #define PHB_IO_OFFSET    0x01000000ul   /* Offset of PHB IO space in MWIN1 */
+<span class="lineNum">      85 </span>                :            : #define PHB_IO_SIZE      0x00800000ul
+<span class="lineNum">      86 </span>                :            : #define PHB_M32_OFFSET          0x0ul   /* Offset of PHB M32 space in MWIN2 */
+<span class="lineNum">      87 </span>                :            : #define PHB_M32_SIZE    0x100000000ul
+<span class="lineNum">      88 </span>                :            : #define PHB_M64_OFFSET  0x800000000ul   /* Offset of PHB M64 space in MWIN2 */
+<span class="lineNum">      89 </span>                :            : #define PHB_M64_SIZE    0x800000000ul
+<span class="lineNum">      90 </span>                :            : #define RGC_BUID_OFFSET         0x10    /* Offset of RGC BUID */
+<span class="lineNum">      91 </span>                :            : #define PHB_BUID_OFFSET         0x40    /* Offset of PHB BUID blocks */
+<span class="lineNum">      92 </span>                :            : #define PHB_BUID_SIZE           0x40    /* Size of PHB BUID blocks */
+<span class="lineNum">      93 </span>                :            : #define PHB_BUID_LSI_OFFSET     0x00    /* Offset of LSI in PHB BUID block */
+<span class="lineNum">      94 </span>                :            : #define PHB_BUID_MSI_OFFSET     0x20    /* Offset of MSI in PHB BUID block */
+<span class="lineNum">      95 </span>                :            : #define PHB_BUID_MSI_SIZE       0x10    /* Size of PHB MSI BUID block */
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>                :            : #define PHBn_IO_BASE(n)         (PHB_IO_OFFSET + (n) * PHB_IO_SIZE)
+<span class="lineNum">      98 </span>                :            : #define PHBn_M32_BASE(n)        (PHB_M32_OFFSET + (n) * PHB_M32_SIZE)
+<span class="lineNum">      99 </span>                :            : #define PHBn_M64_BASE(n)        (PHB_M64_OFFSET + (n) * PHB_M64_SIZE)
+<span class="lineNum">     100 </span>                :            : #define PHBn_BUID_BASE(n)       (PHB_BUID_OFFSET + (n) * PHB_BUID_SIZE)
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :            : #define BUID_TO_PHB(buid)       (((buid) - PHB_BUID_OFFSET) / PHB_BUID_SIZE)
+<span class="lineNum">     103 </span>                :            : 
+<span class="lineNum">     104 </span>                :            : /* p7ioc has 6 PHBs */
+<span class="lineNum">     105 </span>                :            : #define P7IOC_NUM_PHBS          6
+<span class="lineNum">     106 </span>                :            : 
+<span class="lineNum">     107 </span>                :            : /* M32 window setting at boot:
+<span class="lineNum">     108 </span>                :            :  *
+<span class="lineNum">     109 </span>                :            :  * To allow for DMA, we need to split the 32-bit PCI address space between
+<span class="lineNum">     110 </span>                :            :  * MMIO and DMA. For now, we use a 2G/2G split with MMIO at the top.
+<span class="lineNum">     111 </span>                :            :  *
+<span class="lineNum">     112 </span>                :            :  * Note: The top 64K of the M32 space are used by MSIs. This is not
+<span class="lineNum">     113 </span>                :            :  * visible here but need to be conveyed to the OS one way or another
+<span class="lineNum">     114 </span>                :            :  *
+<span class="lineNum">     115 </span>                :            :  * Note2: The space reserved in the system address space for M32 is always
+<span class="lineNum">     116 </span>                :            :  * 4G. That we chose to use a smaller portion of it is not relevant to
+<span class="lineNum">     117 </span>                :            :  * the upper levels. To keep things consistent, the offset we apply to
+<span class="lineNum">     118 </span>                :            :  * the window start is also applied on the host side.
+<span class="lineNum">     119 </span>                :            :  */
+<span class="lineNum">     120 </span>                :            : #define M32_PCI_START   0x80000000
+<span class="lineNum">     121 </span>                :            : #define M32_PCI_SIZE    0x80000000
+<span class="lineNum">     122 </span>                :            : 
+<span class="lineNum">     123 </span>                :            : /* PHB registers exist in both a hard coded space and a programmable
+<span class="lineNum">     124 </span>                :            :  * AIB space. We program the latter to the values recommended in the
+<span class="lineNum">     125 </span>                :            :  * documentation:
+<span class="lineNum">     126 </span>                :            :  *
+<span class="lineNum">     127 </span>                :            :  *      0x80000 + n * 0x10000
+<span class="lineNum">     128 </span>                :            :  */
+<span class="lineNum">     129 </span>                :            : #define PHBn_ASB_BASE(n)        (((n) &lt;&lt; 16))
+<span class="lineNum">     130 </span>                :            : #define PHBn_ASB_SIZE           0x10000ul
+<span class="lineNum">     131 </span>                :            : #define PHBn_AIB_BASE(n)        (0x80000ul + ((n) &lt;&lt; 16))
+<span class="lineNum">     132 </span>                :            : #define PHBn_AIB_SIZE           0x10000ul
+<span class="lineNum">     133 </span>                :            : 
+<span class="lineNum">     134 </span>                :            : /*
+<span class="lineNum">     135 </span>                :            :  * LSI interrupts
+<span class="lineNum">     136 </span>                :            :  *
+<span class="lineNum">     137 </span>                :            :  * The LSI interrupt block supports 8 interrupts. 4 of them are the
+<span class="lineNum">     138 </span>                :            :  * standard PCIe INTA..INTB. The rest is for additional functions
+<span class="lineNum">     139 </span>                :            :  * of the PHB
+<span class="lineNum">     140 </span>                :            :  */
+<span class="lineNum">     141 </span>                :            : #define PHB_LSI_PCIE_INTA               0
+<span class="lineNum">     142 </span>                :            : #define PHB_LSI_PCIE_INTB               1
+<span class="lineNum">     143 </span>                :            : #define PHB_LSI_PCIE_INTC               2
+<span class="lineNum">     144 </span>                :            : #define PHB_LSI_PCIE_INTD               3
+<span class="lineNum">     145 </span>                :            : #define PHB_LSI_PCIE_HOTPLUG            4
+<span class="lineNum">     146 </span>                :            : #define PHB_LSI_PCIE_PERFCTR            5
+<span class="lineNum">     147 </span>                :            : #define PHB_LSI_PCIE_UNUSED             6
+<span class="lineNum">     148 </span>                :            : #define PHB_LSI_PCIE_ERROR              7
+<span class="lineNum">     149 </span>                :            : 
+<span class="lineNum">     150 </span>                :            : /*
+<span class="lineNum">     151 </span>                :            :  * State structure for a PHB on P7IOC
+<span class="lineNum">     152 </span>                :            :  */
+<span class="lineNum">     153 </span>                :            : 
+<span class="lineNum">     154 </span>                :            : /*
+<span class="lineNum">     155 </span>                :            :  * The PHB State structure is essentially used during PHB reset
+<span class="lineNum">     156 </span>                :            :  * or recovery operations to indicate that the PHB cannot currently
+<span class="lineNum">     157 </span>                :            :  * be used for normal operations.
+<span class="lineNum">     158 </span>                :            :  *
+<span class="lineNum">     159 </span>                :            :  * Some states involve waiting for the timebase to reach a certain
+<span class="lineNum">     160 </span>                :            :  * value. In which case the field &quot;delay_tgt_tb&quot; is set and the
+<span class="lineNum">     161 </span>                :            :  * state machine will be run from the &quot;state_poll&quot; callback.
+<span class="lineNum">     162 </span>                :            :  *
+<span class="lineNum">     163 </span>                :            :  * At IPL time, we call this repeatedly during the various sequences
+<span class="lineNum">     164 </span>                :            :  * however under OS control, this will require a change in API.
+<span class="lineNum">     165 </span>                :            :  *
+<span class="lineNum">     166 </span>                :            :  * Fortunately, the OPAL API for slot power &amp; reset are not currently
+<span class="lineNum">     167 </span>                :            :  * used by Linux, so changing them isn't going to be an issue. The idea
+<span class="lineNum">     168 </span>                :            :  * here is that some of these APIs will return a positive integer when
+<span class="lineNum">     169 </span>                :            :  * needing such a delay to proceed. The OS will then be required to
+<span class="lineNum">     170 </span>                :            :  * call a new function opal_poll_phb() after that delay. That function
+<span class="lineNum">     171 </span>                :            :  * will potentially return a new delay, or OPAL_SUCCESS when the original
+<span class="lineNum">     172 </span>                :            :  * operation has completed successfully. If the operation has completed
+<span class="lineNum">     173 </span>                :            :  * with an error, then opal_poll_phb() will return that error.
+<span class="lineNum">     174 </span>                :            :  *
+<span class="lineNum">     175 </span>                :            :  * Note: Should we consider also returning optionally some indication
+<span class="lineNum">     176 </span>                :            :  * of what operation is in progress for OS debug/diag purposes ?
+<span class="lineNum">     177 </span>                :            :  *
+<span class="lineNum">     178 </span>                :            :  * Any attempt at starting a new &quot;asynchronous&quot; operation while one is
+<span class="lineNum">     179 </span>                :            :  * already in progress will result in an error.
+<span class="lineNum">     180 </span>                :            :  *
+<span class="lineNum">     181 </span>                :            :  * Internally, this is represented by the state being P7IOC_PHB_STATE_FUNCTIONAL
+<span class="lineNum">     182 </span>                :            :  * when no operation is in progress, which it reaches at the end of the
+<span class="lineNum">     183 </span>                :            :  * boot time initializations. Any attempt at performing a slot operation
+<span class="lineNum">     184 </span>                :            :  * on a PHB in that state will change the state to the corresponding
+<span class="lineNum">     185 </span>                :            :  * operation state machine. Any attempt while not in that state will
+<span class="lineNum">     186 </span>                :            :  * return an error.
+<span class="lineNum">     187 </span>                :            :  *
+<span class="lineNum">     188 </span>                :            :  * Some operations allow for a certain amount of retries, this is
+<span class="lineNum">     189 </span>                :            :  * provided for by the &quot;retries&quot; structure member for use by the state
+<span class="lineNum">     190 </span>                :            :  * machine as it sees fit.
+<span class="lineNum">     191 </span>                :            :  */
+<span class="lineNum">     192 </span>                :            : enum p7ioc_phb_state {
+<span class="lineNum">     193 </span>                :            :         /* First init state */
+<span class="lineNum">     194 </span>                :            :         P7IOC_PHB_STATE_UNINITIALIZED,
+<span class="lineNum">     195 </span>                :            : 
+<span class="lineNum">     196 </span>                :            :         /* During PHB HW inits */
+<span class="lineNum">     197 </span>                :            :         P7IOC_PHB_STATE_INITIALIZING,
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>                :            :         /* Set if the PHB is for some reason unusable */
+<span class="lineNum">     200 </span>                :            :         P7IOC_PHB_STATE_BROKEN,
+<span class="lineNum">     201 </span>                :            : 
+<span class="lineNum">     202 </span>                :            :         /* Set if the PHB is fenced due to an error */
+<span class="lineNum">     203 </span>                :            :         P7IOC_PHB_STATE_FENCED,
+<span class="lineNum">     204 </span>                :            : 
+<span class="lineNum">     205 </span>                :            :         /* PHB turned off by FSP (no clocks) */
+<span class="lineNum">     206 </span>                :            :         P7IOC_PHB_STATE_OFF,
+<span class="lineNum">     207 </span>                :            : 
+<span class="lineNum">     208 </span>                :            :         /* Slot Power up state machine */
+<span class="lineNum">     209 </span>                :            :         P7IOC_PHB_STATE_SPUP_STABILIZE_DELAY,           /* Step 3 Delay 2s              */
+<span class="lineNum">     210 </span>                :            :         P7IOC_PHB_STATE_SPUP_SLOT_STATUS,               /* Step 4 waiting for status    */
+<span class="lineNum">     211 </span>                :            : 
+<span class="lineNum">     212 </span>                :            :         /* Slot Power down state machine */
+<span class="lineNum">     213 </span>                :            :         P7IOC_PHB_STATE_SPDOWN_STABILIZE_DELAY, /* Step 2 Delay 2s              */
+<span class="lineNum">     214 </span>                :            :         P7IOC_PHB_STATE_SPDOWN_SLOT_STATUS,     /* Step 3 waiting for status    */
+<span class="lineNum">     215 </span>                :            : 
+<span class="lineNum">     216 </span>                :            :         /* Fundamental reset sequence */
+<span class="lineNum">     217 </span>                :            :         P7IOC_PHB_STATE_FRESET_DISABLE_LINK,    /* Disable link training                */
+<span class="lineNum">     218 </span>                :            :         P7IOC_PHB_STATE_FRESET_ASSERT_DELAY,    /* Delay on fundamental reset assert    */
+<span class="lineNum">     219 </span>                :            :         P7IOC_PHB_STATE_FRESET_DEASSERT_DELAY,  /* Delay on fundamental reset deassert  */
+<span class="lineNum">     220 </span>                :            :         P7IOC_PHB_STATE_FRESET_WAIT_LINK,       /* Wait for link up                     */
+<span class="lineNum">     221 </span>                :            : 
+<span class="lineNum">     222 </span>                :            :         /* Hot Reset sequence */
+<span class="lineNum">     223 </span>                :            :         P7IOC_PHB_STATE_HRESET_DISABLE_LINK,    /* Disable Link training        */
+<span class="lineNum">     224 </span>                :            :         P7IOC_PHB_STATE_HRESET_ASSERT,          /* Hot reset assert             */
+<span class="lineNum">     225 </span>                :            :         P7IOC_PHB_STATE_HRESET_DELAY,           /* Hot reset delay              */
+<span class="lineNum">     226 </span>                :            :         P7IOC_PHB_STATE_HRESET_ENABLE_LINK,     /* Enable Link training         */
+<span class="lineNum">     227 </span>                :            :         P7IOC_PHB_STATE_HRESET_WAIT_LINK,       /* Wait link traing             */
+<span class="lineNum">     228 </span>                :            : 
+<span class="lineNum">     229 </span>                :            :         /* Normal PHB functional state */
+<span class="lineNum">     230 </span>                :            :         P7IOC_PHB_STATE_FUNCTIONAL,
+<span class="lineNum">     231 </span>                :            : };
+<span class="lineNum">     232 </span>                :            : 
+<span class="lineNum">     233 </span>                :            : /*
+<span class="lineNum">     234 </span>                :            :  * In order to support error detection and recovery on different
+<span class="lineNum">     235 </span>                :            :  * types of IOCs (e.g. P5IOC, P7IOC, P8IOC), the best bet would
+<span class="lineNum">     236 </span>                :            :  * be make the implementation to be 2 layers: OPAL layer and IOC
+<span class="lineNum">     237 </span>                :            :  * layer. The OPAL layer just handles the general information and
+<span class="lineNum">     238 </span>                :            :  * IOC layer should process much more detailed information, which
+<span class="lineNum">     239 </span>                :            :  * is sensitive to itself.
+<span class="lineNum">     240 </span>                :            :  */
+<span class="lineNum">     241 </span>                :            : #define P7IOC_ERR_SRC_NONE      0
+<span class="lineNum">     242 </span>                :            : #define P7IOC_ERR_SRC_EI        1
+<span class="lineNum">     243 </span>                :            : #define P7IOC_ERR_SRC_RGC       2
+<span class="lineNum">     244 </span>                :            : #define P7IOC_ERR_SRC_BI_UP     3
+<span class="lineNum">     245 </span>                :            : #define P7IOC_ERR_SRC_BI_DOWN   4
+<span class="lineNum">     246 </span>                :            : #define P7IOC_ERR_SRC_CI_P0     5
+<span class="lineNum">     247 </span>                :            : #define P7IOC_ERR_SRC_CI_P1     6
+<span class="lineNum">     248 </span>                :            : #define P7IOC_ERR_SRC_CI_P2     7
+<span class="lineNum">     249 </span>                :            : #define P7IOC_ERR_SRC_CI_P3     8
+<span class="lineNum">     250 </span>                :            : #define P7IOC_ERR_SRC_CI_P4     9
+<span class="lineNum">     251 </span>                :            : #define P7IOC_ERR_SRC_CI_P5     10
+<span class="lineNum">     252 </span>                :            : #define P7IOC_ERR_SRC_CI_P6     11
+<span class="lineNum">     253 </span>                :            : #define P7IOC_ERR_SRC_CI_P7     12
+<span class="lineNum">     254 </span>                :            : #define P7IOC_ERR_SRC_PHB0      13
+<span class="lineNum">     255 </span>                :            : #define P7IOC_ERR_SRC_PHB1      14
+<span class="lineNum">     256 </span>                :            : #define P7IOC_ERR_SRC_PHB2      15
+<span class="lineNum">     257 </span>                :            : #define P7IOC_ERR_SRC_PHB3      16
+<span class="lineNum">     258 </span>                :            : #define P7IOC_ERR_SRC_PHB4      17
+<span class="lineNum">     259 </span>                :            : #define P7IOC_ERR_SRC_PHB5      18
+<span class="lineNum">     260 </span>                :            : #define P7IOC_ERR_SRC_MISC      19
+<span class="lineNum">     261 </span>                :            : #define P7IOC_ERR_SRC_I2C       20
+<span class="lineNum">     262 </span>                :            : #define P7IOC_ERR_SRC_LAST      21
+<span class="lineNum">     263 </span>                :            : 
+<span class="lineNum">     264 </span>                :            : #define P7IOC_ERR_CLASS_NONE    0
+<span class="lineNum">     265 </span>                :            : #define P7IOC_ERR_CLASS_GXE     1
+<span class="lineNum">     266 </span>                :            : #define P7IOC_ERR_CLASS_PLL     2
+<span class="lineNum">     267 </span>                :            : #define P7IOC_ERR_CLASS_RGA     3
+<span class="lineNum">     268 </span>                :            : #define P7IOC_ERR_CLASS_PHB     4
+<span class="lineNum">     269 </span>                :            : #define P7IOC_ERR_CLASS_ER      5
+<span class="lineNum">     270 </span>                :            : #define P7IOC_ERR_CLASS_INF     6
+<span class="lineNum">     271 </span>                :            : #define P7IOC_ERR_CLASS_MAL     7
+<span class="lineNum">     272 </span>                :            : #define P7IOC_ERR_CLASS_LAST    8
+<span class="lineNum">     273 </span>                :            : 
+<span class="lineNum">     274 </span>                :            : /*
+<span class="lineNum">     275 </span>                :            :  * P7IOC error descriptor. For errors from PHB and PE, they
+<span class="lineNum">     276 </span>                :            :  * will be cached to the corresponding PHBs. However, the
+<span class="lineNum">     277 </span>                :            :  * left errors (e.g. EI, CI Port0/1) will be cached to the
+<span class="lineNum">     278 </span>                :            :  * IOC directly.
+<span class="lineNum">     279 </span>                :            :  */
+<span class="lineNum">     280 </span>                :            : struct p7ioc_err {
+<span class="lineNum">     281 </span>                :            :         uint32_t err_src;
+<span class="lineNum">     282 </span>                :            :         uint32_t err_class;
+<span class="lineNum">     283 </span>                :            :         uint32_t err_bit;
+<span class="lineNum">     284 </span>                :            : };
+<span class="lineNum">     285 </span>                :            : 
+<span class="lineNum">     286 </span>                :            : struct p7ioc;
+<span class="lineNum">     287 </span>                :            : 
+<span class="lineNum">     288 </span>                :            : #define P7IOC_PHB_CFG_USE_ASB   0x00000001 /* ASB to access PCI-CFG     */
+<span class="lineNum">     289 </span>                :            : #define P7IOC_PHB_CFG_BLOCKED   0x00000002 /* PCI-CFG blocked except 0  */
+<span class="lineNum">     290 </span>                :            : #define P7IOC_RESTORE_BUS_NUM   0x00000004 /* Restore buses after reset */
+<span class="lineNum">     291 </span>                :            : 
+<span class="lineNum">     292 </span>                :            : struct p7ioc_phb {
+<span class="lineNum">     293 </span>                :            :         uint8_t                         index;  /* 0..5 index inside p7ioc */
+<span class="lineNum">     294 </span>                :            :         uint8_t                         gen;
+<span class="lineNum">     295 </span>                :            :         uint32_t                        flags;
+<span class="lineNum">     296 </span>                :            : #define P7IOC_REV_DD10  0x00a20001
+<span class="lineNum">     297 </span>                :            : #define P7IOC_REV_DD11  0x00a20002
+<span class="lineNum">     298 </span>                :            :         uint32_t                        rev;    /* Both major and minor have 2 bytes */
+<span class="lineNum">     299 </span>                :            :         void                            *regs_asb;
+<span class="lineNum">     300 </span>                :            :         void                            *regs;  /* AIB regs */
+<span class="lineNum">     301 </span>                :            :         struct lock                     lock;
+<span class="lineNum">     302 </span>                :            :         uint32_t                        buid_lsi;
+<span class="lineNum">     303 </span>                :            :         uint32_t                        buid_msi;
+<span class="lineNum">     304 </span>                :            :         uint64_t                        io_base;
+<span class="lineNum">     305 </span>                :            :         uint64_t                        m32_base;
+<span class="lineNum">     306 </span>                :            :         uint64_t                        m64_base;
+<span class="lineNum">     307 </span>                :            :         enum p7ioc_phb_state            state;
+<span class="lineNum">     308 </span>                :            :         uint64_t                        delay_tgt_tb;
+<span class="lineNum">     309 </span>                :            :         uint64_t                        retries;
+<span class="lineNum">     310 </span>                :            :         int64_t                         ecap;   /* cached PCI-E cap offset */
+<span class="lineNum">     311 </span>                :            :         int64_t                         aercap; /* cached AER ecap offset */
+<span class="lineNum">     312 </span>                :            :         uint64_t                        lxive_cache[8];
+<span class="lineNum">     313 </span>                :            :         uint64_t                        mxive_cache[256];
+<span class="lineNum">     314 </span>                :            :         uint64_t                        mve_cache[256];
+<span class="lineNum">     315 </span>                :            :         uint64_t                        peltm_cache[128];
+<span class="lineNum">     316 </span>                :            :         uint64_t                        peltv_lo_cache[128];
+<span class="lineNum">     317 </span>                :            :         uint64_t                        peltv_hi_cache[128];
+<span class="lineNum">     318 </span>                :            :         uint64_t                        tve_lo_cache[128];
+<span class="lineNum">     319 </span>                :            :         uint64_t                        tve_hi_cache[128];
+<span class="lineNum">     320 </span>                :            :         uint64_t                        iod_cache[128];
+<span class="lineNum">     321 </span>                :            :         uint64_t                        m32d_cache[128];
+<span class="lineNum">     322 </span>                :            :         uint64_t                        m64b_cache[16];
+<span class="lineNum">     323 </span>                :            :         uint64_t                        m64d_cache[128];
+<span class="lineNum">     324 </span>                :            :         bool                            err_pending;
+<span class="lineNum">     325 </span>                :            :         struct p7ioc_err                err;
+<span class="lineNum">     326 </span>                :            :         struct p7ioc                    *ioc;
+<span class="lineNum">     327 </span>                :            :         struct phb                      phb;
+<span class="lineNum">     328 </span>                :            : };
+<span class="lineNum">     329 </span>                :            : 
+<span class="lineNum">     330 </span>                :            : static inline struct p7ioc_phb *phb_to_p7ioc_phb(struct phb *phb)
+<span class="lineNum">     331 </span>                :            : {
+<span class="lineNum">     332 </span>                :            :         return container_of(phb, struct p7ioc_phb, phb);
+<span class="lineNum">     333 </span>                :            : }
+<span class="lineNum">     334 </span>                :            : 
+<span class="lineNum">     335 </span>                :            : static inline bool p7ioc_phb_err_pending(struct p7ioc_phb *p)
+<span class="lineNum">     336 </span>                :            : {
+<span class="lineNum">     337 </span>                :            :         return p-&gt;err_pending;
+<a name="338"><span class="lineNum">     338 </span>                :            : }</a>
+<span class="lineNum">     339 </span>                :            : 
+<span class="lineNum">     340 </span>                :<span class="lineNoCov">          0 : static inline void p7ioc_phb_set_err_pending(struct p7ioc_phb *p, bool pending)</span>
+<span class="lineNum">     341 </span>                :            : {
+<span class="lineNum">     342 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!pending) {</span>
+<span class="lineNum">     343 </span>                :<span class="lineNoCov">          0 :                 p-&gt;err.err_src   = P7IOC_ERR_SRC_NONE;</span>
+<span class="lineNum">     344 </span>                :<span class="lineNoCov">          0 :                 p-&gt;err.err_class = P7IOC_ERR_CLASS_NONE;</span>
+<span class="lineNum">     345 </span>                :<span class="lineNoCov">          0 :                 p-&gt;err.err_bit   = -1;</span>
+<span class="lineNum">     346 </span>                :            :         }
+<span class="lineNum">     347 </span>                :            : 
+<span class="lineNum">     348 </span>                :<span class="lineNoCov">          0 :         p-&gt;err_pending = pending;</span>
+<span class="lineNum">     349 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     350 </span>                :            : 
+<span class="lineNum">     351 </span>                :            : /*
+<span class="lineNum">     352 </span>                :            :  * State structure for P7IOC IO HUB
+<span class="lineNum">     353 </span>                :            :  */
+<span class="lineNum">     354 </span>                :            : struct p7ioc {
+<span class="lineNum">     355 </span>                :            :         /* Device node */
+<span class="lineNum">     356 </span>                :            :         struct dt_node                  *dt_node;
+<span class="lineNum">     357 </span>                :            : 
+<span class="lineNum">     358 </span>                :            :         /* MMIO regs */
+<span class="lineNum">     359 </span>                :            :         void                            *regs;
+<span class="lineNum">     360 </span>                :            : 
+<span class="lineNum">     361 </span>                :            :         /* Main MMIO window from GX for registers &amp; PCI IO space */
+<span class="lineNum">     362 </span>                :            :         uint64_t                        mmio1_win_start;
+<span class="lineNum">     363 </span>                :            :         uint64_t                        mmio1_win_size;
+<span class="lineNum">     364 </span>                :            : 
+<span class="lineNum">     365 </span>                :            :         /* Secondary MMIO window for PCI MMIO space */
+<span class="lineNum">     366 </span>                :            :         uint64_t                        mmio2_win_start;
+<span class="lineNum">     367 </span>                :            :         uint64_t                        mmio2_win_size;
+<span class="lineNum">     368 </span>                :            : 
+<span class="lineNum">     369 </span>                :            :         /* BUID base for the PHB. This does include the top bits
+<span class="lineNum">     370 </span>                :            :          * (chip, GX bus ID, etc...). This is initialized from the
+<span class="lineNum">     371 </span>                :            :          * SPIRA. It does not contain the offset 0x10 for RGC
+<span class="lineNum">     372 </span>                :            :          * interrupts.
+<span class="lineNum">     373 </span>                :            :          *
+<span class="lineNum">     374 </span>                :            :          * The OPAL-defined &quot;interrupt-base&quot; property will contain
+<span class="lineNum">     375 </span>                :            :          * the RGC BUID, not this base value, since this is the real
+<span class="lineNum">     376 </span>                :            :          * starting point of interrupts for the IOC and we don't want
+<span class="lineNum">     377 </span>                :            :          * to cover the BUID 0..f gap which is reserved for P7 on-chip
+<span class="lineNum">     378 </span>                :            :          * interrupt sources.
+<span class="lineNum">     379 </span>                :            :          */
+<span class="lineNum">     380 </span>                :            :         uint32_t                        buid_base;
+<span class="lineNum">     381 </span>                :            :         uint32_t                        rgc_buid;
+<span class="lineNum">     382 </span>                :            : 
+<span class="lineNum">     383 </span>                :            :         /* XIVT cache for RGC interrupts */
+<span class="lineNum">     384 </span>                :            :         uint64_t                        xive_cache[16];
+<span class="lineNum">     385 </span>                :            :         bool                            err_pending;
+<span class="lineNum">     386 </span>                :            :         struct p7ioc_err                err;
+<span class="lineNum">     387 </span>                :            : 
+<span class="lineNum">     388 </span>                :            :         /* PHB array &amp; presence detect */
+<span class="lineNum">     389 </span>                :            :         struct p7ioc_phb                phbs[P7IOC_NUM_PHBS];
+<span class="lineNum">     390 </span>                :            :         uint8_t                         phb_pdt;
+<span class="lineNum">     391 </span>                :            :            
+<span class="lineNum">     392 </span>                :            :         struct io_hub                   hub;
+<span class="lineNum">     393 </span>                :            : };
+<span class="lineNum">     394 </span>                :            : 
+<span class="lineNum">     395 </span>                :            : static inline struct p7ioc *iohub_to_p7ioc(struct io_hub *hub)
+<span class="lineNum">     396 </span>                :            : {
+<span class="lineNum">     397 </span>                :            :         return container_of(hub, struct p7ioc, hub);
+<span class="lineNum">     398 </span>                :            : }
+<span class="lineNum">     399 </span>                :            : 
+<span class="lineNum">     400 </span>                :            : static inline bool p7ioc_err_pending(struct p7ioc *ioc)
+<span class="lineNum">     401 </span>                :            : {
+<span class="lineNum">     402 </span>                :            :         return ioc-&gt;err_pending;
+<a name="403"><span class="lineNum">     403 </span>                :            : }</a>
+<span class="lineNum">     404 </span>                :            : 
+<span class="lineNum">     405 </span>                :<span class="lineNoCov">          0 : static inline void p7ioc_set_err_pending(struct p7ioc *ioc, bool pending)</span>
+<span class="lineNum">     406 </span>                :            : {
+<span class="lineNum">     407 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!pending) {</span>
+<span class="lineNum">     408 </span>                :<span class="lineNoCov">          0 :                 ioc-&gt;err.err_src   = P7IOC_ERR_SRC_NONE;</span>
+<span class="lineNum">     409 </span>                :<span class="lineNoCov">          0 :                 ioc-&gt;err.err_class = P7IOC_ERR_CLASS_NONE;</span>
+<span class="lineNum">     410 </span>                :<span class="lineNoCov">          0 :                 ioc-&gt;err.err_bit   = -1;</span>
+<span class="lineNum">     411 </span>                :            :         }
+<span class="lineNum">     412 </span>                :            : 
+<span class="lineNum">     413 </span>                :<span class="lineNoCov">          0 :         ioc-&gt;err_pending = pending;</span>
+<span class="lineNum">     414 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     415 </span>                :            : 
+<span class="lineNum">     416 </span>                :            : static inline bool p7ioc_phb_enabled(struct p7ioc *ioc, unsigned int phb)
+<span class="lineNum">     417 </span>                :            : {
+<span class="lineNum">     418 </span>                :<span class="lineNoCov">          0 :         return !!(ioc-&gt;phb_pdt &amp; (0x80 &gt;&gt; phb));</span>
+<span class="lineNum">     419 </span>                :            : }
+<span class="lineNum">     420 </span>                :            : 
+<span class="lineNum">     421 </span>                :            : extern int64_t p7ioc_inits(struct p7ioc *ioc);
+<span class="lineNum">     422 </span>                :            : 
+<span class="lineNum">     423 </span>                :            : extern void p7ioc_phb_setup(struct p7ioc *ioc, uint8_t index);
+<span class="lineNum">     424 </span>                :            : extern int64_t p7ioc_phb_init(struct p7ioc_phb *p);
+<span class="lineNum">     425 </span>                :            : 
+<span class="lineNum">     426 </span>                :            : extern bool p7ioc_check_LEM(struct p7ioc *ioc, uint16_t *pci_error_type,
+<span class="lineNum">     427 </span>                :            :                             uint16_t *severity);
+<span class="lineNum">     428 </span>                :            : extern int64_t p7ioc_phb_get_xive(struct p7ioc_phb *p, uint32_t isn,
+<span class="lineNum">     429 </span>                :            :                                   uint16_t *server, uint8_t *prio);
+<span class="lineNum">     430 </span>                :            : extern int64_t p7ioc_phb_set_xive(struct p7ioc_phb *p, uint32_t isn,
+<span class="lineNum">     431 </span>                :            :                                   uint16_t server, uint8_t prio);
+<span class="lineNum">     432 </span>                :            : extern void p7ioc_reset(struct io_hub *hub);
+<span class="lineNum">     433 </span>                :            : extern void p7ioc_phb_reset(struct phb *phb);
+<span class="lineNum">     434 </span>                :            : 
+<span class="lineNum">     435 </span>                :            : #endif /* __P7IOC_H */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

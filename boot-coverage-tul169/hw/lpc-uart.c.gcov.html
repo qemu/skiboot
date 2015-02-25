@@ -1,0 +1,608 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/lpc-uart.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">hw</a> - lpc-uart.c<span style="font-size: 80%;"> (source / <a href="lpc-uart.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">213</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">21</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">84</td>
+            <td class="headerCovTableEntryLo">0.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;lpc.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;console.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;opal.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;opal-api.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;device.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;interrupts.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;processor.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;errorlog.h&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;trace.h&gt;
+<span class="lineNum">      27 </span>                :            : #include &lt;timebase.h&gt;
+<span class="lineNum">      28 </span>                :            : #include &lt;cpu.h&gt;
+<span class="lineNum">      29 </span>                :            : 
+<span class="lineNum">      30 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_UART_INIT, OPAL_PLATFORM_ERR_EVT, OPAL_UART,
+<span class="lineNum">      31 </span>                :            :                  OPAL_CEC_HARDWARE, OPAL_PREDICTIVE_ERR_GENERAL,
+<span class="lineNum">      32 </span>                :            :                  OPAL_NA, NULL);
+<span class="lineNum">      33 </span>                :            : 
+<span class="lineNum">      34 </span>                :            : /* UART reg defs */
+<span class="lineNum">      35 </span>                :            : #define REG_RBR         0
+<span class="lineNum">      36 </span>                :            : #define REG_THR         0
+<span class="lineNum">      37 </span>                :            : #define REG_DLL         0
+<span class="lineNum">      38 </span>                :            : #define REG_IER         1
+<span class="lineNum">      39 </span>                :            : #define REG_DLM         1
+<span class="lineNum">      40 </span>                :            : #define REG_FCR         2
+<span class="lineNum">      41 </span>                :            : #define REG_IIR         2
+<span class="lineNum">      42 </span>                :            : #define REG_LCR         3
+<span class="lineNum">      43 </span>                :            : #define REG_MCR         4
+<span class="lineNum">      44 </span>                :            : #define REG_LSR         5
+<span class="lineNum">      45 </span>                :            : #define REG_MSR         6
+<span class="lineNum">      46 </span>                :            : #define REG_SCR         7
+<span class="lineNum">      47 </span>                :            : 
+<span class="lineNum">      48 </span>                :            : #define LSR_DR          0x01  /* Data ready */
+<span class="lineNum">      49 </span>                :            : #define LSR_OE          0x02  /* Overrun */
+<span class="lineNum">      50 </span>                :            : #define LSR_PE          0x04  /* Parity error */
+<span class="lineNum">      51 </span>                :            : #define LSR_FE          0x08  /* Framing error */
+<span class="lineNum">      52 </span>                :            : #define LSR_BI          0x10  /* Break */
+<span class="lineNum">      53 </span>                :            : #define LSR_THRE        0x20  /* Xmit holding register empty */
+<span class="lineNum">      54 </span>                :            : #define LSR_TEMT        0x40  /* Xmitter empty */
+<span class="lineNum">      55 </span>                :            : #define LSR_ERR         0x80  /* Error */
+<span class="lineNum">      56 </span>                :            : 
+<span class="lineNum">      57 </span>                :            : #define LCR_DLAB        0x80  /* DLL access */
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :            : #define IER_RX          0x01
+<span class="lineNum">      60 </span>                :            : #define IER_THRE        0x02
+<span class="lineNum">      61 </span>                :            : #define IER_ALL         0x0f
+<span class="lineNum">      62 </span>                :            : 
+<span class="lineNum">      63 </span>                :            : static struct lock uart_lock = LOCK_UNLOCKED;
+<span class="lineNum">      64 </span>                :            : static struct dt_node *uart_node;
+<span class="lineNum">      65 </span>                :            : static uint32_t uart_base;
+<span class="lineNum">      66 </span>                :            : static bool has_irq, irq_ok, rx_full, tx_full;
+<span class="lineNum">      67 </span>                :            : static uint8_t tx_room;
+<a name="68"><span class="lineNum">      68 </span>                :            : static uint8_t cached_ier;</a>
+<span class="lineNum">      69 </span>                :            : 
+<span class="lineNum">      70 </span>                :<span class="lineNoCov">          0 : static void uart_trace(u8 ctx, u8 cnt, u8 irq_state, u8 in_count)</span>
+<span class="lineNum">      71 </span>                :            : {
+<span class="lineNum">      72 </span>                :            :         union trace t;
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 :         t.uart.ctx = ctx;</span>
+<span class="lineNum">      75 </span>                :<span class="lineNoCov">          0 :         t.uart.cnt = cnt;</span>
+<span class="lineNum">      76 </span>                :<span class="lineNoCov">          0 :         t.uart.irq_state = irq_state;</span>
+<span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 :         t.uart.in_count = in_count;</span>
+<span class="lineNum">      78 </span>                :<span class="lineNoCov">          0 :         trace_add(&amp;t, TRACE_UART, sizeof(struct trace_uart));</span>
+<a name="79"><span class="lineNum">      79 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :<span class="lineNoCov">          0 : static inline uint8_t uart_read(unsigned int reg)</span>
+<span class="lineNum">      82 </span>                :            : {
+<span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 :         return lpc_inb(uart_base + reg);</span>
+<a name="84"><span class="lineNum">      84 </span>                :            : }</a>
+<span class="lineNum">      85 </span>                :            : 
+<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 : static inline void uart_write(unsigned int reg, uint8_t val)</span>
+<span class="lineNum">      87 </span>                :            : {
+<span class="lineNum">      88 </span>                :<span class="lineNoCov">          0 :         lpc_outb(val, uart_base + reg);</span>
+<a name="89"><span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      90 </span>                :            : 
+<span class="lineNum">      91 </span>                :<span class="lineNoCov">          0 : static void uart_check_tx_room(void)</span>
+<span class="lineNum">      92 </span>                :            : {
+<span class="lineNum">      93 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (uart_read(REG_LSR) &amp; LSR_THRE) {</span>
+<span class="lineNum">      94 </span>                :            :                 /* FIFO is 16 entries */
+<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 :                 tx_room = 16;</span>
+<span class="lineNum">      96 </span>                :<span class="lineNoCov">          0 :                 tx_full = false;</span>
+<span class="lineNum">      97 </span>                :            :         }
+<a name="98"><span class="lineNum">      98 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      99 </span>                :            : 
+<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 : static void uart_wait_tx_room(void)</span>
+<span class="lineNum">     101 </span>                :            : {
+<span class="lineNum">     102 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while(!tx_room) {</span>
+<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :                 uart_check_tx_room();</span>
+<span class="lineNum">     104 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!tx_room)</span>
+<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 :                         cpu_relax();</span>
+<span class="lineNum">     106 </span>                :            :         }
+<a name="107"><span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     108 </span>                :            : 
+<span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 : static void uart_update_ier(void)</span>
+<span class="lineNum">     110 </span>                :            : {
+<span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 :         uint8_t ier = 0;</span>
+<span class="lineNum">     112 </span>                :            : 
+<span class="lineNum">     113 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!has_irq)</span>
+<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     115 </span>                :            :         /* If we have never got an interrupt, enable them all,
+<span class="lineNum">     116 </span>                :            :          * the first interrupt received will tell us if interrupts
+<span class="lineNum">     117 </span>                :            :          * are functional (some boards are missing an EC or FPGA
+<span class="lineNum">     118 </span>                :            :          * programming causing LPC interrupts not to work).
+<span class="lineNum">     119 </span>                :            :          */
+<span class="lineNum">     120 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!irq_ok)</span>
+<span class="lineNum">     121 </span>                :<span class="lineNoCov">          0 :                 ier = IER_ALL;</span>
+<span class="lineNum">     122 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!rx_full)</span>
+<span class="lineNum">     123 </span>                :<span class="lineNoCov">          0 :                 ier |= IER_RX;</span>
+<span class="lineNum">     124 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (tx_full)</span>
+<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :                 ier |= IER_THRE;</span>
+<span class="lineNum">     126 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ier != cached_ier) {</span>
+<span class="lineNum">     127 </span>                :<span class="lineNoCov">          0 :                 uart_write(REG_IER, ier);</span>
+<span class="lineNum">     128 </span>                :<span class="lineNoCov">          0 :                 cached_ier = ier;</span>
+<span class="lineNum">     129 </span>                :            :         }
+<span class="lineNum">     130 </span>                :            : }
+<span class="lineNum">     131 </span>                :            : 
+<span class="lineNum">     132 </span>                :            : /*
+<a name="133"><span class="lineNum">     133 </span>                :            :  * Internal console driver (output only)</a>
+<span class="lineNum">     134 </span>                :            :  */
+<span class="lineNum">     135 </span>                :<span class="lineNoCov">          0 : static size_t uart_con_write(const char *buf, size_t len)</span>
+<span class="lineNum">     136 </span>                :            : {
+<span class="lineNum">     137 </span>                :<span class="lineNoCov">          0 :         size_t written = 0;</span>
+<span class="lineNum">     138 </span>                :            : 
+<span class="lineNum">     139 </span>                :<span class="lineNoCov">          0 :         lock(&amp;uart_lock);</span>
+<span class="lineNum">     140 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while(written &lt; len) {</span>
+<span class="lineNum">     141 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (tx_room == 0) {</span>
+<span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 :                         uart_wait_tx_room();</span>
+<span class="lineNum">     143 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (tx_room == 0)</span>
+<span class="lineNum">     144 </span>                :            :                                 goto bail;
+<span class="lineNum">     145 </span>                :            :                 } else {
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :                         uart_write(REG_THR, buf[written++]);</span>
+<span class="lineNum">     147 </span>                :<span class="lineNoCov">          0 :                         tx_room--;</span>
+<span class="lineNum">     148 </span>                :            :                 }
+<span class="lineNum">     149 </span>                :            :         }
+<span class="lineNum">     150 </span>                :            :  bail:
+<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;uart_lock);</span>
+<span class="lineNum">     152 </span>                :<span class="lineNoCov">          0 :         return written;</span>
+<span class="lineNum">     153 </span>                :            : }
+<span class="lineNum">     154 </span>                :            : 
+<span class="lineNum">     155 </span>                :            : static struct con_ops uart_con_driver = {
+<span class="lineNum">     156 </span>                :            :         .write = uart_con_write
+<span class="lineNum">     157 </span>                :            : };
+<span class="lineNum">     158 </span>                :            : 
+<span class="lineNum">     159 </span>                :            : /*
+<span class="lineNum">     160 </span>                :            :  * OPAL console driver
+<span class="lineNum">     161 </span>                :            :  */
+<span class="lineNum">     162 </span>                :            : 
+<span class="lineNum">     163 </span>                :            : /*
+<span class="lineNum">     164 </span>                :            :  * We implement a simple buffer to buffer input data as some bugs in
+<span class="lineNum">     165 </span>                :            :  * Linux make it fail to read fast enough after we get an interrupt.
+<span class="lineNum">     166 </span>                :            :  *
+<span class="lineNum">     167 </span>                :            :  * We use it on non-interrupt operations as well while at it because
+<span class="lineNum">     168 </span>                :            :  * it doesn't cost us much and might help in a few cases where Linux
+<span class="lineNum">     169 </span>                :            :  * is calling opal_poll_events() but not actually reading.
+<span class="lineNum">     170 </span>                :            :  *
+<span class="lineNum">     171 </span>                :            :  * Most of the time I expect we'll flush it completely to Linux into
+<span class="lineNum">     172 </span>                :            :  * it's tty flip buffers so I don't bother with a ring buffer.
+<span class="lineNum">     173 </span>                :            :  */
+<span class="lineNum">     174 </span>                :            : #define IN_BUF_SIZE     0x1000
+<span class="lineNum">     175 </span>                :            : static uint8_t  *in_buf;
+<span class="lineNum">     176 </span>                :            : static uint32_t in_count;
+<span class="lineNum">     177 </span>                :            : 
+<span class="lineNum">     178 </span>                :            : /*
+<span class="lineNum">     179 </span>                :            :  * We implement a ring buffer for output data as well to speed things
+<span class="lineNum">     180 </span>                :            :  * up a bit. This allows us to have interrupt driven sends. This is only
+<span class="lineNum">     181 </span>                :            :  * for the output data coming from the OPAL API, not the internal one
+<span class="lineNum">     182 </span>                :            :  * which is already bufferred.
+<span class="lineNum">     183 </span>                :            :  */
+<span class="lineNum">     184 </span>                :            : #define OUT_BUF_SIZE    0x1000
+<span class="lineNum">     185 </span>                :            : static uint8_t *out_buf;
+<span class="lineNum">     186 </span>                :            : static uint32_t out_buf_prod;
+<a name="187"><span class="lineNum">     187 </span>                :            : static uint32_t out_buf_cons;</a>
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :<span class="lineNoCov">          0 : static void uart_flush_out(void)</span>
+<span class="lineNum">     190 </span>                :            : {
+<span class="lineNum">     191 </span>                :<span class="lineNoCov">          0 :         bool tx_was_full = tx_full;</span>
+<span class="lineNum">     192 </span>                :            : 
+<span class="lineNum">     193 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while(out_buf_prod != out_buf_cons) {</span>
+<span class="lineNum">     194 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (tx_room == 0) {</span>
+<span class="lineNum">     195 </span>                :            :                         /*
+<span class="lineNum">     196 </span>                :            :                          * If the interrupt is not functional,
+<span class="lineNum">     197 </span>                :            :                          * we force a full synchronous flush,
+<span class="lineNum">     198 </span>                :            :                          * otherwise the Linux console isn't
+<span class="lineNum">     199 </span>                :            :                          * usable (too slow).
+<span class="lineNum">     200 </span>                :            :                          */
+<span class="lineNum">     201 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (irq_ok)</span>
+<span class="lineNum">     202 </span>                :<span class="lineNoCov">          0 :                                 uart_check_tx_room();</span>
+<span class="lineNum">     203 </span>                :            :                         else
+<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :                                 uart_wait_tx_room();</span>
+<span class="lineNum">     205 </span>                :            :                 }
+<span class="lineNum">     206 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (tx_room == 0) {</span>
+<span class="lineNum">     207 </span>                :<span class="lineNoCov">          0 :                         tx_full = true;</span>
+<span class="lineNum">     208 </span>                :<span class="lineNoCov">          0 :                         break;</span>
+<span class="lineNum">     209 </span>                :            :                 }
+<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :                 uart_write(REG_THR, out_buf[out_buf_cons++]);</span>
+<span class="lineNum">     211 </span>                :<span class="lineNoCov">          0 :                 out_buf_cons %= OUT_BUF_SIZE;</span>
+<span class="lineNum">     212 </span>                :<span class="lineNoCov">          0 :                 tx_room--;</span>
+<span class="lineNum">     213 </span>                :            :         }
+<span class="lineNum">     214 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (tx_full != tx_was_full)</span>
+<span class="lineNum">     215 </span>                :<span class="lineNoCov">          0 :                 uart_update_ier();</span>
+<a name="216"><span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     217 </span>                :            : 
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 : static uint32_t uart_tx_buf_space(void)</span>
+<span class="lineNum">     219 </span>                :            : {
+<span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 :         return OUT_BUF_SIZE - 1 -</span>
+<span class="lineNum">     221 </span>                :<span class="lineNoCov">          0 :                 (out_buf_prod + OUT_BUF_SIZE - out_buf_cons) % OUT_BUF_SIZE;</span>
+<a name="222"><span class="lineNum">     222 </span>                :            : }</a>
+<span class="lineNum">     223 </span>                :            : 
+<span class="lineNum">     224 </span>                :<span class="lineNoCov">          0 : static int64_t uart_opal_write(int64_t term_number, int64_t *length,</span>
+<span class="lineNum">     225 </span>                :            :                                const uint8_t *buffer)
+<span class="lineNum">     226 </span>                :            : {
+<span class="lineNum">     227 </span>                :<span class="lineNoCov">          0 :         size_t written = 0, len = *length;</span>
+<span class="lineNum">     228 </span>                :            : 
+<span class="lineNum">     229 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (term_number != 0)</span>
+<span class="lineNum">     230 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     231 </span>                :            : 
+<span class="lineNum">     232 </span>                :<span class="lineNoCov">          0 :         lock(&amp;uart_lock);</span>
+<span class="lineNum">     233 </span>                :            : 
+<span class="lineNum">     234 </span>                :            :         /* Copy data to out buffer */
+<span class="lineNum">     235 </span>[<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while (uart_tx_buf_space() &amp;&amp; len--) {</span>
+<span class="lineNum">     236 </span>                :<span class="lineNoCov">          0 :                 out_buf[out_buf_prod++] = *(buffer++);</span>
+<span class="lineNum">     237 </span>                :<span class="lineNoCov">          0 :                 out_buf_prod %= OUT_BUF_SIZE;</span>
+<span class="lineNum">     238 </span>                :<span class="lineNoCov">          0 :                 written++;</span>
+<span class="lineNum">     239 </span>                :            :         }
+<span class="lineNum">     240 </span>                :            : 
+<span class="lineNum">     241 </span>                :            :         /* Flush out buffer again */
+<span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 :         uart_flush_out();</span>
+<span class="lineNum">     243 </span>                :            : 
+<span class="lineNum">     244 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;uart_lock);</span>
+<span class="lineNum">     245 </span>                :            : 
+<span class="lineNum">     246 </span>                :<span class="lineNoCov">          0 :         *length = written;</span>
+<span class="lineNum">     247 </span>                :            : 
+<span class="lineNum">     248 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<a name="249"><span class="lineNum">     249 </span>                :            : }</a>
+<span class="lineNum">     250 </span>                :            : 
+<span class="lineNum">     251 </span>                :<span class="lineNoCov">          0 : static int64_t uart_opal_write_buffer_space(int64_t term_number,</span>
+<span class="lineNum">     252 </span>                :            :                                             int64_t *length)
+<span class="lineNum">     253 </span>                :            : {
+<span class="lineNum">     254 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (term_number != 0)</span>
+<span class="lineNum">     255 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     256 </span>                :            : 
+<span class="lineNum">     257 </span>                :<span class="lineNoCov">          0 :         lock(&amp;uart_lock);</span>
+<span class="lineNum">     258 </span>                :<span class="lineNoCov">          0 :         *length = uart_tx_buf_space();</span>
+<span class="lineNum">     259 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;uart_lock);</span>
+<span class="lineNum">     260 </span>                :            : 
+<span class="lineNum">     261 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<span class="lineNum">     262 </span>                :            : }
+<a name="263"><span class="lineNum">     263 </span>                :            : </a>
+<span class="lineNum">     264 </span>                :            : /* Must be called with UART lock held */
+<span class="lineNum">     265 </span>                :<span class="lineNoCov">          0 : static void uart_read_to_buffer(void)</span>
+<span class="lineNum">     266 </span>                :            : {
+<span class="lineNum">     267 </span>                :            :         /* As long as there is room in the buffer */
+<span class="lineNum">     268 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while(in_count &lt; IN_BUF_SIZE) {</span>
+<span class="lineNum">     269 </span>                :            :                 /* Read status register */
+<span class="lineNum">     270 </span>                :<span class="lineNoCov">          0 :                 uint8_t lsr = uart_read(REG_LSR);</span>
+<span class="lineNum">     271 </span>                :            : 
+<span class="lineNum">     272 </span>                :            :                 /* Nothing to read ... */
+<span class="lineNum">     273 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if ((lsr &amp; LSR_DR) == 0)</span>
+<span class="lineNum">     274 </span>                :            :                         break;
+<span class="lineNum">     275 </span>                :            : 
+<span class="lineNum">     276 </span>                :            :                 /* Read and add to buffer */
+<span class="lineNum">     277 </span>                :<span class="lineNoCov">          0 :                 in_buf[in_count++] = uart_read(REG_RBR);</span>
+<span class="lineNum">     278 </span>                :            :         }
+<span class="lineNum">     279 </span>                :            : 
+<span class="lineNum">     280 </span>                :            :         /* If the buffer is full disable the interrupt */
+<span class="lineNum">     281 </span>                :<span class="lineNoCov">          0 :         rx_full = (in_count == IN_BUF_SIZE);</span>
+<span class="lineNum">     282 </span>                :<span class="lineNoCov">          0 :         uart_update_ier();</span>
+<a name="283"><span class="lineNum">     283 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     284 </span>                :            : 
+<span class="lineNum">     285 </span>                :<span class="lineNoCov">          0 : static void uart_adjust_opal_event(void)</span>
+<span class="lineNum">     286 </span>                :            : {
+<span class="lineNum">     287 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (in_count)</span>
+<span class="lineNum">     288 </span>                :<span class="lineNoCov">          0 :                 opal_update_pending_evt(OPAL_EVENT_CONSOLE_INPUT,</span>
+<span class="lineNum">     289 </span>                :            :                                         OPAL_EVENT_CONSOLE_INPUT);
+<span class="lineNum">     290 </span>                :            :         else
+<span class="lineNum">     291 </span>                :<span class="lineNoCov">          0 :                 opal_update_pending_evt(OPAL_EVENT_CONSOLE_INPUT, 0);</span>
+<span class="lineNum">     292 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="293"><span class="lineNum">     293 </span>                :            : </a>
+<span class="lineNum">     294 </span>                :            : /* This is called with the console lock held */
+<span class="lineNum">     295 </span>                :<span class="lineNoCov">          0 : static int64_t uart_opal_read(int64_t term_number, int64_t *length,</span>
+<span class="lineNum">     296 </span>                :            :                               uint8_t *buffer)
+<span class="lineNum">     297 </span>                :            : {
+<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 :         size_t req_count = *length, read_cnt = 0;</span>
+<span class="lineNum">     299 </span>                :<span class="lineNoCov">          0 :         uint8_t lsr = 0;</span>
+<span class="lineNum">     300 </span>                :            : 
+<span class="lineNum">     301 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (term_number != 0)</span>
+<span class="lineNum">     302 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     303 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!in_buf)</span>
+<span class="lineNum">     304 </span>                :            :                 return OPAL_INTERNAL_ERROR;
+<span class="lineNum">     305 </span>                :            : 
+<span class="lineNum">     306 </span>                :<span class="lineNoCov">          0 :         lock(&amp;uart_lock);</span>
+<span class="lineNum">     307 </span>                :            : 
+<span class="lineNum">     308 </span>                :            :         /* Read from buffer first */
+<span class="lineNum">     309 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (in_count) {</span>
+<span class="lineNum">     310 </span>                :<span class="lineNoCov">          0 :                 read_cnt = in_count;</span>
+<span class="lineNum">     311 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (req_count &lt; read_cnt)</span>
+<span class="lineNum">     312 </span>                :<span class="lineNoCov">          0 :                         read_cnt = req_count;</span>
+<span class="lineNum">     313 </span>                :<span class="lineNoCov">          0 :                 memcpy(buffer, in_buf, read_cnt);</span>
+<span class="lineNum">     314 </span>                :<span class="lineNoCov">          0 :                 req_count -= read_cnt;</span>
+<span class="lineNum">     315 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (in_count != read_cnt)</span>
+<span class="lineNum">     316 </span>                :<span class="lineNoCov">          0 :                         memmove(in_buf, in_buf + read_cnt, in_count - read_cnt);</span>
+<span class="lineNum">     317 </span>                :<span class="lineNoCov">          0 :                 in_count -= read_cnt;</span>
+<span class="lineNum">     318 </span>                :            :         }
+<span class="lineNum">     319 </span>                :            : 
+<span class="lineNum">     320 </span>                :            :         /*
+<span class="lineNum">     321 </span>                :            :          * If there's still room in the user buffer, read from the UART
+<span class="lineNum">     322 </span>                :            :          * directly
+<span class="lineNum">     323 </span>                :            :          */
+<span class="lineNum">     324 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while(req_count) {</span>
+<span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 :                 lsr = uart_read(REG_LSR);</span>
+<span class="lineNum">     326 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if ((lsr &amp; LSR_DR) == 0)</span>
+<span class="lineNum">     327 </span>                :            :                         break;
+<span class="lineNum">     328 </span>                :<span class="lineNoCov">          0 :                 buffer[read_cnt++] = uart_read(REG_RBR);</span>
+<span class="lineNum">     329 </span>                :<span class="lineNoCov">          0 :                 req_count--;</span>
+<span class="lineNum">     330 </span>                :            :         }
+<span class="lineNum">     331 </span>                :            : 
+<span class="lineNum">     332 </span>                :            :         /* Finally, flush whatever's left in the UART into our buffer */
+<span class="lineNum">     333 </span>                :<span class="lineNoCov">          0 :         uart_read_to_buffer();</span>
+<span class="lineNum">     334 </span>                :            : 
+<span class="lineNum">     335 </span>                :<span class="lineNoCov">          0 :         uart_trace(TRACE_UART_CTX_READ, read_cnt, tx_full, in_count);</span>
+<span class="lineNum">     336 </span>                :            : 
+<span class="lineNum">     337 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;uart_lock);</span>
+<span class="lineNum">     338 </span>                :            :         
+<span class="lineNum">     339 </span>                :            :         /* Adjust the OPAL event */
+<span class="lineNum">     340 </span>                :<span class="lineNoCov">          0 :         uart_adjust_opal_event();</span>
+<span class="lineNum">     341 </span>                :            : 
+<span class="lineNum">     342 </span>                :<span class="lineNoCov">          0 :         *length = read_cnt;</span>
+<span class="lineNum">     343 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<a name="344"><span class="lineNum">     344 </span>                :            : }</a>
+<span class="lineNum">     345 </span>                :            : 
+<span class="lineNum">     346 </span>                :<span class="lineNoCov">          0 : static void __uart_do_poll(u8 trace_ctx)</span>
+<span class="lineNum">     347 </span>                :            : {
+<span class="lineNum">     348 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!in_buf)</span>
+<span class="lineNum">     349 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     350 </span>                :            : 
+<span class="lineNum">     351 </span>                :<span class="lineNoCov">          0 :         lock(&amp;uart_lock);</span>
+<span class="lineNum">     352 </span>                :<span class="lineNoCov">          0 :         uart_read_to_buffer();</span>
+<span class="lineNum">     353 </span>                :<span class="lineNoCov">          0 :         uart_flush_out();</span>
+<span class="lineNum">     354 </span>                :<span class="lineNoCov">          0 :         uart_trace(trace_ctx, 0, tx_full, in_count);</span>
+<span class="lineNum">     355 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;uart_lock);</span>
+<span class="lineNum">     356 </span>                :            : 
+<span class="lineNum">     357 </span>                :<span class="lineNoCov">          0 :         uart_adjust_opal_event();</span>
+<a name="358"><span class="lineNum">     358 </span>                :            : }</a>
+<span class="lineNum">     359 </span>                :            : 
+<span class="lineNum">     360 </span>                :<span class="lineNoCov">          0 : static void uart_console_poll(void *data __unused)</span>
+<span class="lineNum">     361 </span>                :            : {
+<span class="lineNum">     362 </span>                :<span class="lineNoCov">          0 :         __uart_do_poll(TRACE_UART_CTX_POLL);</span>
+<a name="363"><span class="lineNum">     363 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     364 </span>                :            : 
+<span class="lineNum">     365 </span>                :<span class="lineNoCov">          0 : void uart_irq(void)</span>
+<span class="lineNum">     366 </span>                :            : {
+<span class="lineNum">     367 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!irq_ok) {</span>
+<span class="lineNum">     368 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_DEBUG, &quot;UART: IRQ functional !\n&quot;);</span>
+<span class="lineNum">     369 </span>                :<span class="lineNoCov">          0 :                 irq_ok = true;</span>
+<span class="lineNum">     370 </span>                :            :         }
+<span class="lineNum">     371 </span>                :<span class="lineNoCov">          0 :         __uart_do_poll(TRACE_UART_CTX_IRQ);</span>
+<span class="lineNum">     372 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     373 </span>                :            : 
+<span class="lineNum">     374 </span>                :            : /*
+<span class="lineNum">     375 </span>                :            :  * Common setup/inits
+<a name="376"><span class="lineNum">     376 </span>                :            :  */</a>
+<span class="lineNum">     377 </span>                :            : 
+<span class="lineNum">     378 </span>                :<span class="lineNoCov">          0 : void uart_setup_linux_passthrough(void)</span>
+<span class="lineNum">     379 </span>                :            : {
+<span class="lineNum">     380 </span>                :            :         char *path;
+<span class="lineNum">     381 </span>                :            : 
+<span class="lineNum">     382 </span>                :<span class="lineNoCov">          0 :         dt_add_property_strings(uart_node, &quot;status&quot;, &quot;ok&quot;);</span>
+<span class="lineNum">     383 </span>                :<span class="lineNoCov">          0 :         path = dt_get_path(uart_node);</span>
+<span class="lineNum">     384 </span>                :<span class="lineNoCov">          0 :         dt_add_property_string(dt_chosen, &quot;linux,stdout-path&quot;, path);</span>
+<span class="lineNum">     385 </span>                :<span class="lineNoCov">          0 :         free(path);</span>
+<span class="lineNum">     386 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;UART: Enabled as OS pass-through\n&quot;);</span>
+<a name="387"><span class="lineNum">     387 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     388 </span>                :            : 
+<span class="lineNum">     389 </span>                :<span class="lineNoCov">          0 : void uart_setup_opal_console(void)</span>
+<span class="lineNum">     390 </span>                :            : {
+<span class="lineNum">     391 </span>                :            :         struct dt_node *con, *consoles;
+<span class="lineNum">     392 </span>                :            : 
+<span class="lineNum">     393 </span>                :            :         /* Create OPAL console node */
+<span class="lineNum">     394 </span>                :<span class="lineNoCov">          0 :         consoles = dt_new(opal_node, &quot;consoles&quot;);</span>
+<span class="lineNum">     395 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(consoles);</span>
+<span class="lineNum">     396 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(consoles, &quot;#address-cells&quot;, 1);</span>
+<span class="lineNum">     397 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(consoles, &quot;#size-cells&quot;, 0);</span>
+<span class="lineNum">     398 </span>                :            : 
+<span class="lineNum">     399 </span>                :<span class="lineNoCov">          0 :         con = dt_new_addr(consoles, &quot;serial&quot;, 0);</span>
+<span class="lineNum">     400 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(con);</span>
+<span class="lineNum">     401 </span>                :<span class="lineNoCov">          0 :         dt_add_property_string(con, &quot;compatible&quot;, &quot;ibm,opal-console-raw&quot;);</span>
+<span class="lineNum">     402 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(con, &quot;#write-buffer-size&quot;, INMEM_CON_OUT_LEN);</span>
+<span class="lineNum">     403 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(con, &quot;reg&quot;, 0);</span>
+<span class="lineNum">     404 </span>                :<span class="lineNoCov">          0 :         dt_add_property_string(con, &quot;device_type&quot;, &quot;serial&quot;);</span>
+<span class="lineNum">     405 </span>                :            : 
+<span class="lineNum">     406 </span>                :<span class="lineNoCov">          0 :         dt_add_property_string(dt_chosen, &quot;linux,stdout-path&quot;,</span>
+<span class="lineNum">     407 </span>                :            :                                &quot;/ibm,opal/consoles/serial@0&quot;);
+<span class="lineNum">     408 </span>                :            : 
+<span class="lineNum">     409 </span>                :            :         /*
+<span class="lineNum">     410 </span>                :            :          * We mark the UART as reserved since we don't want the
+<span class="lineNum">     411 </span>                :            :          * kernel to start using it with its own 8250 driver
+<span class="lineNum">     412 </span>                :            :          */
+<span class="lineNum">     413 </span>                :<span class="lineNoCov">          0 :         dt_add_property_strings(uart_node, &quot;status&quot;, &quot;reserved&quot;);</span>
+<span class="lineNum">     414 </span>                :            : 
+<span class="lineNum">     415 </span>                :            :         /*
+<span class="lineNum">     416 </span>                :            :          * If the interrupt is enabled, turn on RX interrupts (and
+<span class="lineNum">     417 </span>                :            :          * only these for now
+<span class="lineNum">     418 </span>                :            :          */
+<span class="lineNum">     419 </span>                :<span class="lineNoCov">          0 :         tx_full = rx_full = false;</span>
+<span class="lineNum">     420 </span>                :<span class="lineNoCov">          0 :         uart_update_ier();</span>
+<span class="lineNum">     421 </span>                :            : 
+<span class="lineNum">     422 </span>                :            :         /* Allocate an input buffer */
+<span class="lineNum">     423 </span>                :<span class="lineNoCov">          0 :         in_buf = zalloc(IN_BUF_SIZE);</span>
+<span class="lineNum">     424 </span>                :<span class="lineNoCov">          0 :         out_buf = zalloc(OUT_BUF_SIZE);</span>
+<span class="lineNum">     425 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;UART: Enabled as OS console\n&quot;);</span>
+<span class="lineNum">     426 </span>                :            : 
+<span class="lineNum">     427 </span>                :            :         /* Register OPAL APIs */
+<span class="lineNum">     428 </span>                :<span class="lineNoCov">          0 :         opal_register(OPAL_CONSOLE_READ, uart_opal_read, 3);</span>
+<span class="lineNum">     429 </span>                :<span class="lineNoCov">          0 :         opal_register(OPAL_CONSOLE_WRITE_BUFFER_SPACE,</span>
+<span class="lineNum">     430 </span>                :            :                       uart_opal_write_buffer_space, 2);
+<span class="lineNum">     431 </span>                :<span class="lineNoCov">          0 :         opal_register(OPAL_CONSOLE_WRITE, uart_opal_write, 3);</span>
+<span class="lineNum">     432 </span>                :            : 
+<span class="lineNum">     433 </span>                :<span class="lineNoCov">          0 :         opal_add_poller(uart_console_poll, NULL);</span>
+<a name="434"><span class="lineNum">     434 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     435 </span>                :            : 
+<span class="lineNum">     436 </span>                :<span class="lineNoCov">          0 : static bool uart_init_hw(unsigned int speed, unsigned int clock)</span>
+<span class="lineNum">     437 </span>                :            : {
+<span class="lineNum">     438 </span>                :<span class="lineNoCov">          0 :         unsigned int dll = (clock / 16) / speed;</span>
+<span class="lineNum">     439 </span>                :            : 
+<span class="lineNum">     440 </span>                :            :         /* Clear line control */
+<span class="lineNum">     441 </span>                :<span class="lineNoCov">          0 :         uart_write(REG_LCR, 0x00);</span>
+<span class="lineNum">     442 </span>                :            : 
+<span class="lineNum">     443 </span>                :            :         /* Check if the UART responds */
+<span class="lineNum">     444 </span>                :<span class="lineNoCov">          0 :         uart_write(REG_IER, 0x01);</span>
+<span class="lineNum">     445 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (uart_read(REG_IER) != 0x01)</span>
+<span class="lineNum">     446 </span>                :            :                 goto detect_fail;
+<span class="lineNum">     447 </span>                :<span class="lineNoCov">          0 :         uart_write(REG_IER, 0x00);</span>
+<span class="lineNum">     448 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (uart_read(REG_IER) != 0x00)</span>
+<span class="lineNum">     449 </span>                :            :                 goto detect_fail;
+<span class="lineNum">     450 </span>                :            : 
+<span class="lineNum">     451 </span>                :<span class="lineNoCov">          0 :         uart_write(REG_LCR, LCR_DLAB);</span>
+<span class="lineNum">     452 </span>                :<span class="lineNoCov">          0 :         uart_write(REG_DLL, dll &amp; 0xff);</span>
+<span class="lineNum">     453 </span>                :<span class="lineNoCov">          0 :         uart_write(REG_DLM, dll &gt;&gt; 8);</span>
+<span class="lineNum">     454 </span>                :<span class="lineNoCov">          0 :         uart_write(REG_LCR, 0x03); /* 8N1 */</span>
+<span class="lineNum">     455 </span>                :<span class="lineNoCov">          0 :         uart_write(REG_MCR, 0x03); /* RTS/DTR */</span>
+<span class="lineNum">     456 </span>                :<span class="lineNoCov">          0 :         uart_write(REG_FCR, 0x07); /* clear &amp; en. fifos */</span>
+<span class="lineNum">     457 </span>                :<span class="lineNoCov">          0 :         return true;</span>
+<span class="lineNum">     458 </span>                :            : 
+<span class="lineNum">     459 </span>                :            :  detect_fail:
+<span class="lineNum">     460 </span>                :<span class="lineNoCov">          0 :         prerror(&quot;UART: Presence detect failed !\n&quot;);</span>
+<span class="lineNum">     461 </span>                :<span class="lineNoCov">          0 :         return false;</span>
+<a name="462"><span class="lineNum">     462 </span>                :            : }</a>
+<span class="lineNum">     463 </span>                :            : 
+<span class="lineNum">     464 </span>                :<span class="lineNoCov">          0 : void uart_init(bool enable_interrupt)</span>
+<span class="lineNum">     465 </span>                :            : {
+<span class="lineNum">     466 </span>                :            :         const struct dt_property *prop;
+<span class="lineNum">     467 </span>                :            :         struct dt_node *n;
+<span class="lineNum">     468 </span>                :            :         char *path __unused;
+<span class="lineNum">     469 </span>                :            :         uint32_t irqchip, irq;
+<span class="lineNum">     470 </span>                :            : 
+<span class="lineNum">     471 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!lpc_present())</span>
+<span class="lineNum">     472 </span>                :            :                 return;
+<span class="lineNum">     473 </span>                :            : 
+<span class="lineNum">     474 </span>                :            :         /* UART lock is in the console path and thus must block
+<span class="lineNum">     475 </span>                :            :          * printf re-entrancy
+<span class="lineNum">     476 </span>                :            :          */
+<span class="lineNum">     477 </span>                :<span class="lineNoCov">          0 :         uart_lock.in_con_path = true;</span>
+<span class="lineNum">     478 </span>                :            : 
+<span class="lineNum">     479 </span>                :            :         /* We support only one */
+<span class="lineNum">     480 </span>                :<span class="lineNoCov">          0 :         uart_node = n = dt_find_compatible_node(dt_root, NULL, &quot;ns16550&quot;);</span>
+<span class="lineNum">     481 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!n)</span>
+<span class="lineNum">     482 </span>                :            :                 return;
+<span class="lineNum">     483 </span>                :            : 
+<span class="lineNum">     484 </span>                :            :         /* Get IO base */
+<span class="lineNum">     485 </span>                :<span class="lineNoCov">          0 :         prop = dt_find_property(n, &quot;reg&quot;);</span>
+<span class="lineNum">     486 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!prop) {</span>
+<span class="lineNum">     487 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_UART_INIT),</span>
+<span class="lineNum">     488 </span>                :            :                                 &quot;UART: Can't find reg property\n&quot;);
+<span class="lineNum">     489 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     490 </span>                :            :         }
+<span class="lineNum">     491 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (dt_property_get_cell(prop, 0) != OPAL_LPC_IO) {</span>
+<span class="lineNum">     492 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_UART_INIT),</span>
+<span class="lineNum">     493 </span>                :            :                                 &quot;UART: Only supports IO addresses\n&quot;);
+<span class="lineNum">     494 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     495 </span>                :            :         }
+<span class="lineNum">     496 </span>                :<span class="lineNoCov">          0 :         uart_base = dt_property_get_cell(prop, 1);</span>
+<span class="lineNum">     497 </span>                :            : 
+<span class="lineNum">     498 </span>        [<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!uart_init_hw(dt_prop_get_u32(n, &quot;current-speed&quot;),</span>
+<span class="lineNum">     499 </span>                :            :                           dt_prop_get_u32(n, &quot;clock-frequency&quot;))) {
+<span class="lineNum">     500 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;UART: Initialization failed\n&quot;);</span>
+<span class="lineNum">     501 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_strings(n, &quot;status&quot;, &quot;bad&quot;);</span>
+<span class="lineNum">     502 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     503 </span>                :            :         }
+<span class="lineNum">     504 </span>                :            : 
+<span class="lineNum">     505 </span>                :            :         /*
+<span class="lineNum">     506 </span>                :            :          * Mark LPC used by the console (will mark the relevant
+<span class="lineNum">     507 </span>                :            :          * locks to avoid deadlocks when flushing the console)
+<span class="lineNum">     508 </span>                :            :          */
+<span class="lineNum">     509 </span>                :<span class="lineNoCov">          0 :         lpc_used_by_console();</span>
+<span class="lineNum">     510 </span>                :            : 
+<span class="lineNum">     511 </span>                :            :         /* Install console backend for printf() */
+<span class="lineNum">     512 </span>                :<span class="lineNoCov">          0 :         set_console(&amp;uart_con_driver);</span>
+<span class="lineNum">     513 </span>                :            : 
+<span class="lineNum">     514 </span>                :            :         /* Setup the interrupts properties since HB couldn't do it */
+<span class="lineNum">     515 </span>                :<span class="lineNoCov">          0 :         irqchip = dt_prop_get_u32(n, &quot;ibm,irq-chip-id&quot;);</span>
+<span class="lineNum">     516 </span>                :<span class="lineNoCov">          0 :         irq = get_psi_interrupt(irqchip) + P8_IRQ_PSI_HOST_ERR;</span>
+<span class="lineNum">     517 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;UART: IRQ connected to chip %d, irq# is 0x%x\n&quot;, irqchip, irq);</span>
+<span class="lineNum">     518 </span>                :<span class="lineNoCov">          0 :         has_irq = enable_interrupt;</span>
+<span class="lineNum">     519 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (has_irq) {</span>
+<span class="lineNum">     520 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_cells(n, &quot;interrupts&quot;, irq);</span>
+<span class="lineNum">     521 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_cells(n, &quot;interrupt-parent&quot;, get_ics_phandle());</span>
+<span class="lineNum">     522 </span>                :            :         }
+<span class="lineNum">     523 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -1,0 +1,639 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-tul169-boot.info - hw/fsp/fsp-rtc.c</title>
+  <link rel="stylesheet" type="text/css" href="../../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">hw/fsp</a> - fsp-rtc.c<span style="font-size: 80%;"> (source / <a href="fsp-rtc.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-tul169-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">73</td>
+            <td class="headerCovTableEntry">234</td>
+            <td class="headerCovTableEntryLo">31.2 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-02-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">22</td>
+            <td class="headerCovTableEntry">102</td>
+            <td class="headerCovTableEntryLo">21.6 %</td>
+          </tr>
+          <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;fsp.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;timebase.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;time.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;time-utils.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;opal-api.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;opal-msg.h&gt;
+<span class="lineNum">      25 </span>                :            : #include &lt;errorlog.h&gt;
+<span class="lineNum">      26 </span>                :            : #include &lt;device.h&gt;
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            : /*
+<span class="lineNum">      29 </span>                :            :  * Note on how those operate:
+<span class="lineNum">      30 </span>                :            :  *
+<span class="lineNum">      31 </span>                :            :  * Because the RTC calls can be pretty slow, these functions will shoot
+<span class="lineNum">      32 </span>                :            :  * an asynchronous request to the FSP (if none is already pending)
+<span class="lineNum">      33 </span>                :            :  *
+<span class="lineNum">      34 </span>                :            :  * The requests will return OPAL_BUSY_EVENT as long as the event has
+<span class="lineNum">      35 </span>                :            :  * not been completed.
+<span class="lineNum">      36 </span>                :            :  *
+<span class="lineNum">      37 </span>                :            :  * WARNING: An attempt at doing an RTC write while one is already pending
+<span class="lineNum">      38 </span>                :            :  * will simply ignore the new arguments and continue returning
+<span class="lineNum">      39 </span>                :            :  * OPAL_BUSY_EVENT. This is to be compatible with existing Linux code.
+<span class="lineNum">      40 </span>                :            :  *
+<span class="lineNum">      41 </span>                :            :  * Completion of the request will result in an event OPAL_EVENT_RTC
+<span class="lineNum">      42 </span>                :            :  * being signaled, which will remain raised until a corresponding call
+<span class="lineNum">      43 </span>                :            :  * to opal_rtc_read() or opal_rtc_write() finally returns OPAL_SUCCESS,
+<span class="lineNum">      44 </span>                :            :  * at which point the operation is complete and the event cleared.
+<span class="lineNum">      45 </span>                :            :  *
+<span class="lineNum">      46 </span>                :            :  * If we end up taking longer than rtc_read_timeout_ms millieconds waiting
+<span class="lineNum">      47 </span>                :            :  * for the response from a read request, we simply return a cached value (plus
+<span class="lineNum">      48 </span>                :            :  * an offset calculated from the timebase. When the read request finally
+<span class="lineNum">      49 </span>                :            :  * returns, we update our cache value accordingly.
+<span class="lineNum">      50 </span>                :            :  *
+<span class="lineNum">      51 </span>                :            :  * There is two separate set of state for reads and writes. If both are
+<span class="lineNum">      52 </span>                :            :  * attempted at the same time, the event bit will remain set as long as either
+<span class="lineNum">      53 </span>                :            :  * of the two has a pending event to signal.
+<span class="lineNum">      54 </span>                :            :  */
+<span class="lineNum">      55 </span>                :            : 
+<span class="lineNum">      56 </span>                :            : #include &lt;rtc.h&gt;
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :            : enum {
+<span class="lineNum">      59 </span>                :            :         RTC_TOD_VALID,
+<span class="lineNum">      60 </span>                :            :         RTC_TOD_INVALID,
+<span class="lineNum">      61 </span>                :            :         RTC_TOD_PERMANENT_ERROR,
+<span class="lineNum">      62 </span>                :            : } rtc_tod_state = RTC_TOD_INVALID;
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :            : bool rtc_tod_cache_dirty = false;
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :            : static struct lock rtc_lock;
+<span class="lineNum">      67 </span>                :            : static struct fsp_msg *rtc_read_msg;
+<span class="lineNum">      68 </span>                :            : static struct fsp_msg *rtc_write_msg;
+<span class="lineNum">      69 </span>                :            : /* TODO We'd probably want to export and use this variable declared in fsp.c,
+<span class="lineNum">      70 </span>                :            :  * instead of each component individually maintaining the state.. may be for
+<span class="lineNum">      71 </span>                :            :  * later optimization
+<span class="lineNum">      72 </span>                :            :  */
+<span class="lineNum">      73 </span>                :            : static bool fsp_in_reset = false;
+<span class="lineNum">      74 </span>                :            : 
+<span class="lineNum">      75 </span>                :            : struct opal_tpo_data {
+<span class="lineNum">      76 </span>                :            :         uint64_t tpo_async_token;
+<span class="lineNum">      77 </span>                :            :         uint32_t *year_month_day;
+<span class="lineNum">      78 </span>                :            :         uint32_t *hour_min;
+<span class="lineNum">      79 </span>                :            : };
+<span class="lineNum">      80 </span>                :            : 
+<span class="lineNum">      81 </span>                :            : /* Timebase value when we last initiated a RTC read request */
+<span class="lineNum">      82 </span>                :            : static unsigned long read_req_tb;
+<span class="lineNum">      83 </span>                :            : 
+<span class="lineNum">      84 </span>                :            : /* If a RTC read takes longer than this, we return a value generated
+<span class="lineNum">      85 </span>                :            :  * from the cache + timebase */
+<span class="lineNum">      86 </span>                :            : static const int rtc_read_timeout_ms = 1500;
+<span class="lineNum">      87 </span>                :            : 
+<span class="lineNum">      88 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_RTC_TOD, OPAL_PLATFORM_ERR_EVT, OPAL_RTC,
+<span class="lineNum">      89 </span>                :            :                         OPAL_PLATFORM_FIRMWARE, OPAL_INFO,
+<span class="lineNum">      90 </span>                :            :                         OPAL_NA, NULL);
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :            : DEFINE_LOG_ENTRY(OPAL_RC_RTC_READ, OPAL_PLATFORM_ERR_EVT, OPAL_RTC,
+<span class="lineNum">      93 </span>                :            :                         OPAL_PLATFORM_FIRMWARE, OPAL_INFO,
+<a name="94"><span class="lineNum">      94 </span>                :            :                         OPAL_NA, NULL);</a>
+<span class="lineNum">      95 </span>                :            : 
+<span class="lineNum">      96 </span>                :<span class="lineNoCov">          0 : static void fsp_tpo_req_complete(struct fsp_msg *read_resp)</span>
+<span class="lineNum">      97 </span>                :            : {
+<span class="lineNum">      98 </span>                :<span class="lineNoCov">          0 :          struct opal_tpo_data *attr = read_resp-&gt;user_data;</span>
+<span class="lineNum">      99 </span>                :            :         int val;
+<span class="lineNum">     100 </span>                :            :         int rc;
+<span class="lineNum">     101 </span>                :            : 
+<span class="lineNum">     102 </span>                :<span class="lineNoCov">          0 :         val = (read_resp-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     103 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span> :<span class="lineNoCov">          0 :         switch (val) {</span>
+<span class="lineNum">         </span>            <span class="branchNoExec" title="Branch 4 was not executed"> # </span>]
+<span class="lineNum">     104 </span>                :            :         case FSP_STATUS_TOD_RESET:
+<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_RTC_TOD),</span>
+<span class="lineNum">     106 </span>                :            :                         &quot;RTC TPO in invalid state\n&quot;);
+<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>                :            :         case FSP_STATUS_TOD_PERMANENT_ERROR:
+<span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_RTC_TOD),</span>
+<span class="lineNum">     112 </span>                :            :                         &quot;RTC TPO in permanent error state\n&quot;);
+<span class="lineNum">     113 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     115 </span>                :            :         case FSP_STATUS_INVALID_DATA:
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_RTC_TOD),</span>
+<span class="lineNum">     117 </span>                :            :                         &quot;RTC TPO in permanent error state\n&quot;);
+<span class="lineNum">     118 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_PARAMETER;</span>
+<span class="lineNum">     119 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     120 </span>                :            :         case FSP_STATUS_SUCCESS:
+<span class="lineNum">     121 </span>                :            :                 /* Save the read TPO value in our cache */
+<span class="lineNum">     122 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (attr-&gt;year_month_day)</span>
+<span class="lineNum">     123 </span>                :<span class="lineNoCov">          0 :                         *(attr-&gt;year_month_day) =</span>
+<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :                                 read_resp-&gt;resp-&gt;data.words[0];</span>
+<span class="lineNum">     125 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (attr-&gt;hour_min)</span>
+<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 :                         *(attr-&gt;hour_min) = read_resp-&gt;resp-&gt;data.words[1];</span>
+<span class="lineNum">     127 </span>                :            :                 rc = OPAL_SUCCESS;
+<span class="lineNum">     128 </span>                :            :                 break;
+<span class="lineNum">     129 </span>                :            : 
+<span class="lineNum">     130 </span>                :            :         default:
+<span class="lineNum">     131 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_RTC_TOD),</span>
+<span class="lineNum">     132 </span>                :            :                         &quot;TPO read failed: %d\n&quot;, val);
+<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     134 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     135 </span>                :            :         }
+<span class="lineNum">     136 </span>                :<span class="lineNoCov">          0 :         opal_queue_msg(OPAL_MSG_ASYNC_COMP, NULL, NULL,</span>
+<span class="lineNum">     137 </span>                :            :                        attr-&gt;tpo_async_token, rc);
+<span class="lineNum">     138 </span>                :<span class="lineNoCov">          0 :         free(attr);</span>
+<span class="lineNum">     139 </span>                :<span class="lineNoCov">          0 :         fsp_freemsg(read_resp);</span>
+<a name="140"><span class="lineNum">     140 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :<span class="lineCov">          2 : static void fsp_rtc_process_read(struct fsp_msg *read_resp)</span>
+<span class="lineNum">     143 </span>                :            : {
+<span class="lineNum">     144 </span>                :<span class="lineCov">          2 :         int val = (read_resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     145 </span>                :            :         struct tm tm;
+<span class="lineNum">     146 </span>                :            : 
+<span class="lineNum">     147 </span>  [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          2 :         switch (val) {</span>
+<span class="lineNum">     148 </span>                :            :         case FSP_STATUS_TOD_RESET:
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_RTC_TOD),</span>
+<span class="lineNum">     150 </span>                :            :                                 &quot;RTC TOD in invalid state\n&quot;);
+<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :                 rtc_tod_state = RTC_TOD_INVALID;</span>
+<span class="lineNum">     152 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     153 </span>                :            : 
+<span class="lineNum">     154 </span>                :            :         case FSP_STATUS_TOD_PERMANENT_ERROR:
+<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_RTC_TOD),</span>
+<span class="lineNum">     156 </span>                :            :                         &quot;RTC TOD in permanent error state\n&quot;);
+<span class="lineNum">     157 </span>                :<span class="lineNoCov">          0 :                 rtc_tod_state = RTC_TOD_PERMANENT_ERROR;</span>
+<span class="lineNum">     158 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>                :            :         case FSP_STATUS_SUCCESS:
+<span class="lineNum">     161 </span>                :            :                 /* Save the read RTC value in our cache */
+<span class="lineNum">     162 </span>                :<span class="lineCov">          2 :                 rtc_tod_state = RTC_TOD_VALID;</span>
+<span class="lineNum">     163 </span>                :<span class="lineCov">          2 :                 datetime_to_tm(read_resp-&gt;data.words[0],</span>
+<span class="lineNum">     164 </span>                :<span class="lineCov">          2 :                                (u64) read_resp-&gt;data.words[1] &lt;&lt; 32, &amp;tm);</span>
+<span class="lineNum">     165 </span>                :<span class="lineCov">          2 :                 rtc_cache_update(&amp;tm);</span>
+<span class="lineNum">     166 </span>                :<span class="lineCov">          2 :                 prlog(PR_TRACE, &quot;FSP-RTC Got time: %d-%d-%d %d:%d:%d\n&quot;,</span>
+<span class="lineNum">     167 </span>                :            :                       tm.tm_year, tm.tm_mon, tm.tm_mday,
+<span class="lineNum">     168 </span>                :            :                       tm.tm_hour, tm.tm_min, tm.tm_sec);
+<span class="lineNum">     169 </span>                :<span class="lineCov">          2 :                 break;</span>
+<span class="lineNum">     170 </span>                :            : 
+<span class="lineNum">     171 </span>                :            :         default:
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_RTC_TOD),</span>
+<span class="lineNum">     173 </span>                :            :                                 &quot;RTC TOD read failed: %d\n&quot;, val);
+<span class="lineNum">     174 </span>                :<span class="lineNoCov">          0 :                 rtc_tod_state = RTC_TOD_INVALID;</span>
+<span class="lineNum">     175 </span>                :            :         }
+<a name="176"><span class="lineNum">     176 </span>                :<span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     177 </span>                :            : 
+<span class="lineNum">     178 </span>                :<span class="lineCov">          2 : static void opal_rtc_eval_events(void)</span>
+<span class="lineNum">     179 </span>                :            : {
+<span class="lineNum">     180 </span>                :<span class="lineCov">          2 :         bool pending = false;</span>
+<span class="lineNum">     181 </span>                :            : 
+<span class="lineNum">     182 </span>[<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 3 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          2 :         if (rtc_read_msg &amp;&amp; !fsp_msg_busy(rtc_read_msg))</span>
+<span class="lineNum">     183 </span>                :<span class="lineCov">          1 :                 pending = true;</span>
+<span class="lineNum">     184 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineCov">          2 :         if (rtc_write_msg &amp;&amp; !fsp_msg_busy(rtc_write_msg))</span>
+<span class="lineNum">     185 </span>                :<span class="lineNoCov">          0 :                 pending = true;</span>
+<span class="lineNum">     186 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         opal_update_pending_evt(OPAL_EVENT_RTC, pending ? OPAL_EVENT_RTC : 0);</span>
+<a name="187"><span class="lineNum">     187 </span>                :<span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :<span class="lineCov">          1 : static void fsp_rtc_req_complete(struct fsp_msg *msg)</span>
+<span class="lineNum">     190 </span>                :            : {
+<span class="lineNum">     191 </span>                :<span class="lineCov">          1 :         lock(&amp;rtc_lock);</span>
+<span class="lineNum">     192 </span>                :<span class="lineCov">          1 :         prlog(PR_TRACE, &quot;RTC completion %p\n&quot;, msg);</span>
+<span class="lineNum">     193 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (msg == rtc_read_msg)</span>
+<span class="lineNum">     194 </span>                :<span class="lineCov">          1 :                 fsp_rtc_process_read(msg-&gt;resp);</span>
+<span class="lineNum">     195 </span>                :<span class="lineCov">          1 :         opal_rtc_eval_events();</span>
+<span class="lineNum">     196 </span>                :<span class="lineCov">          1 :         unlock(&amp;rtc_lock);</span>
+<a name="197"><span class="lineNum">     197 </span>                :<span class="lineCov">          1 : }</span></a>
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>                :<span class="lineCov">          1 : static int64_t fsp_rtc_send_read_request(void)</span>
+<span class="lineNum">     200 </span>                :            : {
+<span class="lineNum">     201 </span>                :            :         struct fsp_msg *msg;
+<span class="lineNum">     202 </span>                :            :         int rc;
+<span class="lineNum">     203 </span>                :            : 
+<span class="lineNum">     204 </span>                :<span class="lineCov">          1 :         msg = fsp_mkmsg(FSP_CMD_READ_TOD, 0);</span>
+<span class="lineNum">     205 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!msg) {</span>
+<span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_RTC_READ),</span>
+<span class="lineNum">     207 </span>                :            :                         &quot;RTC: failed to allocate read message\n&quot;);
+<span class="lineNum">     208 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     209 </span>                :            :         }
+<span class="lineNum">     210 </span>                :            : 
+<span class="lineNum">     211 </span>                :<span class="lineCov">          1 :         rc = fsp_queue_msg(msg, fsp_rtc_req_complete);</span>
+<span class="lineNum">     212 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (rc) {</span>
+<span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(msg);</span>
+<span class="lineNum">     214 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_RTC_READ),</span>
+<span class="lineNum">     215 </span>                :            :                         &quot;RTC: failed to queue read message: %d\n&quot;, rc);
+<span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     217 </span>                :            :         }
+<span class="lineNum">     218 </span>                :            : 
+<span class="lineNum">     219 </span>                :<span class="lineCov">          1 :         read_req_tb = mftb();</span>
+<span class="lineNum">     220 </span>                :<span class="lineCov">          1 :         rtc_read_msg = msg;</span>
+<span class="lineNum">     221 </span>                :            : 
+<span class="lineNum">     222 </span>                :<span class="lineCov">          1 :         return OPAL_BUSY_EVENT;</span>
+<a name="223"><span class="lineNum">     223 </span>                :            : }</a>
+<span class="lineNum">     224 </span>                :            : 
+<span class="lineNum">     225 </span>                :<span class="lineCov">        205 : static int64_t fsp_opal_rtc_read(uint32_t *year_month_day,</span>
+<span class="lineNum">     226 </span>                :            :                                  uint64_t *hour_minute_second_millisecond)
+<span class="lineNum">     227 </span>                :            : {
+<span class="lineNum">     228 </span>                :<span class="lineCov">        204 :         struct fsp_msg *msg;</span>
+<span class="lineNum">     229 </span>                :            :         int64_t rc;
+<span class="lineNum">     230 </span>                :            : 
+<span class="lineNum">     231 </span>[<span class="branchCov" title="Branch 0 was taken 205 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 205 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        205 :         if (!year_month_day || !hour_minute_second_millisecond)</span>
+<span class="lineNum">     232 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     233 </span>                :            : 
+<span class="lineNum">     234 </span>                :<span class="lineCov">        205 :         lock(&amp;rtc_lock);</span>
+<span class="lineNum">     235 </span>                :            :         /* During R/R of FSP, read cached TOD */
+<span class="lineNum">     236 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 205 times"> + </span>]:<span class="lineCov">        205 :         if (fsp_in_reset) {</span>
+<span class="lineNum">     237 </span>                :<span class="lineNoCov">          0 :                 rtc_cache_get_datetime(year_month_day,</span>
+<span class="lineNum">     238 </span>                :            :                                 hour_minute_second_millisecond);
+<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 :                 goto out;</span>
+<span class="lineNum">     241 </span>                :            :         }
+<span class="lineNum">     242 </span>                :            : 
+<span class="lineNum">     243 </span>                :<span class="lineCov">        205 :         msg = rtc_read_msg;</span>
+<span class="lineNum">     244 </span>                :            : 
+<span class="lineNum">     245 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 205 times"> + </span>]:<span class="lineCov">        205 :         if (rtc_tod_state == RTC_TOD_PERMANENT_ERROR) {</span>
+<span class="lineNum">     246 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (msg &amp;&amp; !fsp_msg_busy(msg))</span>
+<span class="lineNum">     247 </span>                :<span class="lineNoCov">          0 :                         fsp_freemsg(msg);</span>
+<span class="lineNum">     248 </span>                :            :                 rc = OPAL_HARDWARE;
+<span class="lineNum">     249 </span>                :            :                 goto out;
+<span class="lineNum">     250 </span>                :            :         }
+<span class="lineNum">     251 </span>                :            : 
+<span class="lineNum">     252 </span>                :            :         /* If we don't have a read pending already, fire off a request and
+<span class="lineNum">     253 </span>                :            :          * return */
+<span class="lineNum">     254 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 204 times"> + </span>]:<span class="lineCov">        205 :         if (!msg) {</span>
+<span class="lineNum">     255 </span>                :<span class="lineCov">          1 :                 prlog(PR_TRACE, &quot;Sending new RTC read request\n&quot;);</span>
+<span class="lineNum">     256 </span>                :<span class="lineCov">          1 :                 rc = fsp_rtc_send_read_request();</span>
+<span class="lineNum">     257 </span>                :            : 
+<span class="lineNum">     258 </span>                :            :         /* If our pending read is done, clear events and return the time
+<span class="lineNum">     259 </span>                :            :          * from the cache */
+<span class="lineNum">     260 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 203 times"> + </span>]:<span class="lineCov">        204 :         } else if (!fsp_msg_busy(msg)) {</span>
+<span class="lineNum">     261 </span>                :<span class="lineCov">          1 :                 prlog(PR_TRACE, &quot;RTC read complete, state %d\n&quot;, rtc_tod_state);</span>
+<span class="lineNum">     262 </span>                :            : 
+<span class="lineNum">     263 </span>                :<span class="lineCov">          1 :                 rtc_read_msg = NULL;</span>
+<span class="lineNum">     264 </span>                :<span class="lineCov">          1 :                 opal_rtc_eval_events();</span>
+<span class="lineNum">     265 </span>                :<span class="lineCov">          1 :                 fsp_freemsg(msg);</span>
+<span class="lineNum">     266 </span>                :            : 
+<span class="lineNum">     267 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :                 if (rtc_tod_state == RTC_TOD_VALID) {</span>
+<span class="lineNum">     268 </span>                :<span class="lineCov">          1 :                         rtc_cache_get_datetime(year_month_day,</span>
+<span class="lineNum">     269 </span>                :            :                                         hour_minute_second_millisecond);
+<span class="lineNum">     270 </span>                :<span class="lineCov">          1 :                         prlog(PR_TRACE,&quot;FSP-RTC Cached datetime: %x %llx\n&quot;,</span>
+<span class="lineNum">     271 </span>                :            :                               *year_month_day,
+<span class="lineNum">     272 </span>                :            :                               *hour_minute_second_millisecond);
+<span class="lineNum">     273 </span>                :<span class="lineCov">          1 :                         rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     274 </span>                :            :                 } else
+<span class="lineNum">     275 </span>                :            :                         rc = OPAL_INTERNAL_ERROR;
+<span class="lineNum">     276 </span>                :            : 
+<span class="lineNum">     277 </span>                :            :         /* Timeout: return our cached value (updated from tb), but leave the
+<span class="lineNum">     278 </span>                :            :          * read request pending so it will update the cache later */
+<span class="lineNum">     279 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 203 times"> + </span>]:<span class="lineCov">        203 :         } else if (mftb() &gt; read_req_tb + msecs_to_tb(rtc_read_timeout_ms)) {</span>
+<span class="lineNum">     280 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_TRACE, &quot;RTC read timed out\n&quot;);</span>
+<span class="lineNum">     281 </span>                :            : 
+<span class="lineNum">     282 </span>                :<span class="lineNoCov">          0 :                 rtc_cache_get_datetime(year_month_day,</span>
+<span class="lineNum">     283 </span>                :            :                                 hour_minute_second_millisecond);
+<span class="lineNum">     284 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     285 </span>                :            : 
+<span class="lineNum">     286 </span>                :            :         /* Otherwise, we're still waiting on the read to complete */
+<span class="lineNum">     287 </span>                :            :         } else {
+<span class="lineNum">     288 </span>                :            :                 rc = OPAL_BUSY_EVENT;
+<span class="lineNum">     289 </span>                :            :         }
+<span class="lineNum">     290 </span>                :            : out:
+<span class="lineNum">     291 </span>                :<span class="lineCov">        205 :         unlock(&amp;rtc_lock);</span>
+<span class="lineNum">     292 </span>                :<span class="lineCov">        205 :         return rc;</span>
+<a name="293"><span class="lineNum">     293 </span>                :            : }</a>
+<span class="lineNum">     294 </span>                :            : 
+<span class="lineNum">     295 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_opal_rtc_write(uint32_t year_month_day,</span>
+<span class="lineNum">     296 </span>                :            :                                   uint64_t hour_minute_second_millisecond)
+<span class="lineNum">     297 </span>                :            : {
+<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 :         struct fsp_msg *msg;</span>
+<span class="lineNum">     299 </span>                :            :         uint32_t w0, w1, w2;
+<span class="lineNum">     300 </span>                :            :         int64_t rc;
+<span class="lineNum">     301 </span>                :            :         struct tm tm;
+<span class="lineNum">     302 </span>                :            : 
+<span class="lineNum">     303 </span>                :<span class="lineNoCov">          0 :         lock(&amp;rtc_lock);</span>
+<span class="lineNum">     304 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rtc_tod_state == RTC_TOD_PERMANENT_ERROR) {</span>
+<span class="lineNum">     305 </span>                :            :                 rc = OPAL_HARDWARE;
+<span class="lineNum">     306 </span>                :            :                 msg = NULL;
+<span class="lineNum">     307 </span>                :            :                 goto bail;
+<span class="lineNum">     308 </span>                :            :         }
+<span class="lineNum">     309 </span>                :            : 
+<span class="lineNum">     310 </span>                :            :         /* Do we have a request already ? */
+<span class="lineNum">     311 </span>                :<span class="lineNoCov">          0 :         msg = rtc_write_msg;</span>
+<span class="lineNum">     312 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (msg) {</span>
+<span class="lineNum">     313 </span>                :            :                 /* If it's still in progress, return */
+<span class="lineNum">     314 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (fsp_msg_busy(msg)) {</span>
+<span class="lineNum">     315 </span>                :            :                         /* Don't free the message */
+<span class="lineNum">     316 </span>                :            :                         msg = NULL;
+<span class="lineNum">     317 </span>                :            :                         rc = OPAL_BUSY_EVENT;
+<span class="lineNum">     318 </span>                :            :                         goto bail;
+<span class="lineNum">     319 </span>                :            :                 }
+<span class="lineNum">     320 </span>                :            : 
+<span class="lineNum">     321 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_TRACE, &quot;Completed write request @%p, state=%d\n&quot;,</span>
+<span class="lineNum">     322 </span>                :            :                       msg, msg-&gt;state);
+<span class="lineNum">     323 </span>                :            : 
+<span class="lineNum">     324 </span>                :            :                 /* It's complete, clear events */
+<span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 :                 rtc_write_msg = NULL;</span>
+<span class="lineNum">     326 </span>                :<span class="lineNoCov">          0 :                 opal_rtc_eval_events();</span>
+<span class="lineNum">     327 </span>                :            : 
+<span class="lineNum">     328 </span>                :            :                 /* Check error state */
+<span class="lineNum">     329 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (msg-&gt;state != fsp_msg_done) {</span>
+<span class="lineNum">     330 </span>                :<span class="lineNoCov">          0 :                         prlog(PR_TRACE, &quot; -&gt; request not in done state -&gt;&quot;</span>
+<span class="lineNum">     331 </span>                :            :                               &quot; error !\n&quot;);
+<span class="lineNum">     332 </span>                :<span class="lineNoCov">          0 :                         rc = OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     333 </span>                :<span class="lineNoCov">          0 :                         goto bail;</span>
+<span class="lineNum">     334 </span>                :            :                 }
+<span class="lineNum">     335 </span>                :            :                 rc = OPAL_SUCCESS;
+<span class="lineNum">     336 </span>                :            :                 goto bail;
+<span class="lineNum">     337 </span>                :            :         }
+<span class="lineNum">     338 </span>                :            : 
+<span class="lineNum">     339 </span>                :<span class="lineNoCov">          0 :         prlog(PR_TRACE, &quot;Sending new write request...\n&quot;);</span>
+<span class="lineNum">     340 </span>                :            : 
+<span class="lineNum">     341 </span>                :            :         /* Create a request and send it. Just like for read, we ignore
+<span class="lineNum">     342 </span>                :            :          * the &quot;millisecond&quot; field which is probably supposed to be
+<span class="lineNum">     343 </span>                :            :          * microseconds and which Linux ignores as well anyway
+<span class="lineNum">     344 </span>                :            :          */
+<span class="lineNum">     345 </span>                :<span class="lineNoCov">          0 :         w0 = year_month_day;</span>
+<span class="lineNum">     346 </span>                :<span class="lineNoCov">          0 :         w1 = (hour_minute_second_millisecond &gt;&gt; 32) &amp; 0xffffff00;</span>
+<span class="lineNum">     347 </span>                :<span class="lineNoCov">          0 :         w2 = 0;</span>
+<span class="lineNum">     348 </span>                :            : 
+<span class="lineNum">     349 </span>                :<span class="lineNoCov">          0 :         rtc_write_msg = fsp_mkmsg(FSP_CMD_WRITE_TOD, 3, w0, w1, w2);</span>
+<span class="lineNum">     350 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!rtc_write_msg) {</span>
+<span class="lineNum">     351 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_TRACE, &quot; -&gt; allocation failed !\n&quot;);</span>
+<span class="lineNum">     352 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     353 </span>                :<span class="lineNoCov">          0 :                 goto bail;</span>
+<span class="lineNum">     354 </span>                :            :         }
+<span class="lineNum">     355 </span>                :<span class="lineNoCov">          0 :         prlog(PR_TRACE, &quot; -&gt; req at %p\n&quot;, rtc_write_msg);</span>
+<span class="lineNum">     356 </span>                :            : 
+<span class="lineNum">     357 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_in_reset) {</span>
+<span class="lineNum">     358 </span>                :<span class="lineNoCov">          0 :                 datetime_to_tm(rtc_write_msg-&gt;data.words[0],</span>
+<span class="lineNum">     359 </span>                :<span class="lineNoCov">          0 :                                (u64) rtc_write_msg-&gt;data.words[1] &lt;&lt; 32,  &amp;tm);</span>
+<span class="lineNum">     360 </span>                :<span class="lineNoCov">          0 :                 rtc_cache_update(&amp;tm);</span>
+<span class="lineNum">     361 </span>                :<span class="lineNoCov">          0 :                 rtc_tod_cache_dirty = true;</span>
+<span class="lineNum">     362 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(rtc_write_msg);</span>
+<span class="lineNum">     363 </span>                :<span class="lineNoCov">          0 :                 rtc_write_msg = NULL;</span>
+<span class="lineNum">     364 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     365 </span>                :<span class="lineNoCov">          0 :                 goto bail;</span>
+<span class="lineNum">     366 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         } else if (fsp_queue_msg(rtc_write_msg, fsp_rtc_req_complete)) {</span>
+<span class="lineNum">     367 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_TRACE, &quot; -&gt; queueing failed !\n&quot;);</span>
+<span class="lineNum">     368 </span>                :<span class="lineNoCov">          0 :                 rc = OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     369 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(rtc_write_msg);</span>
+<span class="lineNum">     370 </span>                :<span class="lineNoCov">          0 :                 rtc_write_msg = NULL;</span>
+<span class="lineNum">     371 </span>                :<span class="lineNoCov">          0 :                 goto bail;</span>
+<span class="lineNum">     372 </span>                :            :         }
+<span class="lineNum">     373 </span>                :            :         rc = OPAL_BUSY_EVENT;
+<span class="lineNum">     374 </span>                :            :  bail:
+<span class="lineNum">     375 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;rtc_lock);</span>
+<span class="lineNum">     376 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (msg)</span>
+<span class="lineNum">     377 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(msg);</span>
+<span class="lineNum">     378 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     379 </span>                :            : }
+<a name="380"><span class="lineNum">     380 </span>                :            : </a>
+<span class="lineNum">     381 </span>                :            : /* Set timed power on values to fsp */
+<span class="lineNum">     382 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_opal_tpo_write(uint64_t async_token, uint32_t y_m_d,</span>
+<span class="lineNum">     383 </span>                :            :                         uint32_t hr_min)
+<span class="lineNum">     384 </span>                :            : {
+<span class="lineNum">     385 </span>                :            :         static struct opal_tpo_data *attr;
+<span class="lineNum">     386 </span>                :            :         struct fsp_msg *msg;
+<span class="lineNum">     387 </span>                :            : 
+<span class="lineNum">     388 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fsp_present())</span>
+<span class="lineNum">     389 </span>                :            :                 return OPAL_HARDWARE;
+<span class="lineNum">     390 </span>                :            : 
+<span class="lineNum">     391 </span>                :<span class="lineNoCov">          0 :         attr = zalloc(sizeof(struct opal_tpo_data));</span>
+<span class="lineNum">     392 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!attr)</span>
+<span class="lineNum">     393 </span>                :            :                 return OPAL_NO_MEM;
+<span class="lineNum">     394 </span>                :            : 
+<span class="lineNum">     395 </span>                :            :         /* Create a request and send it.*/
+<span class="lineNum">     396 </span>                :<span class="lineNoCov">          0 :         attr-&gt;tpo_async_token = async_token;</span>
+<span class="lineNum">     397 </span>                :            : 
+<span class="lineNum">     398 </span>                :<span class="lineNoCov">          0 :         prlog(PR_TRACE, &quot;Sending TPO write request...\n&quot;);</span>
+<span class="lineNum">     399 </span>                :            : 
+<span class="lineNum">     400 </span>                :<span class="lineNoCov">          0 :         msg = fsp_mkmsg(FSP_CMD_TPO_WRITE, 2, y_m_d, hr_min);</span>
+<span class="lineNum">     401 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!msg) {</span>
+<span class="lineNum">     402 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;TPO: Failed to create message for WRITE to FSP\n&quot;);</span>
+<span class="lineNum">     403 </span>                :<span class="lineNoCov">          0 :                 free(attr);</span>
+<span class="lineNum">     404 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     405 </span>                :            :         }
+<span class="lineNum">     406 </span>                :<span class="lineNoCov">          0 :         msg-&gt;user_data = attr;</span>
+<span class="lineNum">     407 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_queue_msg(msg, fsp_tpo_req_complete)) {</span>
+<span class="lineNum">     408 </span>                :<span class="lineNoCov">          0 :                 free(attr);</span>
+<span class="lineNum">     409 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(msg);</span>
+<span class="lineNum">     410 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     411 </span>                :            :         }
+<span class="lineNum">     412 </span>                :            :         return OPAL_ASYNC_COMPLETION;
+<span class="lineNum">     413 </span>                :            : }
+<a name="414"><span class="lineNum">     414 </span>                :            : </a>
+<span class="lineNum">     415 </span>                :            : /* Read Timed power on (TPO) from FSP */
+<span class="lineNum">     416 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_opal_tpo_read(uint64_t async_token, uint32_t *y_m_d,</span>
+<span class="lineNum">     417 </span>                :            :                         uint32_t *hr_min)
+<span class="lineNum">     418 </span>                :            : {
+<span class="lineNum">     419 </span>                :            :         static struct opal_tpo_data *attr;
+<span class="lineNum">     420 </span>                :            :         struct fsp_msg *msg;
+<span class="lineNum">     421 </span>                :            :         int64_t rc;
+<span class="lineNum">     422 </span>                :            : 
+<span class="lineNum">     423 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fsp_present())</span>
+<span class="lineNum">     424 </span>                :            :                 return OPAL_HARDWARE;
+<span class="lineNum">     425 </span>                :            : 
+<span class="lineNum">     426 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!y_m_d || !hr_min)</span>
+<span class="lineNum">     427 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     428 </span>                :            : 
+<span class="lineNum">     429 </span>                :<span class="lineNoCov">          0 :         attr = zalloc(sizeof(*attr));</span>
+<span class="lineNum">     430 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!attr)</span>
+<span class="lineNum">     431 </span>                :            :                 return OPAL_NO_MEM;
+<span class="lineNum">     432 </span>                :            : 
+<span class="lineNum">     433 </span>                :            :         /* Send read requet to FSP */
+<span class="lineNum">     434 </span>                :<span class="lineNoCov">          0 :         attr-&gt;tpo_async_token = async_token;</span>
+<span class="lineNum">     435 </span>                :<span class="lineNoCov">          0 :         attr-&gt;year_month_day = y_m_d;</span>
+<span class="lineNum">     436 </span>                :<span class="lineNoCov">          0 :         attr-&gt;hour_min = hr_min;</span>
+<span class="lineNum">     437 </span>                :            : 
+<span class="lineNum">     438 </span>                :<span class="lineNoCov">          0 :         prlog(PR_TRACE, &quot;Sending new TPO read request\n&quot;);</span>
+<span class="lineNum">     439 </span>                :<span class="lineNoCov">          0 :         msg = fsp_mkmsg(FSP_CMD_TPO_READ, 0);</span>
+<span class="lineNum">     440 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!msg) {</span>
+<span class="lineNum">     441 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_RTC_READ),</span>
+<span class="lineNum">     442 </span>                :            :                         &quot;TPO: failed to allocate read message\n&quot;);
+<span class="lineNum">     443 </span>                :<span class="lineNoCov">          0 :                 free(attr);</span>
+<span class="lineNum">     444 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     445 </span>                :            :         }
+<span class="lineNum">     446 </span>                :<span class="lineNoCov">          0 :         msg-&gt;user_data = attr;</span>
+<span class="lineNum">     447 </span>                :<span class="lineNoCov">          0 :         rc = fsp_queue_msg(msg, fsp_tpo_req_complete);</span>
+<span class="lineNum">     448 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     449 </span>                :<span class="lineNoCov">          0 :                 free(attr);</span>
+<span class="lineNum">     450 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(msg);</span>
+<span class="lineNum">     451 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_RTC_READ),</span>
+<span class="lineNum">     452 </span>                :            :                         &quot;TPO: failed to queue read message: %lld\n&quot;, rc);
+<span class="lineNum">     453 </span>                :<span class="lineNoCov">          0 :                 return OPAL_INTERNAL_ERROR;</span>
+<span class="lineNum">     454 </span>                :            :         }
+<span class="lineNum">     455 </span>                :            :         return OPAL_ASYNC_COMPLETION;
+<a name="456"><span class="lineNum">     456 </span>                :            : }</a>
+<span class="lineNum">     457 </span>                :            : 
+<span class="lineNum">     458 </span>                :<span class="lineNoCov">          0 : static void rtc_flush_cached_tod(void)</span>
+<span class="lineNum">     459 </span>                :            : {
+<span class="lineNum">     460 </span>                :            :         struct fsp_msg *msg;
+<span class="lineNum">     461 </span>                :            :         uint64_t h_m_s_m;
+<span class="lineNum">     462 </span>                :            :         uint32_t y_m_d;
+<span class="lineNum">     463 </span>                :            : 
+<span class="lineNum">     464 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rtc_cache_get_datetime(&amp;y_m_d, &amp;h_m_s_m))</span>
+<span class="lineNum">     465 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     466 </span>                :<span class="lineNoCov">          0 :         msg = fsp_mkmsg(FSP_CMD_WRITE_TOD, 3, y_m_d,</span>
+<span class="lineNum">     467 </span>                :<span class="lineNoCov">          0 :                         (h_m_s_m &gt;&gt; 32) &amp; 0xffffff00, 0);</span>
+<span class="lineNum">     468 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!msg) {</span>
+<span class="lineNum">     469 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;TPO: %s : Failed to allocate write TOD message\n&quot;,</span>
+<span class="lineNum">     470 </span>                :            :                         __func__);
+<span class="lineNum">     471 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     472 </span>                :            :         }
+<span class="lineNum">     473 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_queue_msg(msg, fsp_freemsg)) {</span>
+<span class="lineNum">     474 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(msg);</span>
+<span class="lineNum">     475 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;TPO: %s : Failed to queue WRITE_TOD command\n&quot;,</span>
+<span class="lineNum">     476 </span>                :            :                         __func__);
+<span class="lineNum">     477 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     478 </span>                :            :         }
+<a name="479"><span class="lineNum">     479 </span>                :            : }</a>
+<span class="lineNum">     480 </span>                :            : 
+<span class="lineNum">     481 </span>                :<span class="lineNoCov">          0 : static bool fsp_rtc_msg_rr(u32 cmd_sub_mod, struct fsp_msg *msg)</span>
+<span class="lineNum">     482 </span>                :            : {
+<span class="lineNum">     483 </span>                :            : 
+<span class="lineNum">     484 </span>                :<span class="lineNoCov">          0 :         int rc = false;</span>
+<span class="lineNum">     485 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(msg == NULL);</span>
+<span class="lineNum">     486 </span>                :            : 
+<span class="lineNum">     487 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (cmd_sub_mod) {</span>
+<span class="lineNum">     488 </span>                :            :         case FSP_RESET_START:
+<span class="lineNum">     489 </span>                :<span class="lineNoCov">          0 :                 lock(&amp;rtc_lock);</span>
+<span class="lineNum">     490 </span>                :<span class="lineNoCov">          0 :                 fsp_in_reset = true;</span>
+<span class="lineNum">     491 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;rtc_lock);</span>
+<span class="lineNum">     492 </span>                :<span class="lineNoCov">          0 :                 rc = true;</span>
+<span class="lineNum">     493 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     494 </span>                :            :         case FSP_RELOAD_COMPLETE:
+<span class="lineNum">     495 </span>                :<span class="lineNoCov">          0 :                 lock(&amp;rtc_lock);</span>
+<span class="lineNum">     496 </span>                :<span class="lineNoCov">          0 :                 fsp_in_reset = false;</span>
+<span class="lineNum">     497 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rtc_tod_cache_dirty) {</span>
+<span class="lineNum">     498 </span>                :<span class="lineNoCov">          0 :                         rtc_flush_cached_tod();</span>
+<span class="lineNum">     499 </span>                :<span class="lineNoCov">          0 :                         rtc_tod_cache_dirty = false;</span>
+<span class="lineNum">     500 </span>                :            :                 }
+<span class="lineNum">     501 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;rtc_lock);</span>
+<span class="lineNum">     502 </span>                :<span class="lineNoCov">          0 :                 rc = true;</span>
+<span class="lineNum">     503 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     504 </span>                :            :         }
+<span class="lineNum">     505 </span>                :            : 
+<span class="lineNum">     506 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     507 </span>                :            : }
+<span class="lineNum">     508 </span>                :            : 
+<span class="lineNum">     509 </span>                :            : static struct fsp_client fsp_rtc_client_rr = {
+<span class="lineNum">     510 </span>                :            :         .message = fsp_rtc_msg_rr,
+<a name="511"><span class="lineNum">     511 </span>                :            : };</a>
+<span class="lineNum">     512 </span>                :            : 
+<span class="lineNum">     513 </span>                :<span class="lineCov">          1 : void fsp_rtc_init(void)</span>
+<span class="lineNum">     514 </span>                :            : {
+<span class="lineNum">     515 </span>                :            :         struct fsp_msg msg, resp;
+<span class="lineNum">     516 </span>                :            :         struct dt_node *np;
+<span class="lineNum">     517 </span>                :            :         int rc;
+<span class="lineNum">     518 </span>                :            : 
+<span class="lineNum">     519 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (!fsp_present()) {</span>
+<span class="lineNum">     520 </span>                :<span class="lineNoCov">          0 :                 rtc_tod_state = RTC_TOD_PERMANENT_ERROR;</span>
+<span class="lineNum">     521 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     522 </span>                :            :         }
+<span class="lineNum">     523 </span>                :            : 
+<span class="lineNum">     524 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_RTC_READ, fsp_opal_rtc_read, 2);</span>
+<span class="lineNum">     525 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_RTC_WRITE, fsp_opal_rtc_write, 2);</span>
+<span class="lineNum">     526 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_WRITE_TPO, fsp_opal_tpo_write, 3);</span>
+<span class="lineNum">     527 </span>                :<span class="lineCov">          1 :         opal_register(OPAL_READ_TPO,  fsp_opal_tpo_read, 3);</span>
+<span class="lineNum">     528 </span>                :            : 
+<span class="lineNum">     529 </span>                :<span class="lineCov">          1 :         np = dt_new(opal_node, &quot;rtc&quot;);</span>
+<span class="lineNum">     530 </span>                :<span class="lineCov">          1 :         dt_add_property_strings(np, &quot;compatible&quot;, &quot;ibm,opal-rtc&quot;);</span>
+<span class="lineNum">     531 </span>                :<span class="lineCov">          1 :         dt_add_property(np, &quot;has-tpo&quot;, NULL, 0);</span>
+<span class="lineNum">     532 </span>                :            : 
+<span class="lineNum">     533 </span>                :            :         /* Register for the reset/reload event */
+<span class="lineNum">     534 </span>                :<span class="lineCov">          1 :         fsp_register_client(&amp;fsp_rtc_client_rr, FSP_MCLASS_RR_EVENT);</span>
+<span class="lineNum">     535 </span>                :            : 
+<span class="lineNum">     536 </span>                :<span class="lineCov">          1 :         msg.resp = &amp;resp;</span>
+<span class="lineNum">     537 </span>                :<span class="lineCov">          1 :         fsp_fillmsg(&amp;msg, FSP_CMD_READ_TOD, 0);</span>
+<span class="lineNum">     538 </span>                :            : 
+<span class="lineNum">     539 </span>                :<span class="lineCov">          1 :         prlog(PR_TRACE, &quot;Getting initial RTC TOD\n&quot;);</span>
+<span class="lineNum">     540 </span>                :            : 
+<span class="lineNum">     541 </span>                :<span class="lineCov">          1 :         lock(&amp;rtc_lock);</span>
+<span class="lineNum">     542 </span>                :            : 
+<span class="lineNum">     543 </span>                :<span class="lineCov">          1 :         rc = fsp_sync_msg(&amp;msg, false);</span>
+<span class="lineNum">     544 </span>                :            : 
+<span class="lineNum">     545 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (rc &gt;= 0) {</span>
+<span class="lineNum">     546 </span>                :<span class="lineCov">          1 :                 fsp_rtc_process_read(&amp;resp);</span>
+<span class="lineNum">     547 </span>                :            :         } else {
+<span class="lineNum">     548 </span>                :<span class="lineNoCov">          0 :                 rtc_tod_state = RTC_TOD_PERMANENT_ERROR;</span>
+<span class="lineNum">     549 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR, &quot;Failed to get initial FSP-RTC TOD %d\n&quot;,rc);</span>
+<span class="lineNum">     550 </span>                :            :         }
+<span class="lineNum">     551 </span>                :            : 
+<span class="lineNum">     552 </span>                :<span class="lineCov">          1 :         unlock(&amp;rtc_lock);</span>
+<span class="lineNum">     553 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
