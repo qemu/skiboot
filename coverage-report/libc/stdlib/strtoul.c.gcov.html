@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-02-23</td>
+            <td class="headerValue">2015-03-05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -89,7 +89,7 @@
 <span class="lineNum">      18 </span>                :            :         short int digit;
 <span class="lineNum">      19 </span>                :            :         // *PTR is S, unless PTR is NULL, in which case i override it with my own ptr
 <span class="lineNum">      20 </span>                :            :         char* ptr;
-<span class="lineNum">      21 </span>        [<span class="branchCov" title="Branch 0 was taken 80 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         80 :         if (PTR == 0)</span>
+<span class="lineNum">      21 </span>        [<span class="branchCov" title="Branch 0 was taken 80 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         80 :         if (PTR == NULL)</span>
 <span class="lineNum">      22 </span>                :            :         {
 <span class="lineNum">      23 </span>                :            :                 //override
 <span class="lineNum">      24 </span>                :<span class="lineCov">         80 :                 PTR = &amp;ptr;</span>

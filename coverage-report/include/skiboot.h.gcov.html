@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-02-23</td>
+            <td class="headerValue">2015-03-05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -117,9 +117,9 @@
 <span class="lineNum">      46 </span>                :            : /* Readonly section start and end. */
 <a name="47"><span class="lineNum">      47 </span>                :            : extern char __rodata_start[], __rodata_end[];</a>
 <span class="lineNum">      48 </span>                :            : 
-<span class="lineNum">      49 </span>                :<span class="lineCov">         15 : static inline bool is_rodata(const void *p)</span>
+<span class="lineNum">      49 </span>                :<span class="lineCov">         30 : static inline bool is_rodata(const void *p)</span>
 <span class="lineNum">      50 </span>                :            : {
-<span class="lineNum">      51 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         15 :         return ((const char *)p &gt;= __rodata_start &amp;&amp; (const char *)p &lt; __rodata_end);</span>
+<span class="lineNum">      51 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         30 :         return ((const char *)p &gt;= __rodata_start &amp;&amp; (const char *)p &lt; __rodata_end);</span>
 <span class="lineNum">      52 </span>                :            : }
 <span class="lineNum">      53 </span>                :            : 
 <span class="lineNum">      54 </span>                :            : /* Debug descriptor. This structure is pointed to by the word at offset
@@ -188,7 +188,7 @@
 <span class="lineNum">     117 </span>                :            : extern enum proc_gen proc_gen;
 <span class="lineNum">     118 </span>                :            : 
 <span class="lineNum">     119 </span>                :            : /* Convert a 4-bit number to a hex char */
-<span class="lineNum">     120 </span>                :            : extern char tohex(uint8_t nibble);
+<span class="lineNum">     120 </span>                :            : extern char __attrconst tohex(uint8_t nibble);
 <span class="lineNum">     121 </span>                :            : 
 <span class="lineNum">     122 </span>                :            : /* Bit position of the most significant 1-bit (LSB=0, MSB=63) */
 <span class="lineNum">     123 </span>                :            : static inline int ilog2(unsigned long val)
@@ -251,8 +251,8 @@
 <span class="lineNum">     180 </span>                :            : 
 <span class="lineNum">     181 </span>                :            : /* Fast reboot support */
 <span class="lineNum">     182 </span>                :            : extern void fast_reset(void);
-<span class="lineNum">     183 </span>                :            : extern void __secondary_cpu_entry(void);
-<span class="lineNum">     184 </span>                :            : extern void load_and_boot_kernel(bool is_reboot);
+<span class="lineNum">     183 </span>                :            : extern void __noreturn __secondary_cpu_entry(void);
+<span class="lineNum">     184 </span>                :            : extern void __noreturn load_and_boot_kernel(bool is_reboot);
 <span class="lineNum">     185 </span>                :            : extern void cleanup_tlb(void);
 <span class="lineNum">     186 </span>                :            : extern void init_shared_sprs(void);
 <span class="lineNum">     187 </span>                :            : extern void init_replicated_sprs(void);
@@ -289,17 +289,23 @@
 <span class="lineNum">     218 </span>                :            : /* OCC load support */
 <span class="lineNum">     219 </span>                :            : extern void occ_poke_load_queue(void);
 <span class="lineNum">     220 </span>                :            : 
-<span class="lineNum">     221 </span>                :            : /* Flatten device-tree */
-<span class="lineNum">     222 </span>                :            : extern void *create_dtb(const struct dt_node *root);
-<span class="lineNum">     223 </span>                :            : 
-<span class="lineNum">     224 </span>                :            : /* SLW reinit function for switching core settings */
-<span class="lineNum">     225 </span>                :            : extern int64_t slw_reinit(uint64_t flags);
+<span class="lineNum">     221 </span>                :            : /* PRD */
+<span class="lineNum">     222 </span>                :            : extern void prd_psi_interrupt(uint32_t proc);
+<span class="lineNum">     223 </span>                :            : extern void prd_tmgt_interrupt(uint32_t proc);
+<span class="lineNum">     224 </span>                :            : extern void prd_occ_reset(uint32_t proc);
+<span class="lineNum">     225 </span>                :            : extern void prd_init(void);
 <span class="lineNum">     226 </span>                :            : 
-<span class="lineNum">     227 </span>                :            : /* Fallback fake RTC */
-<span class="lineNum">     228 </span>                :            : extern void fake_rtc_init(void);
+<span class="lineNum">     227 </span>                :            : /* Flatten device-tree */
+<span class="lineNum">     228 </span>                :            : extern void *create_dtb(const struct dt_node *root);
 <span class="lineNum">     229 </span>                :            : 
-<span class="lineNum">     230 </span>                :            : #endif /* __SKIBOOT_H */
-<span class="lineNum">     231 </span>                :            : 
+<span class="lineNum">     230 </span>                :            : /* SLW reinit function for switching core settings */
+<span class="lineNum">     231 </span>                :            : extern int64_t slw_reinit(uint64_t flags);
+<span class="lineNum">     232 </span>                :            : 
+<span class="lineNum">     233 </span>                :            : /* Fallback fake RTC */
+<span class="lineNum">     234 </span>                :            : extern void fake_rtc_init(void);
+<span class="lineNum">     235 </span>                :            : 
+<span class="lineNum">     236 </span>                :            : #endif /* __SKIBOOT_H */
+<span class="lineNum">     237 </span>                :            : 
 </pre>
       </td>
     </tr>
