@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-03-17</td>
+            <td class="headerValue">2015-05-13</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">5</td>
@@ -200,9 +200,9 @@
 <span class="lineNum">     129 </span>                :            : /* IBM bit ordering */
 <span class="lineNum">     130 </span>                :<span class="lineCov">        128 : static inline uint64_t eccflipbit(uint64_t data, uint8_t bit)</span>
 <span class="lineNum">     131 </span>                :            : {
-<span class="lineNum">     132 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 128 times"> + </span>]:<span class="lineCov">        128 :         if (bit &gt; 63) {</span>
+<span class="lineNum">     132 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 128 times"> + </span>]:<span class="lineCov">        128 :         if (bit &gt; 63)</span>
 <span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 :                 return data;</span>
-<span class="lineNum">     134 </span>                :            :         }
+<span class="lineNum">     134 </span>                :            : 
 <span class="lineNum">     135 </span>                :<span class="lineCov">        128 :         return data ^ (1ul &lt;&lt; (63 - bit));</span>
 <span class="lineNum">     136 </span>                :            : }
 <span class="lineNum">     137 </span>                :            : 
