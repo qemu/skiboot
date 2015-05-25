@@ -1,0 +1,38 @@
+Processed 13 csets from 2 developers
+1 employers found
+A total of 850 lines added, 122 removed (delta 728)
+
+Developers with the most changesets
+Jeremy Kerr                 12 (92.3%)
+Stewart Smith                1 (7.7%)
+
+Developers with the most changed lines
+Jeremy Kerr                846 (98.7%)
+Stewart Smith                4 (0.5%)
+
+Developers with the most lines removed
+
+Developers with the most signoffs (total 12)
+Stewart Smith               12 (100.0%)
+
+Developers with the most reviews (total 0)
+
+Developers with the most test credits (total 0)
+
+Developers who gave the most tested-by credits (total 0)
+
+Developers with the most report credits (total 0)
+
+Developers who gave the most report credits (total 0)
+
+Top changeset contributors by employer
+IBM                         13 (100.0%)
+
+Top lines changed by employer
+IBM                        857 (100.0%)
+
+Employers with the most signoffs (total 12)
+IBM                         12 (100.0%)
+
+Employers with the most hackers (total 2)
+IBM                          2 (100.0%)
