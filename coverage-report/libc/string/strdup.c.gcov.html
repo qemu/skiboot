@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-13</td>
+            <td class="headerValue">2015-05-25</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">0</td>
@@ -86,13 +86,13 @@
 <span class="lineNum">      15 </span>                :            : 
 <span class="lineNum">      16 </span>                :            : char *strdup(const char *src)
 <span class="lineNum">      17 </span>                :            : {
-<span class="lineNum">      18 </span>                :<span class="lineCov">          8 :         size_t len = strlen(src) + 1;</span>
+<span class="lineNum">      18 </span>                :<span class="lineCov">         33 :         size_t len = strlen(src) + 1;</span>
 <span class="lineNum">      19 </span>                :            :         char *ret;
 <span class="lineNum">      20 </span>                :            : 
-<span class="lineNum">      21 </span>                :<span class="lineCov">          8 :         ret = malloc(len);</span>
-<span class="lineNum">      22 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          8 :         if (ret)</span>
-<span class="lineNum">      23 </span>                :<span class="lineCov">          8 :                 memcpy(ret, src, len);</span>
-<span class="lineNum">      24 </span>                :<span class="lineCov">          8 :         return ret;</span>
+<span class="lineNum">      21 </span>                :<span class="lineCov">         33 :         ret = malloc(len);</span>
+<span class="lineNum">      22 </span>        [<span class="branchCov" title="Branch 0 was taken 33 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         33 :         if (ret)</span>
+<span class="lineNum">      23 </span>                :<span class="lineCov">         33 :                 memcpy(ret, src, len);</span>
+<span class="lineNum">      24 </span>                :<span class="lineCov">         33 :         return ret;</span>
 <span class="lineNum">      25 </span>                :            : }
 </pre>
       </td>
