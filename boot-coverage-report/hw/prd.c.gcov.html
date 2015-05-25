@@ -1,0 +1,484 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-boot.info - hw/prd.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">hw</a> - prd.c<span style="font-size: 80%;"> (source / <a href="prd.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">166</td>
+            <td class="headerCovTableEntryLo">1.8 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-05-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">18</td>
+            <td class="headerCovTableEntryLo">5.6 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">67</td>
+            <td class="headerCovTableEntryLo">1.5 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2014-2015 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * imitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;opal.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;lock.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;xscom.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;chip.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;opal-msg.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;fsp.h&gt;
+<span class="lineNum">      24 </span>                :            : #include &lt;mem_region.h&gt;
+<span class="lineNum">      25 </span>                :            : 
+<span class="lineNum">      26 </span>                :            : enum events {
+<span class="lineNum">      27 </span>                :            :         EVENT_ATTN      = 1 &lt;&lt; 0,
+<span class="lineNum">      28 </span>                :            :         EVENT_OCC_ERROR = 1 &lt;&lt; 1,
+<span class="lineNum">      29 </span>                :            :         EVENT_OCC_RESET = 1 &lt;&lt; 2,
+<span class="lineNum">      30 </span>                :            : };
+<span class="lineNum">      31 </span>                :            : 
+<span class="lineNum">      32 </span>                :            : static uint8_t events[MAX_CHIPS];
+<span class="lineNum">      33 </span>                :            : static uint64_t ipoll_status[MAX_CHIPS];
+<span class="lineNum">      34 </span>                :            : static struct opal_prd_msg prd_msg;
+<span class="lineNum">      35 </span>                :            : static bool prd_msg_inuse, prd_active;
+<span class="lineNum">      36 </span>                :            : struct dt_node *prd_node;
+<span class="lineNum">      37 </span>                :            : 
+<span class="lineNum">      38 </span>                :            : /* Locking:
+<span class="lineNum">      39 </span>                :            :  *
+<span class="lineNum">      40 </span>                :            :  * The events lock serialises access to the events, ipoll_status,
+<span class="lineNum">      41 </span>                :            :  * prd_msg_inuse, and prd_active variables.
+<span class="lineNum">      42 </span>                :            :  *
+<span class="lineNum">      43 </span>                :            :  * The ipoll_lock protects against concurrent updates to the ipoll registers.
+<span class="lineNum">      44 </span>                :            :  *
+<span class="lineNum">      45 </span>                :            :  * The ipoll_lock may be acquired with events_lock held. This order must
+<span class="lineNum">      46 </span>                :            :  * be preserved.
+<span class="lineNum">      47 </span>                :            :  */
+<span class="lineNum">      48 </span>                :            : static struct lock events_lock = LOCK_UNLOCKED;
+<span class="lineNum">      49 </span>                :            : static struct lock ipoll_lock = LOCK_UNLOCKED;
+<span class="lineNum">      50 </span>                :            : 
+<span class="lineNum">      51 </span>                :            : /* PRD registers */
+<span class="lineNum">      52 </span>                :            : #define PRD_IPOLL_REG_MASK      0x01020013
+<span class="lineNum">      53 </span>                :            : #define PRD_IPOLL_REG_STATUS    0x01020014
+<span class="lineNum">      54 </span>                :            : #define PRD_IPOLL_XSTOP         PPC_BIT(0) /* Xstop for host/core/millicode */
+<span class="lineNum">      55 </span>                :            : #define PRD_IPOLL_RECOV         PPC_BIT(1) /* Recoverable */
+<span class="lineNum">      56 </span>                :            : #define PRD_IPOLL_SPEC_ATTN     PPC_BIT(2) /* Special attention */
+<span class="lineNum">      57 </span>                :            : #define PRD_IPOLL_HOST_ATTN     PPC_BIT(3) /* Host attention */
+<a name="58"><span class="lineNum">      58 </span>                :            : #define PRD_IPOLL_MASK          PPC_BITMASK(0, 3)</a>
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :<span class="lineNoCov">          0 : static int queue_prd_msg_hbrt(struct opal_prd_msg *msg,</span>
+<span class="lineNum">      61 </span>                :            :                 void (*consumed)(void *data))
+<span class="lineNum">      62 </span>                :            : {
+<span class="lineNum">      63 </span>                :            :         uint64_t *buf;
+<span class="lineNum">      64 </span>                :            : 
+<span class="lineNum">      65 </span>                :            :         BUILD_ASSERT(sizeof(*msg) / sizeof(uint64_t) == 4);
+<span class="lineNum">      66 </span>                :            : 
+<span class="lineNum">      67 </span>                :<span class="lineNoCov">          0 :         buf = (uint64_t *)msg;</span>
+<span class="lineNum">      68 </span>                :            : 
+<span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 :         return _opal_queue_msg(OPAL_MSG_PRD, msg, consumed, 4, buf);</span>
+<a name="70"><span class="lineNum">      70 </span>                :            : }</a>
+<span class="lineNum">      71 </span>                :            : 
+<span class="lineNum">      72 </span>                :<span class="lineNoCov">          0 : static int queue_prd_msg_nop(struct opal_prd_msg *msg,</span>
+<span class="lineNum">      73 </span>                :            :                 void (*consumed)(void *data))
+<span class="lineNum">      74 </span>                :            : {
+<span class="lineNum">      75 </span>                :            :         (void)msg;
+<span class="lineNum">      76 </span>                :            :         (void)consumed;
+<span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 :         return OPAL_UNSUPPORTED;</span>
+<span class="lineNum">      78 </span>                :            : }
+<span class="lineNum">      79 </span>                :            : 
+<span class="lineNum">      80 </span>                :            : static int (*queue_prd_msg)(struct opal_prd_msg *msg,
+<span class="lineNum">      81 </span>                :            :                 void (*consumed)(void *data)) = queue_prd_msg_nop;
+<span class="lineNum">      82 </span>                :            : 
+<a name="83"><span class="lineNum">      83 </span>                :            : static void send_pending_events(void);</a>
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 : static void prd_msg_consumed(void *data)</span>
+<span class="lineNum">      86 </span>                :            : {
+<span class="lineNum">      87 </span>                :<span class="lineNoCov">          0 :         struct opal_prd_msg *msg = data;</span>
+<span class="lineNum">      88 </span>                :            :         uint32_t proc;
+<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :         uint8_t event = 0;</span>
+<span class="lineNum">      90 </span>                :            : 
+<span class="lineNum">      91 </span>                :<span class="lineNoCov">          0 :         lock(&amp;events_lock);</span>
+<span class="lineNum">      92 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (msg-&gt;hdr.type) {</span>
+<span class="lineNum">      93 </span>                :            :         case OPAL_PRD_MSG_TYPE_ATTN:
+<span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 :                 proc = msg-&gt;attn.proc;</span>
+<span class="lineNum">      95 </span>                :            : 
+<span class="lineNum">      96 </span>                :            :                 /* If other ipoll events have been received in the time
+<span class="lineNum">      97 </span>                :            :                  * between prd_msg creation and consumption, we'll need to
+<span class="lineNum">      98 </span>                :            :                  * raise a separate ATTN message for those. So, we only
+<span class="lineNum">      99 </span>                :            :                  * clear the event if we don't have any further ipoll_status
+<span class="lineNum">     100 </span>                :            :                  * bits.
+<span class="lineNum">     101 </span>                :            :                  */
+<span class="lineNum">     102 </span>                :<span class="lineNoCov">          0 :                 ipoll_status[proc] &amp;= ~msg-&gt;attn.ipoll_status;</span>
+<span class="lineNum">     103 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!ipoll_status[proc])</span>
+<span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 :                         event = EVENT_ATTN;</span>
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :            :                 break;
+<span class="lineNum">     107 </span>                :            :         case OPAL_PRD_MSG_TYPE_OCC_ERROR:
+<span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 :                 proc = msg-&gt;occ_error.chip;</span>
+<span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 :                 event = EVENT_OCC_ERROR;</span>
+<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     111 </span>                :            :         case OPAL_PRD_MSG_TYPE_OCC_RESET:
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :                 proc = msg-&gt;occ_reset.chip;</span>
+<span class="lineNum">     113 </span>                :<span class="lineNoCov">          0 :                 event = EVENT_OCC_RESET;</span>
+<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     115 </span>                :            :         default:
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     117 </span>                :            :         }
+<span class="lineNum">     118 </span>                :            : 
+<span class="lineNum">     119 </span>                :<span class="lineNoCov">          0 :         events[proc] &amp;= ~event;</span>
+<span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 :         prd_msg_inuse = false;</span>
+<span class="lineNum">     121 </span>                :<span class="lineNoCov">          0 :         send_pending_events();</span>
+<span class="lineNum">     122 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;events_lock);</span>
+<a name="123"><span class="lineNum">     123 </span>                :            : }</a>
+<span class="lineNum">     124 </span>                :            : 
+<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 : static int populate_ipoll_msg(struct opal_prd_msg *msg, uint32_t proc)</span>
+<span class="lineNum">     126 </span>                :            : {
+<span class="lineNum">     127 </span>                :            :         uint64_t ipoll_mask;
+<span class="lineNum">     128 </span>                :            :         int rc;
+<span class="lineNum">     129 </span>                :            : 
+<span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :         lock(&amp;ipoll_lock);</span>
+<span class="lineNum">     131 </span>                :<span class="lineNoCov">          0 :         rc = xscom_read(proc, PRD_IPOLL_REG_MASK, &amp;ipoll_mask);</span>
+<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;ipoll_lock);</span>
+<span class="lineNum">     133 </span>                :            : 
+<span class="lineNum">     134 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     135 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR, &quot;PRD: Unable to read ipoll status (chip %d)!\n&quot;,</span>
+<span class="lineNum">     136 </span>                :            :                                 proc);
+<span class="lineNum">     137 </span>                :<span class="lineNoCov">          0 :                 return -1;</span>
+<span class="lineNum">     138 </span>                :            :         }
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>                :<span class="lineNoCov">          0 :         msg-&gt;attn.proc = proc;</span>
+<span class="lineNum">     141 </span>                :<span class="lineNoCov">          0 :         msg-&gt;attn.ipoll_status = ipoll_status[proc];</span>
+<span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 :         msg-&gt;attn.ipoll_mask = ipoll_mask;</span>
+<span class="lineNum">     143 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<a name="144"><span class="lineNum">     144 </span>                :            : }</a>
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 : static void send_pending_events(void)</span>
+<span class="lineNum">     147 </span>                :            : {
+<span class="lineNum">     148 </span>                :            :         struct proc_chip *chip;
+<span class="lineNum">     149 </span>                :            :         uint32_t proc;
+<span class="lineNum">     150 </span>                :            :         uint8_t event;
+<span class="lineNum">     151 </span>                :            : 
+<span class="lineNum">     152 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(!prd_msg_inuse);</span>
+<span class="lineNum">     153 </span>                :            : 
+<span class="lineNum">     154 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!prd_active)</span>
+<span class="lineNum">     155 </span>                :            :                 return;
+<span class="lineNum">     156 </span>                :            : 
+<span class="lineNum">     157 </span>                :<span class="lineNoCov">          0 :         event = 0;</span>
+<span class="lineNum">     158 </span>                :            : 
+<span class="lineNum">     159 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for_each_chip(chip) {</span>
+<span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 :                 proc = chip-&gt;id;</span>
+<span class="lineNum">     161 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (events[proc]) {</span>
+<span class="lineNum">     162 </span>                :            :                         event = events[proc];
+<span class="lineNum">     163 </span>                :            :                         break;
+<span class="lineNum">     164 </span>                :            :                 }
+<span class="lineNum">     165 </span>                :            :         }
+<span class="lineNum">     166 </span>                :            : 
+<span class="lineNum">     167 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!event)</span>
+<span class="lineNum">     168 </span>                :            :                 return;
+<span class="lineNum">     169 </span>                :            : 
+<span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 :         prd_msg_inuse = true;</span>
+<span class="lineNum">     171 </span>                :<span class="lineNoCov">          0 :         prd_msg.token = 0;</span>
+<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :         prd_msg.hdr.size = sizeof(prd_msg);</span>
+<span class="lineNum">     173 </span>                :            : 
+<span class="lineNum">     174 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (event &amp; EVENT_ATTN) {</span>
+<span class="lineNum">     175 </span>                :<span class="lineNoCov">          0 :                 prd_msg.hdr.type = OPAL_PRD_MSG_TYPE_ATTN;</span>
+<span class="lineNum">     176 </span>                :<span class="lineNoCov">          0 :                 populate_ipoll_msg(&amp;prd_msg, proc);</span>
+<span class="lineNum">     177 </span>                :<span class="lineNoCov">          0 :                 event = EVENT_ATTN;</span>
+<span class="lineNum">     178 </span>                :            : 
+<span class="lineNum">     179 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         } else if (event &amp; EVENT_OCC_ERROR) {</span>
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :                 prd_msg.hdr.type = OPAL_PRD_MSG_TYPE_OCC_ERROR;</span>
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :                 prd_msg.occ_error.chip = proc;</span>
+<span class="lineNum">     182 </span>                :<span class="lineNoCov">          0 :                 event = EVENT_OCC_ERROR;</span>
+<span class="lineNum">     183 </span>                :            : 
+<span class="lineNum">     184 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         } else if (event &amp; EVENT_OCC_RESET) {</span>
+<span class="lineNum">     185 </span>                :<span class="lineNoCov">          0 :                 prd_msg.hdr.type = OPAL_PRD_MSG_TYPE_OCC_RESET;</span>
+<span class="lineNum">     186 </span>                :<span class="lineNoCov">          0 :                 prd_msg.occ_reset.chip = proc;</span>
+<span class="lineNum">     187 </span>                :<span class="lineNoCov">          0 :                 event = EVENT_OCC_RESET;</span>
+<span class="lineNum">     188 </span>                :            : 
+<span class="lineNum">     189 </span>                :            :         }
+<span class="lineNum">     190 </span>                :            : 
+<span class="lineNum">     191 </span>                :<span class="lineNoCov">          0 :         queue_prd_msg(&amp;prd_msg, prd_msg_consumed);</span>
+<a name="192"><span class="lineNum">     192 </span>                :            : }</a>
+<span class="lineNum">     193 </span>                :            : 
+<span class="lineNum">     194 </span>                :<span class="lineNoCov">          0 : static void __prd_event(uint32_t proc, uint8_t event)</span>
+<span class="lineNum">     195 </span>                :            : {
+<span class="lineNum">     196 </span>                :<span class="lineNoCov">          0 :         events[proc] |= event;</span>
+<span class="lineNum">     197 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!prd_msg_inuse)</span>
+<span class="lineNum">     198 </span>                :<span class="lineNoCov">          0 :                 send_pending_events();</span>
+<a name="199"><span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     200 </span>                :            : 
+<span class="lineNum">     201 </span>                :<span class="lineNoCov">          0 : static void prd_event(uint32_t proc, uint8_t event)</span>
+<span class="lineNum">     202 </span>                :            : {
+<span class="lineNum">     203 </span>                :<span class="lineNoCov">          0 :         lock(&amp;events_lock);</span>
+<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :         __prd_event(proc, event);</span>
+<span class="lineNum">     205 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;events_lock);</span>
+<a name="206"><span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     207 </span>                :            : 
+<span class="lineNum">     208 </span>                :<span class="lineNoCov">          0 : static int __ipoll_update_mask(uint32_t proc, bool set, uint64_t bits)</span>
+<span class="lineNum">     209 </span>                :            : {
+<span class="lineNum">     210 </span>                :            :         uint64_t mask;
+<span class="lineNum">     211 </span>                :            :         int rc;
+<span class="lineNum">     212 </span>                :            : 
+<span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 :         rc = xscom_read(proc, PRD_IPOLL_REG_MASK, &amp;mask);</span>
+<span class="lineNum">     214 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     215 </span>                :            :                 return rc;
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (set)</span>
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :                 mask |= bits;</span>
+<span class="lineNum">     219 </span>                :            :         else
+<span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 :                 mask &amp;= ~bits;</span>
+<span class="lineNum">     221 </span>                :            : 
+<span class="lineNum">     222 </span>                :<span class="lineNoCov">          0 :         return xscom_write(proc, PRD_IPOLL_REG_MASK, mask);</span>
+<a name="223"><span class="lineNum">     223 </span>                :            : }</a>
+<span class="lineNum">     224 </span>                :            : 
+<span class="lineNum">     225 </span>                :<span class="lineNoCov">          0 : static int ipoll_record_and_mask_pending(uint32_t proc)</span>
+<span class="lineNum">     226 </span>                :            : {
+<span class="lineNum">     227 </span>                :            :         uint64_t status;
+<span class="lineNum">     228 </span>                :            :         int rc;
+<span class="lineNum">     229 </span>                :            : 
+<span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 :         lock(&amp;ipoll_lock);</span>
+<span class="lineNum">     231 </span>                :<span class="lineNoCov">          0 :         rc = xscom_read(proc, PRD_IPOLL_REG_STATUS, &amp;status);</span>
+<span class="lineNum">     232 </span>                :<span class="lineNoCov">          0 :         status &amp;= PRD_IPOLL_MASK;</span>
+<span class="lineNum">     233 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!rc)</span>
+<span class="lineNum">     234 </span>                :<span class="lineNoCov">          0 :                 __ipoll_update_mask(proc, true, status);</span>
+<span class="lineNum">     235 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;ipoll_lock);</span>
+<span class="lineNum">     236 </span>                :            : 
+<span class="lineNum">     237 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!rc)</span>
+<span class="lineNum">     238 </span>                :<span class="lineNoCov">          0 :                 ipoll_status[proc] |= status;</span>
+<span class="lineNum">     239 </span>                :            : 
+<span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     241 </span>                :            : }
+<a name="242"><span class="lineNum">     242 </span>                :            : </a>
+<span class="lineNum">     243 </span>                :            : /* Entry point for interrupts */
+<span class="lineNum">     244 </span>                :<span class="lineNoCov">          0 : void prd_psi_interrupt(uint32_t proc)</span>
+<span class="lineNum">     245 </span>                :            : {
+<span class="lineNum">     246 </span>                :            :         int rc;
+<span class="lineNum">     247 </span>                :            : 
+<span class="lineNum">     248 </span>                :<span class="lineNoCov">          0 :         lock(&amp;events_lock);</span>
+<span class="lineNum">     249 </span>                :            : 
+<span class="lineNum">     250 </span>                :<span class="lineNoCov">          0 :         rc = ipoll_record_and_mask_pending(proc);</span>
+<span class="lineNum">     251 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     252 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR, &quot;PRD: Failed to update IPOLL mask\n&quot;);</span>
+<span class="lineNum">     253 </span>                :            : 
+<span class="lineNum">     254 </span>                :<span class="lineNoCov">          0 :         __prd_event(proc, EVENT_ATTN);</span>
+<span class="lineNum">     255 </span>                :            : 
+<span class="lineNum">     256 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;events_lock);</span>
+<a name="257"><span class="lineNum">     257 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     258 </span>                :            : 
+<span class="lineNum">     259 </span>                :<span class="lineNoCov">          0 : void prd_tmgt_interrupt(uint32_t proc)</span>
+<span class="lineNum">     260 </span>                :            : {
+<span class="lineNum">     261 </span>                :<span class="lineNoCov">          0 :         prd_event(proc, EVENT_OCC_ERROR);</span>
+<a name="262"><span class="lineNum">     262 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     263 </span>                :            : 
+<span class="lineNum">     264 </span>                :<span class="lineNoCov">          0 : void prd_occ_reset(uint32_t proc)</span>
+<span class="lineNum">     265 </span>                :            : {
+<span class="lineNum">     266 </span>                :<span class="lineNoCov">          0 :         prd_event(proc, EVENT_OCC_RESET);</span>
+<span class="lineNum">     267 </span>                :<span class="lineNoCov">          0 : }</span>
+<a name="268"><span class="lineNum">     268 </span>                :            : </a>
+<span class="lineNum">     269 </span>                :            : /* incoming message handlers */
+<span class="lineNum">     270 </span>                :<span class="lineNoCov">          0 : static int prd_msg_handle_attn_ack(struct opal_prd_msg *msg)</span>
+<span class="lineNum">     271 </span>                :            : {
+<span class="lineNum">     272 </span>                :            :         int rc;
+<span class="lineNum">     273 </span>                :            : 
+<span class="lineNum">     274 </span>                :<span class="lineNoCov">          0 :         lock(&amp;ipoll_lock);</span>
+<span class="lineNum">     275 </span>                :<span class="lineNoCov">          0 :         rc = __ipoll_update_mask(msg-&gt;attn_ack.proc, false,</span>
+<span class="lineNum">     276 </span>                :<span class="lineNoCov">          0 :                         msg-&gt;attn_ack.ipoll_ack &amp; PRD_IPOLL_MASK);</span>
+<span class="lineNum">     277 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;ipoll_lock);</span>
+<span class="lineNum">     278 </span>                :            : 
+<span class="lineNum">     279 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     280 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR, &quot;PRD: Unable to unmask ipoll!\n&quot;);</span>
+<span class="lineNum">     281 </span>                :            : 
+<span class="lineNum">     282 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="283"><span class="lineNum">     283 </span>                :            : }</a>
+<span class="lineNum">     284 </span>                :            : 
+<span class="lineNum">     285 </span>                :<span class="lineNoCov">          0 : static int prd_msg_handle_init(struct opal_prd_msg *msg)</span>
+<span class="lineNum">     286 </span>                :            : {
+<span class="lineNum">     287 </span>                :            :         struct proc_chip *chip;
+<span class="lineNum">     288 </span>                :            : 
+<span class="lineNum">     289 </span>                :<span class="lineNoCov">          0 :         lock(&amp;ipoll_lock);</span>
+<span class="lineNum">     290 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for_each_chip(chip) {</span>
+<span class="lineNum">     291 </span>                :<span class="lineNoCov">          0 :                 __ipoll_update_mask(chip-&gt;id, false,</span>
+<span class="lineNum">     292 </span>                :<span class="lineNoCov">          0 :                         msg-&gt;init.ipoll &amp; PRD_IPOLL_MASK);</span>
+<span class="lineNum">     293 </span>                :            :         }
+<span class="lineNum">     294 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;ipoll_lock);</span>
+<span class="lineNum">     295 </span>                :            : 
+<span class="lineNum">     296 </span>                :            :         /* we're transitioning from inactive to active; send any pending tmgt
+<span class="lineNum">     297 </span>                :            :          * interrupts */
+<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 :         lock(&amp;events_lock);</span>
+<span class="lineNum">     299 </span>                :<span class="lineNoCov">          0 :         prd_active = true;</span>
+<span class="lineNum">     300 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!prd_msg_inuse)</span>
+<span class="lineNum">     301 </span>                :<span class="lineNoCov">          0 :                 send_pending_events();</span>
+<span class="lineNum">     302 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;events_lock);</span>
+<span class="lineNum">     303 </span>                :            : 
+<span class="lineNum">     304 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<a name="305"><span class="lineNum">     305 </span>                :            : }</a>
+<span class="lineNum">     306 </span>                :            : 
+<span class="lineNum">     307 </span>                :<span class="lineNoCov">          0 : static int prd_msg_handle_fini(void)</span>
+<span class="lineNum">     308 </span>                :            : {
+<span class="lineNum">     309 </span>                :            :         struct proc_chip *chip;
+<span class="lineNum">     310 </span>                :            : 
+<span class="lineNum">     311 </span>                :<span class="lineNoCov">          0 :         lock(&amp;events_lock);</span>
+<span class="lineNum">     312 </span>                :<span class="lineNoCov">          0 :         prd_active = false;</span>
+<span class="lineNum">     313 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;events_lock);</span>
+<span class="lineNum">     314 </span>                :            : 
+<span class="lineNum">     315 </span>                :<span class="lineNoCov">          0 :         lock(&amp;ipoll_lock);</span>
+<span class="lineNum">     316 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for_each_chip(chip) {</span>
+<span class="lineNum">     317 </span>                :<span class="lineNoCov">          0 :                 __ipoll_update_mask(chip-&gt;id, true, PRD_IPOLL_MASK);</span>
+<span class="lineNum">     318 </span>                :            :         }
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;ipoll_lock);</span>
+<span class="lineNum">     320 </span>                :            : 
+<span class="lineNum">     321 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<span class="lineNum">     322 </span>                :            : }
+<a name="323"><span class="lineNum">     323 </span>                :            : </a>
+<span class="lineNum">     324 </span>                :            : /* Entry from the host above */
+<span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 : static int64_t opal_prd_msg(struct opal_prd_msg *msg)</span>
+<span class="lineNum">     326 </span>                :            : {
+<span class="lineNum">     327 </span>                :            :         int rc;
+<span class="lineNum">     328 </span>                :            : 
+<span class="lineNum">     329 </span>                :            :         /* fini is a little special: the kernel (which may not have the entire
+<span class="lineNum">     330 </span>                :            :          * opal_prd_msg definition) can send a FINI message, so we don't check
+<span class="lineNum">     331 </span>                :            :          * the full size */
+<span class="lineNum">     332 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (msg-&gt;hdr.size &gt;= sizeof(struct opal_prd_msg_header) &amp;&amp;</span>
+<span class="lineNum">     333 </span>                :<span class="lineNoCov">          0 :                         msg-&gt;hdr.type == OPAL_PRD_MSG_TYPE_FINI)</span>
+<span class="lineNum">     334 </span>                :<span class="lineNoCov">          0 :                 return prd_msg_handle_fini();</span>
+<span class="lineNum">     335 </span>                :            : 
+<span class="lineNum">     336 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (msg-&gt;hdr.size != sizeof(*msg))</span>
+<span class="lineNum">     337 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     338 </span>                :            : 
+<span class="lineNum">     339 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (msg-&gt;hdr.type) {</span>
+<span class="lineNum">     340 </span>                :            :         case OPAL_PRD_MSG_TYPE_INIT:
+<span class="lineNum">     341 </span>                :<span class="lineNoCov">          0 :                 rc = prd_msg_handle_init(msg);</span>
+<span class="lineNum">     342 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     343 </span>                :            :         case OPAL_PRD_MSG_TYPE_ATTN_ACK:
+<span class="lineNum">     344 </span>                :<span class="lineNoCov">          0 :                 rc = prd_msg_handle_attn_ack(msg);</span>
+<span class="lineNum">     345 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     346 </span>                :            :         default:
+<span class="lineNum">     347 </span>                :            :                 rc = OPAL_UNSUPPORTED;
+<span class="lineNum">     348 </span>                :            :         }
+<span class="lineNum">     349 </span>                :            : 
+<span class="lineNum">     350 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<a name="351"><span class="lineNum">     351 </span>                :            : }</a>
+<span class="lineNum">     352 </span>                :            : 
+<span class="lineNum">     353 </span>                :<span class="lineNoCov">          0 : void prd_init(void)</span>
+<span class="lineNum">     354 </span>                :            : {
+<span class="lineNum">     355 </span>                :            :         struct proc_chip *chip;
+<span class="lineNum">     356 </span>                :            : 
+<span class="lineNum">     357 </span>                :            :         /* mask everything */
+<span class="lineNum">     358 </span>                :<span class="lineNoCov">          0 :         lock(&amp;ipoll_lock);</span>
+<span class="lineNum">     359 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for_each_chip(chip) {</span>
+<span class="lineNum">     360 </span>                :<span class="lineNoCov">          0 :                 __ipoll_update_mask(chip-&gt;id, true, PRD_IPOLL_MASK);</span>
+<span class="lineNum">     361 </span>                :            :         }
+<span class="lineNum">     362 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;ipoll_lock);</span>
+<span class="lineNum">     363 </span>                :            : 
+<span class="lineNum">     364 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_present()) {</span>
+<span class="lineNum">     365 </span>                :            :                 /* todo: FSP implementation */
+<span class="lineNum">     366 </span>                :<span class="lineNoCov">          0 :                 queue_prd_msg = queue_prd_msg_nop;</span>
+<span class="lineNum">     367 </span>                :            :         } else {
+<span class="lineNum">     368 </span>                :<span class="lineNoCov">          0 :                 queue_prd_msg = queue_prd_msg_hbrt;</span>
+<span class="lineNum">     369 </span>                :<span class="lineNoCov">          0 :                 opal_register(OPAL_PRD_MSG, opal_prd_msg, 1);</span>
+<span class="lineNum">     370 </span>                :            :         }
+<span class="lineNum">     371 </span>                :            : 
+<span class="lineNum">     372 </span>                :<span class="lineNoCov">          0 :         prd_node = dt_new(opal_node, &quot;diagnostics&quot;);</span>
+<span class="lineNum">     373 </span>                :<span class="lineNoCov">          0 :         dt_add_property_strings(prd_node, &quot;compatible&quot;, &quot;ibm,opal-prd&quot;);</span>
+<a name="374"><span class="lineNum">     374 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     375 </span>                :            : 
+<span class="lineNum">     376 </span>                :<span class="lineCov">          2 : void prd_register_reserved_memory(void)</span>
+<span class="lineNum">     377 </span>                :            : {
+<span class="lineNum">     378 </span>                :            :         struct mem_region *region;
+<span class="lineNum">     379 </span>                :            : 
+<span class="lineNum">     380 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!prd_node)</span>
+<span class="lineNum">     381 </span>                :<span class="lineCov">          2 :                 return;</span>
+<span class="lineNum">     382 </span>                :            : 
+<span class="lineNum">     383 </span>                :<span class="lineNoCov">          0 :         lock(&amp;mem_region_lock);</span>
+<span class="lineNum">     384 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (region = mem_region_next(NULL); region;</span>
+<span class="lineNum">     385 </span>                :<span class="lineNoCov">          0 :                         region = mem_region_next(region)) {</span>
+<span class="lineNum">     386 </span>                :            : 
+<span class="lineNum">     387 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (region-&gt;type != REGION_HW_RESERVED)</span>
+<span class="lineNum">     388 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     389 </span>                :            : 
+<span class="lineNum">     390 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!region-&gt;node)</span>
+<span class="lineNum">     391 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     392 </span>                :            : 
+<span class="lineNum">     393 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!dt_find_property(region-&gt;node, &quot;ibm,prd-label&quot;)) {</span>
+<span class="lineNum">     394 </span>                :<span class="lineNoCov">          0 :                         dt_add_property_string(region-&gt;node, &quot;ibm,prd-label&quot;,</span>
+<span class="lineNum">     395 </span>                :            :                                         region-&gt;name);
+<span class="lineNum">     396 </span>                :            :                 }
+<span class="lineNum">     397 </span>                :            :         }
+<span class="lineNum">     398 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;mem_region_lock);</span>
+<span class="lineNum">     399 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

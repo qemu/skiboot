@@ -1,0 +1,472 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot-boot.info - hw/dts.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">hw</a> - dts.c<span style="font-size: 80%;"> (source / <a href="dts.c.func.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot-boot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">16</td>
+            <td class="headerCovTableEntry">115</td>
+            <td class="headerCovTableEntryLo">13.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-05-25</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryLo">14.3 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">5</td>
+            <td class="headerCovTableEntry">46</td>
+            <td class="headerCovTableEntryLo">10.9 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2015 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;xscom.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;chip.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;sensor.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;dts.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;opal-api.h&gt;
+<span class="lineNum">      23 </span>                :            : 
+<span class="lineNum">      24 </span>                :            : /* Per core Digital Thermal Sensors */
+<span class="lineNum">      25 </span>                :            : #define EX_THERM_DTS_RESULT0    0x10050000
+<span class="lineNum">      26 </span>                :            : #define EX_THERM_DTS_RESULT1    0x10050001
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            : /* Per core Digital Thermal Sensors control registers */
+<span class="lineNum">      29 </span>                :            : #define EX_THERM_MODE_REG       0x1005000F
+<span class="lineNum">      30 </span>                :            : #define EX_THERM_CONTROL_REG    0x10050012
+<span class="lineNum">      31 </span>                :            : #define EX_THERM_ERR_STATUS_REG 0x10050013
+<span class="lineNum">      32 </span>                :            : 
+<span class="lineNum">      33 </span>                :            : /* Per memory controller Digital Thermal Sensors */
+<span class="lineNum">      34 </span>                :            : #define THERM_MEM_DTS_RESULT0   0x2050000
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>                :            : /* Per memory controller Digital Thermal Sensors control registers */
+<span class="lineNum">      37 </span>                :            : #define THERM_MEM_MODE_REG      0x205000F
+<span class="lineNum">      38 </span>                :            : #define THERM_MEM_CONTROL_REG   0x2050012
+<span class="lineNum">      39 </span>                :            : #define THERM_MEM_ERR_STATUS_REG        0x2050013
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :            : struct dts {
+<span class="lineNum">      42 </span>                :            :         uint8_t         valid;
+<span class="lineNum">      43 </span>                :            :         uint8_t         trip;
+<span class="lineNum">      44 </span>                :            :         int16_t         temp;
+<span class="lineNum">      45 </span>                :            : };
+<span class="lineNum">      46 </span>                :            : 
+<span class="lineNum">      47 </span>                :            : /* Different sensor locations */
+<span class="lineNum">      48 </span>                :            : #define P7_CT_ZONE_LSU  0
+<span class="lineNum">      49 </span>                :            : #define P7_CT_ZONE_ISU  1
+<span class="lineNum">      50 </span>                :            : #define P7_CT_ZONE_IFU  2
+<span class="lineNum">      51 </span>                :            : #define P7_CT_ZONE_VFU  3
+<span class="lineNum">      52 </span>                :            : #define P7_CT_ZONE_L3C  4
+<span class="lineNum">      53 </span>                :            : #define P7_CT_ZONES     5
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            : /* Per core Digital Thermal Sensors */
+<span class="lineNum">      56 </span>                :            : #define EX_THERM_P7_DTS_RESULT0 0x8050000
+<span class="lineNum">      57 </span>                :            : #define EX_THERM_P7_DTS_RESULT1 0x8050001
+<span class="lineNum">      58 </span>                :            : 
+<span class="lineNum">      59 </span>                :            : /*
+<span class="lineNum">      60 </span>                :            :  * DTS2 Thermal Sensor Results
+<span class="lineNum">      61 </span>                :            :  *
+<span class="lineNum">      62 </span>                :            :  * 0..7         sensor with id 0.
+<span class="lineNum">      63 </span>                :            :  * 8..15        sensor with id 1. (Only chiplets)
+<span class="lineNum">      64 </span>                :            :  * 16..23       sensor with id 2. (Only chiplets)
+<span class="lineNum">      65 </span>                :            :  * 24..31       sensor with id 3. (Only chiplets)
+<span class="lineNum">      66 </span>                :            :  * 32..39       sensor with id 4. (Only chiplets)
+<span class="lineNum">      67 </span>                :            :  * 40..56       reserved0
+<span class="lineNum">      68 </span>                :            :  * 57           Trip warning history
+<span class="lineNum">      69 </span>                :            :  * 58           Trip critical history
+<span class="lineNum">      70 </span>                :            :  * 59           Trip fatal history
+<span class="lineNum">      71 </span>                :            :  * 60           reserved1
+<a name="72"><span class="lineNum">      72 </span>                :            :  * 61..63       ID of worst case DTS2 (Only valid in EX core chiplets)</a>
+<span class="lineNum">      73 </span>                :            :  */
+<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 : static int dts_read_core_temp_p7(uint32_t pir, struct dts *dts)</span>
+<span class="lineNum">      75 </span>                :            : {
+<span class="lineNum">      76 </span>                :<span class="lineNoCov">          0 :         int32_t chip_id = pir_to_chip_id(pir);</span>
+<span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 :         int32_t core = pir_to_core_id(pir);</span>
+<span class="lineNum">      78 </span>                :            :         uint64_t dts0;
+<span class="lineNum">      79 </span>                :            :         struct dts temps[P7_CT_ZONES];
+<span class="lineNum">      80 </span>                :            :         int i;
+<span class="lineNum">      81 </span>                :            :         int rc;
+<span class="lineNum">      82 </span>                :            : 
+<span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 :         rc = xscom_read(chip_id,</span>
+<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :                         XSCOM_ADDR_P8_EX(core, EX_THERM_P7_DTS_RESULT0),</span>
+<span class="lineNum">      85 </span>                :            :                         &amp;dts0);
+<span class="lineNum">      86 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">      87 </span>                :            :                 return rc;
+<span class="lineNum">      88 </span>                :            : 
+<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :         temps[P7_CT_ZONE_LSU].temp = (dts0 &gt;&gt; 56) &amp; 0xff;</span>
+<span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :         temps[P7_CT_ZONE_ISU].temp = (dts0 &gt;&gt; 48) &amp; 0xff;</span>
+<span class="lineNum">      91 </span>                :<span class="lineNoCov">          0 :         temps[P7_CT_ZONE_IFU].temp = (dts0 &gt;&gt; 40) &amp; 0xff;</span>
+<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 :         temps[P7_CT_ZONE_VFU].temp = (dts0 &gt;&gt; 32) &amp; 0xff;</span>
+<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 :         temps[P7_CT_ZONE_L3C].temp = (dts0 &gt;&gt; 24) &amp; 0xff;</span>
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :            :         /* keep the max DTS  */
+<span class="lineNum">      96 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; P7_CT_ZONES; i++) {</span>
+<span class="lineNum">      97 </span>                :<span class="lineNoCov">          0 :                 int16_t t = temps[i].temp;</span>
+<span class="lineNum">      98 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (t &gt; dts-&gt;temp)</span>
+<span class="lineNum">      99 </span>                :<span class="lineNoCov">          0 :                         dts-&gt;temp = t;</span>
+<span class="lineNum">     100 </span>                :            :         }
+<span class="lineNum">     101 </span>                :<span class="lineNoCov">          0 :         dts-&gt;trip = (dts0 &gt;&gt; 3) &amp; 0xf;</span>
+<span class="lineNum">     102 </span>                :            : 
+<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :         prlog(PR_TRACE, &quot;DTS: Chip %x Core %x temp:%dC trip:%x\n&quot;,</span>
+<span class="lineNum">     104 </span>                :            :               chip_id, core, dts-&gt;temp, dts-&gt;trip);
+<span class="lineNum">     105 </span>                :            : 
+<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     107 </span>                :            : }
+<span class="lineNum">     108 </span>                :            : 
+<span class="lineNum">     109 </span>                :            : /* Therm mac result masking for DTS (result(0:15)
+<span class="lineNum">     110 </span>                :            :  *  0:3   - 0x0
+<span class="lineNum">     111 </span>                :            :  *  4:11  - Temperature in degrees C
+<span class="lineNum">     112 </span>                :            :  *  12:13 - trip bits: 00 - no trip; 01 - warning; 10 - critical; 11 - fatal
+<span class="lineNum">     113 </span>                :            :  *  14    - spare
+<a name="114"><span class="lineNum">     114 </span>                :            :  *  15    - valid</a>
+<span class="lineNum">     115 </span>                :            :  */
+<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 : static void dts_decode_one_dts(uint16_t raw, struct dts *dts)</span>
+<span class="lineNum">     117 </span>                :            : {
+<span class="lineNum">     118 </span>                :            :         /*
+<span class="lineNum">     119 </span>                :            :          * The value is both signed and unsigned :-) 0xff could be
+<span class="lineNum">     120 </span>                :            :          * either 255C or -1C, so for now we treat this as unsigned
+<span class="lineNum">     121 </span>                :            :          * which is sufficient for our purpose. We could try to be
+<span class="lineNum">     122 </span>                :            :          * a bit smarter and treat it as signed for values between
+<span class="lineNum">     123 </span>                :            :          * -10 and 0 and unsigned to 239 or something like that...
+<span class="lineNum">     124 </span>                :            :          */
+<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :         dts-&gt;valid = raw &amp; 1;</span>
+<span class="lineNum">     126 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (dts-&gt;valid) {</span>
+<span class="lineNum">     127 </span>                :<span class="lineNoCov">          0 :                 dts-&gt;temp = (raw &gt;&gt; 4) &amp; 0xff;</span>
+<span class="lineNum">     128 </span>                :<span class="lineNoCov">          0 :                 dts-&gt;trip = (raw &gt;&gt; 2) &amp; 0x3;</span>
+<span class="lineNum">     129 </span>                :            :         } else {
+<span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :                 dts-&gt;temp = 0;</span>
+<span class="lineNum">     131 </span>                :<span class="lineNoCov">          0 :                 dts-&gt;trip = 0;</span>
+<span class="lineNum">     132 </span>                :            :         }
+<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     134 </span>                :            : 
+<span class="lineNum">     135 </span>                :            : /* Different sensor locations */
+<span class="lineNum">     136 </span>                :            : #define P8_CT_ZONE_LSU  0
+<span class="lineNum">     137 </span>                :            : #define P8_CT_ZONE_ISU  1
+<span class="lineNum">     138 </span>                :            : #define P8_CT_ZONE_FXU  2
+<span class="lineNum">     139 </span>                :            : #define P8_CT_ZONE_L3C  3
+<span class="lineNum">     140 </span>                :            : #define P8_CT_ZONES     4
+<span class="lineNum">     141 </span>                :            : 
+<span class="lineNum">     142 </span>                :            : /*
+<span class="lineNum">     143 </span>                :            :  * Returns the temperature as the max of all 4 zones and a global trip
+<a name="144"><span class="lineNum">     144 </span>                :            :  * attribute.</a>
+<span class="lineNum">     145 </span>                :            :  */
+<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 : static int dts_read_core_temp_p8(uint32_t pir, struct dts *dts)</span>
+<span class="lineNum">     147 </span>                :            : {
+<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 :         int32_t chip_id = pir_to_chip_id(pir);</span>
+<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :         int32_t core = pir_to_core_id(pir);</span>
+<span class="lineNum">     150 </span>                :            :         uint64_t dts0, dts1;
+<span class="lineNum">     151 </span>                :            :         struct dts temps[P8_CT_ZONES];
+<span class="lineNum">     152 </span>                :            :         int i;
+<span class="lineNum">     153 </span>                :            :         int rc;
+<span class="lineNum">     154 </span>                :            : 
+<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :         rc = xscom_read(chip_id, XSCOM_ADDR_P8_EX(core, EX_THERM_DTS_RESULT0),</span>
+<span class="lineNum">     156 </span>                :            :                         &amp;dts0);
+<span class="lineNum">     157 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     158 </span>                :            :                 return rc;
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 :         rc = xscom_read(chip_id, XSCOM_ADDR_P8_EX(core, EX_THERM_DTS_RESULT1),</span>
+<span class="lineNum">     161 </span>                :            :                         &amp;dts1);
+<span class="lineNum">     162 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     163 </span>                :            :                 return rc;
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :<span class="lineNoCov">          0 :         dts_decode_one_dts(dts0 &gt;&gt; 48, &amp;temps[P8_CT_ZONE_LSU]);</span>
+<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :         dts_decode_one_dts(dts0 &gt;&gt; 32, &amp;temps[P8_CT_ZONE_ISU]);</span>
+<span class="lineNum">     167 </span>                :<span class="lineNoCov">          0 :         dts_decode_one_dts(dts0 &gt;&gt; 16, &amp;temps[P8_CT_ZONE_FXU]);</span>
+<span class="lineNum">     168 </span>                :<span class="lineNoCov">          0 :         dts_decode_one_dts(dts1 &gt;&gt; 48, &amp;temps[P8_CT_ZONE_L3C]);</span>
+<span class="lineNum">     169 </span>                :            : 
+<span class="lineNum">     170 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; P8_CT_ZONES; i++) {</span>
+<span class="lineNum">     171 </span>                :<span class="lineNoCov">          0 :                 int16_t t = temps[i].temp;</span>
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!temps[i].valid)</span>
+<span class="lineNum">     174 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     175 </span>                :            : 
+<span class="lineNum">     176 </span>                :            :                 /* keep the max temperature of all 4 sensors */
+<span class="lineNum">     177 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (t &gt; dts-&gt;temp)</span>
+<span class="lineNum">     178 </span>                :<span class="lineNoCov">          0 :                         dts-&gt;temp = t;</span>
+<span class="lineNum">     179 </span>                :            : 
+<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :                 dts-&gt;valid++;</span>
+<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :                 dts-&gt;trip |= temps[i].trip;</span>
+<span class="lineNum">     182 </span>                :            :         }
+<span class="lineNum">     183 </span>                :            : 
+<span class="lineNum">     184 </span>                :<span class="lineNoCov">          0 :         prlog(PR_TRACE, &quot;DTS: Chip %x Core %x temp:%dC trip:%x\n&quot;,</span>
+<span class="lineNum">     185 </span>                :            :               chip_id, core, dts-&gt;temp, dts-&gt;trip);
+<span class="lineNum">     186 </span>                :            : 
+<span class="lineNum">     187 </span>                :            :         /*
+<span class="lineNum">     188 </span>                :            :          * FIXME: The trip bits are always set ?! Just discard
+<span class="lineNum">     189 </span>                :            :          * them for the moment until we understand why.
+<span class="lineNum">     190 </span>                :            :          */
+<span class="lineNum">     191 </span>                :<span class="lineNoCov">          0 :         dts-&gt;trip = 0;</span>
+<span class="lineNum">     192 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<a name="193"><span class="lineNum">     193 </span>                :            : }</a>
+<span class="lineNum">     194 </span>                :            : 
+<span class="lineNum">     195 </span>                :<span class="lineNoCov">          0 : static int dts_read_core_temp(uint32_t pir, struct dts *dts)</span>
+<span class="lineNum">     196 </span>                :            : {
+<span class="lineNum">     197 </span>                :            :         int rc;
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (proc_gen) {</span>
+<span class="lineNum">     200 </span>                :            :         case proc_gen_p7:
+<span class="lineNum">     201 </span>                :<span class="lineNoCov">          0 :                 rc = dts_read_core_temp_p7(pir, dts);</span>
+<span class="lineNum">     202 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     203 </span>                :            :         case proc_gen_p8:
+<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :                 rc = dts_read_core_temp_p8(pir, dts);</span>
+<span class="lineNum">     205 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     206 </span>                :            :         default:
+<span class="lineNum">     207 </span>                :<span class="lineNoCov">          0 :                 assert(false);</span>
+<span class="lineNum">     208 </span>                :            :         }
+<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     210 </span>                :            : }
+<span class="lineNum">     211 </span>                :            : 
+<span class="lineNum">     212 </span>                :            : 
+<span class="lineNum">     213 </span>                :            : /* Different sensor locations */
+<span class="lineNum">     214 </span>                :            : #define P8_MEM_DTS0     0
+<span class="lineNum">     215 </span>                :            : #define P8_MEM_DTS1     1
+<a name="216"><span class="lineNum">     216 </span>                :            : #define P8_MEM_ZONES    2</a>
+<span class="lineNum">     217 </span>                :            : 
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 : static int dts_read_mem_temp(uint32_t chip_id, struct dts *dts)</span>
+<span class="lineNum">     219 </span>                :            : {
+<span class="lineNum">     220 </span>                :            :         uint64_t dts0;
+<span class="lineNum">     221 </span>                :            :         struct dts temps[P8_MEM_ZONES];
+<span class="lineNum">     222 </span>                :            :         int i;
+<span class="lineNum">     223 </span>                :            :         int rc;
+<span class="lineNum">     224 </span>                :            : 
+<span class="lineNum">     225 </span>                :<span class="lineNoCov">          0 :         rc = xscom_read(chip_id, THERM_MEM_DTS_RESULT0, &amp;dts0);</span>
+<span class="lineNum">     226 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     227 </span>                :            :                 return rc;
+<span class="lineNum">     228 </span>                :            : 
+<span class="lineNum">     229 </span>                :<span class="lineNoCov">          0 :         dts_decode_one_dts(dts0 &gt;&gt; 48, &amp;temps[P8_MEM_DTS0]);</span>
+<span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 :         dts_decode_one_dts(dts0 &gt;&gt; 32, &amp;temps[P8_MEM_DTS1]);</span>
+<span class="lineNum">     231 </span>                :            : 
+<span class="lineNum">     232 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; P8_MEM_ZONES; i++) {</span>
+<span class="lineNum">     233 </span>                :<span class="lineNoCov">          0 :                 int16_t t = temps[i].temp;</span>
+<span class="lineNum">     234 </span>                :            : 
+<span class="lineNum">     235 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!temps[i].valid)</span>
+<span class="lineNum">     236 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     237 </span>                :            : 
+<span class="lineNum">     238 </span>                :            :                 /* keep the max temperature of all 4 sensors */
+<span class="lineNum">     239 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (t &gt; dts-&gt;temp)</span>
+<span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 :                         dts-&gt;temp = t;</span>
+<span class="lineNum">     241 </span>                :            : 
+<span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 :                 dts-&gt;valid++;</span>
+<span class="lineNum">     243 </span>                :<span class="lineNoCov">          0 :                 dts-&gt;trip |= temps[i].trip;</span>
+<span class="lineNum">     244 </span>                :            :         }
+<span class="lineNum">     245 </span>                :            : 
+<span class="lineNum">     246 </span>                :<span class="lineNoCov">          0 :         prlog(PR_TRACE, &quot;DTS: Chip %x temp:%dC trip:%x\n&quot;,</span>
+<span class="lineNum">     247 </span>                :            :               chip_id, dts-&gt;temp, dts-&gt;trip);
+<span class="lineNum">     248 </span>                :            : 
+<span class="lineNum">     249 </span>                :            :         /*
+<span class="lineNum">     250 </span>                :            :          * FIXME: The trip bits are always set ?! Just discard
+<span class="lineNum">     251 </span>                :            :          * them for the moment until we understand why.
+<span class="lineNum">     252 </span>                :            :          */
+<span class="lineNum">     253 </span>                :<span class="lineNoCov">          0 :         dts-&gt;trip = 0;</span>
+<span class="lineNum">     254 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     255 </span>                :            : }
+<span class="lineNum">     256 </span>                :            : 
+<span class="lineNum">     257 </span>                :            : /*
+<span class="lineNum">     258 </span>                :            :  * DTS sensor class ids. Only one for the moment: the core
+<span class="lineNum">     259 </span>                :            :  * temperature.
+<span class="lineNum">     260 </span>                :            :  */
+<span class="lineNum">     261 </span>                :            : enum sensor_dts_class {
+<span class="lineNum">     262 </span>                :            :         SENSOR_DTS_CORE_TEMP,
+<span class="lineNum">     263 </span>                :            :         SENSOR_DTS_MEM_TEMP,
+<span class="lineNum">     264 </span>                :            :         /* To be continued */
+<span class="lineNum">     265 </span>                :            : };
+<span class="lineNum">     266 </span>                :            : 
+<span class="lineNum">     267 </span>                :            : /*
+<span class="lineNum">     268 </span>                :            :  * Attributes for the core temperature sensor
+<span class="lineNum">     269 </span>                :            :  */
+<span class="lineNum">     270 </span>                :            : enum {
+<span class="lineNum">     271 </span>                :            :         SENSOR_DTS_ATTR_TEMP_MAX,
+<span class="lineNum">     272 </span>                :            :         SENSOR_DTS_ATTR_TEMP_TRIP
+<a name="273"><span class="lineNum">     273 </span>                :            : };</a>
+<span class="lineNum">     274 </span>                :            : 
+<span class="lineNum">     275 </span>                :<span class="lineNoCov">          0 : int64_t dts_sensor_read(uint32_t sensor_hndl, uint32_t *sensor_data)</span>
+<span class="lineNum">     276 </span>                :            : {
+<span class="lineNum">     277 </span>                :<span class="lineNoCov">          0 :         uint8_t attr = sensor_get_attr(sensor_hndl);</span>
+<span class="lineNum">     278 </span>                :<span class="lineNoCov">          0 :         uint32_t rid = sensor_get_rid(sensor_hndl);</span>
+<span class="lineNum">     279 </span>                :            :         struct dts dts;
+<span class="lineNum">     280 </span>                :            :         int64_t rc;
+<span class="lineNum">     281 </span>                :            : 
+<span class="lineNum">     282 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (attr &gt; SENSOR_DTS_ATTR_TEMP_TRIP)</span>
+<span class="lineNum">     283 </span>                :            :                 return OPAL_PARAMETER;
+<span class="lineNum">     284 </span>                :            : 
+<span class="lineNum">     285 </span>                :<span class="lineNoCov">          0 :         memset(&amp;dts, 0, sizeof(struct dts));</span>
+<span class="lineNum">     286 </span>                :            : 
+<span class="lineNum">     287 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (sensor_get_frc(sensor_hndl) &amp; ~SENSOR_DTS) {</span>
+<span class="lineNum">     288 </span>                :            :         case SENSOR_DTS_CORE_TEMP:
+<span class="lineNum">     289 </span>                :<span class="lineNoCov">          0 :                 rc = dts_read_core_temp(rid, &amp;dts);</span>
+<span class="lineNum">     290 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     291 </span>                :            :         case SENSOR_DTS_MEM_TEMP:
+<span class="lineNum">     292 </span>                :            :                 /*
+<span class="lineNum">     293 </span>                :            :                  * restore centaur chip id which was truncated to fit
+<span class="lineNum">     294 </span>                :            :                  * in the sensor handler
+<span class="lineNum">     295 </span>                :            :                  */
+<span class="lineNum">     296 </span>                :<span class="lineNoCov">          0 :                 rid |= 0x80000000;</span>
+<span class="lineNum">     297 </span>                :<span class="lineNoCov">          0 :                 rc = dts_read_mem_temp(rid, &amp;dts);</span>
+<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     299 </span>                :            :         default:
+<span class="lineNum">     300 </span>                :            :                 rc = OPAL_PARAMETER;
+<span class="lineNum">     301 </span>                :            :                 break;
+<span class="lineNum">     302 </span>                :            :         }
+<span class="lineNum">     303 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     304 </span>                :            :                 return rc;
+<span class="lineNum">     305 </span>                :            : 
+<span class="lineNum">     306 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (attr == SENSOR_DTS_ATTR_TEMP_MAX)</span>
+<span class="lineNum">     307 </span>                :<span class="lineNoCov">          0 :                 *sensor_data = dts.temp;</span>
+<span class="lineNum">     308 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         else if (attr == SENSOR_DTS_ATTR_TEMP_TRIP)</span>
+<span class="lineNum">     309 </span>                :<span class="lineNoCov">          0 :                 *sensor_data = dts.trip;</span>
+<span class="lineNum">     310 </span>                :            : 
+<span class="lineNum">     311 </span>                :            :         return 0;
+<a name="312"><span class="lineNum">     312 </span>                :            : }</a>
+<span class="lineNum">     313 </span>                :            : 
+<span class="lineNum">     314 </span>                :<span class="lineCov">          2 : bool dts_sensor_create_nodes(struct dt_node *sensors)</span>
+<span class="lineNum">     315 </span>                :            : {
+<span class="lineNum">     316 </span>                :<span class="lineCov">          2 :         uint8_t sensor_class = SENSOR_DTS_CORE_TEMP|SENSOR_DTS;</span>
+<span class="lineNum">     317 </span>                :            : 
+<span class="lineNum">     318 </span>                :            :         struct proc_chip *chip;
+<span class="lineNum">     319 </span>                :            :         struct dt_node *cn;
+<span class="lineNum">     320 </span>                :            :         char name[64];
+<span class="lineNum">     321 </span>                :            : 
+<span class="lineNum">     322 </span>                :            :         /* build the device tree nodes :
+<span class="lineNum">     323 </span>                :            :          *
+<span class="lineNum">     324 </span>                :            :          *     sensors/core-temp@pir
+<span class="lineNum">     325 </span>                :            :          *
+<span class="lineNum">     326 </span>                :            :          * The core is identified by its PIR, is stored in the resource
+<span class="lineNum">     327 </span>                :            :          * number of the sensor handler.
+<span class="lineNum">     328 </span>                :            :          */
+<span class="lineNum">     329 </span>        [<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          4 :         for_each_chip(chip) {</span>
+<span class="lineNum">     330 </span>                :            :                 struct cpu_thread *c;
+<span class="lineNum">     331 </span>                :            : 
+<span class="lineNum">     332 </span>        [<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          4 :                 for_each_available_core_in_chip(c, chip-&gt;id) {</span>
+<span class="lineNum">     333 </span>                :            :                         struct dt_node *node;
+<span class="lineNum">     334 </span>                :            :                         uint32_t handler;
+<span class="lineNum">     335 </span>                :            : 
+<span class="lineNum">     336 </span>                :<span class="lineCov">          2 :                         snprintf(name, sizeof(name), &quot;core-temp@%x&quot;, c-&gt;pir);</span>
+<span class="lineNum">     337 </span>                :            : 
+<span class="lineNum">     338 </span>                :<span class="lineCov">          2 :                         handler = sensor_make_handler(sensor_class,</span>
+<span class="lineNum">     339 </span>                :            :                                         c-&gt;pir, SENSOR_DTS_ATTR_TEMP_MAX);
+<span class="lineNum">     340 </span>                :<span class="lineCov">          2 :                         node = dt_new(sensors, name);</span>
+<span class="lineNum">     341 </span>                :<span class="lineCov">          2 :                         dt_add_property_string(node, &quot;compatible&quot;,</span>
+<span class="lineNum">     342 </span>                :            :                                                &quot;ibm,opal-sensor&quot;);
+<span class="lineNum">     343 </span>                :<span class="lineCov">          2 :                         dt_add_property_cells(node, &quot;sensor-data&quot;, handler);</span>
+<span class="lineNum">     344 </span>                :<span class="lineCov">          2 :                         handler = sensor_make_handler(sensor_class,</span>
+<span class="lineNum">     345 </span>                :            :                                         c-&gt;pir, SENSOR_DTS_ATTR_TEMP_TRIP);
+<span class="lineNum">     346 </span>                :<span class="lineCov">          2 :                         dt_add_property_cells(node, &quot;sensor-status&quot;, handler);</span>
+<span class="lineNum">     347 </span>                :<span class="lineCov">          2 :                         dt_add_property_string(node, &quot;sensor-type&quot;, &quot;temp&quot;);</span>
+<span class="lineNum">     348 </span>                :<span class="lineCov">          2 :                         dt_add_property_cells(node, &quot;ibm,pir&quot;, c-&gt;pir);</span>
+<span class="lineNum">     349 </span>                :<span class="lineCov">          2 :                         dt_add_property_string(node, &quot;label&quot;, &quot;Core&quot;);</span>
+<span class="lineNum">     350 </span>                :            :                 }
+<span class="lineNum">     351 </span>                :            :         }
+<span class="lineNum">     352 </span>                :            : 
+<span class="lineNum">     353 </span>                :            :         sensor_class = SENSOR_DTS_MEM_TEMP|SENSOR_DTS;
+<span class="lineNum">     354 </span>                :            : 
+<span class="lineNum">     355 </span>                :            :         /*
+<span class="lineNum">     356 </span>                :            :          * sensors/mem-temp@chip for Centaurs
+<span class="lineNum">     357 </span>                :            :          */
+<span class="lineNum">     358 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         dt_for_each_compatible(dt_root, cn, &quot;ibm,centaur&quot;) {</span>
+<span class="lineNum">     359 </span>                :            :                 uint32_t chip_id;
+<span class="lineNum">     360 </span>                :            :                 struct dt_node *node;
+<span class="lineNum">     361 </span>                :            :                 uint32_t handler;
+<span class="lineNum">     362 </span>                :            : 
+<span class="lineNum">     363 </span>                :<span class="lineNoCov">          0 :                 chip_id = dt_prop_get_u32(cn, &quot;ibm,chip-id&quot;);</span>
+<span class="lineNum">     364 </span>                :            : 
+<span class="lineNum">     365 </span>                :<span class="lineNoCov">          0 :                 snprintf(name, sizeof(name), &quot;mem-temp@%x&quot;, chip_id);</span>
+<span class="lineNum">     366 </span>                :            : 
+<span class="lineNum">     367 </span>                :            :                 /*
+<span class="lineNum">     368 </span>                :            :                  * We only have two bytes for the resource
+<span class="lineNum">     369 </span>                :            :                  * identifier. Let's trunctate the centaur chip id
+<span class="lineNum">     370 </span>                :            :                  */
+<span class="lineNum">     371 </span>                :<span class="lineNoCov">          0 :                 handler = sensor_make_handler(sensor_class,</span>
+<span class="lineNum">     372 </span>                :            :                               chip_id &amp; 0xffff, SENSOR_DTS_ATTR_TEMP_MAX);
+<span class="lineNum">     373 </span>                :<span class="lineNoCov">          0 :                 node = dt_new(sensors, name);</span>
+<span class="lineNum">     374 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_string(node, &quot;compatible&quot;,</span>
+<span class="lineNum">     375 </span>                :            :                                        &quot;ibm,opal-sensor&quot;);
+<span class="lineNum">     376 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_cells(node, &quot;sensor-data&quot;, handler);</span>
+<span class="lineNum">     377 </span>                :            : 
+<span class="lineNum">     378 </span>                :<span class="lineNoCov">          0 :                 handler = sensor_make_handler(sensor_class,</span>
+<span class="lineNum">     379 </span>                :            :                                 chip_id, SENSOR_DTS_ATTR_TEMP_TRIP);
+<span class="lineNum">     380 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_cells(node, &quot;sensor-status&quot;, handler);</span>
+<span class="lineNum">     381 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_string(node, &quot;sensor-type&quot;, &quot;temp&quot;);</span>
+<span class="lineNum">     382 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_cells(node, &quot;ibm,chip-id&quot;, chip_id);</span>
+<span class="lineNum">     383 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_string(node, &quot;label&quot;, &quot;Centaur&quot;);</span>
+<span class="lineNum">     384 </span>                :            :         }
+<span class="lineNum">     385 </span>                :            : 
+<span class="lineNum">     386 </span>                :<span class="lineCov">          2 :         return true;</span>
+<span class="lineNum">     387 </span>                :            : }
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>
