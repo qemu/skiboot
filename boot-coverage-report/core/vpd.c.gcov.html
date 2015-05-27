@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -300,14 +300,14 @@
 <span class="lineNum">     229 </span>                :<span class="lineNoCov">          0 :         return;</span>
 <a name="230"><span class="lineNum">     230 </span>                :            : }</a>
 <span class="lineNum">     231 </span>                :            : 
-<span class="lineNum">     232 </span>                :<span class="lineCov">          2 : void vpd_preload(struct dt_node *hub_node)</span>
+<span class="lineNum">     232 </span>                :<span class="lineCov">          6 : void vpd_preload(struct dt_node *hub_node)</span>
 <span class="lineNum">     233 </span>                :            : {
 <span class="lineNum">     234 </span>                :            :         const uint32_t *p;
 <span class="lineNum">     235 </span>                :            :         const char *lxr;
 <span class="lineNum">     236 </span>                :            : 
-<span class="lineNum">     237 </span>                :<span class="lineCov">          2 :         p = dt_prop_get_def(hub_node, &quot;ibm,vpd-lx-info&quot;, NULL);</span>
-<span class="lineNum">     238 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!p)</span>
-<span class="lineNum">     239 </span>                :<span class="lineCov">          2 :                 return;</span>
+<span class="lineNum">     237 </span>                :<span class="lineCov">          6 :         p = dt_prop_get_def(hub_node, &quot;ibm,vpd-lx-info&quot;, NULL);</span>
+<span class="lineNum">     238 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (!p)</span>
+<span class="lineNum">     239 </span>                :<span class="lineCov">          6 :                 return;</span>
 <span class="lineNum">     240 </span>                :            : 
 <span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 :         lxr = (const char *)&amp;p[1];</span>
 <span class="lineNum">     242 </span>                :            : 

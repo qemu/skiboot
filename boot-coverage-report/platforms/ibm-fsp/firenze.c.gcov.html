@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -267,9 +267,9 @@
 <span class="lineNum">     196 </span>                :            :         }
 <a name="197"><span class="lineNum">     197 </span>                :            : }</a>
 <span class="lineNum">     198 </span>                :            : 
-<span class="lineNum">     199 </span>                :<span class="lineCov">          2 : static bool firenze_probe(void)</span>
+<span class="lineNum">     199 </span>                :<span class="lineCov">          6 : static bool firenze_probe(void)</span>
 <span class="lineNum">     200 </span>                :            : {
-<span class="lineNum">     201 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!dt_node_is_compatible(dt_root, &quot;ibm,firenze&quot;))</span>
+<span class="lineNum">     201 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (!dt_node_is_compatible(dt_root, &quot;ibm,firenze&quot;))</span>
 <span class="lineNum">     202 </span>                :            :                 return false;
 <span class="lineNum">     203 </span>                :            : 
 <span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :         firenze_dt_fixup_i2cm();</span>

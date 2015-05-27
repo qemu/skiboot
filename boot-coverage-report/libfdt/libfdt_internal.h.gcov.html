@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -137,14 +137,14 @@
 <span class="lineNum">      66 </span>                :            : const char *_fdt_find_string(const char *strtab, int tabsize, const char *s);
 <a name="67"><span class="lineNum">      67 </span>                :            : int _fdt_node_end_offset(void *fdt, int nodeoffset);</a>
 <span class="lineNum">      68 </span>                :            : 
-<span class="lineNum">      69 </span>                :<span class="lineCov">       3956 : static inline const void *_fdt_offset_ptr(const void *fdt, int offset)</span>
+<span class="lineNum">      69 </span>                :<span class="lineCov">      12210 : static inline const void *_fdt_offset_ptr(const void *fdt, int offset)</span>
 <span class="lineNum">      70 </span>                :            : {
-<span class="lineNum">      71 </span>                :<span class="lineCov">       3956 :         return (const char *)fdt + fdt_off_dt_struct(fdt) + offset;</span>
+<span class="lineNum">      71 </span>                :<span class="lineCov">      12210 :         return (const char *)fdt + fdt_off_dt_struct(fdt) + offset;</span>
 <span class="lineNum">      72 </span>                :            : }
 <span class="lineNum">      73 </span>                :            : 
 <span class="lineNum">      74 </span>                :            : static inline void *_fdt_offset_ptr_w(void *fdt, int offset)
 <span class="lineNum">      75 </span>                :            : {
-<span class="lineNum">      76 </span>                :<span class="lineCov">        742 :         return (void *)(uintptr_t)_fdt_offset_ptr(fdt, offset);</span>
+<span class="lineNum">      76 </span>                :<span class="lineCov">       2334 :         return (void *)(uintptr_t)_fdt_offset_ptr(fdt, offset);</span>
 <a name="77"><span class="lineNum">      77 </span>                :            : }</a>
 <span class="lineNum">      78 </span>                :            : 
 <span class="lineNum">      79 </span>                :<span class="lineNoCov">          0 : static inline const struct fdt_reserve_entry *_fdt_mem_rsv(const void *fdt, int n)</span>

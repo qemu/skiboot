@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">4</td>
@@ -562,14 +562,14 @@
 <span class="lineNum">     491 </span>                :            : };
 <a name="492"><span class="lineNum">     492 </span>                :            : </a>
 <span class="lineNum">     493 </span>                :            : /* Add device tree properties to describe idle states */
-<span class="lineNum">     494 </span>                :<span class="lineCov">          2 : static void add_cpu_idle_state_properties(void)</span>
+<span class="lineNum">     494 </span>                :<span class="lineCov">          6 : static void add_cpu_idle_state_properties(void)</span>
 <span class="lineNum">     495 </span>                :            : {
 <span class="lineNum">     496 </span>                :            :         struct dt_node *power_mgt;
 <span class="lineNum">     497 </span>                :            :         struct cpu_idle_states *states;
 <span class="lineNum">     498 </span>                :            :         struct proc_chip *chip;
 <span class="lineNum">     499 </span>                :            :         int nr_states;
 <span class="lineNum">     500 </span>                :            : 
-<span class="lineNum">     501 </span>                :<span class="lineCov">          2 :         bool can_sleep = true, can_winkle = true;</span>
+<span class="lineNum">     501 </span>                :<span class="lineCov">          6 :         bool can_sleep = true, can_winkle = true;</span>
 <span class="lineNum">     502 </span>                :            :         u8 i;
 <span class="lineNum">     503 </span>                :            : 
 <span class="lineNum">     504 </span>                :            :         /* Buffers to hold idle state properties */
@@ -584,11 +584,11 @@
 <span class="lineNum">     513 </span>                :            :         u8 name_buf_len;
 <span class="lineNum">     514 </span>                :            :         u8 num_supported_idle_states;
 <span class="lineNum">     515 </span>                :            : 
-<span class="lineNum">     516 </span>                :<span class="lineCov">          2 :         prlog(PR_DEBUG, &quot;CPU idle state device tree init\n&quot;);</span>
+<span class="lineNum">     516 </span>                :<span class="lineCov">          6 :         prlog(PR_DEBUG, &quot;CPU idle state device tree init\n&quot;);</span>
 <span class="lineNum">     517 </span>                :            : 
 <span class="lineNum">     518 </span>                :            :         /* Create /ibm,opal/power-mgt */
-<span class="lineNum">     519 </span>                :<span class="lineCov">          2 :         power_mgt = dt_new(opal_node, &quot;power-mgt&quot;);</span>
-<span class="lineNum">     520 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!power_mgt) {</span>
+<span class="lineNum">     519 </span>                :<span class="lineCov">          6 :         power_mgt = dt_new(opal_node, &quot;power-mgt&quot;);</span>
+<span class="lineNum">     520 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (!power_mgt) {</span>
 <span class="lineNum">     521 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR, &quot;creating dt node /ibm,opal/power-mgt failed\n&quot;);</span>
 <span class="lineNum">     522 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">     523 </span>                :            :         }
@@ -596,7 +596,7 @@
 <span class="lineNum">     525 </span>                :            :         /* Mambo currently misbehaves in nap mode vs. timebase, so let's
 <span class="lineNum">     526 </span>                :            :          * disable idle states
 <span class="lineNum">     527 </span>                :            :          */
-<span class="lineNum">     528 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (chip_quirk(QUIRK_DISABLE_NAP))</span>
+<span class="lineNum">     528 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (chip_quirk(QUIRK_DISABLE_NAP))</span>
 <span class="lineNum">     529 </span>                :            :                 return;
 <span class="lineNum">     530 </span>                :            : 
 <span class="lineNum">     531 </span>                :            :         /*
@@ -809,36 +809,36 @@
 <span class="lineNum">     737 </span>                :            :                                    bool le_mode __unused ) { }
 <a name="738"><span class="lineNum">     738 </span>                :            : #endif /* __HAVE_LIBPORE__ */</a>
 <span class="lineNum">     739 </span>                :            : 
-<span class="lineNum">     740 </span>                :<span class="lineCov">          1 : int64_t slw_reinit(uint64_t flags)</span>
+<span class="lineNum">     740 </span>                :<span class="lineCov">          5 : int64_t slw_reinit(uint64_t flags)</span>
 <span class="lineNum">     741 </span>                :            : {
 <span class="lineNum">     742 </span>                :            :         struct proc_chip *chip;
 <span class="lineNum">     743 </span>                :<span class="lineNoCov">          0 :         struct cpu_thread *cpu;</span>
-<span class="lineNum">     744 </span>                :<span class="lineCov">          1 :         bool has_waker = false;</span>
-<span class="lineNum">     745 </span>                :<span class="lineCov">          1 :         bool target_le = slw_current_le;</span>
+<span class="lineNum">     744 </span>                :<span class="lineCov">          5 :         bool has_waker = false;</span>
+<span class="lineNum">     745 </span>                :<span class="lineCov">          5 :         bool target_le = slw_current_le;</span>
 <span class="lineNum">     746 </span>                :            : 
 <span class="lineNum">     747 </span>                :            : #ifndef __HAVE_LIBPORE__
 <span class="lineNum">     748 </span>                :            :         return OPAL_UNSUPPORTED;
 <span class="lineNum">     749 </span>                :            : #endif
 <span class="lineNum">     750 </span>                :            : 
-<span class="lineNum">     751 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (proc_gen &lt; proc_gen_p8)</span>
+<span class="lineNum">     751 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          5 :         if (proc_gen &lt; proc_gen_p8)</span>
 <span class="lineNum">     752 </span>                :            :                 return OPAL_UNSUPPORTED;
 <span class="lineNum">     753 </span>                :            : 
-<span class="lineNum">     754 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         if (flags &amp; OPAL_REINIT_CPUS_HILE_BE)</span>
-<span class="lineNum">     755 </span>                :<span class="lineCov">          1 :                 target_le = false;</span>
-<span class="lineNum">     756 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (flags &amp; OPAL_REINIT_CPUS_HILE_LE)</span>
+<span class="lineNum">     754 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          5 :         if (flags &amp; OPAL_REINIT_CPUS_HILE_BE)</span>
+<span class="lineNum">     755 </span>                :<span class="lineCov">          5 :                 target_le = false;</span>
+<span class="lineNum">     756 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         if (flags &amp; OPAL_REINIT_CPUS_HILE_LE)</span>
 <span class="lineNum">     757 </span>                :<span class="lineNoCov">          0 :                 target_le = true;</span>
 <span class="lineNum">     758 </span>                :            : 
-<span class="lineNum">     759 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :         prlog(PR_TRACE, &quot;SLW Reinit from CPU PIR 0x%04x,&quot;</span>
+<span class="lineNum">     759 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          5 :         prlog(PR_TRACE, &quot;SLW Reinit from CPU PIR 0x%04x,&quot;</span>
 <span class="lineNum">     760 </span>                :            :               &quot; HILE set to %s endian...\n&quot;,
 <span class="lineNum">     761 </span>                :            :               this_cpu()-&gt;pir,
 <span class="lineNum">     762 </span>                :            :               target_le ? &quot;little&quot; : &quot;big&quot;);
 <span class="lineNum">     763 </span>                :            : 
 <span class="lineNum">     764 </span>                :            :         /* Prepare chips/cores for rvwinkle */
-<span class="lineNum">     765 </span>        [<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          1 :         for_each_chip(chip) {</span>
-<span class="lineNum">     766 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :                 if (!chip-&gt;slw_base) {</span>
-<span class="lineNum">     767 </span>                :<span class="lineCov">          1 :                         log_simple_error(&amp;e_info(OPAL_RC_SLW_INIT),</span>
+<span class="lineNum">     765 </span>        [<span class="branchCov" title="Branch 2 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          5 :         for_each_chip(chip) {</span>
+<span class="lineNum">     766 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          5 :                 if (!chip-&gt;slw_base) {</span>
+<span class="lineNum">     767 </span>                :<span class="lineCov">          5 :                         log_simple_error(&amp;e_info(OPAL_RC_SLW_INIT),</span>
 <span class="lineNum">     768 </span>                :            :                                 &quot;SLW: Not found on chip %d\n&quot;, chip-&gt;id);
-<span class="lineNum">     769 </span>                :<span class="lineCov">          1 :                         return OPAL_HARDWARE;</span>
+<span class="lineNum">     769 </span>                :<span class="lineCov">          5 :                         return OPAL_HARDWARE;</span>
 <span class="lineNum">     770 </span>                :            :                 }
 <span class="lineNum">     771 </span>                :            : 
 <span class="lineNum">     772 </span>                :<span class="lineNoCov">          0 :                 slw_patch_scans(chip, target_le);</span>
@@ -956,16 +956,16 @@
 <span class="lineNum">     883 </span>                :<span class="lineNoCov">          0 : }</span>
 <a name="884"><span class="lineNum">     884 </span>                :            : #endif /* __HAVE_LIBPORE__ */</a>
 <span class="lineNum">     885 </span>                :            : 
-<span class="lineNum">     886 </span>                :<span class="lineCov">          2 : static void slw_init_chip(struct proc_chip *chip)</span>
+<span class="lineNum">     886 </span>                :<span class="lineCov">          6 : static void slw_init_chip(struct proc_chip *chip)</span>
 <span class="lineNum">     887 </span>                :            : {
 <span class="lineNum">     888 </span>                :            :         int rc __unused;
 <span class="lineNum">     889 </span>                :            :         struct cpu_thread *c;
 <span class="lineNum">     890 </span>                :            : 
-<span class="lineNum">     891 </span>                :<span class="lineCov">          2 :         prlog(PR_DEBUG, &quot;SLW: Init chip 0x%x\n&quot;, chip-&gt;id);</span>
+<span class="lineNum">     891 </span>                :<span class="lineCov">          6 :         prlog(PR_DEBUG, &quot;SLW: Init chip 0x%x\n&quot;, chip-&gt;id);</span>
 <span class="lineNum">     892 </span>                :            : 
-<span class="lineNum">     893 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!chip-&gt;slw_base) {</span>
-<span class="lineNum">     894 </span>                :<span class="lineCov">          2 :                 prerror(&quot;SLW: No image found !\n&quot;);</span>
-<span class="lineNum">     895 </span>                :<span class="lineCov">          2 :                 return;</span>
+<span class="lineNum">     893 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (!chip-&gt;slw_base) {</span>
+<span class="lineNum">     894 </span>                :<span class="lineCov">          6 :                 prerror(&quot;SLW: No image found !\n&quot;);</span>
+<span class="lineNum">     895 </span>                :<span class="lineCov">          6 :                 return;</span>
 <span class="lineNum">     896 </span>                :            :         }
 <span class="lineNum">     897 </span>                :            : 
 <span class="lineNum">     898 </span>                :            : #ifdef __HAVE_LIBPORE__
@@ -1000,17 +1000,17 @@
 <span class="lineNum">     927 </span>                :            :         }
 <a name="928"><span class="lineNum">     928 </span>                :            : }</a>
 <span class="lineNum">     929 </span>                :            : 
-<span class="lineNum">     930 </span>                :<span class="lineCov">          2 : void slw_init(void)</span>
+<span class="lineNum">     930 </span>                :<span class="lineCov">          6 : void slw_init(void)</span>
 <span class="lineNum">     931 </span>                :            : {
 <span class="lineNum">     932 </span>                :            :         struct proc_chip *chip;
 <span class="lineNum">     933 </span>                :            : 
-<span class="lineNum">     934 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (proc_gen != proc_gen_p8)</span>
-<span class="lineNum">     935 </span>                :<span class="lineCov">          2 :                 return;</span>
+<span class="lineNum">     934 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (proc_gen != proc_gen_p8)</span>
+<span class="lineNum">     935 </span>                :<span class="lineCov">          6 :                 return;</span>
 <span class="lineNum">     936 </span>                :            : 
-<span class="lineNum">     937 </span>        [<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          4 :         for_each_chip(chip)</span>
-<span class="lineNum">     938 </span>                :<span class="lineCov">          2 :                 slw_init_chip(chip);</span>
+<span class="lineNum">     937 </span>        [<span class="branchCov" title="Branch 2 was taken 6 times"> + </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span>]:<span class="lineCov">         12 :         for_each_chip(chip)</span>
+<span class="lineNum">     938 </span>                :<span class="lineCov">          6 :                 slw_init_chip(chip);</span>
 <span class="lineNum">     939 </span>                :            : 
-<span class="lineNum">     940 </span>                :<span class="lineCov">          2 :         add_cpu_idle_state_properties();</span>
+<span class="lineNum">     940 </span>                :<span class="lineCov">          6 :         add_cpu_idle_state_properties();</span>
 <span class="lineNum">     941 </span>                :            : }
 <span class="lineNum">     942 </span>                :            : 
 <a name="943"><span class="lineNum">     943 </span>                :            : /* Workarounds while entering fast-sleep */</a>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -1353,16 +1353,16 @@
 <span class="lineNum">    1281 </span>                :            :                 msecs_to_tb(I2C_TIMEOUT_POLL_MS);
 <a name="1282"><span class="lineNum">    1282 </span>                :            : }</a>
 <span class="lineNum">    1283 </span>                :            : 
-<span class="lineNum">    1284 </span>                :<span class="lineCov">          2 : void p8_i2c_init(void)</span>
+<span class="lineNum">    1284 </span>                :<span class="lineCov">          6 : void p8_i2c_init(void)</span>
 <span class="lineNum">    1285 </span>                :            : {
 <span class="lineNum">    1286 </span>                :            :         struct dt_node *i2cm;
 <span class="lineNum">    1287 </span>                :            :         int i;
 <span class="lineNum">    1288 </span>                :            : 
-<span class="lineNum">    1289 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          6 :         for (i = 0; i &lt; MAX_I2C_TYPE; i++) {</span>
-<span class="lineNum">    1290 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 4 times"> + </span>]:<span class="lineCov">          4 :                 dt_for_each_compatible(dt_root, i2cm, compat[i])</span>
+<span class="lineNum">    1289 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">         18 :         for (i = 0; i &lt; MAX_I2C_TYPE; i++) {</span>
+<span class="lineNum">    1290 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 12 times"> + </span>]:<span class="lineCov">         12 :                 dt_for_each_compatible(dt_root, i2cm, compat[i])</span>
 <span class="lineNum">    1291 </span>                :<span class="lineNoCov">          0 :                         p8_i2c_init_one(i2cm, i);</span>
 <span class="lineNum">    1292 </span>                :            :         }
-<span class="lineNum">    1293 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">    1293 </span>                :<span class="lineCov">          6 : }</span>
 </pre>
       </td>
     </tr>

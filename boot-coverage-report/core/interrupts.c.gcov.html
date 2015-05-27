@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">3</td>
@@ -203,22 +203,22 @@
 <span class="lineNum">     132 </span>                :            : }
 <a name="133"><span class="lineNum">     133 </span>                :            : </a>
 <span class="lineNum">     134 </span>                :            : 
-<span class="lineNum">     135 </span>                :<span class="lineCov">          2 : struct dt_node *add_ics_node(void)</span>
+<span class="lineNum">     135 </span>                :<span class="lineCov">          6 : struct dt_node *add_ics_node(void)</span>
 <span class="lineNum">     136 </span>                :            : {
-<span class="lineNum">     137 </span>                :<span class="lineCov">          2 :         struct dt_node *ics = dt_new_addr(dt_root, &quot;interrupt-controller&quot;, 0);</span>
-<span class="lineNum">     138 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!ics)</span>
+<span class="lineNum">     137 </span>                :<span class="lineCov">          6 :         struct dt_node *ics = dt_new_addr(dt_root, &quot;interrupt-controller&quot;, 0);</span>
+<span class="lineNum">     138 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (!ics)</span>
 <span class="lineNum">     139 </span>                :            :                 return NULL;
 <span class="lineNum">     140 </span>                :            : 
-<span class="lineNum">     141 </span>                :<span class="lineCov">          2 :         dt_add_property_cells(ics, &quot;reg&quot;, 0, 0, 0, 0);</span>
-<span class="lineNum">     142 </span>                :<span class="lineCov">          2 :         dt_add_property_strings(ics, &quot;compatible&quot;, &quot;IBM,ppc-xics&quot;,</span>
+<span class="lineNum">     141 </span>                :<span class="lineCov">          6 :         dt_add_property_cells(ics, &quot;reg&quot;, 0, 0, 0, 0);</span>
+<span class="lineNum">     142 </span>                :<span class="lineCov">          6 :         dt_add_property_strings(ics, &quot;compatible&quot;, &quot;IBM,ppc-xics&quot;,</span>
 <span class="lineNum">     143 </span>                :            :                                 &quot;IBM,opal-xics&quot;);
-<span class="lineNum">     144 </span>                :<span class="lineCov">          2 :         dt_add_property_cells(ics, &quot;#address-cells&quot;, 0);</span>
-<span class="lineNum">     145 </span>                :<span class="lineCov">          2 :         dt_add_property_cells(ics, &quot;#interrupt-cells&quot;, 1);</span>
-<span class="lineNum">     146 </span>                :<span class="lineCov">          2 :         dt_add_property_string(ics, &quot;device_type&quot;,</span>
+<span class="lineNum">     144 </span>                :<span class="lineCov">          6 :         dt_add_property_cells(ics, &quot;#address-cells&quot;, 0);</span>
+<span class="lineNum">     145 </span>                :<span class="lineCov">          6 :         dt_add_property_cells(ics, &quot;#interrupt-cells&quot;, 1);</span>
+<span class="lineNum">     146 </span>                :<span class="lineCov">          6 :         dt_add_property_string(ics, &quot;device_type&quot;,</span>
 <span class="lineNum">     147 </span>                :            :                                &quot;PowerPC-Interrupt-Source-Controller&quot;);
-<span class="lineNum">     148 </span>                :<span class="lineCov">          2 :         dt_add_property(ics, &quot;interrupt-controller&quot;, NULL, 0);</span>
+<span class="lineNum">     148 </span>                :<span class="lineCov">          6 :         dt_add_property(ics, &quot;interrupt-controller&quot;, NULL, 0);</span>
 <span class="lineNum">     149 </span>                :            : 
-<span class="lineNum">     150 </span>                :<span class="lineCov">          2 :         return ics;</span>
+<span class="lineNum">     150 </span>                :<span class="lineCov">          6 :         return ics;</span>
 <a name="151"><span class="lineNum">     151 </span>                :            : }</a>
 <span class="lineNum">     152 </span>                :            : 
 <span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 : uint32_t get_ics_phandle(void)</span>
@@ -233,14 +233,14 @@
 <span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :         abort();</span>
 <a name="163"><span class="lineNum">     163 </span>                :            : }</a>
 <span class="lineNum">     164 </span>                :            : 
-<span class="lineNum">     165 </span>                :<span class="lineCov">          2 : void add_opal_interrupts(void)</span>
+<span class="lineNum">     165 </span>                :<span class="lineCov">          6 : void add_opal_interrupts(void)</span>
 <span class="lineNum">     166 </span>                :            : {
 <span class="lineNum">     167 </span>                :            :         struct irq_source *is;
-<span class="lineNum">     168 </span>                :<span class="lineCov">          2 :         unsigned int i, count = 0;</span>
-<span class="lineNum">     169 </span>                :<span class="lineCov">          2 :         uint32_t *irqs = NULL, isn;</span>
+<span class="lineNum">     168 </span>                :<span class="lineCov">          6 :         unsigned int i, count = 0;</span>
+<span class="lineNum">     169 </span>                :<span class="lineCov">          6 :         uint32_t *irqs = NULL, isn;</span>
 <span class="lineNum">     170 </span>                :            : 
-<span class="lineNum">     171 </span>                :<span class="lineCov">          2 :         lock(&amp;irq_lock);</span>
-<span class="lineNum">     172 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         list_for_each(&amp;irq_sources, is, link) {</span>
+<span class="lineNum">     171 </span>                :<span class="lineCov">          6 :         lock(&amp;irq_lock);</span>
+<span class="lineNum">     172 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         list_for_each(&amp;irq_sources, is, link) {</span>
 <span class="lineNum">     173 </span>                :            :                 /*
 <span class="lineNum">     174 </span>                :            :                  * Add a source to opal-interrupts if it has an
 <span class="lineNum">     175 </span>                :            :                  * -&gt;interrupt callback
@@ -253,7 +253,7 @@
 <span class="lineNum">     182 </span>                :<span class="lineNoCov">          0 :                         irqs[i] = isn;</span>
 <span class="lineNum">     183 </span>                :            :                 }
 <span class="lineNum">     184 </span>                :            :         }
-<span class="lineNum">     185 </span>                :<span class="lineCov">          2 :         unlock(&amp;irq_lock);</span>
+<span class="lineNum">     185 </span>                :<span class="lineCov">          6 :         unlock(&amp;irq_lock);</span>
 <span class="lineNum">     186 </span>                :            : 
 <span class="lineNum">     187 </span>                :            :         /* The opal-interrupts property has one cell per interrupt,
 <span class="lineNum">     188 </span>                :            :          * it is not a standard interrupt property.
@@ -261,8 +261,8 @@
 <span class="lineNum">     190 </span>                :            :          * Note: Even if empty, create it, otherwise some bogus error
 <span class="lineNum">     191 </span>                :            :          * handling in Linux can cause problems.
 <span class="lineNum">     192 </span>                :            :          */
-<span class="lineNum">     193 </span>                :<span class="lineCov">          2 :         dt_add_property(opal_node, &quot;opal-interrupts&quot;, irqs, count * 4);</span>
-<span class="lineNum">     194 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">     193 </span>                :<span class="lineCov">          6 :         dt_add_property(opal_node, &quot;opal-interrupts&quot;, irqs, count * 4);</span>
+<span class="lineNum">     194 </span>                :<span class="lineCov">          6 : }</span>
 <span class="lineNum">     195 </span>                :            : 
 <span class="lineNum">     196 </span>                :            : /*
 <span class="lineNum">     197 </span>                :            :  * This is called at init time (and one fast reboot) to sanitize the
@@ -386,7 +386,7 @@
 <span class="lineNum">     315 </span>                :            : }
 <a name="316"><span class="lineNum">     316 </span>                :            : opal_call(OPAL_HANDLE_INTERRUPT, opal_handle_interrupt, 2);</a>
 <span class="lineNum">     317 </span>                :            : 
-<span class="lineNum">     318 </span>                :<span class="lineCov">          2 : void init_interrupts(void)</span>
+<span class="lineNum">     318 </span>                :<span class="lineCov">          6 : void init_interrupts(void)</span>
 <span class="lineNum">     319 </span>                :            : {
 <span class="lineNum">     320 </span>                :            :         struct dt_node *icp;
 <span class="lineNum">     321 </span>                :            :         const struct dt_property *sranges;
@@ -394,20 +394,20 @@
 <span class="lineNum">     323 </span>                :            :         u32 base, count, i;
 <span class="lineNum">     324 </span>                :            :         u64 addr, size;
 <span class="lineNum">     325 </span>                :            : 
-<span class="lineNum">     326 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          4 :         dt_for_each_compatible(dt_root, icp, &quot;ibm,ppc-xicp&quot;) {</span>
-<span class="lineNum">     327 </span>                :<span class="lineCov">          2 :                 sranges = dt_require_property(icp,</span>
+<span class="lineNum">     326 </span>        [<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">         12 :         dt_for_each_compatible(dt_root, icp, &quot;ibm,ppc-xicp&quot;) {</span>
+<span class="lineNum">     327 </span>                :<span class="lineCov">          6 :                 sranges = dt_require_property(icp,</span>
 <span class="lineNum">     328 </span>                :            :                                               &quot;ibm,interrupt-server-ranges&quot;,
 <span class="lineNum">     329 </span>                :            :                                               -1);
-<span class="lineNum">     330 </span>                :<span class="lineCov">          2 :                 base = dt_get_number(sranges-&gt;prop, 1);</span>
-<span class="lineNum">     331 </span>                :<span class="lineCov">          2 :                 count = dt_get_number(sranges-&gt;prop + 4, 1);</span>
-<span class="lineNum">     332 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          4 :                 for (i = 0; i &lt; count; i++) {</span>
-<span class="lineNum">     333 </span>                :<span class="lineCov">          2 :                         addr = dt_get_address(icp, i, &amp;size);</span>
-<span class="lineNum">     334 </span>                :<span class="lineCov">          2 :                         cpu = find_cpu_by_server(base + i);</span>
-<span class="lineNum">     335 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :                         if (cpu)</span>
-<span class="lineNum">     336 </span>                :<span class="lineCov">          2 :                                 cpu-&gt;icp_regs = (void *)addr;</span>
+<span class="lineNum">     330 </span>                :<span class="lineCov">          6 :                 base = dt_get_number(sranges-&gt;prop, 1);</span>
+<span class="lineNum">     331 </span>                :<span class="lineCov">          6 :                 count = dt_get_number(sranges-&gt;prop + 4, 1);</span>
+<span class="lineNum">     332 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">         12 :                 for (i = 0; i &lt; count; i++) {</span>
+<span class="lineNum">     333 </span>                :<span class="lineCov">          6 :                         addr = dt_get_address(icp, i, &amp;size);</span>
+<span class="lineNum">     334 </span>                :<span class="lineCov">          6 :                         cpu = find_cpu_by_server(base + i);</span>
+<span class="lineNum">     335 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :                         if (cpu)</span>
+<span class="lineNum">     336 </span>                :<span class="lineCov">          6 :                                 cpu-&gt;icp_regs = (void *)addr;</span>
 <span class="lineNum">     337 </span>                :            :                 }
 <span class="lineNum">     338 </span>                :            :         }
-<span class="lineNum">     339 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">     339 </span>                :<span class="lineCov">          6 : }</span>
 <span class="lineNum">     340 </span>                :            : 
 </pre>
       </td>

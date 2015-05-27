@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -95,9 +95,9 @@
 <span class="lineNum">      24 </span>                :            : 
 <a name="25"><span class="lineNum">      25 </span>                :            : #include &quot;astbmc.h&quot;</a>
 <span class="lineNum">      26 </span>                :            : 
-<span class="lineNum">      27 </span>                :<span class="lineCov">          2 : static bool garrison_probe(void)</span>
+<span class="lineNum">      27 </span>                :<span class="lineCov">          6 : static bool garrison_probe(void)</span>
 <span class="lineNum">      28 </span>                :            : {
-<span class="lineNum">      29 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!dt_node_is_compatible(dt_root, &quot;ibm,garrison&quot;))</span>
+<span class="lineNum">      29 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (!dt_node_is_compatible(dt_root, &quot;ibm,garrison&quot;))</span>
 <span class="lineNum">      30 </span>                :            :                 return false;
 <span class="lineNum">      31 </span>                :            : 
 <span class="lineNum">      32 </span>                :            :         /* Lot of common early inits here */

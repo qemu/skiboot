@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -523,12 +523,12 @@
 <span class="lineNum">     452 </span>                :            :  * ensure the common marker LID read and parsing has happened
 <a name="453"><span class="lineNum">     453 </span>                :            :  * before we transfer control.</a>
 <span class="lineNum">     454 </span>                :            :  */
-<span class="lineNum">     455 </span>                :<span class="lineCov">          2 : void fsp_code_update_wait_vpd(bool is_boot)</span>
+<span class="lineNum">     455 </span>                :<span class="lineCov">          6 : void fsp_code_update_wait_vpd(bool is_boot)</span>
 <span class="lineNum">     456 </span>                :            : {
-<span class="lineNum">     457 </span>                :<span class="lineCov">          2 :         int waited = 0;</span>
+<span class="lineNum">     457 </span>                :<span class="lineCov">          6 :         int waited = 0;</span>
 <span class="lineNum">     458 </span>                :            : 
-<span class="lineNum">     459 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!fsp_present())</span>
-<span class="lineNum">     460 </span>                :<span class="lineCov">          2 :                 return;</span>
+<span class="lineNum">     459 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (!fsp_present())</span>
+<span class="lineNum">     460 </span>                :<span class="lineCov">          6 :                 return;</span>
 <span class="lineNum">     461 </span>                :            : 
 <span class="lineNum">     462 </span>                :<span class="lineNoCov">          0 :         prlog(PR_NOTICE, &quot;CUPD: Waiting read marker LID&quot;</span>
 <span class="lineNum">     463 </span>                :            :               &quot; and in flight parsm completion...\n&quot;);

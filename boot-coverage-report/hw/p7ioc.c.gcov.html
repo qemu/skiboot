@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -746,13 +746,13 @@
 <span class="lineNum">     671 </span>                :<span class="lineNoCov">          0 :         cec_register(&amp;ioc-&gt;hub);</span>
 <a name="672"><span class="lineNum">     672 </span>                :            : }</a>
 <span class="lineNum">     673 </span>                :            : 
-<span class="lineNum">     674 </span>                :<span class="lineCov">          2 : void probe_p7ioc(void)</span>
+<span class="lineNum">     674 </span>                :<span class="lineCov">          6 : void probe_p7ioc(void)</span>
 <span class="lineNum">     675 </span>                :            : {
 <span class="lineNum">     676 </span>                :            :         struct dt_node *np;
 <span class="lineNum">     677 </span>                :            : 
-<span class="lineNum">     678 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         dt_for_each_compatible(dt_root, np, &quot;ibm,p7ioc&quot;)</span>
+<span class="lineNum">     678 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         dt_for_each_compatible(dt_root, np, &quot;ibm,p7ioc&quot;)</span>
 <span class="lineNum">     679 </span>                :<span class="lineNoCov">          0 :                 p7ioc_create_hub(np);</span>
-<span class="lineNum">     680 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">     680 </span>                :<span class="lineCov">          6 : }</span>
 <span class="lineNum">     681 </span>                :            : 
 </pre>
       </td>

@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">68</td>
             <td class="headerCovTableEntry">109</td>
-            <td class="headerCovTableEntryLo">1.8 %</td>
+            <td class="headerCovTableEntryLo">62.4 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">6</td>
             <td class="headerCovTableEntry">7</td>
-            <td class="headerCovTableEntryLo">14.3 %</td>
+            <td class="headerCovTableEntryMed">85.7 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">17</td>
             <td class="headerCovTableEntry">52</td>
-            <td class="headerCovTableEntryLo">1.9 %</td>
+            <td class="headerCovTableEntryLo">32.7 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -96,15 +96,15 @@
 <span class="lineNum">      25 </span>                :            : static uint32_t nvram_size;
 <a name="26"><span class="lineNum">      26 </span>                :            : static bool nvram_ready;</a>
 <span class="lineNum">      27 </span>                :            : 
-<span class="lineNum">      28 </span>                :<span class="lineNoCov">          0 : static int64_t opal_read_nvram(uint64_t buffer, uint64_t size, uint64_t offset)</span>
+<span class="lineNum">      28 </span>                :<span class="lineCov">      34816 : static int64_t opal_read_nvram(uint64_t buffer, uint64_t size, uint64_t offset)</span>
 <span class="lineNum">      29 </span>                :            : {
-<span class="lineNum">      30 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!nvram_ready)</span>
+<span class="lineNum">      30 </span>        [<span class="branchCov" title="Branch 0 was taken 34816 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">      34816 :         if (!nvram_ready)</span>
 <span class="lineNum">      31 </span>                :            :                 return OPAL_HARDWARE;
-<span class="lineNum">      32 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (offset &gt;= nvram_size || (offset + size) &gt; nvram_size)</span>
+<span class="lineNum">      32 </span>[<span class="branchCov" title="Branch 0 was taken 34816 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 34816 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">      34816 :         if (offset &gt;= nvram_size || (offset + size) &gt; nvram_size)</span>
 <span class="lineNum">      33 </span>                :            :                 return OPAL_PARAMETER;
 <span class="lineNum">      34 </span>                :            : 
-<span class="lineNum">      35 </span>                :<span class="lineNoCov">          0 :         memcpy((void *)buffer, nvram_image + offset, size);</span>
-<span class="lineNum">      36 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<span class="lineNum">      35 </span>                :<span class="lineCov">      34816 :         memcpy((void *)buffer, nvram_image + offset, size);</span>
+<span class="lineNum">      36 </span>                :<span class="lineCov">      34816 :         return OPAL_SUCCESS;</span>
 <span class="lineNum">      37 </span>                :            : }
 <a name="38"><span class="lineNum">      38 </span>                :            : opal_call(OPAL_READ_NVRAM, opal_read_nvram, 3);</a>
 <span class="lineNum">      39 </span>                :            : 
@@ -142,83 +142,83 @@
 <span class="lineNum">      71 </span>                :            : /* 4k should be enough, famous last words... */
 <a name="72"><span class="lineNum">      72 </span>                :            : #define NVRAM_SIZE_FW_PRIV      0x1000</a>
 <span class="lineNum">      73 </span>                :            : 
-<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 : static uint8_t chrp_nv_cksum(struct chrp_nvram_hdr *hdr)</span>
+<span class="lineNum">      74 </span>                :<span class="lineCov">         24 : static uint8_t chrp_nv_cksum(struct chrp_nvram_hdr *hdr)</span>
 <span class="lineNum">      75 </span>                :            : {
-<span class="lineNum">      76 </span>                :<span class="lineNoCov">          0 :         struct chrp_nvram_hdr h_copy = *hdr;</span>
+<span class="lineNum">      76 </span>                :<span class="lineCov">         24 :         struct chrp_nvram_hdr h_copy = *hdr;</span>
 <span class="lineNum">      77 </span>                :            :         uint8_t b_data, i_sum, c_sum;
-<span class="lineNum">      78 </span>                :<span class="lineNoCov">          0 :         uint8_t *p = (uint8_t *)&amp;h_copy;</span>
-<span class="lineNum">      79 </span>                :<span class="lineNoCov">          0 :         unsigned int nbytes = sizeof(h_copy);</span>
+<span class="lineNum">      78 </span>                :<span class="lineCov">         24 :         uint8_t *p = (uint8_t *)&amp;h_copy;</span>
+<span class="lineNum">      79 </span>                :<span class="lineCov">         24 :         unsigned int nbytes = sizeof(h_copy);</span>
 <span class="lineNum">      80 </span>                :            : 
-<span class="lineNum">      81 </span>                :<span class="lineNoCov">          0 :         h_copy.cksum = 0;</span>
-<span class="lineNum">      82 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (c_sum = 0; nbytes; nbytes--) {</span>
-<span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 :                 b_data = *(p++);</span>
-<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :                 i_sum = c_sum + b_data;</span>
-<span class="lineNum">      85 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (i_sum &lt; c_sum)</span>
-<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 :                         i_sum++;</span>
-<span class="lineNum">      87 </span>                :<span class="lineNoCov">          0 :                 c_sum = i_sum;</span>
+<span class="lineNum">      81 </span>                :<span class="lineCov">         24 :         h_copy.cksum = 0;</span>
+<span class="lineNum">      82 </span>        [<span class="branchCov" title="Branch 0 was taken 384 times"> + </span><span class="branchCov" title="Branch 1 was taken 24 times"> + </span>]:<span class="lineCov">        408 :         for (c_sum = 0; nbytes; nbytes--) {</span>
+<span class="lineNum">      83 </span>                :<span class="lineCov">        384 :                 b_data = *(p++);</span>
+<span class="lineNum">      84 </span>                :<span class="lineCov">        384 :                 i_sum = c_sum + b_data;</span>
+<span class="lineNum">      85 </span>        [<span class="branchCov" title="Branch 0 was taken 84 times"> + </span><span class="branchCov" title="Branch 1 was taken 300 times"> + </span>]:<span class="lineCov">        384 :                 if (i_sum &lt; c_sum)</span>
+<span class="lineNum">      86 </span>                :<span class="lineCov">         84 :                         i_sum++;</span>
+<span class="lineNum">      87 </span>                :<span class="lineCov">        384 :                 c_sum = i_sum;</span>
 <span class="lineNum">      88 </span>                :            :         }
-<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :         return c_sum;</span>
+<span class="lineNum">      89 </span>                :<span class="lineCov">         24 :         return c_sum;</span>
 <a name="90"><span class="lineNum">      90 </span>                :            : }</a>
 <span class="lineNum">      91 </span>                :            : 
-<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 : static void nvram_format(void)</span>
+<span class="lineNum">      92 </span>                :<span class="lineCov">          6 : static void nvram_format(void)</span>
 <span class="lineNum">      93 </span>                :            : {
 <span class="lineNum">      94 </span>                :            :         struct chrp_nvram_hdr *h;
-<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 :         unsigned int offset = 0;</span>
+<span class="lineNum">      95 </span>                :<span class="lineCov">          6 :         unsigned int offset = 0;</span>
 <span class="lineNum">      96 </span>                :            : 
-<span class="lineNum">      97 </span>                :<span class="lineNoCov">          0 :         prerror(&quot;NVRAM: Re-initializing\n&quot;);</span>
-<span class="lineNum">      98 </span>                :<span class="lineNoCov">          0 :         memset(nvram_image, 0, nvram_size);</span>
+<span class="lineNum">      97 </span>                :<span class="lineCov">          6 :         prerror(&quot;NVRAM: Re-initializing\n&quot;);</span>
+<span class="lineNum">      98 </span>                :<span class="lineCov">          6 :         memset(nvram_image, 0, nvram_size);</span>
 <span class="lineNum">      99 </span>                :            : 
 <span class="lineNum">     100 </span>                :            :         /* Create private partition */
-<span class="lineNum">     101 </span>                :<span class="lineNoCov">          0 :         h = nvram_image + offset;</span>
-<span class="lineNum">     102 </span>                :<span class="lineNoCov">          0 :         h-&gt;sig = NVRAM_SIG_FW_PRIV;</span>
-<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :         h-&gt;len = NVRAM_SIZE_FW_PRIV &gt;&gt; 4;</span>
-<span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 :         strcpy(h-&gt;name, NVRAM_NAME_FW_PRIV);</span>
-<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 :         h-&gt;cksum = chrp_nv_cksum(h);</span>
-<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :         offset += NVRAM_SIZE_FW_PRIV;</span>
+<span class="lineNum">     101 </span>                :<span class="lineCov">          6 :         h = nvram_image + offset;</span>
+<span class="lineNum">     102 </span>                :<span class="lineCov">          6 :         h-&gt;sig = NVRAM_SIG_FW_PRIV;</span>
+<span class="lineNum">     103 </span>                :<span class="lineCov">          6 :         h-&gt;len = NVRAM_SIZE_FW_PRIV &gt;&gt; 4;</span>
+<span class="lineNum">     104 </span>                :<span class="lineCov">          6 :         strcpy(h-&gt;name, NVRAM_NAME_FW_PRIV);</span>
+<span class="lineNum">     105 </span>                :<span class="lineCov">          6 :         h-&gt;cksum = chrp_nv_cksum(h);</span>
+<span class="lineNum">     106 </span>                :<span class="lineCov">          6 :         offset += NVRAM_SIZE_FW_PRIV;</span>
 <span class="lineNum">     107 </span>                :            : 
 <span class="lineNum">     108 </span>                :            :         /* Create common partition */
-<span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 :         h = nvram_image + offset;</span>
-<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :         h-&gt;sig = NVRAM_SIG_SYSTEM;</span>
-<span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 :         h-&gt;len = NVRAM_SIZE_COMMON &gt;&gt; 4;</span>
-<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :         strcpy(h-&gt;name, NVRAM_NAME_COMMON);</span>
-<span class="lineNum">     113 </span>                :<span class="lineNoCov">          0 :         h-&gt;cksum = chrp_nv_cksum(h);</span>
-<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :         offset += NVRAM_SIZE_COMMON;</span>
+<span class="lineNum">     109 </span>                :<span class="lineCov">          6 :         h = nvram_image + offset;</span>
+<span class="lineNum">     110 </span>                :<span class="lineCov">          6 :         h-&gt;sig = NVRAM_SIG_SYSTEM;</span>
+<span class="lineNum">     111 </span>                :<span class="lineCov">          6 :         h-&gt;len = NVRAM_SIZE_COMMON &gt;&gt; 4;</span>
+<span class="lineNum">     112 </span>                :<span class="lineCov">          6 :         strcpy(h-&gt;name, NVRAM_NAME_COMMON);</span>
+<span class="lineNum">     113 </span>                :<span class="lineCov">          6 :         h-&gt;cksum = chrp_nv_cksum(h);</span>
+<span class="lineNum">     114 </span>                :<span class="lineCov">          6 :         offset += NVRAM_SIZE_COMMON;</span>
 <span class="lineNum">     115 </span>                :            : 
 <span class="lineNum">     116 </span>                :            :         /* Create free space partition */
-<span class="lineNum">     117 </span>                :<span class="lineNoCov">          0 :         h = nvram_image + offset;</span>
-<span class="lineNum">     118 </span>                :<span class="lineNoCov">          0 :         h-&gt;sig = NVRAM_SIG_FREE;</span>
-<span class="lineNum">     119 </span>                :<span class="lineNoCov">          0 :         h-&gt;len = (nvram_size - offset) &gt;&gt; 4;</span>
-<span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 :         strncpy(h-&gt;name, NVRAM_NAME_FREE, 12);</span>
-<span class="lineNum">     121 </span>                :<span class="lineNoCov">          0 :         h-&gt;cksum = chrp_nv_cksum(h);</span>
+<span class="lineNum">     117 </span>                :<span class="lineCov">          6 :         h = nvram_image + offset;</span>
+<span class="lineNum">     118 </span>                :<span class="lineCov">          6 :         h-&gt;sig = NVRAM_SIG_FREE;</span>
+<span class="lineNum">     119 </span>                :<span class="lineCov">          6 :         h-&gt;len = (nvram_size - offset) &gt;&gt; 4;</span>
+<span class="lineNum">     120 </span>                :<span class="lineCov">          6 :         strncpy(h-&gt;name, NVRAM_NAME_FREE, 12);</span>
+<span class="lineNum">     121 </span>                :<span class="lineCov">          6 :         h-&gt;cksum = chrp_nv_cksum(h);</span>
 <span class="lineNum">     122 </span>                :            : 
 <span class="lineNum">     123 </span>                :            :         /* Write the whole thing back */
-<span class="lineNum">     124 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (platform.nvram_write)</span>
+<span class="lineNum">     124 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (platform.nvram_write)</span>
 <span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :                 platform.nvram_write(0, nvram_image, nvram_size);</span>
-<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     126 </span>                :<span class="lineCov">          6 : }</span>
 <span class="lineNum">     127 </span>                :            : 
 <span class="lineNum">     128 </span>                :            : /*
 <span class="lineNum">     129 </span>                :            :  * Check that the nvram partition layout is sane and that it
 <span class="lineNum">     130 </span>                :            :  * contains our required partitions. If not, we re-format the
 <a name="131"><span class="lineNum">     131 </span>                :            :  * lot of it</a>
 <span class="lineNum">     132 </span>                :            :  */
-<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 : static void nvram_check(void)</span>
+<span class="lineNum">     133 </span>                :<span class="lineCov">          6 : static void nvram_check(void)</span>
 <span class="lineNum">     134 </span>                :            : {
-<span class="lineNum">     135 </span>                :<span class="lineNoCov">          0 :         unsigned int offset = 0;</span>
-<span class="lineNum">     136 </span>                :<span class="lineNoCov">          0 :         bool found_common = false;</span>
-<span class="lineNum">     137 </span>                :<span class="lineNoCov">          0 :         bool found_skiboot = false;</span>
+<span class="lineNum">     135 </span>                :<span class="lineCov">          6 :         unsigned int offset = 0;</span>
+<span class="lineNum">     136 </span>                :<span class="lineCov">          6 :         bool found_common = false;</span>
+<span class="lineNum">     137 </span>                :<span class="lineCov">          6 :         bool found_skiboot = false;</span>
 <span class="lineNum">     138 </span>                :            : 
-<span class="lineNum">     139 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while (offset + sizeof(struct chrp_nvram_hdr) &lt; nvram_size) {</span>
-<span class="lineNum">     140 </span>                :<span class="lineNoCov">          0 :                 struct chrp_nvram_hdr *h = nvram_image + offset;</span>
+<span class="lineNum">     139 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         while (offset + sizeof(struct chrp_nvram_hdr) &lt; nvram_size) {</span>
+<span class="lineNum">     140 </span>                :<span class="lineCov">          6 :                 struct chrp_nvram_hdr *h = nvram_image + offset;</span>
 <span class="lineNum">     141 </span>                :            : 
-<span class="lineNum">     142 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (chrp_nv_cksum(h) != h-&gt;cksum) {</span>
+<span class="lineNum">     142 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                 if (chrp_nv_cksum(h) != h-&gt;cksum) {</span>
 <span class="lineNum">     143 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;NVRAM: Partition at offset 0x%x&quot;</span>
 <span class="lineNum">     144 </span>                :            :                                 &quot; has bad checksum\n&quot;, offset);
 <span class="lineNum">     145 </span>                :<span class="lineNoCov">          0 :                         goto failed;</span>
 <span class="lineNum">     146 </span>                :            :                 }
-<span class="lineNum">     147 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (h-&gt;len &lt; 1) {</span>
-<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;NVRAM: Partition at offset 0x%x&quot;</span>
+<span class="lineNum">     147 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :                 if (h-&gt;len &lt; 1) {</span>
+<span class="lineNum">     148 </span>                :<span class="lineCov">          6 :                         prerror(&quot;NVRAM: Partition at offset 0x%x&quot;</span>
 <span class="lineNum">     149 </span>                :            :                                 &quot; has incorrect 0 length\n&quot;, offset);
-<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :                         goto failed;</span>
+<span class="lineNum">     150 </span>                :<span class="lineCov">          6 :                         goto failed;</span>
 <span class="lineNum">     151 </span>                :            :                 }
 <span class="lineNum">     152 </span>                :            : 
 <span class="lineNum">     153 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (h-&gt;sig == NVRAM_SIG_SYSTEM &amp;&amp;</span>
@@ -249,45 +249,45 @@
 <span class="lineNum">     178 </span>                :<span class="lineNoCov">          0 :         prerror(&quot;NVRAM: Layout appears sane\n&quot;);</span>
 <span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :         return;</span>
 <span class="lineNum">     180 </span>                :            :  failed:
-<span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :         nvram_format();</span>
+<span class="lineNum">     181 </span>                :<span class="lineCov">          6 :         nvram_format();</span>
 <a name="182"><span class="lineNum">     182 </span>                :            : }</a>
 <span class="lineNum">     183 </span>                :            : 
-<span class="lineNum">     184 </span>                :<span class="lineNoCov">          0 : void nvram_read_complete(bool success)</span>
+<span class="lineNum">     184 </span>                :<span class="lineCov">          6 : void nvram_read_complete(bool success)</span>
 <span class="lineNum">     185 </span>                :            : {
 <span class="lineNum">     186 </span>                :            :         struct dt_node *np;
 <span class="lineNum">     187 </span>                :            : 
 <span class="lineNum">     188 </span>                :            :         /* Read not successful, error out and free the buffer */
-<span class="lineNum">     189 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!success) {</span>
+<span class="lineNum">     189 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (!success) {</span>
 <span class="lineNum">     190 </span>                :<span class="lineNoCov">          0 :                 free(nvram_image);</span>
 <span class="lineNum">     191 </span>                :<span class="lineNoCov">          0 :                 nvram_size = 0;</span>
 <span class="lineNum">     192 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">     193 </span>                :            :         }
 <span class="lineNum">     194 </span>                :            : 
 <span class="lineNum">     195 </span>                :            :         /* Check and maybe format nvram */
-<span class="lineNum">     196 </span>                :<span class="lineNoCov">          0 :         nvram_check();</span>
+<span class="lineNum">     196 </span>                :<span class="lineCov">          6 :         nvram_check();</span>
 <span class="lineNum">     197 </span>                :            : 
 <span class="lineNum">     198 </span>                :            :         /* Add nvram node */
-<span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 :         np = dt_new(opal_node, &quot;nvram&quot;);</span>
-<span class="lineNum">     200 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(np, &quot;#bytes&quot;, nvram_size);</span>
-<span class="lineNum">     201 </span>                :<span class="lineNoCov">          0 :         dt_add_property_string(np, &quot;compatible&quot;, &quot;ibm,opal-nvram&quot;);</span>
+<span class="lineNum">     199 </span>                :<span class="lineCov">          6 :         np = dt_new(opal_node, &quot;nvram&quot;);</span>
+<span class="lineNum">     200 </span>                :<span class="lineCov">          6 :         dt_add_property_cells(np, &quot;#bytes&quot;, nvram_size);</span>
+<span class="lineNum">     201 </span>                :<span class="lineCov">          6 :         dt_add_property_string(np, &quot;compatible&quot;, &quot;ibm,opal-nvram&quot;);</span>
 <span class="lineNum">     202 </span>                :            : 
 <span class="lineNum">     203 </span>                :            :         /* Mark ready */
-<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :         nvram_ready = true;</span>
+<span class="lineNum">     204 </span>                :<span class="lineCov">          6 :         nvram_ready = true;</span>
 <a name="205"><span class="lineNum">     205 </span>                :            : }</a>
 <span class="lineNum">     206 </span>                :            : 
-<span class="lineNum">     207 </span>                :<span class="lineCov">          2 : void nvram_init(void)</span>
+<span class="lineNum">     207 </span>                :<span class="lineCov">          6 : void nvram_init(void)</span>
 <span class="lineNum">     208 </span>                :            : {
 <span class="lineNum">     209 </span>                :            :         int rc;
 <span class="lineNum">     210 </span>                :            : 
-<span class="lineNum">     211 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!platform.nvram_info)</span>
+<span class="lineNum">     211 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (!platform.nvram_info)</span>
 <span class="lineNum">     212 </span>                :            :                 return;
-<span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 :         rc = platform.nvram_info(&amp;nvram_size);</span>
-<span class="lineNum">     214 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     213 </span>                :<span class="lineCov">          6 :         rc = platform.nvram_info(&amp;nvram_size);</span>
+<span class="lineNum">     214 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (rc) {</span>
 <span class="lineNum">     215 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;NVRAM: Error %d retrieving nvram info\n&quot;, rc);</span>
 <span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">     217 </span>                :            :         }
-<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :         printf(&quot;NVRAM: Size is %d KB\n&quot;, nvram_size &gt;&gt; 10);</span>
-<span class="lineNum">     219 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (nvram_size &gt; 0x100000) {</span>
+<span class="lineNum">     218 </span>                :<span class="lineCov">          6 :         printf(&quot;NVRAM: Size is %d KB\n&quot;, nvram_size &gt;&gt; 10);</span>
+<span class="lineNum">     219 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (nvram_size &gt; 0x100000) {</span>
 <span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;NVRAM: Cropping to 1MB !\n&quot;);</span>
 <span class="lineNum">     221 </span>                :<span class="lineNoCov">          0 :                 nvram_size = 0x100000;</span>
 <span class="lineNum">     222 </span>                :            :         }
@@ -296,16 +296,16 @@
 <span class="lineNum">     225 </span>                :            :          * We allocate the nvram image with 4k alignment to make the
 <span class="lineNum">     226 </span>                :            :          * FSP backend job's easier
 <span class="lineNum">     227 </span>                :            :          */
-<span class="lineNum">     228 </span>                :<span class="lineNoCov">          0 :         nvram_image = memalign(0x1000, nvram_size);</span>
-<span class="lineNum">     229 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!nvram_image) {</span>
+<span class="lineNum">     228 </span>                :<span class="lineCov">          6 :         nvram_image = memalign(0x1000, nvram_size);</span>
+<span class="lineNum">     229 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (!nvram_image) {</span>
 <span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;NVRAM: Failed to allocate nvram image\n&quot;);</span>
 <span class="lineNum">     231 </span>                :<span class="lineNoCov">          0 :                 nvram_size = 0;</span>
 <span class="lineNum">     232 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">     233 </span>                :            :         }
 <span class="lineNum">     234 </span>                :            : 
 <span class="lineNum">     235 </span>                :            :         /* Read it in */
-<span class="lineNum">     236 </span>                :<span class="lineNoCov">          0 :         rc = platform.nvram_start_read(nvram_image, 0, nvram_size);</span>
-<span class="lineNum">     237 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     236 </span>                :<span class="lineCov">          6 :         rc = platform.nvram_start_read(nvram_image, 0, nvram_size);</span>
+<span class="lineNum">     237 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (rc) {</span>
 <span class="lineNum">     238 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;NVRAM: Failed to read NVRAM from FSP !\n&quot;);</span>
 <span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :                 nvram_size = 0;</span>
 <span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 :                 free(nvram_image);</span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -94,9 +94,9 @@
 <span class="lineNum">      23 </span>                :            : #include &quot;ibm-fsp.h&quot;
 <a name="24"><span class="lineNum">      24 </span>                :            : #include &quot;lxvpd.h&quot;</a>
 <span class="lineNum">      25 </span>                :            : 
-<span class="lineNum">      26 </span>                :<span class="lineCov">          2 : static bool apollo_probe(void)</span>
+<span class="lineNum">      26 </span>                :<span class="lineCov">          6 : static bool apollo_probe(void)</span>
 <span class="lineNum">      27 </span>                :            : {
-<span class="lineNum">      28 </span>                :<span class="lineCov">          2 :         return dt_node_is_compatible(dt_root, &quot;ibm,apollo&quot;);</span>
+<span class="lineNum">      28 </span>                :<span class="lineCov">          6 :         return dt_node_is_compatible(dt_root, &quot;ibm,apollo&quot;);</span>
 <a name="29"><span class="lineNum">      29 </span>                :            : }</a>
 <span class="lineNum">      30 </span>                :            : 
 <span class="lineNum">      31 </span>                :<span class="lineNoCov">          0 : static void apollo_setup_phb(struct phb *phb, unsigned int index)</span>

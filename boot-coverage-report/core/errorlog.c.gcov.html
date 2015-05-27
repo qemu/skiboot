@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">3</td>
@@ -114,11 +114,11 @@
 <span class="lineNum">      43 </span>                :            : 
 <a name="44"><span class="lineNum">      44 </span>                :            : static bool elog_available = false;</a>
 <span class="lineNum">      45 </span>                :            : 
-<span class="lineNum">      46 </span>                :<span class="lineCov">          3 : static struct errorlog *get_write_buffer(int opal_event_severity)</span>
+<span class="lineNum">      46 </span>                :<span class="lineCov">         11 : static struct errorlog *get_write_buffer(int opal_event_severity)</span>
 <span class="lineNum">      47 </span>                :            : {
 <span class="lineNum">      48 </span>                :            :         struct errorlog *buf;
 <span class="lineNum">      49 </span>                :            : 
-<span class="lineNum">      50 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         if (!elog_available)</span>
+<span class="lineNum">      50 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 11 times"> + </span>]:<span class="lineCov">         11 :         if (!elog_available)</span>
 <span class="lineNum">      51 </span>                :            :                 return NULL;
 <span class="lineNum">      52 </span>                :            : 
 <span class="lineNum">      53 </span>                :<span class="lineNoCov">          0 :         lock(&amp;elog_lock);</span>
@@ -158,12 +158,12 @@
 <span class="lineNum">      87 </span>                :            : }
 <a name="88"><span class="lineNum">      88 </span>                :            : </a>
 <span class="lineNum">      89 </span>                :            : /* Reporting of error via struct errorlog */
-<span class="lineNum">      90 </span>                :<span class="lineCov">          3 : struct errorlog *opal_elog_create(struct opal_err_info *e_info)</span>
+<span class="lineNum">      90 </span>                :<span class="lineCov">         11 : struct errorlog *opal_elog_create(struct opal_err_info *e_info)</span>
 <span class="lineNum">      91 </span>                :            : {
 <span class="lineNum">      92 </span>                :            :         struct errorlog *buf;
 <span class="lineNum">      93 </span>                :            : 
-<span class="lineNum">      94 </span>                :<span class="lineCov">          3 :         buf = get_write_buffer(e_info-&gt;sev);</span>
-<span class="lineNum">      95 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :         if (buf) {</span>
+<span class="lineNum">      94 </span>                :<span class="lineCov">         11 :         buf = get_write_buffer(e_info-&gt;sev);</span>
+<span class="lineNum">      95 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 11 times"> + </span>]:<span class="lineCov">         11 :         if (buf) {</span>
 <span class="lineNum">      96 </span>                :<span class="lineNoCov">          0 :                 buf-&gt;error_event_type = e_info-&gt;err_type;</span>
 <span class="lineNum">      97 </span>                :<span class="lineNoCov">          0 :                 buf-&gt;component_id = e_info-&gt;cmp_id;</span>
 <span class="lineNum">      98 </span>                :<span class="lineNoCov">          0 :                 buf-&gt;subsystem_id = e_info-&gt;subsystem;</span>
@@ -177,7 +177,7 @@
 <span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;elog_lock);</span>
 <span class="lineNum">     107 </span>                :            :         }
 <span class="lineNum">     108 </span>                :            : 
-<span class="lineNum">     109 </span>                :<span class="lineCov">          3 :         return buf;</span>
+<span class="lineNum">     109 </span>                :<span class="lineCov">         11 :         return buf;</span>
 <a name="110"><span class="lineNum">     110 </span>                :            : }</a>
 <span class="lineNum">     111 </span>                :            : 
 <span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 : void opal_elog_complete(struct errorlog *buf, bool success)</span>
@@ -230,28 +230,28 @@
 <span class="lineNum">     159 </span>                :            :         }
 <a name="160"><span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 : }</span></a>
 <span class="lineNum">     161 </span>                :            : 
-<span class="lineNum">     162 </span>                :<span class="lineCov">          3 : void log_simple_error(struct opal_err_info *e_info, const char *fmt, ...)</span>
+<span class="lineNum">     162 </span>                :<span class="lineCov">         11 : void log_simple_error(struct opal_err_info *e_info, const char *fmt, ...)</span>
 <span class="lineNum">     163 </span>                :            : {
 <span class="lineNum">     164 </span>                :            :         struct errorlog *buf;
-<span class="lineNum">     165 </span>                :<span class="lineCov">          3 :         int tag = 0x44455343;  /* ASCII of DESC */</span>
+<span class="lineNum">     165 </span>                :<span class="lineCov">         11 :         int tag = 0x44455343;  /* ASCII of DESC */</span>
 <span class="lineNum">     166 </span>                :            :         va_list list;
 <span class="lineNum">     167 </span>                :            :         char err_msg[250];
 <span class="lineNum">     168 </span>                :            : 
-<span class="lineNum">     169 </span>                :<span class="lineCov">          3 :         va_start(list, fmt);</span>
-<span class="lineNum">     170 </span>                :<span class="lineCov">          3 :         vsnprintf(err_msg, sizeof(err_msg), fmt, list);</span>
-<span class="lineNum">     171 </span>                :<span class="lineCov">          3 :         va_end(list);</span>
+<span class="lineNum">     169 </span>                :<span class="lineCov">         11 :         va_start(list, fmt);</span>
+<span class="lineNum">     170 </span>                :<span class="lineCov">         11 :         vsnprintf(err_msg, sizeof(err_msg), fmt, list);</span>
+<span class="lineNum">     171 </span>                :<span class="lineCov">         11 :         va_end(list);</span>
 <span class="lineNum">     172 </span>                :            : 
 <span class="lineNum">     173 </span>                :            :         /* Log the error on to Sapphire console */
-<span class="lineNum">     174 </span>                :<span class="lineCov">          3 :         prerror(&quot;%s&quot;, err_msg);</span>
+<span class="lineNum">     174 </span>                :<span class="lineCov">         11 :         prerror(&quot;%s&quot;, err_msg);</span>
 <span class="lineNum">     175 </span>                :            : 
-<span class="lineNum">     176 </span>                :<span class="lineCov">          3 :         buf = opal_elog_create(e_info);</span>
-<span class="lineNum">     177 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          3 :         if (buf == NULL)</span>
-<span class="lineNum">     178 </span>                :<span class="lineCov">          3 :                 prerror(&quot;ELOG: Error getting buffer to log error\n&quot;);</span>
+<span class="lineNum">     176 </span>                :<span class="lineCov">         11 :         buf = opal_elog_create(e_info);</span>
+<span class="lineNum">     177 </span>        [<span class="branchCov" title="Branch 0 was taken 11 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         11 :         if (buf == NULL)</span>
+<span class="lineNum">     178 </span>                :<span class="lineCov">         11 :                 prerror(&quot;ELOG: Error getting buffer to log error\n&quot;);</span>
 <span class="lineNum">     179 </span>                :            :         else {
 <span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :                 opal_elog_update_user_dump(buf, err_msg, tag, strlen(err_msg));</span>
 <span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 :                 elog_commit(buf);</span>
 <span class="lineNum">     182 </span>                :            :         }
-<a name="183"><span class="lineNum">     183 </span>                :<span class="lineCov">          3 : }</span></a>
+<a name="183"><span class="lineNum">     183 </span>                :<span class="lineCov">         11 : }</span></a>
 <span class="lineNum">     184 </span>                :            : 
 <span class="lineNum">     185 </span>                :<span class="lineNoCov">          0 : int elog_init(void)</span>
 <span class="lineNum">     186 </span>                :            : {

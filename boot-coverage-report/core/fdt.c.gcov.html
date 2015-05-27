@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">8</td>
@@ -102,45 +102,45 @@
 <span class="lineNum">      31 </span>                :            : 
 <a name="32"><span class="lineNum">      32 </span>                :            : #undef DEBUG_FDT</a>
 <span class="lineNum">      33 </span>                :            : 
-<span class="lineNum">      34 </span>                :<span class="lineCov">        432 : static void __save_err(int err, const char *str)</span>
+<span class="lineNum">      34 </span>                :<span class="lineCov">       1362 : static void __save_err(int err, const char *str)</span>
 <span class="lineNum">      35 </span>                :            : {
 <span class="lineNum">      36 </span>                :            : #ifdef DEBUG_FDT
 <span class="lineNum">      37 </span>                :            :         printf(&quot;FDT: rc: %d from \&quot;%s\&quot;\n&quot;, err, str);
 <span class="lineNum">      38 </span>                :            : #endif
-<span class="lineNum">      39 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 432 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">        432 :         if (err &amp;&amp; !fdt_error) {</span>
+<span class="lineNum">      39 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1362 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">       1362 :         if (err &amp;&amp; !fdt_error) {</span>
 <span class="lineNum">      40 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FDT: Error %d from \&quot;%s\&quot;\n&quot;, err, str);</span>
 <span class="lineNum">      41 </span>                :<span class="lineNoCov">          0 :                 fdt_error = err;</span>
 <span class="lineNum">      42 </span>                :            :         }
-<span class="lineNum">      43 </span>                :<span class="lineCov">        432 : }</span>
+<span class="lineNum">      43 </span>                :<span class="lineCov">       1362 : }</span>
 <span class="lineNum">      44 </span>                :            : 
 <a name="45"><span class="lineNum">      45 </span>                :            : #define save_err(...) __save_err(__VA_ARGS__, #__VA_ARGS__)</a>
 <span class="lineNum">      46 </span>                :            : 
-<span class="lineNum">      47 </span>                :<span class="lineCov">         96 : static void dt_property_cell(const char *name, u32 cell)</span>
+<span class="lineNum">      47 </span>                :<span class="lineCov">        312 : static void dt_property_cell(const char *name, u32 cell)</span>
 <span class="lineNum">      48 </span>                :            : {
-<span class="lineNum">      49 </span>                :<span class="lineCov">         96 :         save_err(fdt_property_cell(fdt, name, cell));</span>
-<a name="50"><span class="lineNum">      50 </span>                :<span class="lineCov">         96 : }</span></a>
+<span class="lineNum">      49 </span>                :<span class="lineCov">        312 :         save_err(fdt_property_cell(fdt, name, cell));</span>
+<a name="50"><span class="lineNum">      50 </span>                :<span class="lineCov">        312 : }</span></a>
 <span class="lineNum">      51 </span>                :            : 
-<span class="lineNum">      52 </span>                :<span class="lineCov">         48 : static void dt_begin_node(const char *name, uint32_t phandle)</span>
+<span class="lineNum">      52 </span>                :<span class="lineCov">        156 : static void dt_begin_node(const char *name, uint32_t phandle)</span>
 <span class="lineNum">      53 </span>                :            : {
-<span class="lineNum">      54 </span>                :<span class="lineCov">         48 :         save_err(fdt_begin_node(fdt, name));</span>
+<span class="lineNum">      54 </span>                :<span class="lineCov">        156 :         save_err(fdt_begin_node(fdt, name));</span>
 <span class="lineNum">      55 </span>                :            : 
 <span class="lineNum">      56 </span>                :            :         /*
 <span class="lineNum">      57 </span>                :            :          * We add both the new style &quot;phandle&quot; and the legacy
 <span class="lineNum">      58 </span>                :            :          * &quot;linux,phandle&quot; properties
 <span class="lineNum">      59 </span>                :            :          */
-<span class="lineNum">      60 </span>                :<span class="lineCov">         48 :         dt_property_cell(&quot;linux,phandle&quot;, phandle);</span>
-<span class="lineNum">      61 </span>                :<span class="lineCov">         48 :         dt_property_cell(&quot;phandle&quot;, phandle);</span>
-<a name="62"><span class="lineNum">      62 </span>                :<span class="lineCov">         48 : }</span></a>
+<span class="lineNum">      60 </span>                :<span class="lineCov">        156 :         dt_property_cell(&quot;linux,phandle&quot;, phandle);</span>
+<span class="lineNum">      61 </span>                :<span class="lineCov">        156 :         dt_property_cell(&quot;phandle&quot;, phandle);</span>
+<a name="62"><span class="lineNum">      62 </span>                :<span class="lineCov">        156 : }</span></a>
 <span class="lineNum">      63 </span>                :            : 
-<span class="lineNum">      64 </span>                :<span class="lineCov">        226 : static void dt_property(const char *name, const void *val, size_t size)</span>
+<span class="lineNum">      64 </span>                :<span class="lineCov">        696 : static void dt_property(const char *name, const void *val, size_t size)</span>
 <span class="lineNum">      65 </span>                :            : {
-<span class="lineNum">      66 </span>                :<span class="lineCov">        226 :         save_err(fdt_property(fdt, name, val, size));</span>
-<a name="67"><span class="lineNum">      67 </span>                :<span class="lineCov">        226 : }</span></a>
+<span class="lineNum">      66 </span>                :<span class="lineCov">        696 :         save_err(fdt_property(fdt, name, val, size));</span>
+<a name="67"><span class="lineNum">      67 </span>                :<span class="lineCov">        696 : }</span></a>
 <span class="lineNum">      68 </span>                :            : 
-<span class="lineNum">      69 </span>                :<span class="lineCov">         48 : static void dt_end_node(void)</span>
+<span class="lineNum">      69 </span>                :<span class="lineCov">        156 : static void dt_end_node(void)</span>
 <span class="lineNum">      70 </span>                :            : {
-<span class="lineNum">      71 </span>                :<span class="lineCov">         48 :         save_err(fdt_end_node(fdt));</span>
-<span class="lineNum">      72 </span>                :<span class="lineCov">         48 : }</span>
+<span class="lineNum">      71 </span>                :<span class="lineCov">        156 :         save_err(fdt_end_node(fdt));</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">        156 : }</span>
 <span class="lineNum">      73 </span>                :            : 
 <span class="lineNum">      74 </span>                :            : static void dump_fdt(void)
 <span class="lineNum">      75 </span>                :            : {
@@ -184,7 +184,7 @@
 <span class="lineNum">     113 </span>                :            : #endif
 <a name="114"><span class="lineNum">     114 </span>                :            : }</a>
 <span class="lineNum">     115 </span>                :            : 
-<span class="lineNum">     116 </span>                :<span class="lineCov">         48 : static void flatten_dt_node(const struct dt_node *root)</span>
+<span class="lineNum">     116 </span>                :<span class="lineCov">        156 : static void flatten_dt_node(const struct dt_node *root)</span>
 <span class="lineNum">     117 </span>                :            : {
 <span class="lineNum">     118 </span>                :            :         const struct dt_node *i;
 <span class="lineNum">     119 </span>                :            :         const struct dt_property *p;
@@ -193,23 +193,23 @@
 <span class="lineNum">     122 </span>                :            :         printf(&quot;FDT: node: %s\n&quot;, root-&gt;name);
 <span class="lineNum">     123 </span>                :            : #endif
 <span class="lineNum">     124 </span>                :            : 
-<span class="lineNum">     125 </span>        [<span class="branchCov" title="Branch 0 was taken 226 times"> + </span><span class="branchCov" title="Branch 1 was taken 48 times"> + </span>]:<span class="lineCov">        274 :         list_for_each(&amp;root-&gt;properties, p, list) {</span>
-<span class="lineNum">     126 </span>        [<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 226 times"> + </span>]:<span class="lineCov">        226 :                 if (strstarts(p-&gt;name, DT_PRIVATE))</span>
+<span class="lineNum">     125 </span>        [<span class="branchCov" title="Branch 0 was taken 696 times"> + </span><span class="branchCov" title="Branch 1 was taken 156 times"> + </span>]:<span class="lineCov">        852 :         list_for_each(&amp;root-&gt;properties, p, list) {</span>
+<span class="lineNum">     126 </span>        [<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 696 times"> + </span>]:<span class="lineCov">        696 :                 if (strstarts(p-&gt;name, DT_PRIVATE))</span>
 <span class="lineNum">     127 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
 <span class="lineNum">     128 </span>                :            : #ifdef DEBUG_FDT
 <span class="lineNum">     129 </span>                :            :                 printf(&quot;FDT:   prop: %s size: %ld\n&quot;, p-&gt;name, p-&gt;len);
 <span class="lineNum">     130 </span>                :            : #endif
-<span class="lineNum">     131 </span>                :<span class="lineCov">        226 :                 dt_property(p-&gt;name, p-&gt;prop, p-&gt;len);</span>
+<span class="lineNum">     131 </span>                :<span class="lineCov">        696 :                 dt_property(p-&gt;name, p-&gt;prop, p-&gt;len);</span>
 <span class="lineNum">     132 </span>                :            :         }
 <span class="lineNum">     133 </span>                :            : 
-<span class="lineNum">     134 </span>        [<span class="branchCov" title="Branch 0 was taken 46 times"> + </span><span class="branchCov" title="Branch 1 was taken 48 times"> + </span>]:<span class="lineCov">         94 :         list_for_each(&amp;root-&gt;children, i, list) {</span>
-<span class="lineNum">     135 </span>                :<span class="lineCov">         46 :                 dt_begin_node(i-&gt;name, i-&gt;phandle);</span>
-<span class="lineNum">     136 </span>                :<span class="lineCov">         46 :                 flatten_dt_node(i);</span>
-<span class="lineNum">     137 </span>                :<span class="lineCov">         46 :                 dt_end_node();</span>
+<span class="lineNum">     134 </span>        [<span class="branchCov" title="Branch 0 was taken 150 times"> + </span><span class="branchCov" title="Branch 1 was taken 156 times"> + </span>]:<span class="lineCov">        306 :         list_for_each(&amp;root-&gt;children, i, list) {</span>
+<span class="lineNum">     135 </span>                :<span class="lineCov">        150 :                 dt_begin_node(i-&gt;name, i-&gt;phandle);</span>
+<span class="lineNum">     136 </span>                :<span class="lineCov">        150 :                 flatten_dt_node(i);</span>
+<span class="lineNum">     137 </span>                :<span class="lineCov">        150 :                 dt_end_node();</span>
 <span class="lineNum">     138 </span>                :            :         }
-<a name="139"><span class="lineNum">     139 </span>                :<span class="lineCov">         48 : }</span></a>
+<a name="139"><span class="lineNum">     139 </span>                :<span class="lineCov">        156 : }</span></a>
 <span class="lineNum">     140 </span>                :            : 
-<span class="lineNum">     141 </span>                :<span class="lineCov">          2 : static void create_dtb_reservemap(const struct dt_node *root)</span>
+<span class="lineNum">     141 </span>                :<span class="lineCov">          6 : static void create_dtb_reservemap(const struct dt_node *root)</span>
 <span class="lineNum">     142 </span>                :            : {
 <span class="lineNum">     143 </span>                :            :         uint64_t base, size;
 <span class="lineNum">     144 </span>                :            :         const uint64_t *ranges;
@@ -217,52 +217,52 @@
 <span class="lineNum">     146 </span>                :            :         int i;
 <span class="lineNum">     147 </span>                :            : 
 <span class="lineNum">     148 </span>                :            :         /* Duplicate the reserved-ranges property into the fdt reservemap */
-<span class="lineNum">     149 </span>                :<span class="lineCov">          2 :         prop = dt_find_property(root, &quot;reserved-ranges&quot;);</span>
-<span class="lineNum">     150 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (prop) {</span>
-<span class="lineNum">     151 </span>                :<span class="lineCov">          2 :                 ranges = (const void *)prop-&gt;prop;</span>
+<span class="lineNum">     149 </span>                :<span class="lineCov">          6 :         prop = dt_find_property(root, &quot;reserved-ranges&quot;);</span>
+<span class="lineNum">     150 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (prop) {</span>
+<span class="lineNum">     151 </span>                :<span class="lineCov">          6 :                 ranges = (const void *)prop-&gt;prop;</span>
 <span class="lineNum">     152 </span>                :            : 
-<span class="lineNum">     153 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">         12 :                 for (i = 0; i &lt; prop-&gt;len / (sizeof(uint64_t) * 2); i++) {</span>
-<span class="lineNum">     154 </span>                :<span class="lineCov">         10 :                         base = *(ranges++);</span>
-<span class="lineNum">     155 </span>                :<span class="lineCov">         10 :                         size = *(ranges++);</span>
-<span class="lineNum">     156 </span>                :<span class="lineCov">         10 :                         save_err(fdt_add_reservemap_entry(fdt, base, size));</span>
+<span class="lineNum">     153 </span>        [<span class="branchCov" title="Branch 0 was taken 30 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">         36 :                 for (i = 0; i &lt; prop-&gt;len / (sizeof(uint64_t) * 2); i++) {</span>
+<span class="lineNum">     154 </span>                :<span class="lineCov">         30 :                         base = *(ranges++);</span>
+<span class="lineNum">     155 </span>                :<span class="lineCov">         30 :                         size = *(ranges++);</span>
+<span class="lineNum">     156 </span>                :<span class="lineCov">         30 :                         save_err(fdt_add_reservemap_entry(fdt, base, size));</span>
 <span class="lineNum">     157 </span>                :            :                 }
 <span class="lineNum">     158 </span>                :            :         }
 <span class="lineNum">     159 </span>                :            : 
-<span class="lineNum">     160 </span>                :<span class="lineCov">          2 :         save_err(fdt_finish_reservemap(fdt));</span>
-<a name="161"><span class="lineNum">     161 </span>                :<span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     160 </span>                :<span class="lineCov">          6 :         save_err(fdt_finish_reservemap(fdt));</span>
+<a name="161"><span class="lineNum">     161 </span>                :<span class="lineCov">          6 : }</span></a>
 <span class="lineNum">     162 </span>                :            : 
-<span class="lineNum">     163 </span>                :<span class="lineCov">          2 : void *create_dtb(const struct dt_node *root)</span>
+<span class="lineNum">     163 </span>                :<span class="lineCov">          6 : void *create_dtb(const struct dt_node *root)</span>
 <span class="lineNum">     164 </span>                :            : {
-<span class="lineNum">     165 </span>                :<span class="lineCov">          2 :         size_t len = DEVICE_TREE_MAX_SIZE;</span>
-<span class="lineNum">     166 </span>                :<span class="lineCov">          2 :         uint32_t old_last_phandle = last_phandle;</span>
+<span class="lineNum">     165 </span>                :<span class="lineCov">          6 :         size_t len = DEVICE_TREE_MAX_SIZE;</span>
+<span class="lineNum">     166 </span>                :<span class="lineCov">          6 :         uint32_t old_last_phandle = last_phandle;</span>
 <span class="lineNum">     167 </span>                :            : 
 <span class="lineNum">     168 </span>                :            :         do {
-<span class="lineNum">     169 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 if (fdt)</span>
+<span class="lineNum">     169 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                 if (fdt)</span>
 <span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 :                         free(fdt);</span>
-<span class="lineNum">     171 </span>                :<span class="lineCov">          2 :                 last_phandle = old_last_phandle;</span>
-<span class="lineNum">     172 </span>                :<span class="lineCov">          2 :                 fdt_error = 0;</span>
-<span class="lineNum">     173 </span>                :<span class="lineCov">          2 :                 fdt = malloc(len);</span>
-<span class="lineNum">     174 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 if (!fdt) {</span>
+<span class="lineNum">     171 </span>                :<span class="lineCov">          6 :                 last_phandle = old_last_phandle;</span>
+<span class="lineNum">     172 </span>                :<span class="lineCov">          6 :                 fdt_error = 0;</span>
+<span class="lineNum">     173 </span>                :<span class="lineCov">          6 :                 fdt = malloc(len);</span>
+<span class="lineNum">     174 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                 if (!fdt) {</span>
 <span class="lineNum">     175 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;dtb: could not malloc %lu\n&quot;, (long)len);</span>
 <span class="lineNum">     176 </span>                :<span class="lineNoCov">          0 :                         return NULL;</span>
 <span class="lineNum">     177 </span>                :            :                 }
 <span class="lineNum">     178 </span>                :            : 
-<span class="lineNum">     179 </span>                :<span class="lineCov">          2 :                 fdt_create(fdt, len);</span>
+<span class="lineNum">     179 </span>                :<span class="lineCov">          6 :                 fdt_create(fdt, len);</span>
 <span class="lineNum">     180 </span>                :            : 
-<span class="lineNum">     181 </span>                :<span class="lineCov">          2 :                 create_dtb_reservemap(root);</span>
+<span class="lineNum">     181 </span>                :<span class="lineCov">          6 :                 create_dtb_reservemap(root);</span>
 <span class="lineNum">     182 </span>                :            : 
 <span class="lineNum">     183 </span>                :            :                 /* Open root node */
-<span class="lineNum">     184 </span>                :<span class="lineCov">          2 :                 dt_begin_node(root-&gt;name, root-&gt;phandle);</span>
+<span class="lineNum">     184 </span>                :<span class="lineCov">          6 :                 dt_begin_node(root-&gt;name, root-&gt;phandle);</span>
 <span class="lineNum">     185 </span>                :            : 
 <span class="lineNum">     186 </span>                :            :                 /* Unflatten our live tree */
-<span class="lineNum">     187 </span>                :<span class="lineCov">          2 :                 flatten_dt_node(root);</span>
+<span class="lineNum">     187 </span>                :<span class="lineCov">          6 :                 flatten_dt_node(root);</span>
 <span class="lineNum">     188 </span>                :            : 
 <span class="lineNum">     189 </span>                :            :                 /* Close root node */
-<span class="lineNum">     190 </span>                :<span class="lineCov">          2 :                 dt_end_node();</span>
+<span class="lineNum">     190 </span>                :<span class="lineCov">          6 :                 dt_end_node();</span>
 <span class="lineNum">     191 </span>                :            : 
-<span class="lineNum">     192 </span>                :<span class="lineCov">          2 :                 save_err(fdt_finish(fdt));</span>
+<span class="lineNum">     192 </span>                :<span class="lineCov">          6 :                 save_err(fdt_finish(fdt));</span>
 <span class="lineNum">     193 </span>                :            : 
-<span class="lineNum">     194 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 if (!fdt_error)</span>
+<span class="lineNum">     194 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                 if (!fdt_error)</span>
 <span class="lineNum">     195 </span>                :            :                         break;
 <span class="lineNum">     196 </span>                :            : 
 <span class="lineNum">     197 </span>                :<span class="lineNoCov">          0 :                 len *= 2;</span>
@@ -270,11 +270,11 @@
 <span class="lineNum">     199 </span>                :            : 
 <span class="lineNum">     200 </span>                :            :         dump_fdt();
 <span class="lineNum">     201 </span>                :            : 
-<span class="lineNum">     202 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (fdt_error) {</span>
+<span class="lineNum">     202 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (fdt_error) {</span>
 <span class="lineNum">     203 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;dtb: error %s\n&quot;, fdt_strerror(fdt_error));</span>
 <span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :                 return NULL;</span>
 <span class="lineNum">     205 </span>                :            :         }
-<span class="lineNum">     206 </span>                :<span class="lineCov">          2 :         return fdt;</span>
+<span class="lineNum">     206 </span>                :<span class="lineCov">          6 :         return fdt;</span>
 <span class="lineNum">     207 </span>                :            : }
 </pre>
       </td>

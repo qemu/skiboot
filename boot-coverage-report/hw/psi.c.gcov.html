@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -985,13 +985,13 @@
 <span class="lineNum">     912 </span>                :<span class="lineNoCov">          0 :         return list_top(&amp;psis, struct psi, list);</span>
 <a name="913"><span class="lineNum">     913 </span>                :            : }</a>
 <span class="lineNum">     914 </span>                :            : 
-<span class="lineNum">     915 </span>                :<span class="lineCov">          2 : void psi_init(void)</span>
+<span class="lineNum">     915 </span>                :<span class="lineCov">          6 : void psi_init(void)</span>
 <span class="lineNum">     916 </span>                :            : {
 <span class="lineNum">     917 </span>                :            :         struct dt_node *np;
 <span class="lineNum">     918 </span>                :            : 
-<span class="lineNum">     919 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         dt_for_each_compatible(dt_root, np, &quot;ibm,psihb-x&quot;)</span>
+<span class="lineNum">     919 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         dt_for_each_compatible(dt_root, np, &quot;ibm,psihb-x&quot;)</span>
 <span class="lineNum">     920 </span>                :<span class="lineNoCov">          0 :                 psi_init_psihb(np);</span>
-<span class="lineNum">     921 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">     921 </span>                :<span class="lineCov">          6 : }</span>
 </pre>
       </td>
     </tr>

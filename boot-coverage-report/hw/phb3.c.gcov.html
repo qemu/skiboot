@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">3</td>
@@ -4567,7 +4567,7 @@
 <span class="lineNum">    4475 </span>                :<span class="lineNoCov">          0 :         add_chip_dev_associativity(np);</span>
 <a name="4476"><span class="lineNum">    4476 </span>                :            : }</a>
 <span class="lineNum">    4477 </span>                :            : 
-<span class="lineNum">    4478 </span>                :<span class="lineCov">          2 : int phb3_preload_capp_ucode(void)</span>
+<span class="lineNum">    4478 </span>                :<span class="lineCov">          6 : int phb3_preload_capp_ucode(void)</span>
 <span class="lineNum">    4479 </span>                :            : {
 <span class="lineNum">    4480 </span>                :            :         struct dt_node *p;
 <span class="lineNum">    4481 </span>                :            :         struct proc_chip *chip;
@@ -4575,11 +4575,11 @@
 <span class="lineNum">    4483 </span>                :            :         uint64_t rc;
 <span class="lineNum">    4484 </span>                :            :         int ret;
 <span class="lineNum">    4485 </span>                :            : 
-<span class="lineNum">    4486 </span>                :<span class="lineCov">          2 :         p = dt_find_compatible_node(dt_root, NULL, &quot;ibm,power8-pbcq&quot;);</span>
+<span class="lineNum">    4486 </span>                :<span class="lineCov">          6 :         p = dt_find_compatible_node(dt_root, NULL, &quot;ibm,power8-pbcq&quot;);</span>
 <span class="lineNum">    4487 </span>                :            : 
-<span class="lineNum">    4488 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!p) {</span>
-<span class="lineNum">    4489 </span>                :<span class="lineCov">          2 :                 printf(&quot;CAPI: WARNING: no compat thing found\n&quot;);</span>
-<span class="lineNum">    4490 </span>                :<span class="lineCov">          2 :                 return OPAL_SUCCESS;</span>
+<span class="lineNum">    4488 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (!p) {</span>
+<span class="lineNum">    4489 </span>                :<span class="lineCov">          6 :                 printf(&quot;CAPI: WARNING: no compat thing found\n&quot;);</span>
+<span class="lineNum">    4490 </span>                :<span class="lineCov">          6 :                 return OPAL_SUCCESS;</span>
 <span class="lineNum">    4491 </span>                :            :         }
 <span class="lineNum">    4492 </span>                :            : 
 <span class="lineNum">    4493 </span>                :<span class="lineNoCov">          0 :         chip = get_chip(dt_get_chip_id(p));</span>
@@ -4628,29 +4628,29 @@
 <span class="lineNum">    4536 </span>                :<span class="lineNoCov">          0 :         return ret;</span>
 <a name="4537"><span class="lineNum">    4537 </span>                :            : }</a>
 <span class="lineNum">    4538 </span>                :            : 
-<span class="lineNum">    4539 </span>                :<span class="lineCov">          2 : void phb3_preload_vpd(void)</span>
+<span class="lineNum">    4539 </span>                :<span class="lineCov">          6 : void phb3_preload_vpd(void)</span>
 <span class="lineNum">    4540 </span>                :            : {
 <span class="lineNum">    4541 </span>                :            :         const struct dt_property *prop;
 <span class="lineNum">    4542 </span>                :            : 
-<span class="lineNum">    4543 </span>                :<span class="lineCov">          2 :         prop = dt_find_property(dt_root, &quot;ibm,io-vpd&quot;);</span>
-<span class="lineNum">    4544 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!prop) {</span>
+<span class="lineNum">    4543 </span>                :<span class="lineCov">          6 :         prop = dt_find_property(dt_root, &quot;ibm,io-vpd&quot;);</span>
+<span class="lineNum">    4544 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (!prop) {</span>
 <span class="lineNum">    4545 </span>                :            :                 /* LX VPD Lid not already loaded */
-<span class="lineNum">    4546 </span>                :<span class="lineCov">          2 :                 vpd_preload(dt_root);</span>
+<span class="lineNum">    4546 </span>                :<span class="lineCov">          6 :                 vpd_preload(dt_root);</span>
 <span class="lineNum">    4547 </span>                :            :         }
-<a name="4548"><span class="lineNum">    4548 </span>                :<span class="lineCov">          2 : }</span></a>
+<a name="4548"><span class="lineNum">    4548 </span>                :<span class="lineCov">          6 : }</span></a>
 <span class="lineNum">    4549 </span>                :            : 
-<span class="lineNum">    4550 </span>                :<span class="lineCov">          2 : void probe_phb3(void)</span>
+<span class="lineNum">    4550 </span>                :<span class="lineCov">          6 : void probe_phb3(void)</span>
 <span class="lineNum">    4551 </span>                :            : {
 <span class="lineNum">    4552 </span>                :            :         struct dt_node *np;
 <span class="lineNum">    4553 </span>                :            : 
 <span class="lineNum">    4554 </span>                :            :         /* Look for PBCQ XSCOM nodes */
-<span class="lineNum">    4555 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         dt_for_each_compatible(dt_root, np, &quot;ibm,power8-pbcq&quot;)</span>
+<span class="lineNum">    4555 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         dt_for_each_compatible(dt_root, np, &quot;ibm,power8-pbcq&quot;)</span>
 <span class="lineNum">    4556 </span>                :<span class="lineNoCov">          0 :                 phb3_probe_pbcq(np);</span>
 <span class="lineNum">    4557 </span>                :            : 
 <span class="lineNum">    4558 </span>                :            :         /* Look for newly created PHB nodes */
-<span class="lineNum">    4559 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         dt_for_each_compatible(dt_root, np, &quot;ibm,power8-pciex&quot;)</span>
+<span class="lineNum">    4559 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         dt_for_each_compatible(dt_root, np, &quot;ibm,power8-pciex&quot;)</span>
 <span class="lineNum">    4560 </span>                :<span class="lineNoCov">          0 :                 phb3_create(np);</span>
-<span class="lineNum">    4561 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">    4561 </span>                :<span class="lineCov">          6 : }</span>
 </pre>
       </td>
     </tr>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">2</td>
@@ -208,9 +208,9 @@
 <span class="lineNum">     137 </span>                :            :  *          this API standpoint.
 <a name="138"><span class="lineNum">     138 </span>                :            :  */</a>
 <span class="lineNum">     139 </span>                :            : 
-<span class="lineNum">     140 </span>                :<span class="lineCov">         12 : static inline bool cpu_is_available(struct cpu_thread *cpu)</span>
+<span class="lineNum">     140 </span>                :<span class="lineCov">         36 : static inline bool cpu_is_available(struct cpu_thread *cpu)</span>
 <span class="lineNum">     141 </span>                :            : {
-<span class="lineNum">     142 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          6 :         return cpu-&gt;state == cpu_state_active ||</span>
+<span class="lineNum">     142 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 18 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">         18 :         return cpu-&gt;state == cpu_state_active ||</span>
 <span class="lineNum">     143 </span>                :            :                 cpu-&gt;state == cpu_state_rvwinkle;
 <span class="lineNum">     144 </span>                :            : }
 <span class="lineNum">     145 </span>                :            : 
@@ -234,7 +234,7 @@
 <span class="lineNum">     163 </span>                :            : register struct cpu_thread *__this_cpu asm(&quot;r13&quot;);
 <span class="lineNum">     164 </span>                :            : static inline __nomcount struct cpu_thread *this_cpu(void)
 <span class="lineNum">     165 </span>                :            : {
-<span class="lineNum">     166 </span>                :<span class="lineCov">      93983 :         return __this_cpu;</span>
+<span class="lineNum">     166 </span>                :<span class="lineCov">     502705 :         return __this_cpu;</span>
 <span class="lineNum">     167 </span>                :            : }
 <span class="lineNum">     168 </span>                :            : 
 <span class="lineNum">     169 </span>                :            : /* Get the thread # of a cpu within the core */
@@ -298,10 +298,10 @@
 <span class="lineNum">     227 </span>                :            : /* Fallback to running jobs synchronously for global jobs */
 <a name="228"><span class="lineNum">     228 </span>                :            : extern void cpu_process_local_jobs(void);</a>
 <span class="lineNum">     229 </span>                :            : 
-<span class="lineNum">     230 </span>                :<span class="lineCov">          2 : static inline void cpu_give_self_os(void)</span>
+<span class="lineNum">     230 </span>                :<span class="lineCov">          6 : static inline void cpu_give_self_os(void)</span>
 <span class="lineNum">     231 </span>                :            : {
-<span class="lineNum">     232 </span>                :<span class="lineCov">          2 :         __this_cpu-&gt;state = cpu_state_os;</span>
-<span class="lineNum">     233 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">     232 </span>                :<span class="lineCov">          6 :         __this_cpu-&gt;state = cpu_state_os;</span>
+<span class="lineNum">     233 </span>                :<span class="lineCov">          6 : }</span>
 <span class="lineNum">     234 </span>                :            : 
 <span class="lineNum">     235 </span>                :            : extern unsigned long __attrconst cpu_stack_bottom(unsigned int pir);
 <span class="lineNum">     236 </span>                :            : extern unsigned long __attrconst cpu_stack_top(unsigned int pir);

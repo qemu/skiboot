@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">302</td>
+            <td class="headerCovTableEntry">299</td>
             <td class="headerCovTableEntry">429</td>
-            <td class="headerCovTableEntryLo">70.4 %</td>
+            <td class="headerCovTableEntryLo">69.7 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">26</td>
+            <td class="headerCovTableEntry">25</td>
             <td class="headerCovTableEntry">34</td>
-            <td class="headerCovTableEntryMed">76.5 %</td>
+            <td class="headerCovTableEntryLo">73.5 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">145</td>
+            <td class="headerCovTableEntry">142</td>
             <td class="headerCovTableEntry">290</td>
-            <td class="headerCovTableEntryLo">50.0 %</td>
+            <td class="headerCovTableEntryLo">49.0 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -179,41 +179,41 @@
 <span class="lineNum">     108 </span>                :            : /* Avoid ugly casts. */
 <a name="109"><span class="lineNum">     109 </span>                :            : static void *region_start(const struct mem_region *region)</a>
 <span class="lineNum">     110 </span>                :            : {
-<span class="lineNum">     111 </span>                :<span class="lineCov">       1608 :         return (void *)(unsigned long)region-&gt;start;</span>
+<span class="lineNum">     111 </span>                :<span class="lineCov">       4944 :         return (void *)(unsigned long)region-&gt;start;</span>
 <span class="lineNum">     112 </span>                :            : }
 <a name="113"><span class="lineNum">     113 </span>                :            : </a>
 <span class="lineNum">     114 </span>                :            : /* Each free block has a tailer, so we can walk backwards. */
-<span class="lineNum">     115 </span>                :<span class="lineCov">       1068 : static unsigned long *tailer(struct free_hdr *f)</span>
+<span class="lineNum">     115 </span>                :<span class="lineCov">       3282 : static unsigned long *tailer(struct free_hdr *f)</span>
 <span class="lineNum">     116 </span>                :            : {
-<span class="lineNum">     117 </span>                :<span class="lineCov">       1068 :         return (unsigned long *)f + f-&gt;hdr.num_longs - 1;</span>
+<span class="lineNum">     117 </span>                :<span class="lineCov">       3282 :         return (unsigned long *)f + f-&gt;hdr.num_longs - 1;</span>
 <span class="lineNum">     118 </span>                :            : }
 <span class="lineNum">     119 </span>                :            : 
 <span class="lineNum">     120 </span>                :            : /* This walks forward to the next hdr (or NULL if at the end). */
-<span class="lineNum">     121 </span>                :<span class="lineCov">       1554 : static struct alloc_hdr *next_hdr(const struct mem_region *region,</span>
+<span class="lineNum">     121 </span>                :<span class="lineCov">       4782 : static struct alloc_hdr *next_hdr(const struct mem_region *region,</span>
 <span class="lineNum">     122 </span>                :            :                                   const struct alloc_hdr *hdr)
 <span class="lineNum">     123 </span>                :            : {
 <span class="lineNum">     124 </span>                :            :         void *next;
 <span class="lineNum">     125 </span>                :            : 
-<span class="lineNum">     126 </span>                :<span class="lineCov">       1554 :         next = ((unsigned long *)hdr + hdr-&gt;num_longs);</span>
-<span class="lineNum">     127 </span>        [<span class="branchCov" title="Branch 0 was taken 996 times"> + </span><span class="branchCov" title="Branch 1 was taken 558 times"> + </span>]:<span class="lineCov">       1554 :         if (next &gt;= region_start(region) + region-&gt;len)</span>
-<span class="lineNum">     128 </span>                :<span class="lineCov">        996 :                 next = NULL;</span>
-<span class="lineNum">     129 </span>                :<span class="lineCov">       1554 :         return next;</span>
+<span class="lineNum">     126 </span>                :<span class="lineCov">       4782 :         next = ((unsigned long *)hdr + hdr-&gt;num_longs);</span>
+<span class="lineNum">     127 </span>        [<span class="branchCov" title="Branch 0 was taken 3060 times"> + </span><span class="branchCov" title="Branch 1 was taken 1722 times"> + </span>]:<span class="lineCov">       4782 :         if (next &gt;= region_start(region) + region-&gt;len)</span>
+<span class="lineNum">     128 </span>                :<span class="lineCov">       3060 :                 next = NULL;</span>
+<span class="lineNum">     129 </span>                :<span class="lineCov">       4782 :         return next;</span>
 <span class="lineNum">     130 </span>                :            : }
 <span class="lineNum">     131 </span>                :            : 
 <span class="lineNum">     132 </span>                :            : /* Creates free block covering entire region. */
-<span class="lineNum">     133 </span>                :<span class="lineCov">          4 : static void init_allocatable_region(struct mem_region *region)</span>
+<span class="lineNum">     133 </span>                :<span class="lineCov">         12 : static void init_allocatable_region(struct mem_region *region)</span>
 <span class="lineNum">     134 </span>                :            : {
-<span class="lineNum">     135 </span>                :<span class="lineCov">          8 :         struct free_hdr *f = region_start(region);</span>
-<span class="lineNum">     136 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :         assert(region-&gt;type == REGION_SKIBOOT_HEAP);</span>
-<span class="lineNum">     137 </span>                :<span class="lineCov">          4 :         f-&gt;hdr.num_longs = region-&gt;len / sizeof(long);</span>
-<span class="lineNum">     138 </span>                :<span class="lineCov">          4 :         f-&gt;hdr.free = true;</span>
-<span class="lineNum">     139 </span>                :<span class="lineCov">          4 :         f-&gt;hdr.prev_free = false;</span>
-<span class="lineNum">     140 </span>                :<span class="lineCov">          4 :         *tailer(f) = f-&gt;hdr.num_longs;</span>
-<span class="lineNum">     141 </span>                :<span class="lineCov">          4 :         list_head_init(&amp;region-&gt;free_list);</span>
+<span class="lineNum">     135 </span>                :<span class="lineCov">         24 :         struct free_hdr *f = region_start(region);</span>
+<span class="lineNum">     136 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         12 :         assert(region-&gt;type == REGION_SKIBOOT_HEAP);</span>
+<span class="lineNum">     137 </span>                :<span class="lineCov">         12 :         f-&gt;hdr.num_longs = region-&gt;len / sizeof(long);</span>
+<span class="lineNum">     138 </span>                :<span class="lineCov">         12 :         f-&gt;hdr.free = true;</span>
+<span class="lineNum">     139 </span>                :<span class="lineCov">         12 :         f-&gt;hdr.prev_free = false;</span>
+<span class="lineNum">     140 </span>                :<span class="lineCov">         12 :         *tailer(f) = f-&gt;hdr.num_longs;</span>
+<span class="lineNum">     141 </span>                :<span class="lineCov">         12 :         list_head_init(&amp;region-&gt;free_list);</span>
 <span class="lineNum">     142 </span>                :            :         list_add(&amp;region-&gt;free_list, &amp;f-&gt;list);
-<a name="143"><span class="lineNum">     143 </span>                :<span class="lineCov">          4 : }</span></a>
+<a name="143"><span class="lineNum">     143 </span>                :<span class="lineCov">         12 : }</span></a>
 <span class="lineNum">     144 </span>                :            : 
-<span class="lineNum">     145 </span>                :<span class="lineCov">       1076 : static void make_free(struct mem_region *region, struct free_hdr *f,</span>
+<span class="lineNum">     145 </span>                :<span class="lineCov">       3312 : static void make_free(struct mem_region *region, struct free_hdr *f,</span>
 <span class="lineNum">     146 </span>                :            :                       const char *location)
 <span class="lineNum">     147 </span>                :            : {
 <span class="lineNum">     148 </span>                :            :         struct alloc_hdr *next;
@@ -227,82 +227,82 @@
 <span class="lineNum">     156 </span>                :            : 
 <span class="lineNum">     157 </span>                :            :         memset(f+1, POISON_MEM_REGION_WITH, poison_size);
 <span class="lineNum">     158 </span>                :            : #endif
-<span class="lineNum">     159 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchCov" title="Branch 1 was taken 536 times"> + </span>]:<span class="lineCov">        546 :         if (f-&gt;hdr.prev_free) {</span>
+<span class="lineNum">     159 </span>        [<span class="branchCov" title="Branch 0 was taken 30 times"> + </span><span class="branchCov" title="Branch 1 was taken 1650 times"> + </span>]:<span class="lineCov">       1680 :         if (f-&gt;hdr.prev_free) {</span>
 <span class="lineNum">     160 </span>                :            :                 struct free_hdr *prev;
-<span class="lineNum">     161 </span>                :<span class="lineCov">         10 :                 unsigned long *prev_tailer = (unsigned long *)f - 1;</span>
+<span class="lineNum">     161 </span>                :<span class="lineCov">         30 :                 unsigned long *prev_tailer = (unsigned long *)f - 1;</span>
 <span class="lineNum">     162 </span>                :            : 
-<span class="lineNum">     163 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         10 :                 assert(*prev_tailer);</span>
-<span class="lineNum">     164 </span>                :<span class="lineCov">         10 :                 prev = (void *)((unsigned long *)f - *prev_tailer);</span>
-<span class="lineNum">     165 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         10 :                 assert(prev-&gt;hdr.free);</span>
-<span class="lineNum">     166 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         10 :                 assert(!prev-&gt;hdr.prev_free);</span>
+<span class="lineNum">     163 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>]:<span class="lineCov">         30 :                 assert(*prev_tailer);</span>
+<span class="lineNum">     164 </span>                :<span class="lineCov">         30 :                 prev = (void *)((unsigned long *)f - *prev_tailer);</span>
+<span class="lineNum">     165 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>]:<span class="lineCov">         30 :                 assert(prev-&gt;hdr.free);</span>
+<span class="lineNum">     166 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>]:<span class="lineCov">         30 :                 assert(!prev-&gt;hdr.prev_free);</span>
 <span class="lineNum">     167 </span>                :            : 
 <span class="lineNum">     168 </span>                :            :                 /* Expand to cover the one we just freed. */
-<span class="lineNum">     169 </span>                :<span class="lineCov">         10 :                 prev-&gt;hdr.num_longs += f-&gt;hdr.num_longs;</span>
-<span class="lineNum">     170 </span>                :<span class="lineCov">         10 :                 f = prev;</span>
+<span class="lineNum">     169 </span>                :<span class="lineCov">         30 :                 prev-&gt;hdr.num_longs += f-&gt;hdr.num_longs;</span>
+<span class="lineNum">     170 </span>                :<span class="lineCov">         30 :                 f = prev;</span>
 <span class="lineNum">     171 </span>                :            :         } else {
-<span class="lineNum">     172 </span>                :<span class="lineCov">        536 :                 f-&gt;hdr.free = true;</span>
-<span class="lineNum">     173 </span>                :<span class="lineCov">        536 :                 f-&gt;hdr.location = location;</span>
-<span class="lineNum">     174 </span>                :<span class="lineCov">        536 :                 list_add(&amp;region-&gt;free_list, &amp;f-&gt;list);</span>
+<span class="lineNum">     172 </span>                :<span class="lineCov">       1650 :                 f-&gt;hdr.free = true;</span>
+<span class="lineNum">     173 </span>                :<span class="lineCov">       1650 :                 f-&gt;hdr.location = location;</span>
+<span class="lineNum">     174 </span>                :<span class="lineCov">       1650 :                 list_add(&amp;region-&gt;free_list, &amp;f-&gt;list);</span>
 <span class="lineNum">     175 </span>                :            :         }
 <span class="lineNum">     176 </span>                :            : 
 <span class="lineNum">     177 </span>                :            :         /* Fix up tailer. */
-<span class="lineNum">     178 </span>                :<span class="lineCov">        546 :         *tailer(f) = f-&gt;hdr.num_longs;</span>
+<span class="lineNum">     178 </span>                :<span class="lineCov">       1680 :         *tailer(f) = f-&gt;hdr.num_longs;</span>
 <span class="lineNum">     179 </span>                :            : 
 <span class="lineNum">     180 </span>                :            :         /* If next is free, coalesce it */
-<span class="lineNum">     181 </span>                :<span class="lineCov">        546 :         next = next_hdr(region, &amp;f-&gt;hdr);</span>
-<span class="lineNum">     182 </span>        [<span class="branchCov" title="Branch 0 was taken 50 times"> + </span><span class="branchCov" title="Branch 1 was taken 496 times"> + </span>]:<span class="lineCov">        546 :         if (next) {</span>
-<span class="lineNum">     183 </span>                :<span class="lineCov">         50 :                 next-&gt;prev_free = true;</span>
-<span class="lineNum">     184 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchCov" title="Branch 1 was taken 42 times"> + </span>]:<span class="lineCov">         50 :                 if (next-&gt;free) {</span>
-<span class="lineNum">     185 </span>                :<span class="lineCov">          8 :                         struct free_hdr *next_free = (void *)next;</span>
-<span class="lineNum">     186 </span>                :<span class="lineCov">          8 :                         list_del_from(&amp;region-&gt;free_list, &amp;next_free-&gt;list);</span>
+<span class="lineNum">     181 </span>                :<span class="lineCov">       1680 :         next = next_hdr(region, &amp;f-&gt;hdr);</span>
+<span class="lineNum">     182 </span>        [<span class="branchCov" title="Branch 0 was taken 156 times"> + </span><span class="branchCov" title="Branch 1 was taken 1524 times"> + </span>]:<span class="lineCov">       1680 :         if (next) {</span>
+<span class="lineNum">     183 </span>                :<span class="lineCov">        156 :                 next-&gt;prev_free = true;</span>
+<span class="lineNum">     184 </span>        [<span class="branchCov" title="Branch 0 was taken 24 times"> + </span><span class="branchCov" title="Branch 1 was taken 132 times"> + </span>]:<span class="lineCov">        156 :                 if (next-&gt;free) {</span>
+<span class="lineNum">     185 </span>                :<span class="lineCov">         24 :                         struct free_hdr *next_free = (void *)next;</span>
+<span class="lineNum">     186 </span>                :<span class="lineCov">         24 :                         list_del_from(&amp;region-&gt;free_list, &amp;next_free-&gt;list);</span>
 <span class="lineNum">     187 </span>                :            :                         /* Maximum of one level of recursion */
 <span class="lineNum">     188 </span>                :            :                         make_free(region, next_free, location);
 <span class="lineNum">     189 </span>                :            :                 }
 <span class="lineNum">     190 </span>                :            :         }
-<span class="lineNum">     191 </span>                :<span class="lineCov">        538 : }</span>
+<span class="lineNum">     191 </span>                :<span class="lineCov">       1656 : }</span>
 <a name="192"><span class="lineNum">     192 </span>                :            : </a>
 <span class="lineNum">     193 </span>                :            : /* Can we fit this many longs with this alignment in this free block? */
-<span class="lineNum">     194 </span>                :<span class="lineCov">        528 : static bool fits(struct free_hdr *f, size_t longs, size_t align, size_t *offset)</span>
+<span class="lineNum">     194 </span>                :<span class="lineCov">       1620 : static bool fits(struct free_hdr *f, size_t longs, size_t align, size_t *offset)</span>
 <span class="lineNum">     195 </span>                :            : {
-<span class="lineNum">     196 </span>                :<span class="lineCov">        528 :         *offset = 0;</span>
+<span class="lineNum">     196 </span>                :<span class="lineCov">       1620 :         *offset = 0;</span>
 <span class="lineNum">     197 </span>                :            : 
-<span class="lineNum">     198 </span>        [<span class="branchCov" title="Branch 0 was taken 1530 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">       1540 :         while (f-&gt;hdr.num_longs &gt;= *offset + longs) {</span>
+<span class="lineNum">     198 </span>        [<span class="branchCov" title="Branch 0 was taken 5364 times"> + </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>]:<span class="lineCov">       5394 :         while (f-&gt;hdr.num_longs &gt;= *offset + longs) {</span>
 <span class="lineNum">     199 </span>                :            :                 size_t addr;
 <span class="lineNum">     200 </span>                :            : 
-<span class="lineNum">     201 </span>                :<span class="lineCov">       3060 :                 addr = (unsigned long)f</span>
-<span class="lineNum">     202 </span>                :<span class="lineCov">       1530 :                         + (*offset + ALLOC_HDR_LONGS) * sizeof(long);</span>
-<span class="lineNum">     203 </span>        [<span class="branchCov" title="Branch 0 was taken 1012 times"> + </span><span class="branchCov" title="Branch 1 was taken 518 times"> + </span>]:<span class="lineCov">       1530 :                 if ((addr &amp; (align - 1)) == 0)</span>
+<span class="lineNum">     201 </span>                :<span class="lineCov">      10728 :                 addr = (unsigned long)f</span>
+<span class="lineNum">     202 </span>                :<span class="lineCov">       5364 :                         + (*offset + ALLOC_HDR_LONGS) * sizeof(long);</span>
+<span class="lineNum">     203 </span>        [<span class="branchCov" title="Branch 0 was taken 3774 times"> + </span><span class="branchCov" title="Branch 1 was taken 1590 times"> + </span>]:<span class="lineCov">       5364 :                 if ((addr &amp; (align - 1)) == 0)</span>
 <span class="lineNum">     204 </span>                :            :                         return true;
 <span class="lineNum">     205 </span>                :            : 
 <span class="lineNum">     206 </span>                :            :                 /* Don't make tiny chunks! */
-<span class="lineNum">     207 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 1010 times"> + </span>]:<span class="lineCov">       1012 :                 if (*offset == 0)</span>
-<span class="lineNum">     208 </span>                :<span class="lineCov">          2 :                         *offset = ALLOC_MIN_LONGS;</span>
+<span class="lineNum">     207 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 3762 times"> + </span>]:<span class="lineCov">       3774 :                 if (*offset == 0)</span>
+<span class="lineNum">     208 </span>                :<span class="lineCov">         12 :                         *offset = ALLOC_MIN_LONGS;</span>
 <span class="lineNum">     209 </span>                :            :                 else
-<span class="lineNum">     210 </span>                :<span class="lineCov">       1012 :                         (*offset)++;</span>
+<span class="lineNum">     210 </span>                :<span class="lineCov">       3774 :                         (*offset)++;</span>
 <span class="lineNum">     211 </span>                :            :         }
 <span class="lineNum">     212 </span>                :            :         return false;
 <a name="213"><span class="lineNum">     213 </span>                :            : }</a>
 <span class="lineNum">     214 </span>                :            : 
-<span class="lineNum">     215 </span>                :<span class="lineCov">        518 : static void discard_excess(struct mem_region *region,</span>
+<span class="lineNum">     215 </span>                :<span class="lineCov">       1590 : static void discard_excess(struct mem_region *region,</span>
 <span class="lineNum">     216 </span>                :            :                            struct alloc_hdr *hdr, size_t alloc_longs,
 <span class="lineNum">     217 </span>                :            :                            const char *location)
 <span class="lineNum">     218 </span>                :            : {
 <span class="lineNum">     219 </span>                :            :         /* Do we have excess? */
-<span class="lineNum">     220 </span>        [<span class="branchCov" title="Branch 0 was taken 492 times"> + </span><span class="branchCov" title="Branch 1 was taken 26 times"> + </span>]:<span class="lineCov">        518 :         if (hdr-&gt;num_longs &gt; alloc_longs + ALLOC_MIN_LONGS) {</span>
+<span class="lineNum">     220 </span>        [<span class="branchCov" title="Branch 0 was taken 1512 times"> + </span><span class="branchCov" title="Branch 1 was taken 78 times"> + </span>]:<span class="lineCov">       1590 :         if (hdr-&gt;num_longs &gt; alloc_longs + ALLOC_MIN_LONGS) {</span>
 <span class="lineNum">     221 </span>                :            :                 struct free_hdr *post;
 <span class="lineNum">     222 </span>                :            : 
 <span class="lineNum">     223 </span>                :            :                 /* Set up post block. */
-<span class="lineNum">     224 </span>                :<span class="lineCov">        492 :                 post = (void *)hdr + alloc_longs * sizeof(long);</span>
-<span class="lineNum">     225 </span>                :<span class="lineCov">        492 :                 post-&gt;hdr.num_longs = hdr-&gt;num_longs - alloc_longs;</span>
-<span class="lineNum">     226 </span>                :<span class="lineCov">        492 :                 post-&gt;hdr.prev_free = false;</span>
+<span class="lineNum">     224 </span>                :<span class="lineCov">       1512 :                 post = (void *)hdr + alloc_longs * sizeof(long);</span>
+<span class="lineNum">     225 </span>                :<span class="lineCov">       1512 :                 post-&gt;hdr.num_longs = hdr-&gt;num_longs - alloc_longs;</span>
+<span class="lineNum">     226 </span>                :<span class="lineCov">       1512 :                 post-&gt;hdr.prev_free = false;</span>
 <span class="lineNum">     227 </span>                :            : 
 <span class="lineNum">     228 </span>                :            :                 /* Trim our block. */
-<span class="lineNum">     229 </span>                :<span class="lineCov">        492 :                 hdr-&gt;num_longs = alloc_longs;</span>
+<span class="lineNum">     229 </span>                :<span class="lineCov">       1512 :                 hdr-&gt;num_longs = alloc_longs;</span>
 <span class="lineNum">     230 </span>                :            : 
 <span class="lineNum">     231 </span>                :            :                 /* This coalesces as required. */
-<span class="lineNum">     232 </span>                :<span class="lineCov">        492 :                 make_free(region, post, location);</span>
+<span class="lineNum">     232 </span>                :<span class="lineCov">       1512 :                 make_free(region, post, location);</span>
 <span class="lineNum">     233 </span>                :            :         }
-<a name="234"><span class="lineNum">     234 </span>                :<span class="lineCov">        518 : }</span></a>
+<a name="234"><span class="lineNum">     234 </span>                :<span class="lineCov">       1590 : }</span></a>
 <span class="lineNum">     235 </span>                :            : 
 <span class="lineNum">     236 </span>                :<span class="lineNoCov">          0 : static const char *hdr_location(const struct alloc_hdr *hdr)</span>
 <span class="lineNum">     237 </span>                :            : {
@@ -359,40 +359,40 @@
 <span class="lineNum">     288 </span>                :            :         }
 <span class="lineNum">     289 </span>                :<span class="lineNoCov">          0 : }</span>
 <span class="lineNum">     290 </span>                :            : 
-<span class="lineNum">     291 </span>                :<span class="lineCov">          2 : int64_t mem_dump_free(void)</span>
+<span class="lineNum">     291 </span>                :<span class="lineCov">          6 : int64_t mem_dump_free(void)</span>
 <span class="lineNum">     292 </span>                :            : {
-<span class="lineNum">     293 </span>                :<span class="lineCov">          4 :         struct mem_region *region;</span>
+<span class="lineNum">     293 </span>                :<span class="lineCov">         12 :         struct mem_region *region;</span>
 <span class="lineNum">     294 </span>                :            :         struct alloc_hdr *hdr;
 <span class="lineNum">     295 </span>                :            :         int64_t total_free;
 <span class="lineNum">     296 </span>                :            :         int64_t region_free;
 <span class="lineNum">     297 </span>                :            : 
-<span class="lineNum">     298 </span>                :<span class="lineCov">          2 :         total_free = 0;</span>
+<span class="lineNum">     298 </span>                :<span class="lineCov">          6 :         total_free = 0;</span>
 <span class="lineNum">     299 </span>                :            : 
-<span class="lineNum">     300 </span>                :<span class="lineCov">          2 :         printf(&quot;Free space in HEAP memory regions:\n&quot;);</span>
-<span class="lineNum">     301 </span>        [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">         16 :         list_for_each(&amp;regions, region, list) {</span>
-<span class="lineNum">     302 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">         14 :                 if (region-&gt;type != REGION_SKIBOOT_HEAP)</span>
-<span class="lineNum">     303 </span>                :<span class="lineCov">         10 :                         continue;</span>
-<span class="lineNum">     304 </span>                :<span class="lineCov">          4 :                 region_free = 0;</span>
+<span class="lineNum">     300 </span>                :<span class="lineCov">          6 :         printf(&quot;Free space in HEAP memory regions:\n&quot;);</span>
+<span class="lineNum">     301 </span>        [<span class="branchCov" title="Branch 0 was taken 42 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">         48 :         list_for_each(&amp;regions, region, list) {</span>
+<span class="lineNum">     302 </span>        [<span class="branchCov" title="Branch 0 was taken 30 times"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         42 :                 if (region-&gt;type != REGION_SKIBOOT_HEAP)</span>
+<span class="lineNum">     303 </span>                :<span class="lineCov">         30 :                         continue;</span>
+<span class="lineNum">     304 </span>                :<span class="lineCov">         12 :                 region_free = 0;</span>
 <span class="lineNum">     305 </span>                :            : 
-<span class="lineNum">     306 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :                 if (region-&gt;free_list.n.next == NULL) {</span>
+<span class="lineNum">     306 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         12 :                 if (region-&gt;free_list.n.next == NULL) {</span>
 <span class="lineNum">     307 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
 <span class="lineNum">     308 </span>                :            :                 }
-<span class="lineNum">     309 </span>        [<span class="branchCov" title="Branch 1 was taken 486 times"> + </span><span class="branchCov" title="Branch 2 was taken 4 times"> + </span>]:<span class="lineCov">        490 :                 for (hdr = region_start(region); hdr; hdr = next_hdr(region, hdr)) {</span>
-<span class="lineNum">     310 </span>        [<span class="branchCov" title="Branch 0 was taken 474 times"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">        486 :                         if (!hdr-&gt;free)</span>
-<span class="lineNum">     311 </span>                :<span class="lineCov">        474 :                                 continue;</span>
+<span class="lineNum">     309 </span>        [<span class="branchCov" title="Branch 1 was taken 1500 times"> + </span><span class="branchCov" title="Branch 2 was taken 12 times"> + </span>]:<span class="lineCov">       1512 :                 for (hdr = region_start(region); hdr; hdr = next_hdr(region, hdr)) {</span>
+<span class="lineNum">     310 </span>        [<span class="branchCov" title="Branch 0 was taken 1458 times"> + </span><span class="branchCov" title="Branch 1 was taken 42 times"> + </span>]:<span class="lineCov">       1500 :                         if (!hdr-&gt;free)</span>
+<span class="lineNum">     311 </span>                :<span class="lineCov">       1458 :                                 continue;</span>
 <span class="lineNum">     312 </span>                :            : 
-<span class="lineNum">     313 </span>                :<span class="lineCov">         12 :                         region_free+= hdr-&gt;num_longs * sizeof(long);</span>
+<span class="lineNum">     313 </span>                :<span class="lineCov">         42 :                         region_free+= hdr-&gt;num_longs * sizeof(long);</span>
 <span class="lineNum">     314 </span>                :            :                 }
-<span class="lineNum">     315 </span>                :<span class="lineCov">          4 :                 printf(&quot;Region %s free: %llu\n&quot;, region-&gt;name, region_free);</span>
-<span class="lineNum">     316 </span>                :<span class="lineCov">          4 :                 total_free += region_free;</span>
+<span class="lineNum">     315 </span>                :<span class="lineCov">         12 :                 printf(&quot;Region %s free: %llu\n&quot;, region-&gt;name, region_free);</span>
+<span class="lineNum">     316 </span>                :<span class="lineCov">         12 :                 total_free += region_free;</span>
 <span class="lineNum">     317 </span>                :            :         }
 <span class="lineNum">     318 </span>                :            : 
-<span class="lineNum">     319 </span>                :<span class="lineCov">          2 :         printf(&quot;Total free: %llu\n&quot;, total_free);</span>
+<span class="lineNum">     319 </span>                :<span class="lineCov">          6 :         printf(&quot;Total free: %llu\n&quot;, total_free);</span>
 <span class="lineNum">     320 </span>                :            : 
-<span class="lineNum">     321 </span>                :<span class="lineCov">          2 :         return total_free;</span>
+<span class="lineNum">     321 </span>                :<span class="lineCov">          6 :         return total_free;</span>
 <a name="322"><span class="lineNum">     322 </span>                :            : }</a>
 <span class="lineNum">     323 </span>                :            : 
-<span class="lineNum">     324 </span>                :<span class="lineCov">        518 : static void *__mem_alloc(struct mem_region *region, size_t size, size_t align,</span>
+<span class="lineNum">     324 </span>                :<span class="lineCov">       1590 : static void *__mem_alloc(struct mem_region *region, size_t size, size_t align,</span>
 <span class="lineNum">     325 </span>                :            :                          const char *location)
 <span class="lineNum">     326 </span>                :            : {
 <span class="lineNum">     327 </span>                :            :         size_t alloc_longs, offset;
@@ -400,97 +400,97 @@
 <span class="lineNum">     329 </span>                :            :         struct alloc_hdr *next;
 <span class="lineNum">     330 </span>                :            : 
 <span class="lineNum">     331 </span>                :            :         /* Align must be power of 2. */
-<span class="lineNum">     332 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 518 times"> + </span>]:<span class="lineCov">        518 :         assert(!((align - 1) &amp; align));</span>
+<span class="lineNum">     332 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1590 times"> + </span>]:<span class="lineCov">       1590 :         assert(!((align - 1) &amp; align));</span>
 <span class="lineNum">     333 </span>                :            : 
 <span class="lineNum">     334 </span>                :            :         /* This should be a constant. */
-<span class="lineNum">     335 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 518 times"> + </span>]:<span class="lineCov">        518 :         assert(is_rodata(location));</span>
+<span class="lineNum">     335 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1590 times"> + </span>]:<span class="lineCov">       1590 :         assert(is_rodata(location));</span>
 <span class="lineNum">     336 </span>                :            : 
 <span class="lineNum">     337 </span>                :            :         /* Unallocatable region? */
-<span class="lineNum">     338 </span>        [<span class="branchCov" title="Branch 0 was taken 518 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        518 :         if (region-&gt;type != REGION_SKIBOOT_HEAP)</span>
+<span class="lineNum">     338 </span>        [<span class="branchCov" title="Branch 0 was taken 1590 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       1590 :         if (region-&gt;type != REGION_SKIBOOT_HEAP)</span>
 <span class="lineNum">     339 </span>                :            :                 return NULL;
 <span class="lineNum">     340 </span>                :            : 
 <span class="lineNum">     341 </span>                :            :         /* First allocation? */
-<span class="lineNum">     342 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 514 times"> + </span>]:<span class="lineCov">        518 :         if (region-&gt;free_list.n.next == NULL)</span>
-<span class="lineNum">     343 </span>                :<span class="lineCov">          4 :                 init_allocatable_region(region);</span>
+<span class="lineNum">     342 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 1578 times"> + </span>]:<span class="lineCov">       1590 :         if (region-&gt;free_list.n.next == NULL)</span>
+<span class="lineNum">     343 </span>                :<span class="lineCov">         12 :                 init_allocatable_region(region);</span>
 <span class="lineNum">     344 </span>                :            : 
 <span class="lineNum">     345 </span>                :            :         /* Don't do screwy sizes. */
-<span class="lineNum">     346 </span>        [<span class="branchCov" title="Branch 0 was taken 518 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        518 :         if (size &gt; region-&gt;len)</span>
+<span class="lineNum">     346 </span>        [<span class="branchCov" title="Branch 0 was taken 1590 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       1590 :         if (size &gt; region-&gt;len)</span>
 <span class="lineNum">     347 </span>                :            :                 return NULL;
 <span class="lineNum">     348 </span>                :            : 
 <span class="lineNum">     349 </span>                :            :         /* Don't do tiny alignments, we deal in long increments. */
-<span class="lineNum">     350 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 518 times"> + </span>]:<span class="lineCov">        518 :         if (align &lt; sizeof(long))</span>
+<span class="lineNum">     350 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1590 times"> + </span>]:<span class="lineCov">       1590 :         if (align &lt; sizeof(long))</span>
 <span class="lineNum">     351 </span>                :<span class="lineNoCov">          0 :                 align = sizeof(long);</span>
 <span class="lineNum">     352 </span>                :            : 
 <span class="lineNum">     353 </span>                :            :         /* Convert size to number of longs, too. */
-<span class="lineNum">     354 </span>                :<span class="lineCov">        518 :         alloc_longs = (size + sizeof(long)-1) / sizeof(long) + ALLOC_HDR_LONGS;</span>
+<span class="lineNum">     354 </span>                :<span class="lineCov">       1590 :         alloc_longs = (size + sizeof(long)-1) / sizeof(long) + ALLOC_HDR_LONGS;</span>
 <span class="lineNum">     355 </span>                :            : 
 <span class="lineNum">     356 </span>                :            :         /* Can't be too small for when we free it, either. */
-<span class="lineNum">     357 </span>        [<span class="branchCov" title="Branch 0 was taken 120 times"> + </span><span class="branchCov" title="Branch 1 was taken 398 times"> + </span>]:<span class="lineCov">        518 :         if (alloc_longs &lt; ALLOC_MIN_LONGS)</span>
-<span class="lineNum">     358 </span>                :<span class="lineCov">        120 :                 alloc_longs = ALLOC_MIN_LONGS;</span>
+<span class="lineNum">     357 </span>        [<span class="branchCov" title="Branch 0 was taken 360 times"> + </span><span class="branchCov" title="Branch 1 was taken 1230 times"> + </span>]:<span class="lineCov">       1590 :         if (alloc_longs &lt; ALLOC_MIN_LONGS)</span>
+<span class="lineNum">     358 </span>                :<span class="lineCov">        360 :                 alloc_longs = ALLOC_MIN_LONGS;</span>
 <span class="lineNum">     359 </span>                :            : 
 <span class="lineNum">     360 </span>                :            :         /* Walk free list. */
-<span class="lineNum">     361 </span>        [<span class="branchCov" title="Branch 0 was taken 528 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        528 :         list_for_each(&amp;region-&gt;free_list, f, list) {</span>
+<span class="lineNum">     361 </span>        [<span class="branchCov" title="Branch 0 was taken 1620 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       1620 :         list_for_each(&amp;region-&gt;free_list, f, list) {</span>
 <span class="lineNum">     362 </span>                :            :                 /* We may have to skip some to meet alignment. */
-<span class="lineNum">     363 </span>        [<span class="branchCov" title="Branch 1 was taken 10 times"> + </span><span class="branchCov" title="Branch 2 was taken 518 times"> + </span>]:<span class="lineCov">        528 :                 if (fits(f, alloc_longs, align, &amp;offset))</span>
+<span class="lineNum">     363 </span>        [<span class="branchCov" title="Branch 1 was taken 30 times"> + </span><span class="branchCov" title="Branch 2 was taken 1590 times"> + </span>]:<span class="lineCov">       1620 :                 if (fits(f, alloc_longs, align, &amp;offset))</span>
 <span class="lineNum">     364 </span>                :            :                         goto found;
 <span class="lineNum">     365 </span>                :            :         }
 <span class="lineNum">     366 </span>                :            : 
 <span class="lineNum">     367 </span>                :            :         return NULL;
 <span class="lineNum">     368 </span>                :            : 
 <span class="lineNum">     369 </span>                :            : found:
-<span class="lineNum">     370 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 518 times"> + </span>]:<span class="lineCov">        518 :         assert(f-&gt;hdr.free);</span>
-<span class="lineNum">     371 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 518 times"> + </span>]:<span class="lineCov">        518 :         assert(!f-&gt;hdr.prev_free);</span>
+<span class="lineNum">     370 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1590 times"> + </span>]:<span class="lineCov">       1590 :         assert(f-&gt;hdr.free);</span>
+<span class="lineNum">     371 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1590 times"> + </span>]:<span class="lineCov">       1590 :         assert(!f-&gt;hdr.prev_free);</span>
 <span class="lineNum">     372 </span>                :            : 
 <span class="lineNum">     373 </span>                :            :         /* This block is no longer free. */
-<span class="lineNum">     374 </span>                :<span class="lineCov">        518 :         list_del_from(&amp;region-&gt;free_list, &amp;f-&gt;list);</span>
-<span class="lineNum">     375 </span>                :<span class="lineCov">        518 :         f-&gt;hdr.free = false;</span>
-<span class="lineNum">     376 </span>                :<span class="lineCov">        518 :         f-&gt;hdr.location = location;</span>
+<span class="lineNum">     374 </span>                :<span class="lineCov">       1590 :         list_del_from(&amp;region-&gt;free_list, &amp;f-&gt;list);</span>
+<span class="lineNum">     375 </span>                :<span class="lineCov">       1590 :         f-&gt;hdr.free = false;</span>
+<span class="lineNum">     376 </span>                :<span class="lineCov">       1590 :         f-&gt;hdr.location = location;</span>
 <span class="lineNum">     377 </span>                :            : 
-<span class="lineNum">     378 </span>                :<span class="lineCov">        518 :         next = next_hdr(region, &amp;f-&gt;hdr);</span>
-<span class="lineNum">     379 </span>        [<span class="branchCov" title="Branch 0 was taken 26 times"> + </span><span class="branchCov" title="Branch 1 was taken 492 times"> + </span>]:<span class="lineCov">        518 :         if (next) {</span>
-<span class="lineNum">     380 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 26 times"> + </span>]:<span class="lineCov">         26 :                 assert(next-&gt;prev_free);</span>
-<span class="lineNum">     381 </span>                :<span class="lineCov">         26 :                 next-&gt;prev_free = false;</span>
+<span class="lineNum">     378 </span>                :<span class="lineCov">       1590 :         next = next_hdr(region, &amp;f-&gt;hdr);</span>
+<span class="lineNum">     379 </span>        [<span class="branchCov" title="Branch 0 was taken 78 times"> + </span><span class="branchCov" title="Branch 1 was taken 1512 times"> + </span>]:<span class="lineCov">       1590 :         if (next) {</span>
+<span class="lineNum">     380 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 78 times"> + </span>]:<span class="lineCov">         78 :                 assert(next-&gt;prev_free);</span>
+<span class="lineNum">     381 </span>                :<span class="lineCov">         78 :                 next-&gt;prev_free = false;</span>
 <span class="lineNum">     382 </span>                :            :         }
 <span class="lineNum">     383 </span>                :            : 
-<span class="lineNum">     384 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 516 times"> + </span>]:<span class="lineCov">        518 :         if (offset != 0) {</span>
-<span class="lineNum">     385 </span>                :<span class="lineCov">          2 :                 struct free_hdr *pre = f;</span>
+<span class="lineNum">     384 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 1578 times"> + </span>]:<span class="lineCov">       1590 :         if (offset != 0) {</span>
+<span class="lineNum">     385 </span>                :<span class="lineCov">         12 :                 struct free_hdr *pre = f;</span>
 <span class="lineNum">     386 </span>                :            : 
-<span class="lineNum">     387 </span>                :<span class="lineCov">          2 :                 f = (void *)f + offset * sizeof(long);</span>
-<span class="lineNum">     388 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 assert(f &gt;= pre + 1);</span>
+<span class="lineNum">     387 </span>                :<span class="lineCov">         12 :                 f = (void *)f + offset * sizeof(long);</span>
+<span class="lineNum">     388 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         12 :                 assert(f &gt;= pre + 1);</span>
 <span class="lineNum">     389 </span>                :            : 
 <span class="lineNum">     390 </span>                :            :                 /* Set up new header. */
-<span class="lineNum">     391 </span>                :<span class="lineCov">          2 :                 f-&gt;hdr.num_longs = pre-&gt;hdr.num_longs - offset;</span>
+<span class="lineNum">     391 </span>                :<span class="lineCov">         12 :                 f-&gt;hdr.num_longs = pre-&gt;hdr.num_longs - offset;</span>
 <span class="lineNum">     392 </span>                :            :                 /* f-&gt;hdr.prev_free will be set by make_free below. */
-<span class="lineNum">     393 </span>                :<span class="lineCov">          2 :                 f-&gt;hdr.free = false;</span>
-<span class="lineNum">     394 </span>                :<span class="lineCov">          2 :                 f-&gt;hdr.location = location;</span>
+<span class="lineNum">     393 </span>                :<span class="lineCov">         12 :                 f-&gt;hdr.free = false;</span>
+<span class="lineNum">     394 </span>                :<span class="lineCov">         12 :                 f-&gt;hdr.location = location;</span>
 <span class="lineNum">     395 </span>                :            : 
 <span class="lineNum">     396 </span>                :            :                 /* Fix up old header. */
-<span class="lineNum">     397 </span>                :<span class="lineCov">          2 :                 pre-&gt;hdr.num_longs = offset;</span>
-<span class="lineNum">     398 </span>                :<span class="lineCov">          2 :                 pre-&gt;hdr.prev_free = false;</span>
+<span class="lineNum">     397 </span>                :<span class="lineCov">         12 :                 pre-&gt;hdr.num_longs = offset;</span>
+<span class="lineNum">     398 </span>                :<span class="lineCov">         12 :                 pre-&gt;hdr.prev_free = false;</span>
 <span class="lineNum">     399 </span>                :            : 
 <span class="lineNum">     400 </span>                :            :                 /* This coalesces as required. */
-<span class="lineNum">     401 </span>                :<span class="lineCov">          2 :                 make_free(region, pre, location);</span>
+<span class="lineNum">     401 </span>                :<span class="lineCov">         12 :                 make_free(region, pre, location);</span>
 <span class="lineNum">     402 </span>                :            :         }
 <span class="lineNum">     403 </span>                :            : 
 <span class="lineNum">     404 </span>                :            :         /* We might be too long; put the rest back. */
-<span class="lineNum">     405 </span>                :<span class="lineCov">        518 :         discard_excess(region, &amp;f-&gt;hdr, alloc_longs, location);</span>
+<span class="lineNum">     405 </span>                :<span class="lineCov">       1590 :         discard_excess(region, &amp;f-&gt;hdr, alloc_longs, location);</span>
 <span class="lineNum">     406 </span>                :            : 
 <span class="lineNum">     407 </span>                :            :         /* Clear tailer for debugging */
-<span class="lineNum">     408 </span>                :<span class="lineCov">        518 :         *tailer(f) = 0;</span>
+<span class="lineNum">     408 </span>                :<span class="lineCov">       1590 :         *tailer(f) = 0;</span>
 <span class="lineNum">     409 </span>                :            : 
 <span class="lineNum">     410 </span>                :            :         /* Their pointer is immediately after header. */
-<span class="lineNum">     411 </span>                :<span class="lineCov">        518 :         return &amp;f-&gt;hdr + 1;</span>
+<span class="lineNum">     411 </span>                :<span class="lineCov">       1590 :         return &amp;f-&gt;hdr + 1;</span>
 <a name="412"><span class="lineNum">     412 </span>                :            : }</a>
 <span class="lineNum">     413 </span>                :            : 
-<span class="lineNum">     414 </span>                :<span class="lineCov">        518 : void *mem_alloc(struct mem_region *region, size_t size, size_t align,</span>
+<span class="lineNum">     414 </span>                :<span class="lineCov">       1590 : void *mem_alloc(struct mem_region *region, size_t size, size_t align,</span>
 <span class="lineNum">     415 </span>                :            :                 const char *location)
 <span class="lineNum">     416 </span>                :            : {
 <span class="lineNum">     417 </span>                :            :         void *r;
 <span class="lineNum">     418 </span>                :            : 
-<span class="lineNum">     419 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 518 times"> + </span>]:<span class="lineCov">        518 :         assert(lock_held_by_me(&amp;region-&gt;free_list_lock));</span>
+<span class="lineNum">     419 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1590 times"> + </span>]:<span class="lineCov">       1590 :         assert(lock_held_by_me(&amp;region-&gt;free_list_lock));</span>
 <span class="lineNum">     420 </span>                :            : 
-<span class="lineNum">     421 </span>                :<span class="lineCov">        518 :         r = __mem_alloc(region, size, align, location);</span>
-<span class="lineNum">     422 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 518 times"> + </span>]:<span class="lineCov">        518 :         if (r)</span>
+<span class="lineNum">     421 </span>                :<span class="lineCov">       1590 :         r = __mem_alloc(region, size, align, location);</span>
+<span class="lineNum">     422 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1590 times"> + </span>]:<span class="lineCov">       1590 :         if (r)</span>
 <span class="lineNum">     423 </span>                :            :                 return r;
 <span class="lineNum">     424 </span>                :            : 
 <span class="lineNum">     425 </span>                :<span class="lineNoCov">          0 :         prerror(&quot;mem_alloc(0x%lx, 0x%lx, \&quot;%s\&quot;) failed !\n&quot;,</span>
@@ -499,30 +499,30 @@
 <span class="lineNum">     428 </span>                :<span class="lineNoCov">          0 :         return NULL;</span>
 <span class="lineNum">     429 </span>                :            : }
 <span class="lineNum">     430 </span>                :            : 
-<span class="lineNum">     431 </span>                :<span class="lineCov">         44 : void mem_free(struct mem_region *region, void *mem, const char *location)</span>
+<span class="lineNum">     431 </span>                :<span class="lineCov">        132 : void mem_free(struct mem_region *region, void *mem, const char *location)</span>
 <span class="lineNum">     432 </span>                :            : {
 <span class="lineNum">     433 </span>                :            :         struct alloc_hdr *hdr;
 <span class="lineNum">     434 </span>                :            : 
 <span class="lineNum">     435 </span>                :            :         /* This should be a constant. */
-<span class="lineNum">     436 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 44 times"> + </span>]:<span class="lineCov">         44 :         assert(is_rodata(location));</span>
+<span class="lineNum">     436 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 132 times"> + </span>]:<span class="lineCov">        132 :         assert(is_rodata(location));</span>
 <span class="lineNum">     437 </span>                :            : 
-<span class="lineNum">     438 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 44 times"> + </span>]:<span class="lineCov">         44 :         assert(lock_held_by_me(&amp;region-&gt;free_list_lock));</span>
+<span class="lineNum">     438 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 132 times"> + </span>]:<span class="lineCov">        132 :         assert(lock_held_by_me(&amp;region-&gt;free_list_lock));</span>
 <span class="lineNum">     439 </span>                :            : 
 <span class="lineNum">     440 </span>                :            :         /* Freeing NULL is always a noop. */
-<span class="lineNum">     441 </span>        [<span class="branchCov" title="Branch 0 was taken 44 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         44 :         if (!mem)</span>
-<span class="lineNum">     442 </span>                :<span class="lineCov">         44 :                 return;</span>
+<span class="lineNum">     441 </span>        [<span class="branchCov" title="Branch 0 was taken 132 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        132 :         if (!mem)</span>
+<span class="lineNum">     442 </span>                :<span class="lineCov">        132 :                 return;</span>
 <span class="lineNum">     443 </span>                :            : 
 <span class="lineNum">     444 </span>                :            :         /* Your memory is in the region, right? */
-<span class="lineNum">     445 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 44 times"> + </span>]:<span class="lineCov">         44 :         assert(mem &gt;= region_start(region) + sizeof(*hdr));</span>
-<span class="lineNum">     446 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 44 times"> + </span>]:<span class="lineCov">         44 :         assert(mem &lt; region_start(region) + region-&gt;len);</span>
+<span class="lineNum">     445 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 132 times"> + </span>]:<span class="lineCov">        132 :         assert(mem &gt;= region_start(region) + sizeof(*hdr));</span>
+<span class="lineNum">     446 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 132 times"> + </span>]:<span class="lineCov">        132 :         assert(mem &lt; region_start(region) + region-&gt;len);</span>
 <span class="lineNum">     447 </span>                :            : 
 <span class="lineNum">     448 </span>                :            :         /* Grab header. */
-<span class="lineNum">     449 </span>                :<span class="lineCov">         44 :         hdr = mem - sizeof(*hdr);</span>
+<span class="lineNum">     449 </span>                :<span class="lineCov">        132 :         hdr = mem - sizeof(*hdr);</span>
 <span class="lineNum">     450 </span>                :            : 
-<span class="lineNum">     451 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 44 times"> + </span>]:<span class="lineCov">         44 :         if (hdr-&gt;free)</span>
+<span class="lineNum">     451 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 132 times"> + </span>]:<span class="lineCov">        132 :         if (hdr-&gt;free)</span>
 <span class="lineNum">     452 </span>                :<span class="lineNoCov">          0 :                 bad_header(region, hdr, &quot;re-freed&quot;, location);</span>
 <span class="lineNum">     453 </span>                :            : 
-<span class="lineNum">     454 </span>                :<span class="lineCov">         44 :         make_free(region, (struct free_hdr *)hdr, location);</span>
+<span class="lineNum">     454 </span>                :<span class="lineCov">        132 :         make_free(region, (struct free_hdr *)hdr, location);</span>
 <a name="455"><span class="lineNum">     455 </span>                :            : }</a>
 <span class="lineNum">     456 </span>                :            : 
 <span class="lineNum">     457 </span>                :<span class="lineNoCov">          0 : size_t mem_allocated_size(const void *ptr)</span>
@@ -665,111 +665,111 @@
 <span class="lineNum">     593 </span>                :            :         return true;
 <a name="594"><span class="lineNum">     594 </span>                :            : }</a>
 <span class="lineNum">     595 </span>                :            : 
-<span class="lineNum">     596 </span>                :<span class="lineCov">         14 : static struct mem_region *new_region(const char *name,</span>
+<span class="lineNum">     596 </span>                :<span class="lineCov">         42 : static struct mem_region *new_region(const char *name,</span>
 <span class="lineNum">     597 </span>                :            :                                      uint64_t start, uint64_t len,
 <span class="lineNum">     598 </span>                :            :                                      struct dt_node *node,
 <span class="lineNum">     599 </span>                :            :                                      enum mem_region_type type)
 <span class="lineNum">     600 </span>                :            : {
 <span class="lineNum">     601 </span>                :            :         struct mem_region *region;
 <span class="lineNum">     602 </span>                :            : 
-<span class="lineNum">     603 </span>                :<span class="lineCov">         14 :         region = malloc(sizeof(*region));</span>
-<span class="lineNum">     604 </span>        [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         14 :         if (!region)</span>
+<span class="lineNum">     603 </span>                :<span class="lineCov">         42 :         region = malloc(sizeof(*region));</span>
+<span class="lineNum">     604 </span>        [<span class="branchCov" title="Branch 0 was taken 42 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         42 :         if (!region)</span>
 <span class="lineNum">     605 </span>                :            :                 return NULL;
 <span class="lineNum">     606 </span>                :            : 
-<span class="lineNum">     607 </span>                :<span class="lineCov">         14 :         region-&gt;name = name;</span>
-<span class="lineNum">     608 </span>                :<span class="lineCov">         14 :         region-&gt;start = start;</span>
-<span class="lineNum">     609 </span>                :<span class="lineCov">         14 :         region-&gt;len = len;</span>
-<span class="lineNum">     610 </span>                :<span class="lineCov">         14 :         region-&gt;node = node;</span>
-<span class="lineNum">     611 </span>                :<span class="lineCov">         14 :         region-&gt;type = type;</span>
-<span class="lineNum">     612 </span>                :<span class="lineCov">         14 :         region-&gt;free_list.n.next = NULL;</span>
-<span class="lineNum">     613 </span>                :<span class="lineCov">         14 :         init_lock(&amp;region-&gt;free_list_lock);</span>
+<span class="lineNum">     607 </span>                :<span class="lineCov">         42 :         region-&gt;name = name;</span>
+<span class="lineNum">     608 </span>                :<span class="lineCov">         42 :         region-&gt;start = start;</span>
+<span class="lineNum">     609 </span>                :<span class="lineCov">         42 :         region-&gt;len = len;</span>
+<span class="lineNum">     610 </span>                :<span class="lineCov">         42 :         region-&gt;node = node;</span>
+<span class="lineNum">     611 </span>                :<span class="lineCov">         42 :         region-&gt;type = type;</span>
+<span class="lineNum">     612 </span>                :<span class="lineCov">         42 :         region-&gt;free_list.n.next = NULL;</span>
+<span class="lineNum">     613 </span>                :<span class="lineCov">         42 :         init_lock(&amp;region-&gt;free_list_lock);</span>
 <span class="lineNum">     614 </span>                :            : 
-<span class="lineNum">     615 </span>                :<span class="lineCov">         14 :         return region;</span>
+<span class="lineNum">     615 </span>                :<span class="lineCov">         42 :         return region;</span>
 <span class="lineNum">     616 </span>                :            : }
 <a name="617"><span class="lineNum">     617 </span>                :            : </a>
 <span class="lineNum">     618 </span>                :            : /* We always split regions, so we only have to replace one. */
-<span class="lineNum">     619 </span>                :<span class="lineCov">         12 : static struct mem_region *split_region(struct mem_region *head,</span>
+<span class="lineNum">     619 </span>                :<span class="lineCov">         36 : static struct mem_region *split_region(struct mem_region *head,</span>
 <span class="lineNum">     620 </span>                :            :                                        uint64_t split_at,
 <span class="lineNum">     621 </span>                :            :                                        enum mem_region_type type)
 <span class="lineNum">     622 </span>                :            : {
 <span class="lineNum">     623 </span>                :            :         struct mem_region *tail;
-<span class="lineNum">     624 </span>                :<span class="lineCov">         12 :         uint64_t end = head-&gt;start + head-&gt;len;</span>
+<span class="lineNum">     624 </span>                :<span class="lineCov">         36 :         uint64_t end = head-&gt;start + head-&gt;len;</span>
 <span class="lineNum">     625 </span>                :            : 
-<span class="lineNum">     626 </span>                :<span class="lineCov">         12 :         tail = new_region(head-&gt;name, split_at, end - split_at,</span>
+<span class="lineNum">     626 </span>                :<span class="lineCov">         36 :         tail = new_region(head-&gt;name, split_at, end - split_at,</span>
 <span class="lineNum">     627 </span>                :            :                           head-&gt;node, type);
 <span class="lineNum">     628 </span>                :            :         /* Original region becomes head. */
-<span class="lineNum">     629 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         12 :         if (tail)</span>
-<span class="lineNum">     630 </span>                :<span class="lineCov">         12 :                 head-&gt;len -= tail-&gt;len;</span>
+<span class="lineNum">     629 </span>        [<span class="branchCov" title="Branch 0 was taken 36 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         36 :         if (tail)</span>
+<span class="lineNum">     630 </span>                :<span class="lineCov">         36 :                 head-&gt;len -= tail-&gt;len;</span>
 <span class="lineNum">     631 </span>                :            : 
-<span class="lineNum">     632 </span>                :<span class="lineCov">         12 :         return tail;</span>
+<span class="lineNum">     632 </span>                :<span class="lineCov">         36 :         return tail;</span>
 <a name="633"><span class="lineNum">     633 </span>                :            : }</a>
 <span class="lineNum">     634 </span>                :            : 
-<span class="lineNum">     635 </span>                :<span class="lineCov">         80 : static bool intersects(const struct mem_region *region, uint64_t addr)</span>
+<span class="lineNum">     635 </span>                :<span class="lineCov">        240 : static bool intersects(const struct mem_region *region, uint64_t addr)</span>
 <span class="lineNum">     636 </span>                :            : {
-<span class="lineNum">     637 </span>[<span class="branchCov" title="Branch 0 was taken 50 times"> + </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 40 times"> + </span><span class="branchCov" title="Branch 3 was taken 10 times"> + </span>]:<span class="lineCov">         80 :         return addr &gt; region-&gt;start &amp;&amp;</span>
-<span class="lineNum">     638 </span>                :<span class="lineCov">         50 :                 addr &lt; region-&gt;start + region-&gt;len;</span>
+<span class="lineNum">     637 </span>[<span class="branchCov" title="Branch 0 was taken 150 times"> + </span><span class="branchCov" title="Branch 1 was taken 90 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 120 times"> + </span><span class="branchCov" title="Branch 3 was taken 30 times"> + </span>]:<span class="lineCov">        240 :         return addr &gt; region-&gt;start &amp;&amp;</span>
+<span class="lineNum">     638 </span>                :<span class="lineCov">        150 :                 addr &lt; region-&gt;start + region-&gt;len;</span>
 <a name="639"><span class="lineNum">     639 </span>                :            : }</a>
 <span class="lineNum">     640 </span>                :            : 
-<span class="lineNum">     641 </span>                :<span class="lineCov">         80 : static bool maybe_split(struct mem_region *r, uint64_t split_at)</span>
+<span class="lineNum">     641 </span>                :<span class="lineCov">        240 : static bool maybe_split(struct mem_region *r, uint64_t split_at)</span>
 <span class="lineNum">     642 </span>                :            : {
 <span class="lineNum">     643 </span>                :            :         struct mem_region *tail;
 <span class="lineNum">     644 </span>                :            : 
-<span class="lineNum">     645 </span>        [<span class="branchCov" title="Branch 1 was taken 10 times"> + </span><span class="branchCov" title="Branch 2 was taken 70 times"> + </span>]:<span class="lineCov">         80 :         if (!intersects(r, split_at))</span>
+<span class="lineNum">     645 </span>        [<span class="branchCov" title="Branch 1 was taken 30 times"> + </span><span class="branchCov" title="Branch 2 was taken 210 times"> + </span>]:<span class="lineCov">        240 :         if (!intersects(r, split_at))</span>
 <span class="lineNum">     646 </span>                :            :                 return true;
 <span class="lineNum">     647 </span>                :            : 
-<span class="lineNum">     648 </span>                :<span class="lineCov">         10 :         tail = split_region(r, split_at, r-&gt;type);</span>
-<span class="lineNum">     649 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         10 :         if (!tail)</span>
+<span class="lineNum">     648 </span>                :<span class="lineCov">         30 :         tail = split_region(r, split_at, r-&gt;type);</span>
+<span class="lineNum">     649 </span>        [<span class="branchCov" title="Branch 0 was taken 30 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         30 :         if (!tail)</span>
 <span class="lineNum">     650 </span>                :            :                 return false;
 <span class="lineNum">     651 </span>                :            : 
 <span class="lineNum">     652 </span>                :            :         /* Tail add is important: we may need to split again! */
-<span class="lineNum">     653 </span>                :<span class="lineCov">         10 :         list_add_tail(&amp;regions, &amp;tail-&gt;list);</span>
-<span class="lineNum">     654 </span>                :<span class="lineCov">         10 :         return true;</span>
+<span class="lineNum">     653 </span>                :<span class="lineCov">         30 :         list_add_tail(&amp;regions, &amp;tail-&gt;list);</span>
+<span class="lineNum">     654 </span>                :<span class="lineCov">         30 :         return true;</span>
 <a name="655"><span class="lineNum">     655 </span>                :            : }</a>
 <span class="lineNum">     656 </span>                :            : 
-<span class="lineNum">     657 </span>                :<span class="lineCov">         60 : static bool overlaps(const struct mem_region *r1, const struct mem_region *r2)</span>
+<span class="lineNum">     657 </span>                :<span class="lineCov">        180 : static bool overlaps(const struct mem_region *r1, const struct mem_region *r2)</span>
 <span class="lineNum">     658 </span>                :            : {
-<span class="lineNum">     659 </span>                :<span class="lineCov">        120 :         return (r1-&gt;start + r1-&gt;len &gt; r2-&gt;start</span>
-<span class="lineNum">     660 </span>[<span class="branchCov" title="Branch 0 was taken 50 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 40 times"> + </span><span class="branchCov" title="Branch 3 was taken 10 times"> + </span>]:<span class="lineCov">         60 :                 &amp;&amp; r1-&gt;start &lt; r2-&gt;start + r2-&gt;len);</span>
+<span class="lineNum">     659 </span>                :<span class="lineCov">        360 :         return (r1-&gt;start + r1-&gt;len &gt; r2-&gt;start</span>
+<span class="lineNum">     660 </span>[<span class="branchCov" title="Branch 0 was taken 150 times"> + </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 120 times"> + </span><span class="branchCov" title="Branch 3 was taken 30 times"> + </span>]:<span class="lineCov">        180 :                 &amp;&amp; r1-&gt;start &lt; r2-&gt;start + r2-&gt;len);</span>
 <a name="661"><span class="lineNum">     661 </span>                :            : }</a>
 <span class="lineNum">     662 </span>                :            : 
-<span class="lineNum">     663 </span>                :<span class="lineCov">         20 : static struct mem_region *get_overlap(const struct mem_region *region)</span>
+<span class="lineNum">     663 </span>                :<span class="lineCov">         60 : static struct mem_region *get_overlap(const struct mem_region *region)</span>
 <span class="lineNum">     664 </span>                :            : {
 <span class="lineNum">     665 </span>                :            :         struct mem_region *i;
 <span class="lineNum">     666 </span>                :            : 
-<span class="lineNum">     667 </span>        [<span class="branchCov" title="Branch 0 was taken 60 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         70 :         list_for_each(&amp;regions, i, list) {</span>
-<span class="lineNum">     668 </span>        [<span class="branchCov" title="Branch 1 was taken 50 times"> + </span><span class="branchCov" title="Branch 2 was taken 10 times"> + </span>]:<span class="lineCov">         60 :                 if (overlaps(region, i))</span>
+<span class="lineNum">     667 </span>        [<span class="branchCov" title="Branch 0 was taken 180 times"> + </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>]:<span class="lineCov">        210 :         list_for_each(&amp;regions, i, list) {</span>
+<span class="lineNum">     668 </span>        [<span class="branchCov" title="Branch 1 was taken 150 times"> + </span><span class="branchCov" title="Branch 2 was taken 30 times"> + </span>]:<span class="lineCov">        180 :                 if (overlaps(region, i))</span>
 <span class="lineNum">     669 </span>                :            :                         return i;
 <span class="lineNum">     670 </span>                :            :         }
 <span class="lineNum">     671 </span>                :            :         return NULL;
 <a name="672"><span class="lineNum">     672 </span>                :            : }</a>
 <span class="lineNum">     673 </span>                :            : 
-<span class="lineNum">     674 </span>                :<span class="lineCov">         10 : static bool add_region(struct mem_region *region)</span>
+<span class="lineNum">     674 </span>                :<span class="lineCov">         30 : static bool add_region(struct mem_region *region)</span>
 <span class="lineNum">     675 </span>                :            : {
 <span class="lineNum">     676 </span>                :            :         struct mem_region *r;
 <span class="lineNum">     677 </span>                :            : 
-<span class="lineNum">     678 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         10 :         if (mem_regions_finalised) {</span>
+<span class="lineNum">     678 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>]:<span class="lineCov">         30 :         if (mem_regions_finalised) {</span>
 <span class="lineNum">     679 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;MEM: add_region(%s@0x%llx) called after finalise!\n&quot;,</span>
 <span class="lineNum">     680 </span>                :            :                                 region-&gt;name, region-&gt;start);
 <span class="lineNum">     681 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
 <span class="lineNum">     682 </span>                :            :         }
 <span class="lineNum">     683 </span>                :            : 
 <span class="lineNum">     684 </span>                :            :         /* First split any regions which intersect. */
-<span class="lineNum">     685 </span>        [<span class="branchCov" title="Branch 0 was taken 40 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         50 :         list_for_each(&amp;regions, r, list)</span>
-<span class="lineNum">     686 </span>  [<span class="branchCov" title="Branch 1 was taken 40 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 40 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">         80 :                 if (!maybe_split(r, region-&gt;start) ||</span>
-<span class="lineNum">     687 </span>                :<span class="lineCov">         40 :                     !maybe_split(r, region-&gt;start + region-&gt;len))</span>
+<span class="lineNum">     685 </span>        [<span class="branchCov" title="Branch 0 was taken 120 times"> + </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>]:<span class="lineCov">        150 :         list_for_each(&amp;regions, r, list)</span>
+<span class="lineNum">     686 </span>  [<span class="branchCov" title="Branch 1 was taken 120 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 120 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">        240 :                 if (!maybe_split(r, region-&gt;start) ||</span>
+<span class="lineNum">     687 </span>                :<span class="lineCov">        120 :                     !maybe_split(r, region-&gt;start + region-&gt;len))</span>
 <span class="lineNum">     688 </span>                :            :                         return false;
 <span class="lineNum">     689 </span>                :            : 
 <span class="lineNum">     690 </span>                :            :         /* Now we have only whole overlaps, if any. */
-<span class="lineNum">     691 </span>        [<span class="branchCov" title="Branch 1 was taken 10 times"> + </span><span class="branchCov" title="Branch 2 was taken 10 times"> + </span>]:<span class="lineCov">         20 :         while ((r = get_overlap(region)) != NULL) {</span>
-<span class="lineNum">     692 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         10 :                 assert(r-&gt;start == region-&gt;start);</span>
-<span class="lineNum">     693 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         10 :                 assert(r-&gt;len == region-&gt;len);</span>
-<span class="lineNum">     694 </span>                :<span class="lineCov">         10 :                 list_del_from(&amp;regions, &amp;r-&gt;list);</span>
-<span class="lineNum">     695 </span>                :<span class="lineCov">         10 :                 free(r);</span>
+<span class="lineNum">     691 </span>        [<span class="branchCov" title="Branch 1 was taken 30 times"> + </span><span class="branchCov" title="Branch 2 was taken 30 times"> + </span>]:<span class="lineCov">         60 :         while ((r = get_overlap(region)) != NULL) {</span>
+<span class="lineNum">     692 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>]:<span class="lineCov">         30 :                 assert(r-&gt;start == region-&gt;start);</span>
+<span class="lineNum">     693 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>]:<span class="lineCov">         30 :                 assert(r-&gt;len == region-&gt;len);</span>
+<span class="lineNum">     694 </span>                :<span class="lineCov">         30 :                 list_del_from(&amp;regions, &amp;r-&gt;list);</span>
+<span class="lineNum">     695 </span>                :<span class="lineCov">         30 :                 free(r);</span>
 <span class="lineNum">     696 </span>                :            :         }
 <span class="lineNum">     697 </span>                :            : 
 <span class="lineNum">     698 </span>                :            :         /* Finally, add in our own region. */
-<span class="lineNum">     699 </span>                :<span class="lineCov">         10 :         list_add(&amp;regions, &amp;region-&gt;list);</span>
-<span class="lineNum">     700 </span>                :<span class="lineCov">         10 :         return true;</span>
+<span class="lineNum">     699 </span>                :<span class="lineCov">         30 :         list_add(&amp;regions, &amp;region-&gt;list);</span>
+<span class="lineNum">     700 </span>                :<span class="lineCov">         30 :         return true;</span>
 <a name="701"><span class="lineNum">     701 </span>                :            : }</a>
 <span class="lineNum">     702 </span>                :            : 
 <span class="lineNum">     703 </span>                :<span class="lineNoCov">          0 : void mem_reserve(const char *name, uint64_t start, uint64_t len)</span>
@@ -785,54 +785,54 @@
 <span class="lineNum">     713 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;mem_region_lock);</span>
 <a name="714"><span class="lineNum">     714 </span>                :<span class="lineNoCov">          0 : }</span></a>
 <span class="lineNum">     715 </span>                :            : 
-<span class="lineNum">     716 </span>                :<span class="lineCov">          2 : static bool matches_chip_id(const __be32 ids[], size_t num, u32 chip_id)</span>
+<span class="lineNum">     716 </span>                :<span class="lineCov">          6 : static bool matches_chip_id(const __be32 ids[], size_t num, u32 chip_id)</span>
 <span class="lineNum">     717 </span>                :            : {
 <span class="lineNum">     718 </span>                :            :         size_t i;
 <span class="lineNum">     719 </span>                :            : 
-<span class="lineNum">     720 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         for (i = 0; i &lt; num; i++)</span>
-<span class="lineNum">     721 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 if (be32_to_cpu(ids[i]) == chip_id)</span>
+<span class="lineNum">     720 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         for (i = 0; i &lt; num; i++)</span>
+<span class="lineNum">     721 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                 if (be32_to_cpu(ids[i]) == chip_id)</span>
 <span class="lineNum">     722 </span>                :            :                         return true;
 <span class="lineNum">     723 </span>                :            : 
 <span class="lineNum">     724 </span>                :            :         return false;
 <a name="725"><span class="lineNum">     725 </span>                :            : }</a>
 <span class="lineNum">     726 </span>                :            : 
-<span class="lineNum">     727 </span>                :<span class="lineCov">          2 : void *__local_alloc(unsigned int chip_id, size_t size, size_t align,</span>
+<span class="lineNum">     727 </span>                :<span class="lineCov">          6 : void *__local_alloc(unsigned int chip_id, size_t size, size_t align,</span>
 <span class="lineNum">     728 </span>                :            :                     const char *location)
 <span class="lineNum">     729 </span>                :            : {
 <span class="lineNum">     730 </span>                :            :         struct mem_region *region;
-<span class="lineNum">     731 </span>                :<span class="lineCov">          2 :         void *p = NULL;</span>
-<span class="lineNum">     732 </span>                :<span class="lineCov">          2 :         bool use_local = true;</span>
+<span class="lineNum">     731 </span>                :<span class="lineCov">          6 :         void *p = NULL;</span>
+<span class="lineNum">     732 </span>                :<span class="lineCov">          6 :         bool use_local = true;</span>
 <span class="lineNum">     733 </span>                :            : 
-<span class="lineNum">     734 </span>                :<span class="lineCov">          2 :         lock(&amp;mem_region_lock);</span>
+<span class="lineNum">     734 </span>                :<span class="lineCov">          6 :         lock(&amp;mem_region_lock);</span>
 <span class="lineNum">     735 </span>                :            : 
 <span class="lineNum">     736 </span>                :            : restart:
-<span class="lineNum">     737 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         12 :         list_for_each(&amp;regions, region, list) {</span>
+<span class="lineNum">     737 </span>        [<span class="branchCov" title="Branch 0 was taken 36 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         36 :         list_for_each(&amp;regions, region, list) {</span>
 <span class="lineNum">     738 </span>                :            :                 const struct dt_property *prop;
 <span class="lineNum">     739 </span>                :            :                 const __be32 *ids;
 <span class="lineNum">     740 </span>                :            : 
-<span class="lineNum">     741 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">         12 :                 if (region-&gt;type != REGION_SKIBOOT_HEAP)</span>
-<span class="lineNum">     742 </span>                :<span class="lineCov">          8 :                         continue;</span>
+<span class="lineNum">     741 </span>        [<span class="branchCov" title="Branch 0 was taken 24 times"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         36 :                 if (region-&gt;type != REGION_SKIBOOT_HEAP)</span>
+<span class="lineNum">     742 </span>                :<span class="lineCov">         24 :                         continue;</span>
 <span class="lineNum">     743 </span>                :            : 
 <span class="lineNum">     744 </span>                :            :                 /* Don't allocate from normal heap. */
-<span class="lineNum">     745 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          4 :                 if (region == &amp;skiboot_heap)</span>
-<span class="lineNum">     746 </span>                :<span class="lineCov">          2 :                         continue;</span>
+<span class="lineNum">     745 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">         12 :                 if (region == &amp;skiboot_heap)</span>
+<span class="lineNum">     746 </span>                :<span class="lineCov">          6 :                         continue;</span>
 <span class="lineNum">     747 </span>                :            : 
 <span class="lineNum">     748 </span>                :            :                 /* First pass, only match node local regions */
-<span class="lineNum">     749 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :                 if (use_local) {</span>
-<span class="lineNum">     750 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                         if (!region-&gt;node)</span>
+<span class="lineNum">     749 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :                 if (use_local) {</span>
+<span class="lineNum">     750 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                         if (!region-&gt;node)</span>
 <span class="lineNum">     751 </span>                :<span class="lineNoCov">          0 :                                 continue;</span>
-<span class="lineNum">     752 </span>                :<span class="lineCov">          2 :                         prop = dt_find_property(region-&gt;node, &quot;ibm,chip-id&quot;);</span>
-<span class="lineNum">     753 </span>                :<span class="lineCov">          2 :                         ids = (const __be32 *)prop-&gt;prop;</span>
-<span class="lineNum">     754 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                         if (!matches_chip_id(ids, prop-&gt;len/sizeof(u32),</span>
+<span class="lineNum">     752 </span>                :<span class="lineCov">          6 :                         prop = dt_find_property(region-&gt;node, &quot;ibm,chip-id&quot;);</span>
+<span class="lineNum">     753 </span>                :<span class="lineCov">          6 :                         ids = (const __be32 *)prop-&gt;prop;</span>
+<span class="lineNum">     754 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                         if (!matches_chip_id(ids, prop-&gt;len/sizeof(u32),</span>
 <span class="lineNum">     755 </span>                :            :                                              chip_id))
 <span class="lineNum">     756 </span>                :<span class="lineNoCov">          0 :                                 continue;</span>
 <span class="lineNum">     757 </span>                :            :                 }
 <span class="lineNum">     758 </span>                :            : 
 <span class="lineNum">     759 </span>                :            :                 /* Second pass, match anything */
-<span class="lineNum">     760 </span>                :<span class="lineCov">          2 :                 lock(&amp;region-&gt;free_list_lock);</span>
-<span class="lineNum">     761 </span>                :<span class="lineCov">          2 :                 p = mem_alloc(region, size, align, location);</span>
-<span class="lineNum">     762 </span>                :<span class="lineCov">          2 :                 unlock(&amp;region-&gt;free_list_lock);</span>
-<span class="lineNum">     763 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 if (p)</span>
+<span class="lineNum">     760 </span>                :<span class="lineCov">          6 :                 lock(&amp;region-&gt;free_list_lock);</span>
+<span class="lineNum">     761 </span>                :<span class="lineCov">          6 :                 p = mem_alloc(region, size, align, location);</span>
+<span class="lineNum">     762 </span>                :<span class="lineCov">          6 :                 unlock(&amp;region-&gt;free_list_lock);</span>
+<span class="lineNum">     763 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                 if (p)</span>
 <span class="lineNum">     764 </span>                :            :                         break;
 <span class="lineNum">     765 </span>                :            :         }
 <span class="lineNum">     766 </span>                :            : 
@@ -840,38 +840,38 @@
 <span class="lineNum">     768 </span>                :            :          * If we can't allocate the memory block from the expected
 <span class="lineNum">     769 </span>                :            :          * node, we bail to any one that can accomodate our request.
 <span class="lineNum">     770 </span>                :            :          */
-<span class="lineNum">     771 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          2 :         if (!p &amp;&amp; use_local) {</span>
+<span class="lineNum">     771 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">          6 :         if (!p &amp;&amp; use_local) {</span>
 <span class="lineNum">     772 </span>                :            :                 use_local = false;
 <span class="lineNum">     773 </span>                :            :                 goto restart;
 <span class="lineNum">     774 </span>                :            :         }
 <span class="lineNum">     775 </span>                :            : 
-<span class="lineNum">     776 </span>                :<span class="lineCov">          2 :         unlock(&amp;mem_region_lock);</span>
+<span class="lineNum">     776 </span>                :<span class="lineCov">          6 :         unlock(&amp;mem_region_lock);</span>
 <span class="lineNum">     777 </span>                :            : 
-<span class="lineNum">     778 </span>                :<span class="lineCov">          2 :         return p;</span>
+<span class="lineNum">     778 </span>                :<span class="lineCov">          6 :         return p;</span>
 <a name="779"><span class="lineNum">     779 </span>                :            : }</a>
 <span class="lineNum">     780 </span>                :            : 
-<span class="lineNum">     781 </span>                :<span class="lineCov">          2 : struct mem_region *find_mem_region(const char *name)</span>
+<span class="lineNum">     781 </span>                :<span class="lineNoCov">          0 : struct mem_region *find_mem_region(const char *name)</span>
 <span class="lineNum">     782 </span>                :            : {
 <span class="lineNum">     783 </span>                :            :         struct mem_region *region;
 <span class="lineNum">     784 </span>                :            : 
-<span class="lineNum">     785 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">         14 :         list_for_each(&amp;regions, region, list) {</span>
-<span class="lineNum">     786 </span>        [<span class="branchCov" title="Branch 1 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         12 :                 if (streq(region-&gt;name, name))</span>
+<span class="lineNum">     785 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         list_for_each(&amp;regions, region, list) {</span>
+<span class="lineNum">     786 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (streq(region-&gt;name, name))</span>
 <span class="lineNum">     787 </span>                :            :                         return region;
 <span class="lineNum">     788 </span>                :            :         }
 <span class="lineNum">     789 </span>                :            :         return NULL;
 <a name="790"><span class="lineNum">     790 </span>                :            : }</a>
 <span class="lineNum">     791 </span>                :            : 
-<span class="lineNum">     792 </span>                :<span class="lineCov">          4 : void adjust_cpu_stacks_alloc(void)</span>
+<span class="lineNum">     792 </span>                :<span class="lineCov">         12 : void adjust_cpu_stacks_alloc(void)</span>
 <span class="lineNum">     793 </span>                :            : {
 <span class="lineNum">     794 </span>                :            :         /* CPU stacks start at 0, then when we know max possible PIR,
 <span class="lineNum">     795 </span>                :            :          * we adjust, then when we bring all CPUs online we know the
 <span class="lineNum">     796 </span>                :            :          * runtime max PIR, so we adjust this a few times during boot.
 <span class="lineNum">     797 </span>                :            :          */
-<span class="lineNum">     798 </span>                :<span class="lineCov">          4 :         skiboot_cpu_stacks.len = (cpu_max_pir + 1) * STACK_SIZE;</span>
-<span class="lineNum">     799 </span>                :<span class="lineCov">          4 : }</span>
+<span class="lineNum">     798 </span>                :<span class="lineCov">         12 :         skiboot_cpu_stacks.len = (cpu_max_pir + 1) * STACK_SIZE;</span>
+<span class="lineNum">     799 </span>                :<span class="lineCov">         12 : }</span>
 <a name="800"><span class="lineNum">     800 </span>                :            : </a>
 <span class="lineNum">     801 </span>                :            : /* Trawl through device tree, create memory regions from nodes. */
-<span class="lineNum">     802 </span>                :<span class="lineCov">          2 : void mem_region_init(void)</span>
+<span class="lineNum">     802 </span>                :<span class="lineCov">          6 : void mem_region_init(void)</span>
 <span class="lineNum">     803 </span>                :            : {
 <span class="lineNum">     804 </span>                :            :         const struct dt_property *names, *ranges;
 <span class="lineNum">     805 </span>                :            :         struct mem_region *region;
@@ -886,56 +886,56 @@
 <span class="lineNum">     814 </span>                :            :          * to avoid recursive locking caused by allocations
 <span class="lineNum">     815 </span>                :            :          * done by add_chip_dev_associativity()
 <span class="lineNum">     816 </span>                :            :          */
-<span class="lineNum">     817 </span>        [<span class="branchCov" title="Branch 2 was taken 20 times"> + </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">         22 :         dt_for_each_node(dt_root, i) {</span>
-<span class="lineNum">     818 </span>        [<span class="branchCov" title="Branch 1 was taken 18 times"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">         20 :                 if (!dt_has_node_property(i, &quot;device_type&quot;, &quot;memory&quot;))</span>
-<span class="lineNum">     819 </span>                :<span class="lineCov">         18 :                         continue;</span>
+<span class="lineNum">     817 </span>        [<span class="branchCov" title="Branch 2 was taken 60 times"> + </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span>]:<span class="lineCov">         66 :         dt_for_each_node(dt_root, i) {</span>
+<span class="lineNum">     818 </span>        [<span class="branchCov" title="Branch 1 was taken 54 times"> + </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">         60 :                 if (!dt_has_node_property(i, &quot;device_type&quot;, &quot;memory&quot;))</span>
+<span class="lineNum">     819 </span>                :<span class="lineCov">         54 :                         continue;</span>
 <span class="lineNum">     820 </span>                :            : 
 <span class="lineNum">     821 </span>                :            :                 /* Add associativity properties */
-<span class="lineNum">     822 </span>                :<span class="lineCov">          2 :                 add_chip_dev_associativity(i);</span>
+<span class="lineNum">     822 </span>                :<span class="lineCov">          6 :                 add_chip_dev_associativity(i);</span>
 <span class="lineNum">     823 </span>                :            :         }
 <span class="lineNum">     824 </span>                :            : 
 <span class="lineNum">     825 </span>                :            :         /* Add each memory node. */
-<span class="lineNum">     826 </span>        [<span class="branchCov" title="Branch 2 was taken 20 times"> + </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">         22 :         dt_for_each_node(dt_root, i) {</span>
+<span class="lineNum">     826 </span>        [<span class="branchCov" title="Branch 2 was taken 60 times"> + </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span>]:<span class="lineCov">         66 :         dt_for_each_node(dt_root, i) {</span>
 <span class="lineNum">     827 </span>                :            :                 uint64_t start, len;
 <span class="lineNum">     828 </span>                :            :                 char *rname;
 <span class="lineNum">     829 </span>                :            : #define NODE_REGION_PREFIX      &quot;ibm,firmware-allocs-&quot;
 <span class="lineNum">     830 </span>                :            : 
-<span class="lineNum">     831 </span>        [<span class="branchCov" title="Branch 1 was taken 18 times"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">         20 :                 if (!dt_has_node_property(i, &quot;device_type&quot;, &quot;memory&quot;))</span>
-<span class="lineNum">     832 </span>                :<span class="lineCov">         18 :                         continue;</span>
-<span class="lineNum">     833 </span>                :<span class="lineCov">          2 :                 rname = zalloc(strlen(i-&gt;name) + strlen(NODE_REGION_PREFIX) + 1);</span>
-<span class="lineNum">     834 </span>                :<span class="lineCov">          2 :                 strcat(rname, NODE_REGION_PREFIX);</span>
-<span class="lineNum">     835 </span>                :<span class="lineCov">          2 :                 strcat(rname, i-&gt;name);</span>
-<span class="lineNum">     836 </span>                :<span class="lineCov">          2 :                 start = dt_get_address(i, 0, &amp;len);</span>
-<span class="lineNum">     837 </span>                :<span class="lineCov">          2 :                 lock(&amp;mem_region_lock);</span>
-<span class="lineNum">     838 </span>                :<span class="lineCov">          2 :                 region = new_region(rname, start, len, i, REGION_SKIBOOT_HEAP);</span>
-<span class="lineNum">     839 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 if (!region) {</span>
+<span class="lineNum">     831 </span>        [<span class="branchCov" title="Branch 1 was taken 54 times"> + </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">         60 :                 if (!dt_has_node_property(i, &quot;device_type&quot;, &quot;memory&quot;))</span>
+<span class="lineNum">     832 </span>                :<span class="lineCov">         54 :                         continue;</span>
+<span class="lineNum">     833 </span>                :<span class="lineCov">          6 :                 rname = zalloc(strlen(i-&gt;name) + strlen(NODE_REGION_PREFIX) + 1);</span>
+<span class="lineNum">     834 </span>                :<span class="lineCov">          6 :                 strcat(rname, NODE_REGION_PREFIX);</span>
+<span class="lineNum">     835 </span>                :<span class="lineCov">          6 :                 strcat(rname, i-&gt;name);</span>
+<span class="lineNum">     836 </span>                :<span class="lineCov">          6 :                 start = dt_get_address(i, 0, &amp;len);</span>
+<span class="lineNum">     837 </span>                :<span class="lineCov">          6 :                 lock(&amp;mem_region_lock);</span>
+<span class="lineNum">     838 </span>                :<span class="lineCov">          6 :                 region = new_region(rname, start, len, i, REGION_SKIBOOT_HEAP);</span>
+<span class="lineNum">     839 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                 if (!region) {</span>
 <span class="lineNum">     840 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;MEM: Could not add mem region %s!\n&quot;, i-&gt;name);</span>
 <span class="lineNum">     841 </span>                :<span class="lineNoCov">          0 :                         abort();</span>
 <span class="lineNum">     842 </span>                :            :                 }
-<span class="lineNum">     843 </span>                :<span class="lineCov">          2 :                 list_add(&amp;regions, &amp;region-&gt;list);</span>
-<span class="lineNum">     844 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :                 if ((start + len) &gt; top_of_ram)</span>
-<span class="lineNum">     845 </span>                :<span class="lineCov">          2 :                         top_of_ram = start + len;</span>
-<span class="lineNum">     846 </span>                :<span class="lineCov">          2 :                 unlock(&amp;mem_region_lock);</span>
+<span class="lineNum">     843 </span>                :<span class="lineCov">          6 :                 list_add(&amp;regions, &amp;region-&gt;list);</span>
+<span class="lineNum">     844 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :                 if ((start + len) &gt; top_of_ram)</span>
+<span class="lineNum">     845 </span>                :<span class="lineCov">          6 :                         top_of_ram = start + len;</span>
+<span class="lineNum">     846 </span>                :<span class="lineCov">          6 :                 unlock(&amp;mem_region_lock);</span>
 <span class="lineNum">     847 </span>                :            :         }
 <span class="lineNum">     848 </span>                :            : 
-<span class="lineNum">     849 </span>                :<span class="lineCov">          2 :         adjust_cpu_stacks_alloc();</span>
+<span class="lineNum">     849 </span>                :<span class="lineCov">          6 :         adjust_cpu_stacks_alloc();</span>
 <span class="lineNum">     850 </span>                :            : 
-<span class="lineNum">     851 </span>                :<span class="lineCov">          2 :         lock(&amp;mem_region_lock);</span>
+<span class="lineNum">     851 </span>                :<span class="lineCov">          6 :         lock(&amp;mem_region_lock);</span>
 <span class="lineNum">     852 </span>                :            : 
 <span class="lineNum">     853 </span>                :            :         /* Now carve out our own reserved areas. */
-<span class="lineNum">     854 </span>  [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">          4 :         if (!add_region(&amp;skiboot_os_reserve) ||</span>
-<span class="lineNum">     855 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :             !add_region(&amp;skiboot_code_and_text) ||</span>
-<span class="lineNum">     856 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :             !add_region(&amp;skiboot_heap) ||</span>
-<span class="lineNum">     857 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          4 :             !add_region(&amp;skiboot_after_heap) ||</span>
-<span class="lineNum">     858 </span>                :<span class="lineCov">          2 :             !add_region(&amp;skiboot_cpu_stacks)) {</span>
+<span class="lineNum">     854 </span>  [<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">         12 :         if (!add_region(&amp;skiboot_os_reserve) ||</span>
+<span class="lineNum">     855 </span>        [<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         12 :             !add_region(&amp;skiboot_code_and_text) ||</span>
+<span class="lineNum">     856 </span>        [<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">         12 :             !add_region(&amp;skiboot_heap) ||</span>
+<span class="lineNum">     857 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">         12 :             !add_region(&amp;skiboot_after_heap) ||</span>
+<span class="lineNum">     858 </span>                :<span class="lineCov">          6 :             !add_region(&amp;skiboot_cpu_stacks)) {</span>
 <span class="lineNum">     859 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;Out of memory adding skiboot reserved areas\n&quot;);</span>
 <span class="lineNum">     860 </span>                :<span class="lineNoCov">          0 :                 abort();</span>
 <span class="lineNum">     861 </span>                :            :         }
 <span class="lineNum">     862 </span>                :            : 
 <span class="lineNum">     863 </span>                :            :         /* Add reserved ranges from the DT */
-<span class="lineNum">     864 </span>                :<span class="lineCov">          2 :         names = dt_find_property(dt_root, &quot;reserved-names&quot;);</span>
-<span class="lineNum">     865 </span>                :<span class="lineCov">          2 :         ranges = dt_find_property(dt_root, &quot;reserved-ranges&quot;);</span>
-<span class="lineNum">     866 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (names &amp;&amp; ranges) {</span>
+<span class="lineNum">     864 </span>                :<span class="lineCov">          6 :         names = dt_find_property(dt_root, &quot;reserved-names&quot;);</span>
+<span class="lineNum">     865 </span>                :<span class="lineCov">          6 :         ranges = dt_find_property(dt_root, &quot;reserved-ranges&quot;);</span>
+<span class="lineNum">     866 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (names &amp;&amp; ranges) {</span>
 <span class="lineNum">     867 </span>                :            :                 const uint64_t *range;
 <span class="lineNum">     868 </span>                :            :                 int n, len;
 <span class="lineNum">     869 </span>                :            : 
@@ -953,177 +953,177 @@
 <span class="lineNum">     881 </span>                :            :                                         NULL, REGION_HW_RESERVED);
 <span class="lineNum">     882 </span>                :<span class="lineNoCov">          0 :                         list_add(&amp;regions, &amp;region-&gt;list);</span>
 <span class="lineNum">     883 </span>                :            :                 }
-<span class="lineNum">     884 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         } else if (names || ranges) {</span>
+<span class="lineNum">     884 </span>[<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         } else if (names || ranges) {</span>
 <span class="lineNum">     885 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;Invalid properties: reserved-names=%p &quot;</span>
 <span class="lineNum">     886 </span>                :            :                                 &quot;with reserved-ranges=%p\n&quot;,
 <span class="lineNum">     887 </span>                :            :                                 names, ranges);
 <span class="lineNum">     888 </span>                :<span class="lineNoCov">          0 :                 abort();</span>
 <span class="lineNum">     889 </span>                :            :         }
 <span class="lineNum">     890 </span>                :            : 
-<span class="lineNum">     891 </span>                :<span class="lineCov">          2 :         unlock(&amp;mem_region_lock);</span>
+<span class="lineNum">     891 </span>                :<span class="lineCov">          6 :         unlock(&amp;mem_region_lock);</span>
 <span class="lineNum">     892 </span>                :            : 
 <span class="lineNum">     893 </span>                :            :         /* We generate the reservation properties from our own region list,
 <span class="lineNum">     894 </span>                :            :          * which now includes the existing data.
 <span class="lineNum">     895 </span>                :            :          */
-<span class="lineNum">     896 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (names)</span>
+<span class="lineNum">     896 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (names)</span>
 <span class="lineNum">     897 </span>                :<span class="lineNoCov">          0 :                 dt_del_property(dt_root, (struct dt_property *)names);</span>
-<span class="lineNum">     898 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (ranges)</span>
+<span class="lineNum">     898 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (ranges)</span>
 <span class="lineNum">     899 </span>                :<span class="lineNoCov">          0 :                 dt_del_property(dt_root, (struct dt_property *)ranges);</span>
-<a name="900"><span class="lineNum">     900 </span>                :<span class="lineCov">          2 : }</span></a>
+<a name="900"><span class="lineNum">     900 </span>                :<span class="lineCov">          6 : }</span></a>
 <span class="lineNum">     901 </span>                :            : 
-<span class="lineNum">     902 </span>                :<span class="lineCov">          4 : static uint64_t allocated_length(const struct mem_region *r)</span>
+<span class="lineNum">     902 </span>                :<span class="lineCov">         12 : static uint64_t allocated_length(const struct mem_region *r)</span>
 <span class="lineNum">     903 </span>                :            : {
-<span class="lineNum">     904 </span>                :<span class="lineCov">          4 :         struct free_hdr *f, *last = NULL;</span>
+<span class="lineNum">     904 </span>                :<span class="lineCov">         12 :         struct free_hdr *f, *last = NULL;</span>
 <span class="lineNum">     905 </span>                :            : 
 <span class="lineNum">     906 </span>                :            :         /* No allocations at all? */
-<span class="lineNum">     907 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :         if (r-&gt;free_list.n.next == NULL)</span>
+<span class="lineNum">     907 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         12 :         if (r-&gt;free_list.n.next == NULL)</span>
 <span class="lineNum">     908 </span>                :            :                 return 0;
 <span class="lineNum">     909 </span>                :            : 
 <span class="lineNum">     910 </span>                :            :         /* Find last free block. */
-<span class="lineNum">     911 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">         14 :         list_for_each(&amp;r-&gt;free_list, f, list)</span>
-<span class="lineNum">     912 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">         10 :                 if (f &gt; last)</span>
-<span class="lineNum">     913 </span>                :<span class="lineCov">          4 :                         last = f;</span>
+<span class="lineNum">     911 </span>        [<span class="branchCov" title="Branch 0 was taken 36 times"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         48 :         list_for_each(&amp;r-&gt;free_list, f, list)</span>
+<span class="lineNum">     912 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 24 times"> + </span>]:<span class="lineCov">         36 :                 if (f &gt; last)</span>
+<span class="lineNum">     913 </span>                :<span class="lineCov">         12 :                         last = f;</span>
 <span class="lineNum">     914 </span>                :            : 
 <span class="lineNum">     915 </span>                :            :         /* No free blocks? */
-<span class="lineNum">     916 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :         if (!last)</span>
+<span class="lineNum">     916 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         12 :         if (!last)</span>
 <span class="lineNum">     917 </span>                :<span class="lineNoCov">          0 :                 return r-&gt;len;</span>
 <span class="lineNum">     918 </span>                :            : 
 <span class="lineNum">     919 </span>                :            :         /* Last free block isn't at end? */
-<span class="lineNum">     920 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 4 times"> + </span>]:<span class="lineCov">          4 :         if (next_hdr(r, &amp;last-&gt;hdr))</span>
+<span class="lineNum">     920 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 12 times"> + </span>]:<span class="lineCov">         12 :         if (next_hdr(r, &amp;last-&gt;hdr))</span>
 <span class="lineNum">     921 </span>                :<span class="lineNoCov">          0 :                 return r-&gt;len;</span>
-<span class="lineNum">     922 </span>                :<span class="lineCov">          4 :         return (unsigned long)last - r-&gt;start;</span>
+<span class="lineNum">     922 </span>                :<span class="lineCov">         12 :         return (unsigned long)last - r-&gt;start;</span>
 <span class="lineNum">     923 </span>                :            : }
 <span class="lineNum">     924 </span>                :            : 
 <span class="lineNum">     925 </span>                :            : /* Separate out allocated sections into their own region. */
-<span class="lineNum">     926 </span>                :<span class="lineCov">          2 : void mem_region_release_unused(void)</span>
+<span class="lineNum">     926 </span>                :<span class="lineCov">          6 : void mem_region_release_unused(void)</span>
 <span class="lineNum">     927 </span>                :            : {
-<span class="lineNum">     928 </span>                :<span class="lineCov">          2 :         struct mem_region *r;</span>
+<span class="lineNum">     928 </span>                :<span class="lineCov">          6 :         struct mem_region *r;</span>
 <span class="lineNum">     929 </span>                :            : 
-<span class="lineNum">     930 </span>                :<span class="lineCov">          2 :         lock(&amp;mem_region_lock);</span>
-<span class="lineNum">     931 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         assert(!mem_regions_finalised);</span>
+<span class="lineNum">     930 </span>                :<span class="lineCov">          6 :         lock(&amp;mem_region_lock);</span>
+<span class="lineNum">     931 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         assert(!mem_regions_finalised);</span>
 <span class="lineNum">     932 </span>                :            : 
-<span class="lineNum">     933 </span>                :<span class="lineCov">          2 :         printf(&quot;Releasing unused memory:\n&quot;);</span>
-<span class="lineNum">     934 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">         14 :         list_for_each(&amp;regions, r, list) {</span>
+<span class="lineNum">     933 </span>                :<span class="lineCov">          6 :         printf(&quot;Releasing unused memory:\n&quot;);</span>
+<span class="lineNum">     934 </span>        [<span class="branchCov" title="Branch 0 was taken 36 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">         42 :         list_for_each(&amp;regions, r, list) {</span>
 <span class="lineNum">     935 </span>                :            :                 uint64_t used_len;
 <span class="lineNum">     936 </span>                :            : 
 <span class="lineNum">     937 </span>                :            :                 /* If it's not allocatable, ignore it. */
-<span class="lineNum">     938 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">         12 :                 if (r-&gt;type != REGION_SKIBOOT_HEAP)</span>
-<span class="lineNum">     939 </span>                :<span class="lineCov">          8 :                         continue;</span>
+<span class="lineNum">     938 </span>        [<span class="branchCov" title="Branch 0 was taken 24 times"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         36 :                 if (r-&gt;type != REGION_SKIBOOT_HEAP)</span>
+<span class="lineNum">     939 </span>                :<span class="lineCov">         24 :                         continue;</span>
 <span class="lineNum">     940 </span>                :            : 
-<span class="lineNum">     941 </span>                :<span class="lineCov">          4 :                 used_len = allocated_length(r);</span>
+<span class="lineNum">     941 </span>                :<span class="lineCov">         12 :                 used_len = allocated_length(r);</span>
 <span class="lineNum">     942 </span>                :            : 
-<span class="lineNum">     943 </span>                :<span class="lineCov">          4 :                 printf(&quot;    %s: %llu/%llu used\n&quot;,</span>
+<span class="lineNum">     943 </span>                :<span class="lineCov">         12 :                 printf(&quot;    %s: %llu/%llu used\n&quot;,</span>
 <span class="lineNum">     944 </span>                :            :                        r-&gt;name, (long long)used_len, (long long)r-&gt;len);
 <span class="lineNum">     945 </span>                :            : 
 <span class="lineNum">     946 </span>                :            :                 /* We keep the skiboot heap. */
-<span class="lineNum">     947 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          4 :                 if (r == &amp;skiboot_heap)</span>
-<span class="lineNum">     948 </span>                :<span class="lineCov">          2 :                         continue;</span>
+<span class="lineNum">     947 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">         12 :                 if (r == &amp;skiboot_heap)</span>
+<span class="lineNum">     948 </span>                :<span class="lineCov">          6 :                         continue;</span>
 <span class="lineNum">     949 </span>                :            : 
 <span class="lineNum">     950 </span>                :            :                 /* Nothing used?  Whole thing is for Linux. */
-<span class="lineNum">     951 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 if (used_len == 0)</span>
+<span class="lineNum">     951 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                 if (used_len == 0)</span>
 <span class="lineNum">     952 </span>                :<span class="lineNoCov">          0 :                         r-&gt;type = REGION_OS;</span>
 <span class="lineNum">     953 </span>                :            :                 /* Partially used?  Split region. */
-<span class="lineNum">     954 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :                 else if (used_len != r-&gt;len) {</span>
+<span class="lineNum">     954 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :                 else if (used_len != r-&gt;len) {</span>
 <span class="lineNum">     955 </span>                :            :                         struct mem_region *for_linux;
-<span class="lineNum">     956 </span>                :<span class="lineCov">          4 :                         struct free_hdr *last = region_start(r) + used_len;</span>
+<span class="lineNum">     956 </span>                :<span class="lineCov">         12 :                         struct free_hdr *last = region_start(r) + used_len;</span>
 <span class="lineNum">     957 </span>                :            : 
 <span class="lineNum">     958 </span>                :            :                         /* Remove the final free block. */
-<span class="lineNum">     959 </span>                :<span class="lineCov">          2 :                         list_del_from(&amp;r-&gt;free_list, &amp;last-&gt;list);</span>
+<span class="lineNum">     959 </span>                :<span class="lineCov">          6 :                         list_del_from(&amp;r-&gt;free_list, &amp;last-&gt;list);</span>
 <span class="lineNum">     960 </span>                :            : 
-<span class="lineNum">     961 </span>                :<span class="lineCov">          2 :                         for_linux = split_region(r, r-&gt;start + used_len,</span>
+<span class="lineNum">     961 </span>                :<span class="lineCov">          6 :                         for_linux = split_region(r, r-&gt;start + used_len,</span>
 <span class="lineNum">     962 </span>                :            :                                                  REGION_OS);
-<span class="lineNum">     963 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                         if (!for_linux) {</span>
+<span class="lineNum">     963 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                         if (!for_linux) {</span>
 <span class="lineNum">     964 </span>                :<span class="lineNoCov">          0 :                                 prerror(&quot;OOM splitting mem node %s for linux\n&quot;,</span>
 <span class="lineNum">     965 </span>                :            :                                         r-&gt;name);
 <span class="lineNum">     966 </span>                :<span class="lineNoCov">          0 :                                 abort();</span>
 <span class="lineNum">     967 </span>                :            :                         }
-<span class="lineNum">     968 </span>                :<span class="lineCov">          2 :                         list_add(&amp;regions, &amp;for_linux-&gt;list);</span>
+<span class="lineNum">     968 </span>                :<span class="lineCov">          6 :                         list_add(&amp;regions, &amp;for_linux-&gt;list);</span>
 <span class="lineNum">     969 </span>                :            :                 }
 <span class="lineNum">     970 </span>                :            :         }
-<span class="lineNum">     971 </span>                :<span class="lineCov">          2 :         unlock(&amp;mem_region_lock);</span>
-<a name="972"><span class="lineNum">     972 </span>                :<span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     971 </span>                :<span class="lineCov">          6 :         unlock(&amp;mem_region_lock);</span>
+<a name="972"><span class="lineNum">     972 </span>                :<span class="lineCov">          6 : }</span></a>
 <span class="lineNum">     973 </span>                :            : 
-<span class="lineNum">     974 </span>                :<span class="lineCov">         10 : static void mem_region_add_dt_reserved_node(struct dt_node *parent,</span>
+<span class="lineNum">     974 </span>                :<span class="lineCov">         30 : static void mem_region_add_dt_reserved_node(struct dt_node *parent,</span>
 <span class="lineNum">     975 </span>                :            :                 struct mem_region *region)
 <span class="lineNum">     976 </span>                :            : {
 <span class="lineNum">     977 </span>                :            :         char *name, *p;
 <span class="lineNum">     978 </span>                :            : 
-<span class="lineNum">     979 </span>                :<span class="lineCov">         10 :         name = strdup(region-&gt;name);</span>
+<span class="lineNum">     979 </span>                :<span class="lineCov">         30 :         name = strdup(region-&gt;name);</span>
 <span class="lineNum">     980 </span>                :            : 
 <span class="lineNum">     981 </span>                :            :         /* remove any cell addresses in the region name; we have our own cell
 <span class="lineNum">     982 </span>                :            :          * addresses here */
-<span class="lineNum">     983 </span>                :<span class="lineCov">         10 :         p = strchr(name, '@');</span>
-<span class="lineNum">     984 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">         10 :         if (p)</span>
-<span class="lineNum">     985 </span>                :<span class="lineCov">          2 :                 *p = '\0';</span>
+<span class="lineNum">     983 </span>                :<span class="lineCov">         30 :         p = strchr(name, '@');</span>
+<span class="lineNum">     984 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 24 times"> + </span>]:<span class="lineCov">         30 :         if (p)</span>
+<span class="lineNum">     985 </span>                :<span class="lineCov">          6 :                 *p = '\0';</span>
 <span class="lineNum">     986 </span>                :            : 
-<span class="lineNum">     987 </span>                :<span class="lineCov">         10 :         region-&gt;node = dt_new_addr(parent, name, region-&gt;start);</span>
-<span class="lineNum">     988 </span>                :<span class="lineCov">         10 :         dt_add_property_u64s(region-&gt;node, &quot;reg&quot;, region-&gt;start, region-&gt;len);</span>
-<span class="lineNum">     989 </span>                :<span class="lineCov">         10 :         free(name);</span>
-<a name="990"><span class="lineNum">     990 </span>                :<span class="lineCov">         10 : }</span></a>
+<span class="lineNum">     987 </span>                :<span class="lineCov">         30 :         region-&gt;node = dt_new_addr(parent, name, region-&gt;start);</span>
+<span class="lineNum">     988 </span>                :<span class="lineCov">         30 :         dt_add_property_u64s(region-&gt;node, &quot;reg&quot;, region-&gt;start, region-&gt;len);</span>
+<span class="lineNum">     989 </span>                :<span class="lineCov">         30 :         free(name);</span>
+<a name="990"><span class="lineNum">     990 </span>                :<span class="lineCov">         30 : }</span></a>
 <span class="lineNum">     991 </span>                :            : 
-<span class="lineNum">     992 </span>                :<span class="lineCov">          2 : void mem_region_add_dt_reserved(void)</span>
+<span class="lineNum">     992 </span>                :<span class="lineCov">          6 : void mem_region_add_dt_reserved(void)</span>
 <span class="lineNum">     993 </span>                :            : {
 <span class="lineNum">     994 </span>                :            :         int names_len, ranges_len, len;
-<span class="lineNum">     995 </span>                :<span class="lineCov">         28 :         struct mem_region *region;</span>
+<span class="lineNum">     995 </span>                :<span class="lineCov">         84 :         struct mem_region *region;</span>
 <span class="lineNum">     996 </span>                :            :         void *names, *ranges;
 <span class="lineNum">     997 </span>                :            :         struct dt_node *node;
 <span class="lineNum">     998 </span>                :            :         uint64_t *range;
 <span class="lineNum">     999 </span>                :            :         char *name;
 <span class="lineNum">    1000 </span>                :            : 
-<span class="lineNum">    1001 </span>                :<span class="lineCov">          2 :         names_len = 0;</span>
-<span class="lineNum">    1002 </span>                :<span class="lineCov">          2 :         ranges_len = 0;</span>
+<span class="lineNum">    1001 </span>                :<span class="lineCov">          6 :         names_len = 0;</span>
+<span class="lineNum">    1002 </span>                :<span class="lineCov">          6 :         ranges_len = 0;</span>
 <span class="lineNum">    1003 </span>                :            : 
 <span class="lineNum">    1004 </span>                :            :         /* Finalise the region list, so we know that the regions list won't be
 <span class="lineNum">    1005 </span>                :            :          * altered after this point. The regions' free lists may change after
 <span class="lineNum">    1006 </span>                :            :          * we drop the lock, but we don't access those. */
-<span class="lineNum">    1007 </span>                :<span class="lineCov">          2 :         lock(&amp;mem_region_lock);</span>
-<span class="lineNum">    1008 </span>                :<span class="lineCov">          2 :         mem_regions_finalised = true;</span>
+<span class="lineNum">    1007 </span>                :<span class="lineCov">          6 :         lock(&amp;mem_region_lock);</span>
+<span class="lineNum">    1008 </span>                :<span class="lineCov">          6 :         mem_regions_finalised = true;</span>
 <span class="lineNum">    1009 </span>                :            : 
 <span class="lineNum">    1010 </span>                :            :         /* establish top-level reservation node */
-<span class="lineNum">    1011 </span>                :<span class="lineCov">          2 :         node = dt_new(dt_root, &quot;reserved-memory&quot;);</span>
-<span class="lineNum">    1012 </span>                :<span class="lineCov">          2 :         dt_add_property_cells(node, &quot;#address-cells&quot;, 2);</span>
-<span class="lineNum">    1013 </span>                :<span class="lineCov">          2 :         dt_add_property_cells(node, &quot;#size-cells&quot;, 2);</span>
-<span class="lineNum">    1014 </span>                :<span class="lineCov">          2 :         dt_add_property(node, &quot;ranges&quot;, NULL, 0);</span>
+<span class="lineNum">    1011 </span>                :<span class="lineCov">          6 :         node = dt_new(dt_root, &quot;reserved-memory&quot;);</span>
+<span class="lineNum">    1012 </span>                :<span class="lineCov">          6 :         dt_add_property_cells(node, &quot;#address-cells&quot;, 2);</span>
+<span class="lineNum">    1013 </span>                :<span class="lineCov">          6 :         dt_add_property_cells(node, &quot;#size-cells&quot;, 2);</span>
+<span class="lineNum">    1014 </span>                :<span class="lineCov">          6 :         dt_add_property(node, &quot;ranges&quot;, NULL, 0);</span>
 <span class="lineNum">    1015 </span>                :            : 
 <span class="lineNum">    1016 </span>                :            :         /* First pass: calculate length of property data */
-<span class="lineNum">    1017 </span>        [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">         16 :         list_for_each(&amp;regions, region, list) {</span>
-<span class="lineNum">    1018 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         14 :                 if (!region_is_reserved(region))</span>
-<span class="lineNum">    1019 </span>                :<span class="lineCov">          4 :                         continue;</span>
-<span class="lineNum">    1020 </span>                :<span class="lineCov">         10 :                 names_len += strlen(region-&gt;name) + 1;</span>
-<span class="lineNum">    1021 </span>                :<span class="lineCov">         10 :                 ranges_len += 2 * sizeof(uint64_t);</span>
+<span class="lineNum">    1017 </span>        [<span class="branchCov" title="Branch 0 was taken 42 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">         48 :         list_for_each(&amp;regions, region, list) {</span>
+<span class="lineNum">    1018 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>]:<span class="lineCov">         42 :                 if (!region_is_reserved(region))</span>
+<span class="lineNum">    1019 </span>                :<span class="lineCov">         12 :                         continue;</span>
+<span class="lineNum">    1020 </span>                :<span class="lineCov">         30 :                 names_len += strlen(region-&gt;name) + 1;</span>
+<span class="lineNum">    1021 </span>                :<span class="lineCov">         30 :                 ranges_len += 2 * sizeof(uint64_t);</span>
 <span class="lineNum">    1022 </span>                :            :         }
 <span class="lineNum">    1023 </span>                :            : 
-<span class="lineNum">    1024 </span>                :<span class="lineCov">          2 :         name = names = malloc(names_len);</span>
-<span class="lineNum">    1025 </span>                :<span class="lineCov">          2 :         range = ranges = malloc(ranges_len);</span>
+<span class="lineNum">    1024 </span>                :<span class="lineCov">          6 :         name = names = malloc(names_len);</span>
+<span class="lineNum">    1025 </span>                :<span class="lineCov">          6 :         range = ranges = malloc(ranges_len);</span>
 <span class="lineNum">    1026 </span>                :            : 
-<span class="lineNum">    1027 </span>                :<span class="lineCov">          2 :         printf(&quot;Reserved regions:\n&quot;);</span>
+<span class="lineNum">    1027 </span>                :<span class="lineCov">          6 :         printf(&quot;Reserved regions:\n&quot;);</span>
 <span class="lineNum">    1028 </span>                :            :         /* Second pass: populate property data */
-<span class="lineNum">    1029 </span>        [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">         16 :         list_for_each(&amp;regions, region, list) {</span>
-<span class="lineNum">    1030 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         14 :                 if (!region_is_reserved(region))</span>
-<span class="lineNum">    1031 </span>                :<span class="lineCov">          4 :                         continue;</span>
-<span class="lineNum">    1032 </span>                :<span class="lineCov">         10 :                 len = strlen(region-&gt;name) + 1;</span>
-<span class="lineNum">    1033 </span>                :<span class="lineCov">         10 :                 memcpy(name, region-&gt;name, len);</span>
-<span class="lineNum">    1034 </span>                :<span class="lineCov">         10 :                 name += len;</span>
+<span class="lineNum">    1029 </span>        [<span class="branchCov" title="Branch 0 was taken 42 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">         48 :         list_for_each(&amp;regions, region, list) {</span>
+<span class="lineNum">    1030 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>]:<span class="lineCov">         42 :                 if (!region_is_reserved(region))</span>
+<span class="lineNum">    1031 </span>                :<span class="lineCov">         12 :                         continue;</span>
+<span class="lineNum">    1032 </span>                :<span class="lineCov">         30 :                 len = strlen(region-&gt;name) + 1;</span>
+<span class="lineNum">    1033 </span>                :<span class="lineCov">         30 :                 memcpy(name, region-&gt;name, len);</span>
+<span class="lineNum">    1034 </span>                :<span class="lineCov">         30 :                 name += len;</span>
 <span class="lineNum">    1035 </span>                :            : 
-<span class="lineNum">    1036 </span>                :<span class="lineCov">         10 :                 printf(&quot;  0x%012llx..%012llx : %s\n&quot;,</span>
+<span class="lineNum">    1036 </span>                :<span class="lineCov">         30 :                 printf(&quot;  0x%012llx..%012llx : %s\n&quot;,</span>
 <span class="lineNum">    1037 </span>                :            :                        (long long)region-&gt;start,
 <span class="lineNum">    1038 </span>                :            :                        (long long)(region-&gt;start + region-&gt;len - 1),
 <span class="lineNum">    1039 </span>                :            :                        region-&gt;name);
 <span class="lineNum">    1040 </span>                :            : 
-<span class="lineNum">    1041 </span>                :<span class="lineCov">         10 :                 mem_region_add_dt_reserved_node(node, region);</span>
+<span class="lineNum">    1041 </span>                :<span class="lineCov">         30 :                 mem_region_add_dt_reserved_node(node, region);</span>
 <span class="lineNum">    1042 </span>                :            : 
-<span class="lineNum">    1043 </span>                :<span class="lineCov">         10 :                 range[0] = cpu_to_fdt64(region-&gt;start);</span>
-<span class="lineNum">    1044 </span>                :<span class="lineCov">         10 :                 range[1] = cpu_to_fdt64(region-&gt;len);</span>
-<span class="lineNum">    1045 </span>                :<span class="lineCov">         10 :                 range += 2;</span>
+<span class="lineNum">    1043 </span>                :<span class="lineCov">         30 :                 range[0] = cpu_to_fdt64(region-&gt;start);</span>
+<span class="lineNum">    1044 </span>                :<span class="lineCov">         30 :                 range[1] = cpu_to_fdt64(region-&gt;len);</span>
+<span class="lineNum">    1045 </span>                :<span class="lineCov">         30 :                 range += 2;</span>
 <span class="lineNum">    1046 </span>                :            :         }
-<span class="lineNum">    1047 </span>                :<span class="lineCov">          2 :         unlock(&amp;mem_region_lock);</span>
+<span class="lineNum">    1047 </span>                :<span class="lineCov">          6 :         unlock(&amp;mem_region_lock);</span>
 <span class="lineNum">    1048 </span>                :            : 
-<span class="lineNum">    1049 </span>                :<span class="lineCov">          2 :         dt_add_property(dt_root, &quot;reserved-names&quot;, names, names_len);</span>
-<span class="lineNum">    1050 </span>                :<span class="lineCov">          2 :         dt_add_property(dt_root, &quot;reserved-ranges&quot;, ranges, ranges_len);</span>
+<span class="lineNum">    1049 </span>                :<span class="lineCov">          6 :         dt_add_property(dt_root, &quot;reserved-names&quot;, names, names_len);</span>
+<span class="lineNum">    1050 </span>                :<span class="lineCov">          6 :         dt_add_property(dt_root, &quot;reserved-ranges&quot;, ranges, ranges_len);</span>
 <span class="lineNum">    1051 </span>                :            : 
-<span class="lineNum">    1052 </span>                :<span class="lineCov">          2 :         free(names);</span>
-<span class="lineNum">    1053 </span>                :<span class="lineCov">          2 :         free(ranges);</span>
-<a name="1054"><span class="lineNum">    1054 </span>                :<span class="lineCov">          2 : }</span></a>
+<span class="lineNum">    1052 </span>                :<span class="lineCov">          6 :         free(names);</span>
+<span class="lineNum">    1053 </span>                :<span class="lineCov">          6 :         free(ranges);</span>
+<a name="1054"><span class="lineNum">    1054 </span>                :<span class="lineCov">          6 : }</span></a>
 <span class="lineNum">    1055 </span>                :            : 
 <span class="lineNum">    1056 </span>                :<span class="lineNoCov">          0 : struct mem_region *mem_region_next(struct mem_region *region)</span>
 <span class="lineNum">    1057 </span>                :            : {

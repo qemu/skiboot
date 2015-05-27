@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -1012,14 +1012,14 @@
 <span class="lineNum">     941 </span>                :            :         return true;
 <a name="942"><span class="lineNum">     942 </span>                :            : }</a>
 <span class="lineNum">     943 </span>                :            : 
-<span class="lineNum">     944 </span>                :<span class="lineCov">          2 : void chiptod_init(void)</span>
+<span class="lineNum">     944 </span>                :<span class="lineCov">          6 : void chiptod_init(void)</span>
 <span class="lineNum">     945 </span>                :            : {
 <span class="lineNum">     946 </span>                :            :         struct cpu_thread *cpu0, *cpu;
 <span class="lineNum">     947 </span>                :            :         bool sres;
 <span class="lineNum">     948 </span>                :            : 
 <span class="lineNum">     949 </span>                :            :         /* Mambo and qemu doesn't simulate the chiptod */
-<span class="lineNum">     950 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (chip_quirk(QUIRK_NO_CHIPTOD))</span>
-<span class="lineNum">     951 </span>                :<span class="lineCov">          2 :                 return;</span>
+<span class="lineNum">     950 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (chip_quirk(QUIRK_NO_CHIPTOD))</span>
+<span class="lineNum">     951 </span>                :<span class="lineCov">          6 :                 return;</span>
 <span class="lineNum">     952 </span>                :            : 
 <span class="lineNum">     953 </span>                :<span class="lineNoCov">          0 :         op_display(OP_LOG, OP_MOD_CHIPTOD, 0);</span>
 <span class="lineNum">     954 </span>                :            : 

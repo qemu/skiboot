@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">0</td>
@@ -103,7 +103,7 @@
 <span class="lineNum">      32 </span>                :            :         /* We use a memory clobber to avoid this being
 <span class="lineNum">      33 </span>                :            :          * moved in the instruction stream
 <span class="lineNum">      34 </span>                :            :          */
-<span class="lineNum">      35 </span>                :<span class="lineCov">       3588 :         asm volatile(&quot;mftb %0&quot; : &quot;=r&quot;(tb) : : &quot;memory&quot;);</span>
+<span class="lineNum">      35 </span>                :<span class="lineCov">      19366 :         asm volatile(&quot;mftb %0&quot; : &quot;=r&quot;(tb) : : &quot;memory&quot;);</span>
 <span class="lineNum">      36 </span>                :            :         return tb;
 <span class="lineNum">      37 </span>                :            : }
 <span class="lineNum">      38 </span>                :            : #endif

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">20</td>
@@ -115,51 +115,51 @@
 <span class="lineNum">      44 </span>                :            :         .ibuf_size      = INMEM_CON_IN_LEN,
 <a name="45"><span class="lineNum">      45 </span>                :            : };</a>
 <span class="lineNum">      46 </span>                :            : 
-<span class="lineNum">      47 </span>                :<span class="lineCov">          4 : bool dummy_console_enabled(void)</span>
+<span class="lineNum">      47 </span>                :<span class="lineCov">         12 : bool dummy_console_enabled(void)</span>
 <span class="lineNum">      48 </span>                :            : {
 <span class="lineNum">      49 </span>                :            : #ifdef FORCE_DUMMY_CONSOLE
 <span class="lineNum">      50 </span>                :            :         return true;
 <span class="lineNum">      51 </span>                :            : #else
-<span class="lineNum">      52 </span>                :<span class="lineCov">          4 :         return dt_has_node_property(dt_chosen,</span>
+<span class="lineNum">      52 </span>                :<span class="lineCov">         12 :         return dt_has_node_property(dt_chosen,</span>
 <span class="lineNum">      53 </span>                :            :                                     &quot;sapphire,enable-dummy-console&quot;, NULL);
 <span class="lineNum">      54 </span>                :            : #endif
 <a name="55"><span class="lineNum">      55 </span>                :            : }</a>
 <span class="lineNum">      56 </span>                :            : 
-<span class="lineNum">      57 </span>                :<span class="lineCov">          2 : void force_dummy_console(void)</span>
+<span class="lineNum">      57 </span>                :<span class="lineCov">          6 : void force_dummy_console(void)</span>
 <span class="lineNum">      58 </span>                :            : {
-<span class="lineNum">      59 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!dummy_console_enabled())</span>
-<span class="lineNum">      60 </span>                :<span class="lineCov">          2 :                 dt_add_property(dt_chosen, &quot;sapphire,enable-dummy-console&quot;,</span>
+<span class="lineNum">      59 </span>        [<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          6 :         if (!dummy_console_enabled())</span>
+<span class="lineNum">      60 </span>                :<span class="lineCov">          6 :                 dt_add_property(dt_chosen, &quot;sapphire,enable-dummy-console&quot;,</span>
 <span class="lineNum">      61 </span>                :            :                                                 NULL, 0);
-<span class="lineNum">      62 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">      62 </span>                :<span class="lineCov">          6 : }</span>
 <span class="lineNum">      63 </span>                :            : 
 <span class="lineNum">      64 </span>                :            : 
 <a name="65"><span class="lineNum">      65 </span>                :            : static int mambo_char = -1;</a>
 <span class="lineNum">      66 </span>                :            : 
-<span class="lineNum">      67 </span>                :<span class="lineCov">       3490 : static bool mambo_con_poll_read(void)</span>
+<span class="lineNum">      67 </span>                :<span class="lineCov">      19059 : static bool mambo_con_poll_read(void)</span>
 <span class="lineNum">      68 </span>                :            : {
-<span class="lineNum">      69 </span>        [<span class="branchCov" title="Branch 0 was taken 3411 times"> + </span><span class="branchCov" title="Branch 1 was taken 79 times"> + </span>]:<span class="lineCov">       3490 :         if (mambo_char &lt; 0)</span>
-<span class="lineNum">      70 </span>                :<span class="lineCov">       3411 :                 mambo_char = mambo_read();</span>
-<span class="lineNum">      71 </span>                :<span class="lineCov">       3490 :         return mambo_char &gt;= 0;</span>
+<span class="lineNum">      69 </span>        [<span class="branchCov" title="Branch 0 was taken 18889 times"> + </span><span class="branchCov" title="Branch 1 was taken 170 times"> + </span>]:<span class="lineCov">      19059 :         if (mambo_char &lt; 0)</span>
+<span class="lineNum">      70 </span>                :<span class="lineCov">      18889 :                 mambo_char = mambo_read();</span>
+<span class="lineNum">      71 </span>                :<span class="lineCov">      19059 :         return mambo_char &gt;= 0;</span>
 <a name="72"><span class="lineNum">      72 </span>                :            : }</a>
 <span class="lineNum">      73 </span>                :            : 
-<span class="lineNum">      74 </span>                :<span class="lineCov">          2 : static size_t mambo_con_read(char *buf, size_t len)</span>
+<span class="lineNum">      74 </span>                :<span class="lineCov">         10 : static size_t mambo_con_read(char *buf, size_t len)</span>
 <span class="lineNum">      75 </span>                :            : {
-<span class="lineNum">      76 </span>                :<span class="lineCov">          2 :         size_t count = 0;</span>
+<span class="lineNum">      76 </span>                :<span class="lineCov">         10 :         size_t count = 0;</span>
 <span class="lineNum">      77 </span>                :            : 
-<span class="lineNum">      78 </span>        [<span class="branchCov" title="Branch 0 was taken 9 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          9 :         while(count &lt; len) {</span>
-<span class="lineNum">      79 </span>        [<span class="branchCov" title="Branch 1 was taken 7 times"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          9 :                 if (!mambo_con_poll_read())</span>
+<span class="lineNum">      78 </span>        [<span class="branchCov" title="Branch 0 was taken 45 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         45 :         while(count &lt; len) {</span>
+<span class="lineNum">      79 </span>        [<span class="branchCov" title="Branch 1 was taken 35 times"> + </span><span class="branchCov" title="Branch 2 was taken 10 times"> + </span>]:<span class="lineCov">         45 :                 if (!mambo_con_poll_read())</span>
 <span class="lineNum">      80 </span>                :            :                         break;
-<span class="lineNum">      81 </span>                :<span class="lineCov">          7 :                 *(buf++) = mambo_char;</span>
-<span class="lineNum">      82 </span>                :<span class="lineCov">          7 :                 mambo_char = -1;</span>
-<span class="lineNum">      83 </span>                :<span class="lineCov">          7 :                 count++;</span>
+<span class="lineNum">      81 </span>                :<span class="lineCov">         35 :                 *(buf++) = mambo_char;</span>
+<span class="lineNum">      82 </span>                :<span class="lineCov">         35 :                 mambo_char = -1;</span>
+<span class="lineNum">      83 </span>                :<span class="lineCov">         35 :                 count++;</span>
 <span class="lineNum">      84 </span>                :            :         }
-<span class="lineNum">      85 </span>                :<span class="lineCov">          2 :         return count;</span>
+<span class="lineNum">      85 </span>                :<span class="lineCov">         10 :         return count;</span>
 <a name="86"><span class="lineNum">      86 </span>                :            : }</a>
 <span class="lineNum">      87 </span>                :            : 
-<span class="lineNum">      88 </span>                :<span class="lineCov">       3462 : static size_t mambo_con_write(const char *buf, size_t len)</span>
+<span class="lineNum">      88 </span>                :<span class="lineCov">      18759 : static size_t mambo_con_write(const char *buf, size_t len)</span>
 <span class="lineNum">      89 </span>                :            : {
-<span class="lineNum">      90 </span>                :<span class="lineCov">       3462 :         mambo_write(buf, len);</span>
-<span class="lineNum">      91 </span>                :<span class="lineCov">       3462 :         return len;</span>
+<span class="lineNum">      90 </span>                :<span class="lineCov">      18759 :         mambo_write(buf, len);</span>
+<span class="lineNum">      91 </span>                :<span class="lineCov">      18759 :         return len;</span>
 <span class="lineNum">      92 </span>                :            : }
 <span class="lineNum">      93 </span>                :            : 
 <span class="lineNum">      94 </span>                :            : static struct con_ops mambo_con_driver = {
@@ -168,16 +168,16 @@
 <span class="lineNum">      97 </span>                :            :         .write = mambo_con_write,
 <a name="98"><span class="lineNum">      98 </span>                :            : };</a>
 <span class="lineNum">      99 </span>                :            : 
-<span class="lineNum">     100 </span>                :<span class="lineCov">          2 : void enable_mambo_console(void)</span>
+<span class="lineNum">     100 </span>                :<span class="lineCov">          6 : void enable_mambo_console(void)</span>
 <span class="lineNum">     101 </span>                :            : {
-<span class="lineNum">     102 </span>                :<span class="lineCov">          2 :         prlog(PR_NOTICE, &quot;Enabling Mambo console\n&quot;);</span>
-<span class="lineNum">     103 </span>                :<span class="lineCov">          2 :         set_console(&amp;mambo_con_driver);</span>
-<a name="104"><span class="lineNum">     104 </span>                :<span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     102 </span>                :<span class="lineCov">          6 :         prlog(PR_NOTICE, &quot;Enabling Mambo console\n&quot;);</span>
+<span class="lineNum">     103 </span>                :<span class="lineCov">          6 :         set_console(&amp;mambo_con_driver);</span>
+<a name="104"><span class="lineNum">     104 </span>                :<span class="lineCov">          6 : }</span></a>
 <span class="lineNum">     105 </span>                :            : 
-<span class="lineNum">     106 </span>                :<span class="lineCov">          2 : void clear_console(void)</span>
+<span class="lineNum">     106 </span>                :<span class="lineCov">          6 : void clear_console(void)</span>
 <span class="lineNum">     107 </span>                :            : {
-<span class="lineNum">     108 </span>                :<span class="lineCov">          2 :         memset(con_buf, 0, INMEM_CON_LEN);</span>
-<span class="lineNum">     109 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">     108 </span>                :<span class="lineCov">          6 :         memset(con_buf, 0, INMEM_CON_LEN);</span>
+<span class="lineNum">     109 </span>                :<span class="lineCov">          6 : }</span>
 <span class="lineNum">     110 </span>                :            : 
 <span class="lineNum">     111 </span>                :            : /*
 <span class="lineNum">     112 </span>                :            :  * Flush the console buffer into the driver, returns true
@@ -185,14 +185,14 @@
 <span class="lineNum">     114 </span>                :            :  * Optionally can skip flushing to drivers, leaving messages
 <a name="115"><span class="lineNum">     115 </span>                :            :  * just in memory console.</a>
 <span class="lineNum">     116 </span>                :            :  */
-<span class="lineNum">     117 </span>                :<span class="lineCov">       3506 : bool __flush_console(bool flush_to_drivers)</span>
+<span class="lineNum">     117 </span>                :<span class="lineCov">      18891 : bool __flush_console(bool flush_to_drivers)</span>
 <span class="lineNum">     118 </span>                :            : {
-<span class="lineNum">     119 </span>                :<span class="lineCov">       3506 :         struct cpu_thread *cpu = this_cpu();</span>
-<span class="lineNum">     120 </span>                :<span class="lineCov">       3506 :         size_t req, len = 0;</span>
+<span class="lineNum">     119 </span>                :<span class="lineCov">      18891 :         struct cpu_thread *cpu = this_cpu();</span>
+<span class="lineNum">     120 </span>                :<span class="lineCov">      18891 :         size_t req, len = 0;</span>
 <span class="lineNum">     121 </span>                :            :         static bool in_flush, more_flush;
 <span class="lineNum">     122 </span>                :            : 
 <span class="lineNum">     123 </span>                :            :         /* Is there anything to flush ? Bail out early if not */
-<span class="lineNum">     124 </span>[<span class="branchCov" title="Branch 0 was taken 3506 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 3482 times"> + </span><span class="branchCov" title="Branch 3 was taken 24 times"> + </span>]:<span class="lineCov">       3506 :         if (con_in == con_out || !con_driver)</span>
+<span class="lineNum">     124 </span>[<span class="branchCov" title="Branch 0 was taken 18891 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 18819 times"> + </span><span class="branchCov" title="Branch 3 was taken 72 times"> + </span>]:<span class="lineCov">      18891 :         if (con_in == con_out || !con_driver)</span>
 <span class="lineNum">     125 </span>                :            :                 return false;
 <span class="lineNum">     126 </span>                :            : 
 <span class="lineNum">     127 </span>                :            :         /*
@@ -200,11 +200,11 @@
 <span class="lineNum">     129 </span>                :            :          * some critical locks are held that would potentially cause a
 <span class="lineNum">     130 </span>                :            :          * flush to deadlock
 <span class="lineNum">     131 </span>                :            :          */
-<span class="lineNum">     132 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3482 times"> + </span>]:<span class="lineCov">       3482 :         if (cpu-&gt;con_suspend) {</span>
+<span class="lineNum">     132 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 18819 times"> + </span>]:<span class="lineCov">      18819 :         if (cpu-&gt;con_suspend) {</span>
 <span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 :                 cpu-&gt;con_need_flush = true;</span>
 <span class="lineNum">     134 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
 <span class="lineNum">     135 </span>                :            :         }
-<span class="lineNum">     136 </span>                :<span class="lineCov">       3482 :         cpu-&gt;con_need_flush = false;</span>
+<span class="lineNum">     136 </span>                :<span class="lineCov">      18819 :         cpu-&gt;con_need_flush = false;</span>
 <span class="lineNum">     137 </span>                :            : 
 <span class="lineNum">     138 </span>                :            :         /*
 <span class="lineNum">     139 </span>                :            :          * We must call the underlying driver with the console lock
@@ -216,15 +216,15 @@
 <span class="lineNum">     145 </span>                :            :          * concurrent attempts at flushing the same chunk of buffer
 <span class="lineNum">     146 </span>                :            :          * by other processors.
 <span class="lineNum">     147 </span>                :            :          */
-<span class="lineNum">     148 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3482 times"> + </span>]:<span class="lineCov">       3482 :         if (in_flush) {</span>
+<span class="lineNum">     148 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 18819 times"> + </span>]:<span class="lineCov">      18819 :         if (in_flush) {</span>
 <span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :                 more_flush = true;</span>
 <span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
 <span class="lineNum">     151 </span>                :            :         }
-<span class="lineNum">     152 </span>                :<span class="lineCov">       3482 :         in_flush = true;</span>
+<span class="lineNum">     152 </span>                :<span class="lineCov">      18819 :         in_flush = true;</span>
 <span class="lineNum">     153 </span>                :            : 
 <span class="lineNum">     154 </span>                :            :         do {
-<span class="lineNum">     155 </span>                :<span class="lineCov">       3482 :                 more_flush = false;</span>
-<span class="lineNum">     156 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3482 times"> + </span>]:<span class="lineCov">       3482 :                 if (con_out &gt; con_in) {</span>
+<span class="lineNum">     155 </span>                :<span class="lineCov">      18819 :                 more_flush = false;</span>
+<span class="lineNum">     156 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 18819 times"> + </span>]:<span class="lineCov">      18819 :                 if (con_out &gt; con_in) {</span>
 <span class="lineNum">     157 </span>                :<span class="lineNoCov">          0 :                         req = INMEM_CON_OUT_LEN - con_out;</span>
 <span class="lineNum">     158 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (!flush_to_drivers) {</span>
 <span class="lineNum">     159 </span>                :            :                                 len = req;
@@ -238,42 +238,42 @@
 <span class="lineNum">     167 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (len &lt; req)</span>
 <span class="lineNum">     168 </span>                :            :                                 goto bail;
 <span class="lineNum">     169 </span>                :            :                 }
-<span class="lineNum">     170 </span>        [<span class="branchCov" title="Branch 0 was taken 3482 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       3482 :                 if (con_out &lt; con_in) {</span>
-<span class="lineNum">     171 </span>        [<span class="branchCov" title="Branch 0 was taken 20 times"> + </span><span class="branchCov" title="Branch 1 was taken 3462 times"> + </span>]:<span class="lineCov">       3482 :                         if (!flush_to_drivers) {</span>
-<span class="lineNum">     172 </span>                :<span class="lineCov">         20 :                                 len = con_in - con_out;</span>
+<span class="lineNum">     170 </span>        [<span class="branchCov" title="Branch 0 was taken 18819 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">      18819 :                 if (con_out &lt; con_in) {</span>
+<span class="lineNum">     171 </span>        [<span class="branchCov" title="Branch 0 was taken 60 times"> + </span><span class="branchCov" title="Branch 1 was taken 18759 times"> + </span>]:<span class="lineCov">      18819 :                         if (!flush_to_drivers) {</span>
+<span class="lineNum">     172 </span>                :<span class="lineCov">         60 :                                 len = con_in - con_out;</span>
 <span class="lineNum">     173 </span>                :            :                         } else {
-<span class="lineNum">     174 </span>                :<span class="lineCov">       3462 :                                 unlock(&amp;con_lock);</span>
-<span class="lineNum">     175 </span>                :<span class="lineCov">       3462 :                                 len = con_driver-&gt;write(con_buf + con_out,</span>
+<span class="lineNum">     174 </span>                :<span class="lineCov">      18759 :                                 unlock(&amp;con_lock);</span>
+<span class="lineNum">     175 </span>                :<span class="lineCov">      18759 :                                 len = con_driver-&gt;write(con_buf + con_out,</span>
 <span class="lineNum">     176 </span>                :            :                                                         con_in - con_out);
-<span class="lineNum">     177 </span>                :<span class="lineCov">       3462 :                                 lock(&amp;con_lock);</span>
+<span class="lineNum">     177 </span>                :<span class="lineCov">      18759 :                                 lock(&amp;con_lock);</span>
 <span class="lineNum">     178 </span>                :            :                         }
-<span class="lineNum">     179 </span>                :<span class="lineCov">       3482 :                         con_out = (con_out + len) % INMEM_CON_OUT_LEN;</span>
+<span class="lineNum">     179 </span>                :<span class="lineCov">      18819 :                         con_out = (con_out + len) % INMEM_CON_OUT_LEN;</span>
 <span class="lineNum">     180 </span>                :            :                 }
-<span class="lineNum">     181 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3482 times"> + </span>]:<span class="lineCov">       3482 :         } while(more_flush);</span>
+<span class="lineNum">     181 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 18819 times"> + </span>]:<span class="lineCov">      18819 :         } while(more_flush);</span>
 <span class="lineNum">     182 </span>                :            : bail:
-<span class="lineNum">     183 </span>                :<span class="lineCov">       3482 :         in_flush = false;</span>
-<span class="lineNum">     184 </span>                :<span class="lineCov">       3482 :         return con_out != con_in;</span>
+<span class="lineNum">     183 </span>                :<span class="lineCov">      18819 :         in_flush = false;</span>
+<span class="lineNum">     184 </span>                :<span class="lineCov">      18819 :         return con_out != con_in;</span>
 <a name="185"><span class="lineNum">     185 </span>                :            : }</a>
 <span class="lineNum">     186 </span>                :            : 
-<span class="lineNum">     187 </span>                :<span class="lineCov">          2 : bool flush_console(void)</span>
+<span class="lineNum">     187 </span>                :<span class="lineCov">          6 : bool flush_console(void)</span>
 <span class="lineNum">     188 </span>                :            : {
 <span class="lineNum">     189 </span>                :            :         bool ret;
 <span class="lineNum">     190 </span>                :            : 
-<span class="lineNum">     191 </span>                :<span class="lineCov">          2 :         lock(&amp;con_lock);</span>
-<span class="lineNum">     192 </span>                :<span class="lineCov">          2 :         ret = __flush_console(true);</span>
-<span class="lineNum">     193 </span>                :<span class="lineCov">          2 :         unlock(&amp;con_lock);</span>
+<span class="lineNum">     191 </span>                :<span class="lineCov">          6 :         lock(&amp;con_lock);</span>
+<span class="lineNum">     192 </span>                :<span class="lineCov">          6 :         ret = __flush_console(true);</span>
+<span class="lineNum">     193 </span>                :<span class="lineCov">          6 :         unlock(&amp;con_lock);</span>
 <span class="lineNum">     194 </span>                :            : 
-<span class="lineNum">     195 </span>                :<span class="lineCov">          2 :         return ret;</span>
+<span class="lineNum">     195 </span>                :<span class="lineCov">          6 :         return ret;</span>
 <a name="196"><span class="lineNum">     196 </span>                :            : }</a>
 <span class="lineNum">     197 </span>                :            : 
-<span class="lineNum">     198 </span>                :<span class="lineCov">      13520 : static void inmem_write(char c)</span>
+<span class="lineNum">     198 </span>                :<span class="lineCov">      78527 : static void inmem_write(char c)</span>
 <span class="lineNum">     199 </span>                :            : {
 <span class="lineNum">     200 </span>                :            :         uint32_t opos;
 <span class="lineNum">     201 </span>                :            : 
-<span class="lineNum">     202 </span>        [<span class="branchCov" title="Branch 0 was taken 13520 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">      13520 :         if (!c)</span>
-<span class="lineNum">     203 </span>                :<span class="lineCov">      13520 :                 return;</span>
-<span class="lineNum">     204 </span>                :<span class="lineCov">      13520 :         con_buf[con_in++] = c;</span>
-<span class="lineNum">     205 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 13520 times"> + </span>]:<span class="lineCov">      13520 :         if (con_in &gt;= INMEM_CON_OUT_LEN) {</span>
+<span class="lineNum">     202 </span>        [<span class="branchCov" title="Branch 0 was taken 78527 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">      78527 :         if (!c)</span>
+<span class="lineNum">     203 </span>                :<span class="lineCov">      78527 :                 return;</span>
+<span class="lineNum">     204 </span>                :<span class="lineCov">      78527 :         con_buf[con_in++] = c;</span>
+<span class="lineNum">     205 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 78527 times"> + </span>]:<span class="lineCov">      78527 :         if (con_in &gt;= INMEM_CON_OUT_LEN) {</span>
 <span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :                 con_in = 0;</span>
 <span class="lineNum">     207 </span>                :<span class="lineNoCov">          0 :                 con_wrapped = true;</span>
 <span class="lineNum">     208 </span>                :            :         }
@@ -285,14 +285,14 @@
 <span class="lineNum">     214 </span>                :            :          * 8 bytes containing out_pos and in_prod, thus corrupting
 <span class="lineNum">     215 </span>                :            :          * out_pos
 <span class="lineNum">     216 </span>                :            :          */
-<span class="lineNum">     217 </span>                :<span class="lineCov">      13520 :         opos = con_in;</span>
-<span class="lineNum">     218 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 13520 times"> + </span>]:<span class="lineCov">      13520 :         if (con_wrapped)</span>
+<span class="lineNum">     217 </span>                :<span class="lineCov">      78527 :         opos = con_in;</span>
+<span class="lineNum">     218 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 78527 times"> + </span>]:<span class="lineCov">      78527 :         if (con_wrapped)</span>
 <span class="lineNum">     219 </span>                :<span class="lineNoCov">          0 :                 opos |= MEMCONS_OUT_POS_WRAP;</span>
 <span class="lineNum">     220 </span>                :            :         lwsync();
-<span class="lineNum">     221 </span>                :<span class="lineCov">      13520 :         memcons.out_pos = opos;</span>
+<span class="lineNum">     221 </span>                :<span class="lineCov">      78527 :         memcons.out_pos = opos;</span>
 <span class="lineNum">     222 </span>                :            : 
 <span class="lineNum">     223 </span>                :            :         /* If head reaches tail, push tail around &amp; drop chars */
-<span class="lineNum">     224 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 13520 times"> + </span>]:<span class="lineCov">      13520 :         if (con_in == con_out)</span>
+<span class="lineNum">     224 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 78527 times"> + </span>]:<span class="lineCov">      78527 :         if (con_in == con_out)</span>
 <span class="lineNum">     225 </span>                :<span class="lineNoCov">          0 :                 con_out = (con_in + 1) % INMEM_CON_OUT_LEN;</span>
 <a name="226"><span class="lineNum">     226 </span>                :            : }</a>
 <span class="lineNum">     227 </span>                :            : 
@@ -316,148 +316,148 @@
 <span class="lineNum">     245 </span>                :            : #ifdef MAMBO_DEBUG_CONSOLE
 <a name="246"><span class="lineNum">     246 </span>                :            :         mambo_write(&amp;c, 1);</a>
 <span class="lineNum">     247 </span>                :            : #endif
-<span class="lineNum">     248 </span>                :<span class="lineCov">      13300 :         inmem_write(c);</span>
+<span class="lineNum">     248 </span>                :<span class="lineCov">      77243 :         inmem_write(c);</span>
 <span class="lineNum">     249 </span>                :            : }
 <span class="lineNum">     250 </span>                :            : 
-<span class="lineNum">     251 </span>                :<span class="lineCov">       3504 : ssize_t console_write(bool flush_to_drivers, const void *buf, size_t count)</span>
+<span class="lineNum">     251 </span>                :<span class="lineCov">      18885 : ssize_t console_write(bool flush_to_drivers, const void *buf, size_t count)</span>
 <span class="lineNum">     252 </span>                :            : {
 <span class="lineNum">     253 </span>                :            :         /* We use recursive locking here as we can get called
 <span class="lineNum">     254 </span>                :            :          * from fairly deep debug path
 <span class="lineNum">     255 </span>                :            :          */
-<span class="lineNum">     256 </span>                :<span class="lineCov">       3504 :         bool need_unlock = lock_recursive(&amp;con_lock);</span>
-<span class="lineNum">     257 </span>                :<span class="lineCov">       3504 :         const char *cbuf = buf;</span>
+<span class="lineNum">     256 </span>                :<span class="lineCov">      18885 :         bool need_unlock = lock_recursive(&amp;con_lock);</span>
+<span class="lineNum">     257 </span>                :<span class="lineCov">      18885 :         const char *cbuf = buf;</span>
 <span class="lineNum">     258 </span>                :            : 
-<span class="lineNum">     259 </span>        [<span class="branchCov" title="Branch 0 was taken 13300 times"> + </span><span class="branchCov" title="Branch 1 was taken 3504 times"> + </span>]:<span class="lineCov">      16804 :         while(count--) {</span>
-<span class="lineNum">     260 </span>                :<span class="lineCov">      13300 :                 char c = *(cbuf++);</span>
-<span class="lineNum">     261 </span>        [<span class="branchCov" title="Branch 0 was taken 220 times"> + </span><span class="branchCov" title="Branch 1 was taken 13080 times"> + </span>]:<span class="lineCov">      13300 :                 if (c == 10)</span>
+<span class="lineNum">     259 </span>        [<span class="branchCov" title="Branch 0 was taken 77243 times"> + </span><span class="branchCov" title="Branch 1 was taken 18885 times"> + </span>]:<span class="lineCov">      96128 :         while(count--) {</span>
+<span class="lineNum">     260 </span>                :<span class="lineCov">      77243 :                 char c = *(cbuf++);</span>
+<span class="lineNum">     261 </span>        [<span class="branchCov" title="Branch 0 was taken 1284 times"> + </span><span class="branchCov" title="Branch 1 was taken 75959 times"> + </span>]:<span class="lineCov">      77243 :                 if (c == 10)</span>
 <span class="lineNum">     262 </span>                :            :                         write_char(13);
 <span class="lineNum">     263 </span>                :            :                 write_char(c);
 <span class="lineNum">     264 </span>                :            :         }
 <span class="lineNum">     265 </span>                :            : 
-<span class="lineNum">     266 </span>                :<span class="lineCov">       3504 :         __flush_console(flush_to_drivers);</span>
+<span class="lineNum">     266 </span>                :<span class="lineCov">      18885 :         __flush_console(flush_to_drivers);</span>
 <span class="lineNum">     267 </span>                :            : 
-<span class="lineNum">     268 </span>        [<span class="branchCov" title="Branch 0 was taken 3488 times"> + </span><span class="branchCov" title="Branch 1 was taken 16 times"> + </span>]:<span class="lineCov">       3504 :         if (need_unlock)</span>
-<span class="lineNum">     269 </span>                :<span class="lineCov">       3488 :                 unlock(&amp;con_lock);</span>
+<span class="lineNum">     268 </span>        [<span class="branchCov" title="Branch 0 was taken 18837 times"> + </span><span class="branchCov" title="Branch 1 was taken 48 times"> + </span>]:<span class="lineCov">      18885 :         if (need_unlock)</span>
+<span class="lineNum">     269 </span>                :<span class="lineCov">      18837 :                 unlock(&amp;con_lock);</span>
 <span class="lineNum">     270 </span>                :            : 
-<span class="lineNum">     271 </span>                :<span class="lineCov">       3504 :         return count;</span>
+<span class="lineNum">     271 </span>                :<span class="lineCov">      18885 :         return count;</span>
 <a name="272"><span class="lineNum">     272 </span>                :            : }</a>
 <span class="lineNum">     273 </span>                :            : 
-<span class="lineNum">     274 </span>                :<span class="lineCov">       3397 : ssize_t write(int fd __unused, const void *buf, size_t count)</span>
+<span class="lineNum">     274 </span>                :<span class="lineCov">      18533 : ssize_t write(int fd __unused, const void *buf, size_t count)</span>
 <span class="lineNum">     275 </span>                :            : {
-<span class="lineNum">     276 </span>                :<span class="lineCov">       3397 :         return console_write(true, buf, count);</span>
+<span class="lineNum">     276 </span>                :<span class="lineCov">      18533 :         return console_write(true, buf, count);</span>
 <a name="277"><span class="lineNum">     277 </span>                :            : }</a>
 <span class="lineNum">     278 </span>                :            : 
-<span class="lineNum">     279 </span>                :<span class="lineCov">          2 : ssize_t read(int fd __unused, void *buf, size_t req_count)</span>
+<span class="lineNum">     279 </span>                :<span class="lineCov">         10 : ssize_t read(int fd __unused, void *buf, size_t req_count)</span>
 <span class="lineNum">     280 </span>                :            : {
-<span class="lineNum">     281 </span>                :<span class="lineCov">          2 :         bool need_unlock = lock_recursive(&amp;con_lock);</span>
-<span class="lineNum">     282 </span>                :<span class="lineCov">          2 :         size_t count = 0;</span>
+<span class="lineNum">     281 </span>                :<span class="lineCov">         10 :         bool need_unlock = lock_recursive(&amp;con_lock);</span>
+<span class="lineNum">     282 </span>                :<span class="lineCov">         10 :         size_t count = 0;</span>
 <span class="lineNum">     283 </span>                :            : 
-<span class="lineNum">     284 </span>[<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (con_driver &amp;&amp; con_driver-&gt;read)</span>
-<span class="lineNum">     285 </span>                :<span class="lineCov">          2 :                 count = con_driver-&gt;read(buf, req_count);</span>
-<span class="lineNum">     286 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!count)</span>
+<span class="lineNum">     284 </span>[<span class="branchCov" title="Branch 2 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         10 :         if (con_driver &amp;&amp; con_driver-&gt;read)</span>
+<span class="lineNum">     285 </span>                :<span class="lineCov">         10 :                 count = con_driver-&gt;read(buf, req_count);</span>
+<span class="lineNum">     286 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">         10 :         if (!count)</span>
 <span class="lineNum">     287 </span>                :<span class="lineNoCov">          0 :                 count = inmem_read(buf, req_count);</span>
-<span class="lineNum">     288 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (need_unlock)</span>
-<span class="lineNum">     289 </span>                :<span class="lineCov">          2 :                 unlock(&amp;con_lock);</span>
-<span class="lineNum">     290 </span>                :<span class="lineCov">          2 :         return count;</span>
+<span class="lineNum">     288 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         10 :         if (need_unlock)</span>
+<span class="lineNum">     289 </span>                :<span class="lineCov">         10 :                 unlock(&amp;con_lock);</span>
+<span class="lineNum">     290 </span>                :<span class="lineCov">         10 :         return count;</span>
 <a name="291"><span class="lineNum">     291 </span>                :            : }</a>
 <span class="lineNum">     292 </span>                :            : 
-<span class="lineNum">     293 </span>                :<span class="lineCov">          2 : void set_console(struct con_ops *driver)</span>
+<span class="lineNum">     293 </span>                :<span class="lineCov">          6 : void set_console(struct con_ops *driver)</span>
 <span class="lineNum">     294 </span>                :            : {
-<span class="lineNum">     295 </span>                :<span class="lineCov">          2 :         con_driver = driver;</span>
-<span class="lineNum">     296 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (driver)</span>
-<span class="lineNum">     297 </span>                :<span class="lineCov">          2 :                 flush_console();</span>
-<a name="298"><span class="lineNum">     298 </span>                :<span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     295 </span>                :<span class="lineCov">          6 :         con_driver = driver;</span>
+<span class="lineNum">     296 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (driver)</span>
+<span class="lineNum">     297 </span>                :<span class="lineCov">          6 :                 flush_console();</span>
+<a name="298"><span class="lineNum">     298 </span>                :<span class="lineCov">          6 : }</span></a>
 <span class="lineNum">     299 </span>                :            : 
-<span class="lineNum">     300 </span>                :<span class="lineCov">          2 : void memcons_add_properties(void)</span>
+<span class="lineNum">     300 </span>                :<span class="lineCov">          6 : void memcons_add_properties(void)</span>
 <span class="lineNum">     301 </span>                :            : {
-<span class="lineNum">     302 </span>                :<span class="lineCov">          2 :         uint64_t addr = (u64)&amp;memcons;</span>
+<span class="lineNum">     302 </span>                :<span class="lineCov">          6 :         uint64_t addr = (u64)&amp;memcons;</span>
 <span class="lineNum">     303 </span>                :            : 
-<span class="lineNum">     304 </span>                :<span class="lineCov">          2 :         dt_add_property_cells(opal_node, &quot;ibm,opal-memcons&quot;,</span>
+<span class="lineNum">     304 </span>                :<span class="lineCov">          6 :         dt_add_property_cells(opal_node, &quot;ibm,opal-memcons&quot;,</span>
 <span class="lineNum">     305 </span>                :            :                               hi32(addr), lo32(addr));
-<span class="lineNum">     306 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">     306 </span>                :<span class="lineCov">          6 : }</span>
 <span class="lineNum">     307 </span>                :            : 
 <span class="lineNum">     308 </span>                :            : /*
 <a name="309"><span class="lineNum">     309 </span>                :            :  * Default OPAL console provided if nothing else overrides it</a>
 <span class="lineNum">     310 </span>                :            :  */
-<span class="lineNum">     311 </span>                :<span class="lineCov">       3397 : static int64_t dummy_console_write(int64_t term_number, int64_t *length,</span>
+<span class="lineNum">     311 </span>                :<span class="lineCov">      18533 : static int64_t dummy_console_write(int64_t term_number, int64_t *length,</span>
 <span class="lineNum">     312 </span>                :            :                                    const uint8_t *buffer)
 <span class="lineNum">     313 </span>                :            : {
-<span class="lineNum">     314 </span>        [<span class="branchCov" title="Branch 0 was taken 3397 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       3397 :         if (term_number != 0)</span>
+<span class="lineNum">     314 </span>        [<span class="branchCov" title="Branch 0 was taken 18533 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">      18533 :         if (term_number != 0)</span>
 <span class="lineNum">     315 </span>                :            :                 return OPAL_PARAMETER;
-<span class="lineNum">     316 </span>                :<span class="lineCov">       3397 :         write(0, buffer, *length);</span>
+<span class="lineNum">     316 </span>                :<span class="lineCov">      18533 :         write(0, buffer, *length);</span>
 <span class="lineNum">     317 </span>                :            : 
-<span class="lineNum">     318 </span>                :<span class="lineCov">       3397 :         return OPAL_SUCCESS;</span>
+<span class="lineNum">     318 </span>                :<span class="lineCov">      18533 :         return OPAL_SUCCESS;</span>
 <span class="lineNum">     319 </span>                :            : }
 <a name="320"><span class="lineNum">     320 </span>                :            : opal_call(OPAL_CONSOLE_WRITE, dummy_console_write, 3);</a>
 <span class="lineNum">     321 </span>                :            : 
-<span class="lineNum">     322 </span>                :<span class="lineCov">       3396 : static int64_t dummy_console_write_buffer_space(int64_t term_number,</span>
+<span class="lineNum">     322 </span>                :<span class="lineCov">      18532 : static int64_t dummy_console_write_buffer_space(int64_t term_number,</span>
 <span class="lineNum">     323 </span>                :            :                                                 int64_t *length)
 <span class="lineNum">     324 </span>                :            : {
-<span class="lineNum">     325 </span>        [<span class="branchCov" title="Branch 0 was taken 3396 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       3396 :         if (term_number != 0)</span>
+<span class="lineNum">     325 </span>        [<span class="branchCov" title="Branch 0 was taken 18532 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">      18532 :         if (term_number != 0)</span>
 <span class="lineNum">     326 </span>                :            :                 return OPAL_PARAMETER;
-<span class="lineNum">     327 </span>        [<span class="branchCov" title="Branch 0 was taken 3396 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       3396 :         if (length)</span>
-<span class="lineNum">     328 </span>                :<span class="lineCov">       3396 :                 *length = INMEM_CON_OUT_LEN;</span>
+<span class="lineNum">     327 </span>        [<span class="branchCov" title="Branch 0 was taken 18532 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">      18532 :         if (length)</span>
+<span class="lineNum">     328 </span>                :<span class="lineCov">      18532 :                 *length = INMEM_CON_OUT_LEN;</span>
 <span class="lineNum">     329 </span>                :            : 
 <span class="lineNum">     330 </span>                :            :         return OPAL_SUCCESS;
 <span class="lineNum">     331 </span>                :            : }
 <a name="332"><span class="lineNum">     332 </span>                :            : opal_call(OPAL_CONSOLE_WRITE_BUFFER_SPACE, dummy_console_write_buffer_space, 2);</a>
 <span class="lineNum">     333 </span>                :            : 
-<span class="lineNum">     334 </span>                :<span class="lineCov">          2 : static int64_t dummy_console_read(int64_t term_number, int64_t *length,</span>
+<span class="lineNum">     334 </span>                :<span class="lineCov">         10 : static int64_t dummy_console_read(int64_t term_number, int64_t *length,</span>
 <span class="lineNum">     335 </span>                :            :                                   uint8_t *buffer)
 <span class="lineNum">     336 </span>                :            : {
-<span class="lineNum">     337 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (term_number != 0)</span>
+<span class="lineNum">     337 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         10 :         if (term_number != 0)</span>
 <span class="lineNum">     338 </span>                :            :                 return OPAL_PARAMETER;
-<span class="lineNum">     339 </span>                :<span class="lineCov">          2 :         *length = read(0, buffer, *length);</span>
-<span class="lineNum">     340 </span>                :<span class="lineCov">          2 :         opal_update_pending_evt(OPAL_EVENT_CONSOLE_INPUT, 0);</span>
+<span class="lineNum">     339 </span>                :<span class="lineCov">         10 :         *length = read(0, buffer, *length);</span>
+<span class="lineNum">     340 </span>                :<span class="lineCov">         10 :         opal_update_pending_evt(OPAL_EVENT_CONSOLE_INPUT, 0);</span>
 <span class="lineNum">     341 </span>                :            : 
-<span class="lineNum">     342 </span>                :<span class="lineCov">          2 :         return OPAL_SUCCESS;</span>
+<span class="lineNum">     342 </span>                :<span class="lineCov">         10 :         return OPAL_SUCCESS;</span>
 <span class="lineNum">     343 </span>                :            : }
 <a name="344"><span class="lineNum">     344 </span>                :            : opal_call(OPAL_CONSOLE_READ, dummy_console_read, 3);</a>
 <span class="lineNum">     345 </span>                :            : 
-<span class="lineNum">     346 </span>                :<span class="lineCov">       3481 : static void dummy_console_poll(void *data __unused)</span>
+<span class="lineNum">     346 </span>                :<span class="lineCov">      19014 : static void dummy_console_poll(void *data __unused)</span>
 <span class="lineNum">     347 </span>                :            : {
-<span class="lineNum">     348 </span>                :<span class="lineCov">       3481 :         bool has_data = false;</span>
+<span class="lineNum">     348 </span>                :<span class="lineCov">      19014 :         bool has_data = false;</span>
 <span class="lineNum">     349 </span>                :            : 
-<span class="lineNum">     350 </span>                :<span class="lineCov">       3481 :         lock(&amp;con_lock);</span>
-<span class="lineNum">     351 </span>[<span class="branchCov" title="Branch 2 was taken 3481 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 0 was taken 3481 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       3481 :         if (con_driver &amp;&amp; con_driver-&gt;poll_read)</span>
-<span class="lineNum">     352 </span>                :<span class="lineCov">       3481 :                 has_data = con_driver-&gt;poll_read();</span>
-<span class="lineNum">     353 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3481 times"> + </span>]:<span class="lineCov">       3481 :         if (memcons.in_prod != memcons.in_cons)</span>
+<span class="lineNum">     350 </span>                :<span class="lineCov">      19014 :         lock(&amp;con_lock);</span>
+<span class="lineNum">     351 </span>[<span class="branchCov" title="Branch 2 was taken 19014 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 0 was taken 19014 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">      19014 :         if (con_driver &amp;&amp; con_driver-&gt;poll_read)</span>
+<span class="lineNum">     352 </span>                :<span class="lineCov">      19014 :                 has_data = con_driver-&gt;poll_read();</span>
+<span class="lineNum">     353 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 19014 times"> + </span>]:<span class="lineCov">      19014 :         if (memcons.in_prod != memcons.in_cons)</span>
 <span class="lineNum">     354 </span>                :<span class="lineNoCov">          0 :                 has_data = true;</span>
-<span class="lineNum">     355 </span>        [<span class="branchCov" title="Branch 0 was taken 79 times"> + </span><span class="branchCov" title="Branch 1 was taken 3402 times"> + </span>]:<span class="lineCov">       3481 :         if (has_data)</span>
-<span class="lineNum">     356 </span>                :<span class="lineCov">         79 :                 opal_update_pending_evt(OPAL_EVENT_CONSOLE_INPUT,</span>
+<span class="lineNum">     355 </span>        [<span class="branchCov" title="Branch 0 was taken 170 times"> + </span><span class="branchCov" title="Branch 1 was taken 18844 times"> + </span>]:<span class="lineCov">      19014 :         if (has_data)</span>
+<span class="lineNum">     356 </span>                :<span class="lineCov">        170 :                 opal_update_pending_evt(OPAL_EVENT_CONSOLE_INPUT,</span>
 <span class="lineNum">     357 </span>                :            :                                         OPAL_EVENT_CONSOLE_INPUT);
 <span class="lineNum">     358 </span>                :            :         else
-<span class="lineNum">     359 </span>                :<span class="lineCov">       3402 :                 opal_update_pending_evt(OPAL_EVENT_CONSOLE_INPUT, 0);</span>
-<span class="lineNum">     360 </span>                :<span class="lineCov">       3481 :         unlock(&amp;con_lock);</span>
-<a name="361"><span class="lineNum">     361 </span>                :<span class="lineCov">       3481 : }</span></a>
+<span class="lineNum">     359 </span>                :<span class="lineCov">      18844 :                 opal_update_pending_evt(OPAL_EVENT_CONSOLE_INPUT, 0);</span>
+<span class="lineNum">     360 </span>                :<span class="lineCov">      19014 :         unlock(&amp;con_lock);</span>
+<a name="361"><span class="lineNum">     361 </span>                :<span class="lineCov">      19014 : }</span></a>
 <span class="lineNum">     362 </span>                :            : 
-<span class="lineNum">     363 </span>                :<span class="lineCov">          2 : void dummy_console_add_nodes(void)</span>
+<span class="lineNum">     363 </span>                :<span class="lineCov">          6 : void dummy_console_add_nodes(void)</span>
 <span class="lineNum">     364 </span>                :            : {
 <span class="lineNum">     365 </span>                :            :         struct dt_node *con, *consoles;
 <span class="lineNum">     366 </span>                :            :         struct dt_property *p;
 <span class="lineNum">     367 </span>                :            : 
-<span class="lineNum">     368 </span>                :<span class="lineCov">          2 :         consoles = dt_new(opal_node, &quot;consoles&quot;);</span>
-<span class="lineNum">     369 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         assert(consoles);</span>
-<span class="lineNum">     370 </span>                :<span class="lineCov">          2 :         dt_add_property_cells(consoles, &quot;#address-cells&quot;, 1);</span>
-<span class="lineNum">     371 </span>                :<span class="lineCov">          2 :         dt_add_property_cells(consoles, &quot;#size-cells&quot;, 0);</span>
+<span class="lineNum">     368 </span>                :<span class="lineCov">          6 :         consoles = dt_new(opal_node, &quot;consoles&quot;);</span>
+<span class="lineNum">     369 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         assert(consoles);</span>
+<span class="lineNum">     370 </span>                :<span class="lineCov">          6 :         dt_add_property_cells(consoles, &quot;#address-cells&quot;, 1);</span>
+<span class="lineNum">     371 </span>                :<span class="lineCov">          6 :         dt_add_property_cells(consoles, &quot;#size-cells&quot;, 0);</span>
 <span class="lineNum">     372 </span>                :            : 
-<span class="lineNum">     373 </span>                :<span class="lineCov">          2 :         con = dt_new_addr(consoles, &quot;serial&quot;, 0);</span>
-<span class="lineNum">     374 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         assert(con);</span>
-<span class="lineNum">     375 </span>                :<span class="lineCov">          2 :         dt_add_property_string(con, &quot;compatible&quot;, &quot;ibm,opal-console-raw&quot;);</span>
-<span class="lineNum">     376 </span>                :<span class="lineCov">          2 :         dt_add_property_cells(con, &quot;#write-buffer-size&quot;, INMEM_CON_OUT_LEN);</span>
-<span class="lineNum">     377 </span>                :<span class="lineCov">          2 :         dt_add_property_cells(con, &quot;reg&quot;, 0);</span>
-<span class="lineNum">     378 </span>                :<span class="lineCov">          2 :         dt_add_property_string(con, &quot;device_type&quot;, &quot;serial&quot;);</span>
+<span class="lineNum">     373 </span>                :<span class="lineCov">          6 :         con = dt_new_addr(consoles, &quot;serial&quot;, 0);</span>
+<span class="lineNum">     374 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         assert(con);</span>
+<span class="lineNum">     375 </span>                :<span class="lineCov">          6 :         dt_add_property_string(con, &quot;compatible&quot;, &quot;ibm,opal-console-raw&quot;);</span>
+<span class="lineNum">     376 </span>                :<span class="lineCov">          6 :         dt_add_property_cells(con, &quot;#write-buffer-size&quot;, INMEM_CON_OUT_LEN);</span>
+<span class="lineNum">     377 </span>                :<span class="lineCov">          6 :         dt_add_property_cells(con, &quot;reg&quot;, 0);</span>
+<span class="lineNum">     378 </span>                :<span class="lineCov">          6 :         dt_add_property_string(con, &quot;device_type&quot;, &quot;serial&quot;);</span>
 <span class="lineNum">     379 </span>                :            : 
 <span class="lineNum">     380 </span>                :            :         /* Mambo might have left a crap one, clear it */
-<span class="lineNum">     381 </span>                :<span class="lineCov">          2 :         p = __dt_find_property(dt_chosen, &quot;linux,stdout-path&quot;);</span>
-<span class="lineNum">     382 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (p)</span>
-<span class="lineNum">     383 </span>                :<span class="lineCov">          2 :                 dt_del_property(dt_chosen, p);</span>
+<span class="lineNum">     381 </span>                :<span class="lineCov">          6 :         p = __dt_find_property(dt_chosen, &quot;linux,stdout-path&quot;);</span>
+<span class="lineNum">     382 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (p)</span>
+<span class="lineNum">     383 </span>                :<span class="lineCov">          6 :                 dt_del_property(dt_chosen, p);</span>
 <span class="lineNum">     384 </span>                :            : 
-<span class="lineNum">     385 </span>                :<span class="lineCov">          2 :         dt_add_property_string(dt_chosen, &quot;linux,stdout-path&quot;,</span>
+<span class="lineNum">     385 </span>                :<span class="lineCov">          6 :         dt_add_property_string(dt_chosen, &quot;linux,stdout-path&quot;,</span>
 <span class="lineNum">     386 </span>                :            :                                &quot;/ibm,opal/consoles/serial@0&quot;);
 <span class="lineNum">     387 </span>                :            : 
-<span class="lineNum">     388 </span>                :<span class="lineCov">          2 :         opal_add_poller(dummy_console_poll, NULL);</span>
-<span class="lineNum">     389 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">     388 </span>                :<span class="lineCov">          6 :         opal_add_poller(dummy_console_poll, NULL);</span>
+<span class="lineNum">     389 </span>                :<span class="lineCov">          6 : }</span>
 </pre>
       </td>
     </tr>

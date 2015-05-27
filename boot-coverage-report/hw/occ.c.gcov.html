@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">2</td>
@@ -375,21 +375,21 @@
 <span class="lineNum">     304 </span>                :            : 
 <a name="305"><span class="lineNum">     305 </span>                :            : /* CPU-OCC PState init */</a>
 <span class="lineNum">     306 </span>                :            : /* Called after OCC init on P8 */
-<span class="lineNum">     307 </span>                :<span class="lineCov">          2 : void occ_pstates_init(void)</span>
+<span class="lineNum">     307 </span>                :<span class="lineCov">          6 : void occ_pstates_init(void)</span>
 <span class="lineNum">     308 </span>                :            : {
 <span class="lineNum">     309 </span>                :            :         struct proc_chip *chip;
 <span class="lineNum">     310 </span>                :<span class="lineNoCov">          0 :         struct cpu_thread *c;</span>
 <span class="lineNum">     311 </span>                :            :         s8 pstate_nom;
 <span class="lineNum">     312 </span>                :            : 
 <span class="lineNum">     313 </span>                :            :         /* OCC is P8 only */
-<span class="lineNum">     314 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (proc_gen != proc_gen_p8)</span>
-<span class="lineNum">     315 </span>                :<span class="lineCov">          2 :                 return;</span>
+<span class="lineNum">     314 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (proc_gen != proc_gen_p8)</span>
+<span class="lineNum">     315 </span>                :<span class="lineCov">          6 :                 return;</span>
 <span class="lineNum">     316 </span>                :            : 
-<span class="lineNum">     317 </span>                :<span class="lineCov">          2 :         chip = next_chip(NULL);</span>
-<span class="lineNum">     318 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!chip-&gt;homer_base) {</span>
-<span class="lineNum">     319 </span>                :<span class="lineCov">          2 :                 log_simple_error(&amp;e_info(OPAL_RC_OCC_PSTATE_INIT),</span>
+<span class="lineNum">     317 </span>                :<span class="lineCov">          6 :         chip = next_chip(NULL);</span>
+<span class="lineNum">     318 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (!chip-&gt;homer_base) {</span>
+<span class="lineNum">     319 </span>                :<span class="lineCov">          6 :                 log_simple_error(&amp;e_info(OPAL_RC_OCC_PSTATE_INIT),</span>
 <span class="lineNum">     320 </span>                :            :                         &quot;OCC: No HOMER detected, assuming no pstates\n&quot;);
-<span class="lineNum">     321 </span>                :<span class="lineCov">          2 :                 return;</span>
+<span class="lineNum">     321 </span>                :<span class="lineCov">          6 :                 return;</span>
 <span class="lineNum">     322 </span>                :            :         }
 <span class="lineNum">     323 </span>                :            : 
 <span class="lineNum">     324 </span>                :            :         /* Wait for all OCC to boot up */
@@ -694,13 +694,13 @@
 <span class="lineNum">     623 </span>                :            : #define OCB_OCI_OCIMISC_MASK            (OCB_OCI_OCIMISC_IRQ_TMGT | \
 <a name="624"><span class="lineNum">     624 </span>                :            :                                          OCB_OCI_OCIMISC_IRQ_OPAL_DUMMY )</a>
 <span class="lineNum">     625 </span>                :            : 
-<span class="lineNum">     626 </span>                :<span class="lineCov">          2 : void occ_send_dummy_interrupt(void)</span>
+<span class="lineNum">     626 </span>                :<span class="lineCov">         10 : void occ_send_dummy_interrupt(void)</span>
 <span class="lineNum">     627 </span>                :            : {
 <span class="lineNum">     628 </span>                :            :         struct psi *psi;
-<span class="lineNum">     629 </span>                :<span class="lineCov">          2 :         struct proc_chip *chip = get_chip(this_cpu()-&gt;chip_id);</span>
+<span class="lineNum">     629 </span>                :<span class="lineCov">         10 :         struct proc_chip *chip = get_chip(this_cpu()-&gt;chip_id);</span>
 <span class="lineNum">     630 </span>                :            : 
 <span class="lineNum">     631 </span>                :            :         /* Emulators and P7 doesn't do this */
-<span class="lineNum">     632 </span>[<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (proc_gen != proc_gen_p8 || chip_quirk(QUIRK_NO_OCC_IRQ))</span>
+<span class="lineNum">     632 </span>[<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 10 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         10 :         if (proc_gen != proc_gen_p8 || chip_quirk(QUIRK_NO_OCC_IRQ))</span>
 <span class="lineNum">     633 </span>                :            :                 return;
 <span class="lineNum">     634 </span>                :            : 
 <span class="lineNum">     635 </span>                :            :         /* Find a functional PSI. This ensures an interrupt even if

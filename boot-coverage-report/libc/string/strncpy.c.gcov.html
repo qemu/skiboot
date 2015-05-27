@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">7</td>
             <td class="headerCovTableEntry">9</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryMed">77.8 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">0</td>
             <td class="headerCovTableEntry">1</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">4</td>
             <td class="headerCovTableEntry">6</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">66.7 %</td>
           </tr>
           <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -84,23 +84,23 @@
 <span class="lineNum">      13 </span>                :            : #include &lt;string.h&gt;
 <a name="14"><span class="lineNum">      14 </span>                :            : </a>
 <span class="lineNum">      15 </span>                :            : char *
-<span class="lineNum">      16 </span>                :<span class="lineNoCov">          0 : strncpy(char *dst, const char *src, size_t n)</span>
+<span class="lineNum">      16 </span>                :<span class="lineCov">          6 : strncpy(char *dst, const char *src, size_t n)</span>
 <span class="lineNum">      17 </span>                :            : {
-<span class="lineNum">      18 </span>                :<span class="lineNoCov">          0 :         char *ret = dst;</span>
+<span class="lineNum">      18 </span>                :<span class="lineCov">          6 :         char *ret = dst;</span>
 <span class="lineNum">      19 </span>                :            : 
 <span class="lineNum">      20 </span>                :            :         /* Copy string */
-<span class="lineNum">      21 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while (*src != 0 &amp;&amp; n &gt; 0) {</span>
-<span class="lineNum">      22 </span>                :<span class="lineNoCov">          0 :                 *dst++ = *src++;</span>
-<span class="lineNum">      23 </span>                :<span class="lineNoCov">          0 :                 n -= 1;</span>
+<span class="lineNum">      21 </span>[<span class="branchCov" title="Branch 0 was taken 72 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 72 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         78 :         while (*src != 0 &amp;&amp; n &gt; 0) {</span>
+<span class="lineNum">      22 </span>                :<span class="lineCov">         72 :                 *dst++ = *src++;</span>
+<span class="lineNum">      23 </span>                :<span class="lineCov">         72 :                 n -= 1;</span>
 <span class="lineNum">      24 </span>                :            :         }
 <span class="lineNum">      25 </span>                :            : 
 <span class="lineNum">      26 </span>                :            :         /* strncpy always clears the rest of destination string... */
-<span class="lineNum">      27 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while (n &gt; 0) {</span>
+<span class="lineNum">      27 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         while (n &gt; 0) {</span>
 <span class="lineNum">      28 </span>                :<span class="lineNoCov">          0 :                 *dst++ = 0;</span>
 <span class="lineNum">      29 </span>                :<span class="lineNoCov">          0 :                 n -= 1;</span>
 <span class="lineNum">      30 </span>                :            :         }
 <span class="lineNum">      31 </span>                :            : 
-<span class="lineNum">      32 </span>                :<span class="lineNoCov">          0 :         return ret;</span>
+<span class="lineNum">      32 </span>                :<span class="lineCov">          6 :         return ret;</span>
 <span class="lineNum">      33 </span>                :            : }
 </pre>
       </td>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -382,9 +382,9 @@
 <span class="lineNum">     311 </span>                :            :         return 0;
 <a name="312"><span class="lineNum">     312 </span>                :            : }</a>
 <span class="lineNum">     313 </span>                :            : 
-<span class="lineNum">     314 </span>                :<span class="lineCov">          2 : bool dts_sensor_create_nodes(struct dt_node *sensors)</span>
+<span class="lineNum">     314 </span>                :<span class="lineCov">          6 : bool dts_sensor_create_nodes(struct dt_node *sensors)</span>
 <span class="lineNum">     315 </span>                :            : {
-<span class="lineNum">     316 </span>                :<span class="lineCov">          2 :         uint8_t sensor_class = SENSOR_DTS_CORE_TEMP|SENSOR_DTS;</span>
+<span class="lineNum">     316 </span>                :<span class="lineCov">          6 :         uint8_t sensor_class = SENSOR_DTS_CORE_TEMP|SENSOR_DTS;</span>
 <span class="lineNum">     317 </span>                :            : 
 <span class="lineNum">     318 </span>                :            :         struct proc_chip *chip;
 <span class="lineNum">     319 </span>                :            :         struct dt_node *cn;
@@ -397,27 +397,27 @@
 <span class="lineNum">     326 </span>                :            :          * The core is identified by its PIR, is stored in the resource
 <span class="lineNum">     327 </span>                :            :          * number of the sensor handler.
 <span class="lineNum">     328 </span>                :            :          */
-<span class="lineNum">     329 </span>        [<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          4 :         for_each_chip(chip) {</span>
+<span class="lineNum">     329 </span>        [<span class="branchCov" title="Branch 2 was taken 6 times"> + </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span>]:<span class="lineCov">         12 :         for_each_chip(chip) {</span>
 <span class="lineNum">     330 </span>                :            :                 struct cpu_thread *c;
 <span class="lineNum">     331 </span>                :            : 
-<span class="lineNum">     332 </span>        [<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          4 :                 for_each_available_core_in_chip(c, chip-&gt;id) {</span>
+<span class="lineNum">     332 </span>        [<span class="branchCov" title="Branch 2 was taken 6 times"> + </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span>]:<span class="lineCov">         12 :                 for_each_available_core_in_chip(c, chip-&gt;id) {</span>
 <span class="lineNum">     333 </span>                :            :                         struct dt_node *node;
 <span class="lineNum">     334 </span>                :            :                         uint32_t handler;
 <span class="lineNum">     335 </span>                :            : 
-<span class="lineNum">     336 </span>                :<span class="lineCov">          2 :                         snprintf(name, sizeof(name), &quot;core-temp@%x&quot;, c-&gt;pir);</span>
+<span class="lineNum">     336 </span>                :<span class="lineCov">          6 :                         snprintf(name, sizeof(name), &quot;core-temp@%x&quot;, c-&gt;pir);</span>
 <span class="lineNum">     337 </span>                :            : 
-<span class="lineNum">     338 </span>                :<span class="lineCov">          2 :                         handler = sensor_make_handler(sensor_class,</span>
+<span class="lineNum">     338 </span>                :<span class="lineCov">          6 :                         handler = sensor_make_handler(sensor_class,</span>
 <span class="lineNum">     339 </span>                :            :                                         c-&gt;pir, SENSOR_DTS_ATTR_TEMP_MAX);
-<span class="lineNum">     340 </span>                :<span class="lineCov">          2 :                         node = dt_new(sensors, name);</span>
-<span class="lineNum">     341 </span>                :<span class="lineCov">          2 :                         dt_add_property_string(node, &quot;compatible&quot;,</span>
+<span class="lineNum">     340 </span>                :<span class="lineCov">          6 :                         node = dt_new(sensors, name);</span>
+<span class="lineNum">     341 </span>                :<span class="lineCov">          6 :                         dt_add_property_string(node, &quot;compatible&quot;,</span>
 <span class="lineNum">     342 </span>                :            :                                                &quot;ibm,opal-sensor&quot;);
-<span class="lineNum">     343 </span>                :<span class="lineCov">          2 :                         dt_add_property_cells(node, &quot;sensor-data&quot;, handler);</span>
-<span class="lineNum">     344 </span>                :<span class="lineCov">          2 :                         handler = sensor_make_handler(sensor_class,</span>
+<span class="lineNum">     343 </span>                :<span class="lineCov">          6 :                         dt_add_property_cells(node, &quot;sensor-data&quot;, handler);</span>
+<span class="lineNum">     344 </span>                :<span class="lineCov">          6 :                         handler = sensor_make_handler(sensor_class,</span>
 <span class="lineNum">     345 </span>                :            :                                         c-&gt;pir, SENSOR_DTS_ATTR_TEMP_TRIP);
-<span class="lineNum">     346 </span>                :<span class="lineCov">          2 :                         dt_add_property_cells(node, &quot;sensor-status&quot;, handler);</span>
-<span class="lineNum">     347 </span>                :<span class="lineCov">          2 :                         dt_add_property_string(node, &quot;sensor-type&quot;, &quot;temp&quot;);</span>
-<span class="lineNum">     348 </span>                :<span class="lineCov">          2 :                         dt_add_property_cells(node, &quot;ibm,pir&quot;, c-&gt;pir);</span>
-<span class="lineNum">     349 </span>                :<span class="lineCov">          2 :                         dt_add_property_string(node, &quot;label&quot;, &quot;Core&quot;);</span>
+<span class="lineNum">     346 </span>                :<span class="lineCov">          6 :                         dt_add_property_cells(node, &quot;sensor-status&quot;, handler);</span>
+<span class="lineNum">     347 </span>                :<span class="lineCov">          6 :                         dt_add_property_string(node, &quot;sensor-type&quot;, &quot;temp&quot;);</span>
+<span class="lineNum">     348 </span>                :<span class="lineCov">          6 :                         dt_add_property_cells(node, &quot;ibm,pir&quot;, c-&gt;pir);</span>
+<span class="lineNum">     349 </span>                :<span class="lineCov">          6 :                         dt_add_property_string(node, &quot;label&quot;, &quot;Core&quot;);</span>
 <span class="lineNum">     350 </span>                :            :                 }
 <span class="lineNum">     351 </span>                :            :         }
 <span class="lineNum">     352 </span>                :            : 
@@ -426,7 +426,7 @@
 <span class="lineNum">     355 </span>                :            :         /*
 <span class="lineNum">     356 </span>                :            :          * sensors/mem-temp@chip for Centaurs
 <span class="lineNum">     357 </span>                :            :          */
-<span class="lineNum">     358 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         dt_for_each_compatible(dt_root, cn, &quot;ibm,centaur&quot;) {</span>
+<span class="lineNum">     358 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         dt_for_each_compatible(dt_root, cn, &quot;ibm,centaur&quot;) {</span>
 <span class="lineNum">     359 </span>                :            :                 uint32_t chip_id;
 <span class="lineNum">     360 </span>                :            :                 struct dt_node *node;
 <span class="lineNum">     361 </span>                :            :                 uint32_t handler;
@@ -454,7 +454,7 @@
 <span class="lineNum">     383 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_string(node, &quot;label&quot;, &quot;Centaur&quot;);</span>
 <span class="lineNum">     384 </span>                :            :         }
 <span class="lineNum">     385 </span>                :            : 
-<span class="lineNum">     386 </span>                :<span class="lineCov">          2 :         return true;</span>
+<span class="lineNum">     386 </span>                :<span class="lineCov">          6 :         return true;</span>
 <span class="lineNum">     387 </span>                :            : }
 </pre>
       </td>

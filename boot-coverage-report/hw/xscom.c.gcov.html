@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">3</td>
@@ -490,39 +490,39 @@
 <span class="lineNum">     419 </span>                :<span class="lineNoCov">          0 :         return xscom_write(this_cpu()-&gt;chip_id, pcb_addr, val);</span>
 <a name="420"><span class="lineNum">     420 </span>                :            : }</a>
 <span class="lineNum">     421 </span>                :            : 
-<span class="lineNum">     422 </span>                :<span class="lineCov">          2 : int64_t xscom_read_cfam_chipid(uint32_t partid, uint32_t *chip_id)</span>
+<span class="lineNum">     422 </span>                :<span class="lineCov">          6 : int64_t xscom_read_cfam_chipid(uint32_t partid, uint32_t *chip_id)</span>
 <span class="lineNum">     423 </span>                :            : {
 <span class="lineNum">     424 </span>                :            :         uint64_t val;
-<span class="lineNum">     425 </span>                :<span class="lineCov">          2 :         int64_t rc = OPAL_SUCCESS;</span>
+<span class="lineNum">     425 </span>                :<span class="lineCov">          6 :         int64_t rc = OPAL_SUCCESS;</span>
 <span class="lineNum">     426 </span>                :            : 
 <span class="lineNum">     427 </span>                :            :         /* Mambo chip model lacks the f000f register, just make
 <span class="lineNum">     428 </span>                :            :          * something up (Murano DD2.1)
 <span class="lineNum">     429 </span>                :            :          */
-<span class="lineNum">     430 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (chip_quirk(QUIRK_NO_F000F))</span>
-<span class="lineNum">     431 </span>                :<span class="lineCov">          2 :                 val = 0x221EF04980000000;</span>
+<span class="lineNum">     430 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (chip_quirk(QUIRK_NO_F000F))</span>
+<span class="lineNum">     431 </span>                :<span class="lineCov">          6 :                 val = 0x221EF04980000000;</span>
 <span class="lineNum">     432 </span>                :            :         else
 <span class="lineNum">     433 </span>                :<span class="lineNoCov">          0 :                 rc = xscom_read(partid, 0xf000f, &amp;val);</span>
 <span class="lineNum">     434 </span>                :            : 
 <span class="lineNum">     435 </span>                :            :         /* Extract CFAM id */
-<span class="lineNum">     436 </span>                :<span class="lineCov">          2 :         *chip_id = (uint32_t)(val &gt;&gt; 44);</span>
+<span class="lineNum">     436 </span>                :<span class="lineCov">          6 :         *chip_id = (uint32_t)(val &gt;&gt; 44);</span>
 <span class="lineNum">     437 </span>                :            : 
-<span class="lineNum">     438 </span>                :<span class="lineCov">          2 :         return rc;</span>
+<span class="lineNum">     438 </span>                :<span class="lineCov">          6 :         return rc;</span>
 <a name="439"><span class="lineNum">     439 </span>                :            : }</a>
 <span class="lineNum">     440 </span>                :            : 
-<span class="lineNum">     441 </span>                :<span class="lineCov">          2 : static void xscom_init_chip_info(struct proc_chip *chip)</span>
+<span class="lineNum">     441 </span>                :<span class="lineCov">          6 : static void xscom_init_chip_info(struct proc_chip *chip)</span>
 <span class="lineNum">     442 </span>                :            : {
 <span class="lineNum">     443 </span>                :            :         uint32_t val;
 <span class="lineNum">     444 </span>                :            :         int64_t rc;
 <span class="lineNum">     445 </span>                :            : 
-<span class="lineNum">     446 </span>                :<span class="lineCov">          2 :         rc = xscom_read_cfam_chipid(chip-&gt;id, &amp;val);</span>
-<span class="lineNum">     447 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (rc) {</span>
+<span class="lineNum">     446 </span>                :<span class="lineCov">          6 :         rc = xscom_read_cfam_chipid(chip-&gt;id, &amp;val);</span>
+<span class="lineNum">     447 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (rc) {</span>
 <span class="lineNum">     448 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;XSCOM: Error %lld reading 0xf000f register\n&quot;, rc);</span>
 <span class="lineNum">     449 </span>                :            :                 /* We leave chip type to UNKNOWN */
 <span class="lineNum">     450 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">     451 </span>                :            :         }
 <span class="lineNum">     452 </span>                :            : 
 <span class="lineNum">     453 </span>                :            :         /* Identify chip */
-<span class="lineNum">     454 </span>  [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span> :<span class="lineCov">          2 :         switch(val &amp; 0xff) {</span>
+<span class="lineNum">     454 </span>  [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span> :<span class="lineCov">          6 :         switch(val &amp; 0xff) {</span>
 <span class="lineNum">         </span>         <span class="branchNoCov" title="Branch 4 was not taken"> - </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
 <span class="lineNum">     455 </span>                :            :         case 0xf9:
 <span class="lineNum">     456 </span>                :<span class="lineNoCov">          0 :                 chip-&gt;type = PROC_CHIP_P7;</span>
@@ -533,8 +533,8 @@
 <span class="lineNum">     461 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 assert(proc_gen == proc_gen_p7);</span>
 <span class="lineNum">     462 </span>                :            :                 break;
 <span class="lineNum">     463 </span>                :            :         case 0xef:
-<span class="lineNum">     464 </span>                :<span class="lineCov">          2 :                 chip-&gt;type = PROC_CHIP_P8_MURANO;</span>
-<span class="lineNum">     465 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 assert(proc_gen == proc_gen_p8);</span>
+<span class="lineNum">     464 </span>                :<span class="lineCov">          6 :                 chip-&gt;type = PROC_CHIP_P8_MURANO;</span>
+<span class="lineNum">     465 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                 assert(proc_gen == proc_gen_p8);</span>
 <span class="lineNum">     466 </span>                :            :                 break;
 <span class="lineNum">     467 </span>                :            :         case 0xea:
 <span class="lineNum">     468 </span>                :<span class="lineNoCov">          0 :                 chip-&gt;type = PROC_CHIP_P8_VENICE;</span>
@@ -550,16 +550,16 @@
 <span class="lineNum">     478 </span>                :            :         }
 <span class="lineNum">     479 </span>                :            : 
 <span class="lineNum">     480 </span>                :            :         /* Get EC level from CFAM ID */
-<span class="lineNum">     481 </span>                :<span class="lineCov">          2 :         chip-&gt;ec_level = ((val &gt;&gt; 16) &amp; 0xf) &lt;&lt; 4;</span>
-<span class="lineNum">     482 </span>                :<span class="lineCov">          2 :         chip-&gt;ec_level |= (val &gt;&gt; 8) &amp; 0xf;</span>
+<span class="lineNum">     481 </span>                :<span class="lineCov">          6 :         chip-&gt;ec_level = ((val &gt;&gt; 16) &amp; 0xf) &lt;&lt; 4;</span>
+<span class="lineNum">     482 </span>                :<span class="lineCov">          6 :         chip-&gt;ec_level |= (val &gt;&gt; 8) &amp; 0xf;</span>
 <a name="483"><span class="lineNum">     483 </span>                :            : }</a>
 <span class="lineNum">     484 </span>                :            : 
-<span class="lineNum">     485 </span>                :<span class="lineCov">          2 : void xscom_init(void)</span>
+<span class="lineNum">     485 </span>                :<span class="lineCov">          6 : void xscom_init(void)</span>
 <span class="lineNum">     486 </span>                :            : {
 <span class="lineNum">     487 </span>                :            :         struct dt_node *xn;
 <span class="lineNum">     488 </span>                :            : 
-<span class="lineNum">     489 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          4 :         dt_for_each_compatible(dt_root, xn, &quot;ibm,xscom&quot;) {</span>
-<span class="lineNum">     490 </span>                :<span class="lineCov">          2 :                 uint32_t gcid = dt_get_chip_id(xn);</span>
+<span class="lineNum">     489 </span>        [<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">         12 :         dt_for_each_compatible(dt_root, xn, &quot;ibm,xscom&quot;) {</span>
+<span class="lineNum">     490 </span>                :<span class="lineCov">          6 :                 uint32_t gcid = dt_get_chip_id(xn);</span>
 <span class="lineNum">     491 </span>                :            :                 const struct dt_property *reg;
 <span class="lineNum">     492 </span>                :            :                 struct proc_chip *chip;
 <span class="lineNum">     493 </span>                :            :                 const char *chip_name;
@@ -567,32 +567,32 @@
 <span class="lineNum">     495 </span>                :            :                         &quot;UNKNOWN&quot;, &quot;P7&quot;, &quot;P7+&quot;, &quot;P8E&quot;, &quot;P8&quot;, &quot;P8NVL&quot;,
 <span class="lineNum">     496 </span>                :            :                 };
 <span class="lineNum">     497 </span>                :            : 
-<span class="lineNum">     498 </span>                :<span class="lineCov">          2 :                 chip = get_chip(gcid);</span>
-<span class="lineNum">     499 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 assert(chip);</span>
+<span class="lineNum">     498 </span>                :<span class="lineCov">          6 :                 chip = get_chip(gcid);</span>
+<span class="lineNum">     499 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                 assert(chip);</span>
 <span class="lineNum">     500 </span>                :            : 
 <span class="lineNum">     501 </span>                :            :                 /* XXX We need a proper address parsing. For now, we just
 <span class="lineNum">     502 </span>                :            :                  * &quot;know&quot; that we are looking at a u64
 <span class="lineNum">     503 </span>                :            :                  */
-<span class="lineNum">     504 </span>                :<span class="lineCov">          2 :                 reg = dt_find_property(xn, &quot;reg&quot;);</span>
-<span class="lineNum">     505 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 assert(reg);</span>
+<span class="lineNum">     504 </span>                :<span class="lineCov">          6 :                 reg = dt_find_property(xn, &quot;reg&quot;);</span>
+<span class="lineNum">     505 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                 assert(reg);</span>
 <span class="lineNum">     506 </span>                :            : 
-<span class="lineNum">     507 </span>                :<span class="lineCov">          2 :                 chip-&gt;xscom_base = dt_translate_address(xn, 0, NULL);</span>
+<span class="lineNum">     507 </span>                :<span class="lineCov">          6 :                 chip-&gt;xscom_base = dt_translate_address(xn, 0, NULL);</span>
 <span class="lineNum">     508 </span>                :            : 
 <span class="lineNum">     509 </span>                :            :                 /* Grab processor type and EC level */
-<span class="lineNum">     510 </span>                :<span class="lineCov">          2 :                 xscom_init_chip_info(chip);</span>
+<span class="lineNum">     510 </span>                :<span class="lineCov">          6 :                 xscom_init_chip_info(chip);</span>
 <span class="lineNum">     511 </span>                :            : 
-<span class="lineNum">     512 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :                 if (chip-&gt;type &gt;= ARRAY_SIZE(chip_names))</span>
+<span class="lineNum">     512 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :                 if (chip-&gt;type &gt;= ARRAY_SIZE(chip_names))</span>
 <span class="lineNum">     513 </span>                :            :                         chip_name = &quot;INVALID&quot;;
 <span class="lineNum">     514 </span>                :            :                 else
-<span class="lineNum">     515 </span>                :<span class="lineCov">          2 :                         chip_name = chip_names[chip-&gt;type];</span>
+<span class="lineNum">     515 </span>                :<span class="lineCov">          6 :                         chip_name = chip_names[chip-&gt;type];</span>
 <span class="lineNum">     516 </span>                :            : 
-<span class="lineNum">     517 </span>                :<span class="lineCov">          2 :                 printf(&quot;XSCOM: chip 0x%x at 0x%llx [%s DD%x.%x]\n&quot;,</span>
+<span class="lineNum">     517 </span>                :<span class="lineCov">          6 :                 printf(&quot;XSCOM: chip 0x%x at 0x%llx [%s DD%x.%x]\n&quot;,</span>
 <span class="lineNum">     518 </span>                :            :                        gcid, chip-&gt;xscom_base,
 <span class="lineNum">     519 </span>                :            :                        chip_name,
 <span class="lineNum">     520 </span>                :            :                        chip-&gt;ec_level &gt;&gt; 4,
 <span class="lineNum">     521 </span>                :            :                        chip-&gt;ec_level &amp; 0xf);
 <span class="lineNum">     522 </span>                :            :         }
-<a name="523"><span class="lineNum">     523 </span>                :<span class="lineCov">          2 : }</span></a>
+<a name="523"><span class="lineNum">     523 </span>                :<span class="lineCov">          6 : }</span></a>
 <span class="lineNum">     524 </span>                :            : 
 <span class="lineNum">     525 </span>                :<span class="lineNoCov">          0 : void xscom_used_by_console(void)</span>
 <span class="lineNum">     526 </span>                :            : {

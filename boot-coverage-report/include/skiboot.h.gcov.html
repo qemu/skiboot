@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-05-27</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -120,9 +120,9 @@
 <span class="lineNum">      49 </span>                :            : struct mem_region;
 <a name="50"><span class="lineNum">      50 </span>                :            : extern struct mem_region *mem_region_next(struct mem_region *region);</a>
 <span class="lineNum">      51 </span>                :            : 
-<span class="lineNum">      52 </span>                :<span class="lineCov">        840 : static inline bool is_rodata(const void *p)</span>
+<span class="lineNum">      52 </span>                :<span class="lineCov">       2586 : static inline bool is_rodata(const void *p)</span>
 <span class="lineNum">      53 </span>                :            : {
-<span class="lineNum">      54 </span>[<span class="branchCov" title="Branch 0 was taken 696 times"> + </span><span class="branchCov" title="Branch 1 was taken 144 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 18 times"> + </span><span class="branchCov" title="Branch 3 was taken 678 times"> + </span>]:<span class="lineCov">        840 :         return ((const char *)p &gt;= __rodata_start &amp;&amp; (const char *)p &lt; __rodata_end);</span>
+<span class="lineNum">      54 </span>[<span class="branchCov" title="Branch 0 was taken 2154 times"> + </span><span class="branchCov" title="Branch 1 was taken 432 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 54 times"> + </span><span class="branchCov" title="Branch 3 was taken 2100 times"> + </span>]:<span class="lineCov">       2586 :         return ((const char *)p &gt;= __rodata_start &amp;&amp; (const char *)p &lt; __rodata_end);</span>
 <span class="lineNum">      55 </span>                :            : }
 <span class="lineNum">      56 </span>                :            : 
 <span class="lineNum">      57 </span>                :            : /* Debug descriptor. This structure is pointed to by the word at offset
