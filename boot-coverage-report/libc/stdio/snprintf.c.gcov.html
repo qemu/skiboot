@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -49,9 +49,9 @@
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">3</td>
             <td class="headerCovTableEntry">4</td>
-            <td class="headerCovTableEntryLo">50.0 %</td>
+            <td class="headerCovTableEntryMed">75.0 %</td>
           </tr>
           <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -84,19 +84,19 @@
 <span class="lineNum">      13 </span>                :            : #include &lt;stdio.h&gt;
 <a name="14"><span class="lineNum">      14 </span>                :            : </a>
 <span class="lineNum">      15 </span>                :            : 
-<span class="lineNum">      16 </span>                :<span class="lineCov">        400 : int snprintf(char *buff, size_t size, const char *format, ...)</span>
+<span class="lineNum">      16 </span>                :<span class="lineCov">       4079 : int snprintf(char *buff, size_t size, const char *format, ...)</span>
 <span class="lineNum">      17 </span>                :            : {
 <span class="lineNum">      18 </span>                :            :         va_list ar;
 <span class="lineNum">      19 </span>                :            :         int count;
 <span class="lineNum">      20 </span>                :            : 
-<span class="lineNum">      21 </span>[<span class="branchCov" title="Branch 0 was taken 400 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 400 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        400 :         if ((buff==NULL) || (format==NULL))</span>
+<span class="lineNum">      21 </span>[<span class="branchCov" title="Branch 0 was taken 4090 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 4092 times"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">       4079 :         if ((buff==NULL) || (format==NULL))</span>
 <span class="lineNum">      22 </span>                :            :                 return(-1);
 <span class="lineNum">      23 </span>                :            : 
-<span class="lineNum">      24 </span>                :<span class="lineCov">        400 :         va_start(ar, format);</span>
-<span class="lineNum">      25 </span>                :<span class="lineCov">        400 :         count = vsnprintf(buff, size, format, ar);</span>
-<span class="lineNum">      26 </span>                :<span class="lineCov">        400 :         va_end(ar);</span>
+<span class="lineNum">      24 </span>                :<span class="lineCov">       4092 :         va_start(ar, format);</span>
+<span class="lineNum">      25 </span>                :<span class="lineCov">       4092 :         count = vsnprintf(buff, size, format, ar);</span>
+<span class="lineNum">      26 </span>                :<span class="lineCov">       4172 :         va_end(ar);</span>
 <span class="lineNum">      27 </span>                :            :         
-<span class="lineNum">      28 </span>                :<span class="lineCov">        400 :         return(count);</span>
+<span class="lineNum">      28 </span>                :<span class="lineCov">       4172 :         return(count);</span>
 <span class="lineNum">      29 </span>                :            : }
 <span class="lineNum">      30 </span>                :            : 
 </pre>

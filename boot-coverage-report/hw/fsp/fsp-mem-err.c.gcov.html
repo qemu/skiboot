@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">11</td>
             <td class="headerCovTableEntry">126</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">8.7 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
             <td class="headerCovTableEntry">11</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">18.2 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">5</td>
             <td class="headerCovTableEntry">57</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">8.8 %</td>
           </tr>
           <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -446,17 +446,17 @@
 <span class="lineNum">     375 </span>                :            :  * pre allocate memory to hold maximum of 128 memory error event until linux
 <a name="376"><span class="lineNum">     376 </span>                :            :  * consumes it.</a>
 <span class="lineNum">     377 </span>                :            :  */
-<span class="lineNum">     378 </span>                :<span class="lineNoCov">          0 : static int init_merr_free_list(uint32_t num_entries)</span>
+<span class="lineNum">     378 </span>                :<span class="lineCov">          2 : static int init_merr_free_list(uint32_t num_entries)</span>
 <span class="lineNum">     379 </span>                :            : {
 <span class="lineNum">     380 </span>                :            :         struct fsp_mem_err_node *entry;
 <span class="lineNum">     381 </span>                :            :         int i;
 <span class="lineNum">     382 </span>                :            : 
-<span class="lineNum">     383 </span>                :<span class="lineNoCov">          0 :         entry = zalloc(sizeof(struct fsp_mem_err_node) * num_entries);</span>
-<span class="lineNum">     384 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!entry)</span>
+<span class="lineNum">     383 </span>                :<span class="lineCov">          2 :         entry = zalloc(sizeof(struct fsp_mem_err_node) * num_entries);</span>
+<span class="lineNum">     384 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!entry)</span>
 <span class="lineNum">     385 </span>                :            :                 return -ENOMEM;
 <span class="lineNum">     386 </span>                :            : 
-<span class="lineNum">     387 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; num_entries; ++i, entry++)</span>
-<span class="lineNum">     388 </span>                :<span class="lineNoCov">          0 :                 list_add_tail(&amp;merr_free_list, &amp;entry-&gt;list);</span>
+<span class="lineNum">     387 </span>        [<span class="branchCov" title="Branch 0 was taken 2048 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">       2050 :         for (i = 0; i &lt; num_entries; ++i, entry++)</span>
+<span class="lineNum">     388 </span>                :<span class="lineCov">       2048 :                 list_add_tail(&amp;merr_free_list, &amp;entry-&gt;list);</span>
 <span class="lineNum">     389 </span>                :            : 
 <span class="lineNum">     390 </span>                :            :         return 0;
 <span class="lineNum">     391 </span>                :            : }
@@ -465,21 +465,21 @@
 <span class="lineNum">     394 </span>                :            :         .message = fsp_mem_err_msg,
 <a name="395"><span class="lineNum">     395 </span>                :            : };</a>
 <span class="lineNum">     396 </span>                :            : 
-<span class="lineNum">     397 </span>                :<span class="lineNoCov">          0 : void fsp_memory_err_init(void)</span>
+<span class="lineNum">     397 </span>                :<span class="lineCov">          2 : void fsp_memory_err_init(void)</span>
 <span class="lineNum">     398 </span>                :            : {
 <span class="lineNum">     399 </span>                :            :         int rc;
 <span class="lineNum">     400 </span>                :            : 
-<span class="lineNum">     401 </span>                :<span class="lineNoCov">          0 :         printf(&quot;Intializing fsp memory handling.\n&quot;);</span>
+<span class="lineNum">     401 </span>                :<span class="lineCov">          2 :         printf(&quot;Intializing fsp memory handling.\n&quot;);</span>
 <span class="lineNum">     402 </span>                :            :         /* If we have an FSP, register for notifications */
-<span class="lineNum">     403 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fsp_present())</span>
+<span class="lineNum">     403 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!fsp_present())</span>
 <span class="lineNum">     404 </span>                :            :                 return;
 <span class="lineNum">     405 </span>                :            : 
 <span class="lineNum">     406 </span>                :            :         /* pre allocate memory for 128 record */
-<span class="lineNum">     407 </span>                :<span class="lineNoCov">          0 :         rc = init_merr_free_list(MERR_MAX_RECORD);</span>
-<span class="lineNum">     408 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc &lt; 0)</span>
+<span class="lineNum">     407 </span>                :<span class="lineCov">          2 :         rc = init_merr_free_list(MERR_MAX_RECORD);</span>
+<span class="lineNum">     408 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (rc &lt; 0)</span>
 <span class="lineNum">     409 </span>                :            :                 return;
 <span class="lineNum">     410 </span>                :            : 
-<span class="lineNum">     411 </span>                :<span class="lineNoCov">          0 :         fsp_register_client(&amp;fsp_mem_err_client, FSP_MCLASS_MEMORY_ERR);</span>
+<span class="lineNum">     411 </span>                :<span class="lineCov">          2 :         fsp_register_client(&amp;fsp_mem_err_client, FSP_MCLASS_MEMORY_ERR);</span>
 <span class="lineNum">     412 </span>                :            : }
 </pre>
       </td>

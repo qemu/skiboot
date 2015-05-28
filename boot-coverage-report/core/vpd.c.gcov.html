@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">72</td>
             <td class="headerCovTableEntry">89</td>
-            <td class="headerCovTableEntryLo">4.5 %</td>
+            <td class="headerCovTableEntryMed">80.9 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntry">6</td>
-            <td class="headerCovTableEntryLo">16.7 %</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">35</td>
             <td class="headerCovTableEntry">50</td>
-            <td class="headerCovTableEntryLo">2.0 %</td>
+            <td class="headerCovTableEntryLo">70.0 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -97,22 +97,22 @@
 <span class="lineNum">      26 </span>                :            :  * need to find the next keyword of a given type, for example
 <a name="27"><span class="lineNum">      27 </span>                :            :  * when having multiple MF/SM keyword pairs</a>
 <span class="lineNum">      28 </span>                :            :  */
-<span class="lineNum">      29 </span>                :<span class="lineNoCov">          0 : const void *vpd_find_keyword(const void *rec, size_t rec_sz,</span>
+<span class="lineNum">      29 </span>                :<span class="lineCov">        734 : const void *vpd_find_keyword(const void *rec, size_t rec_sz,</span>
 <span class="lineNum">      30 </span>                :            :                              const char *kw, uint8_t *kw_size)
 <span class="lineNum">      31 </span>                :            : {
-<span class="lineNum">      32 </span>                :<span class="lineNoCov">          0 :         const uint8_t *p = rec, *end = rec + rec_sz;</span>
+<span class="lineNum">      32 </span>                :<span class="lineCov">        734 :         const uint8_t *p = rec, *end = rec + rec_sz;</span>
 <span class="lineNum">      33 </span>                :            : 
-<span class="lineNum">      34 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while (CHECK_SPACE(p, 3, end)) {</span>
-<span class="lineNum">      35 </span>                :<span class="lineNoCov">          0 :                 uint8_t k1 = *(p++);</span>
-<span class="lineNum">      36 </span>                :<span class="lineNoCov">          0 :                 uint8_t k2 = *(p++);</span>
-<span class="lineNum">      37 </span>                :<span class="lineNoCov">          0 :                 uint8_t sz = *(p++);</span>
+<span class="lineNum">      34 </span>        [<span class="branchCov" title="Branch 0 was taken 2204 times"> + </span><span class="branchCov" title="Branch 1 was taken 37 times"> + </span>]:<span class="lineCov">       2241 :         while (CHECK_SPACE(p, 3, end)) {</span>
+<span class="lineNum">      35 </span>                :<span class="lineCov">       2204 :                 uint8_t k1 = *(p++);</span>
+<span class="lineNum">      36 </span>                :<span class="lineCov">       2204 :                 uint8_t k2 = *(p++);</span>
+<span class="lineNum">      37 </span>                :<span class="lineCov">       2204 :                 uint8_t sz = *(p++);</span>
 <span class="lineNum">      38 </span>                :            : 
-<span class="lineNum">      39 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (k1 == kw[0] &amp;&amp; k2 == kw[1]) {</span>
-<span class="lineNum">      40 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (kw_size)</span>
-<span class="lineNum">      41 </span>                :<span class="lineNoCov">          0 :                                 *kw_size = sz;</span>
-<span class="lineNum">      42 </span>                :<span class="lineNoCov">          0 :                         return p;</span>
+<span class="lineNum">      39 </span>[<span class="branchCov" title="Branch 0 was taken 769 times"> + </span><span class="branchCov" title="Branch 1 was taken 1435 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 697 times"> + </span><span class="branchCov" title="Branch 3 was taken 72 times"> + </span>]:<span class="lineCov">       2204 :                 if (k1 == kw[0] &amp;&amp; k2 == kw[1]) {</span>
+<span class="lineNum">      40 </span>        [<span class="branchCov" title="Branch 0 was taken 694 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">        697 :                         if (kw_size)</span>
+<span class="lineNum">      41 </span>                :<span class="lineCov">        694 :                                 *kw_size = sz;</span>
+<span class="lineNum">      42 </span>                :<span class="lineCov">        697 :                         return p;</span>
 <span class="lineNum">      43 </span>                :            :                 }
-<span class="lineNum">      44 </span>                :<span class="lineNoCov">          0 :                 p += sz;</span>
+<span class="lineNum">      44 </span>                :<span class="lineCov">       1507 :                 p += sz;</span>
 <span class="lineNum">      45 </span>                :            :         }
 <span class="lineNum">      46 </span>                :            :         return NULL;
 <span class="lineNum">      47 </span>                :            : }
@@ -123,45 +123,45 @@
 <span class="lineNum">      52 </span>                :            :  * the first 0x84, so it will skip all those 0's that the VPD
 <a name="53"><span class="lineNum">      53 </span>                :            :  * LIDs seem to contain</a>
 <span class="lineNum">      54 </span>                :            :  */
-<span class="lineNum">      55 </span>                :<span class="lineNoCov">          0 : const void *vpd_find_record(const void *vpd, size_t vpd_size,</span>
+<span class="lineNum">      55 </span>                :<span class="lineCov">        243 : const void *vpd_find_record(const void *vpd, size_t vpd_size,</span>
 <span class="lineNum">      56 </span>                :            :                             const char *record, size_t *sz)
 <span class="lineNum">      57 </span>                :            : {
-<span class="lineNum">      58 </span>                :<span class="lineNoCov">          0 :         const uint8_t *p = vpd, *end = vpd + vpd_size;</span>
-<span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 :         bool first_start = true;</span>
+<span class="lineNum">      58 </span>                :<span class="lineCov">        243 :         const uint8_t *p = vpd, *end = vpd + vpd_size;</span>
+<span class="lineNum">      59 </span>                :<span class="lineCov">        243 :         bool first_start = true;</span>
 <span class="lineNum">      60 </span>                :            :         size_t rec_sz;
-<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 :         uint8_t namesz = 0;</span>
+<span class="lineNum">      61 </span>                :<span class="lineCov">        243 :         uint8_t namesz = 0;</span>
 <span class="lineNum">      62 </span>                :            :         const char *rec_name;
 <span class="lineNum">      63 </span>                :            : 
-<span class="lineNum">      64 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while (CHECK_SPACE(p, 4, end)) {</span>
+<span class="lineNum">      64 </span>        [<span class="branchCov" title="Branch 0 was taken 631 times"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">        639 :         while (CHECK_SPACE(p, 4, end)) {</span>
 <span class="lineNum">      65 </span>                :            :                 /* Get header byte */
-<span class="lineNum">      66 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (*(p++) != 0x84) {</span>
+<span class="lineNum">      66 </span>        [<span class="branchCov" title="Branch 0 was taken 177 times"> + </span><span class="branchCov" title="Branch 1 was taken 454 times"> + </span>]:<span class="lineCov">        631 :                 if (*(p++) != 0x84) {</span>
 <span class="lineNum">      67 </span>                :            :                         /* Skip initial crap in VPD LIDs */
-<span class="lineNum">      68 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (first_start)</span>
-<span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 :                                 continue;</span>
+<span class="lineNum">      68 </span>        [<span class="branchCov" title="Branch 0 was taken 176 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">        177 :                         if (first_start)</span>
+<span class="lineNum">      69 </span>                :<span class="lineCov">        176 :                                 continue;</span>
 <span class="lineNum">      70 </span>                :            :                         break;
 <span class="lineNum">      71 </span>                :            :                 }
-<span class="lineNum">      72 </span>                :<span class="lineNoCov">          0 :                 first_start = false;</span>
-<span class="lineNum">      73 </span>                :<span class="lineNoCov">          0 :                 rec_sz = *(p++);</span>
-<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 :                 rec_sz |= *(p++) &lt;&lt; 8;</span>
-<span class="lineNum">      75 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!CHECK_SPACE(p, rec_sz, end)) {</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">        454 :                 first_start = false;</span>
+<span class="lineNum">      73 </span>                :<span class="lineCov">        454 :                 rec_sz = *(p++);</span>
+<span class="lineNum">      74 </span>                :<span class="lineCov">        454 :                 rec_sz |= *(p++) &lt;&lt; 8;</span>
+<span class="lineNum">      75 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 454 times"> + </span>]:<span class="lineCov">        454 :                 if (!CHECK_SPACE(p, rec_sz, end)) {</span>
 <span class="lineNum">      76 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;VPD: Malformed or truncated VPD,&quot;</span>
 <span class="lineNum">      77 </span>                :            :                                 &quot; record size doesn't fit\n&quot;);
 <span class="lineNum">      78 </span>                :<span class="lineNoCov">          0 :                         return NULL;</span>
 <span class="lineNum">      79 </span>                :            :                 }
 <span class="lineNum">      80 </span>                :            : 
 <span class="lineNum">      81 </span>                :            :                 /* Find record name */
-<span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 :                 rec_name = vpd_find_keyword(p, rec_sz, &quot;RT&quot;, &amp;namesz);</span>
-<span class="lineNum">      83 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rec_name &amp;&amp; strncmp(record, rec_name, namesz) == 0) {</span>
-<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :                         *sz = rec_sz;</span>
-<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 :                         return p;</span>
+<span class="lineNum">      82 </span>                :<span class="lineCov">        454 :                 rec_name = vpd_find_keyword(p, rec_sz, &quot;RT&quot;, &amp;namesz);</span>
+<span class="lineNum">      83 </span>[<span class="branchCov" title="Branch 3 was taken 234 times"> + </span><span class="branchCov" title="Branch 4 was taken 212 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 446 times"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">        454 :                 if (rec_name &amp;&amp; strncmp(record, rec_name, namesz) == 0) {</span>
+<span class="lineNum">      84 </span>                :<span class="lineCov">        234 :                         *sz = rec_sz;</span>
+<span class="lineNum">      85 </span>                :<span class="lineCov">        234 :                         return p;</span>
 <span class="lineNum">      86 </span>                :            :                 }
 <span class="lineNum">      87 </span>                :            : 
-<span class="lineNum">      88 </span>                :<span class="lineNoCov">          0 :                 p += rec_sz;</span>
-<span class="lineNum">      89 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (*(p++) != 0x78) {</span>
+<span class="lineNum">      88 </span>                :<span class="lineCov">        220 :                 p += rec_sz;</span>
+<span class="lineNum">      89 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 220 times"> + </span>]:<span class="lineCov">        220 :                 if (*(p++) != 0x78) {</span>
 <span class="lineNum">      90 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         prerror(&quot;VPD: Malformed or truncated VPD,&quot;</span>
 <span class="lineNum">      91 </span>                :            :                                 &quot; missing final 0x78 in record %.4s\n&quot;,
 <span class="lineNum">      92 </span>                :            :                                 rec_name ? rec_name : &quot;????&quot;);
-<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 :                         return NULL;</span>
+<span class="lineNum">      93 </span>                :<span class="lineCov">        396 :                         return NULL;</span>
 <span class="lineNum">      94 </span>                :            :                 }
 <span class="lineNum">      95 </span>                :            :         }
 <span class="lineNum">      96 </span>                :            :         return NULL;
@@ -173,17 +173,17 @@
 <span class="lineNum">     102 </span>                :            :  * the first 0x84, so it will skip all those 0's that the VPD
 <a name="103"><span class="lineNum">     103 </span>                :            :  * LIDs seem to contain</a>
 <span class="lineNum">     104 </span>                :            :  */
-<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 : const void *vpd_find(const void *vpd, size_t vpd_size,</span>
+<span class="lineNum">     105 </span>                :<span class="lineCov">        229 : const void *vpd_find(const void *vpd, size_t vpd_size,</span>
 <span class="lineNum">     106 </span>                :            :                      const char *record, const char *keyword,
 <span class="lineNum">     107 </span>                :            :                      uint8_t *sz)
 <span class="lineNum">     108 </span>                :            : {
 <span class="lineNum">     109 </span>                :            :         size_t rec_sz;
 <span class="lineNum">     110 </span>                :            :         const uint8_t *p;
 <span class="lineNum">     111 </span>                :            : 
-<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :         p = vpd_find_record(vpd, vpd_size, record, &amp;rec_sz);</span>
-<span class="lineNum">     113 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (p)</span>
-<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :                 p = vpd_find_keyword(p, rec_sz, keyword, sz);</span>
-<span class="lineNum">     115 </span>                :<span class="lineNoCov">          0 :         return p;</span>
+<span class="lineNum">     112 </span>                :<span class="lineCov">        229 :         p = vpd_find_record(vpd, vpd_size, record, &amp;rec_sz);</span>
+<span class="lineNum">     113 </span>        [<span class="branchCov" title="Branch 0 was taken 220 times"> + </span><span class="branchCov" title="Branch 1 was taken 9 times"> + </span>]:<span class="lineCov">        229 :         if (p)</span>
+<span class="lineNum">     114 </span>                :<span class="lineCov">        220 :                 p = vpd_find_keyword(p, rec_sz, keyword, sz);</span>
+<span class="lineNum">     115 </span>                :<span class="lineCov">        229 :         return p;</span>
 <span class="lineNum">     116 </span>                :            : }
 <span class="lineNum">     117 </span>                :            : 
 <span class="lineNum">     118 </span>                :            : static void *vpd;
@@ -191,7 +191,7 @@
 <span class="lineNum">     120 </span>                :            : static uint32_t vpd_lid_no;
 <a name="121"><span class="lineNum">     121 </span>                :            : </a>
 <span class="lineNum">     122 </span>                :            : /* Helper to load a VPD LID. Pass a ptr to the corresponding LX keyword */
-<span class="lineNum">     123 </span>                :<span class="lineNoCov">          0 : static void *vpd_lid_preload(const uint8_t *lx)</span>
+<span class="lineNum">     123 </span>                :<span class="lineCov">          2 : static void *vpd_lid_preload(const uint8_t *lx)</span>
 <span class="lineNum">     124 </span>                :            : {
 <span class="lineNum">     125 </span>                :            :         int rc;
 <span class="lineNum">     126 </span>                :            : 
@@ -207,42 +207,42 @@
 <span class="lineNum">     136 </span>                :            :          * For safety, we look for a matching LX record in an LXRn
 <span class="lineNum">     137 </span>                :            :          * (n = lxrn argument) or in VINI if lxrn=0xff
 <span class="lineNum">     138 </span>                :            :          */
-<span class="lineNum">     139 </span>                :<span class="lineNoCov">          0 :         vpd_lid_no = 0x80e00000 | ((lx[6] &amp; 0xf) &lt;&lt; 8) | lx[7];</span>
+<span class="lineNum">     139 </span>                :<span class="lineCov">          2 :         vpd_lid_no = 0x80e00000 | ((lx[6] &amp; 0xf) &lt;&lt; 8) | lx[7];</span>
 <span class="lineNum">     140 </span>                :            : 
 <span class="lineNum">     141 </span>                :            :         /* We don't quite know how to get to the LID directory so
 <span class="lineNum">     142 </span>                :            :          * we don't know the size. Let's allocate 16K. All the VPD LIDs
 <span class="lineNum">     143 </span>                :            :          * I've seen so far are much smaller.
 <span class="lineNum">     144 </span>                :            :          */
 <span class="lineNum">     145 </span>                :            : #define VPD_LID_MAX_SIZE        0x4000
-<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :         vpd = malloc(VPD_LID_MAX_SIZE);</span>
+<span class="lineNum">     146 </span>                :<span class="lineCov">          2 :         vpd = malloc(VPD_LID_MAX_SIZE);</span>
 <span class="lineNum">     147 </span>                :            : 
-<span class="lineNum">     148 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!vpd) {</span>
+<span class="lineNum">     148 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!vpd) {</span>
 <span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;VPD: Failed to allocate memory for LID\n&quot;);</span>
 <span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :                 return NULL;</span>
 <span class="lineNum">     151 </span>                :            :         }
 <span class="lineNum">     152 </span>                :            : 
 <span class="lineNum">     153 </span>                :            :         /* Adjust LID number for flash side */
-<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 :         vpd_lid_no = fsp_adjust_lid_side(vpd_lid_no);</span>
-<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :         printf(&quot;VPD: Trying to load VPD LID 0x%08x...\n&quot;, vpd_lid_no);</span>
+<span class="lineNum">     154 </span>                :<span class="lineCov">          2 :         vpd_lid_no = fsp_adjust_lid_side(vpd_lid_no);</span>
+<span class="lineNum">     155 </span>                :<span class="lineCov">          2 :         printf(&quot;VPD: Trying to load VPD LID 0x%08x...\n&quot;, vpd_lid_no);</span>
 <span class="lineNum">     156 </span>                :            : 
-<span class="lineNum">     157 </span>                :<span class="lineNoCov">          0 :         vpd_size = VPD_LID_MAX_SIZE;</span>
+<span class="lineNum">     157 </span>                :<span class="lineCov">          2 :         vpd_size = VPD_LID_MAX_SIZE;</span>
 <span class="lineNum">     158 </span>                :            : 
 <span class="lineNum">     159 </span>                :            :         /* Load it from the FSP */
-<span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 :         rc = fsp_preload_lid(vpd_lid_no, vpd, &amp;vpd_size);</span>
-<span class="lineNum">     161 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     160 </span>                :<span class="lineCov">          2 :         rc = fsp_preload_lid(vpd_lid_no, vpd, &amp;vpd_size);</span>
+<span class="lineNum">     161 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (rc) {</span>
 <span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;VPD: Error %d loading VPD LID\n&quot;, rc);</span>
 <span class="lineNum">     163 </span>                :            :                 goto fail;
 <span class="lineNum">     164 </span>                :            :         }
 <span class="lineNum">     165 </span>                :            : 
-<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :         return vpd;</span>
+<span class="lineNum">     166 </span>                :<span class="lineCov">          2 :         return vpd;</span>
 <span class="lineNum">     167 </span>                :            :  fail:
 <span class="lineNum">     168 </span>                :<span class="lineNoCov">          0 :         free(vpd);</span>
 <span class="lineNum">     169 </span>                :<span class="lineNoCov">          0 :         return NULL;</span>
 <a name="170"><span class="lineNum">     170 </span>                :            : }</a>
 <span class="lineNum">     171 </span>                :            : 
-<span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 : void vpd_iohub_load(struct dt_node *hub_node)</span>
+<span class="lineNum">     172 </span>                :<span class="lineCov">          2 : void vpd_iohub_load(struct dt_node *hub_node)</span>
 <span class="lineNum">     173 </span>                :            : {
-<span class="lineNum">     174 </span>                :<span class="lineNoCov">          0 :         char record[4] = &quot;LXR0&quot;;</span>
+<span class="lineNum">     174 </span>                :<span class="lineCov">          2 :         char record[4] = &quot;LXR0&quot;;</span>
 <span class="lineNum">     175 </span>                :            :         const void *valid_lx;
 <span class="lineNum">     176 </span>                :            :         uint8_t lx_size;
 <span class="lineNum">     177 </span>                :            :         int r;
@@ -250,48 +250,48 @@
 <span class="lineNum">     179 </span>                :            :         const uint8_t *lx;
 <span class="lineNum">     180 </span>                :            :         unsigned int lxrn;
 <span class="lineNum">     181 </span>                :            : 
-<span class="lineNum">     182 </span>                :<span class="lineNoCov">          0 :         p = dt_prop_get_def(hub_node, &quot;ibm,vpd-lx-info&quot;, NULL);</span>
-<span class="lineNum">     183 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!p)</span>
+<span class="lineNum">     182 </span>                :<span class="lineCov">          2 :         p = dt_prop_get_def(hub_node, &quot;ibm,vpd-lx-info&quot;, NULL);</span>
+<span class="lineNum">     183 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!p)</span>
 <span class="lineNum">     184 </span>                :            :                 return;
 <span class="lineNum">     185 </span>                :            : 
-<span class="lineNum">     186 </span>                :<span class="lineNoCov">          0 :         lxrn = p[0];</span>
-<span class="lineNum">     187 </span>                :<span class="lineNoCov">          0 :         lx = (const char *)&amp;p[1];</span>
+<span class="lineNum">     186 </span>                :<span class="lineCov">          2 :         lxrn = p[0];</span>
+<span class="lineNum">     187 </span>                :<span class="lineCov">          2 :         lx = (const char *)&amp;p[1];</span>
 <span class="lineNum">     188 </span>                :            : 
-<span class="lineNum">     189 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(vpd);</span>
-<span class="lineNum">     190 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(vpd_lid_no);</span>
+<span class="lineNum">     189 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         assert(vpd);</span>
+<span class="lineNum">     190 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         assert(vpd_lid_no);</span>
 <span class="lineNum">     191 </span>                :            : 
-<span class="lineNum">     192 </span>                :<span class="lineNoCov">          0 :         r = fsp_wait_lid_loaded(vpd_lid_no);</span>
+<span class="lineNum">     192 </span>                :<span class="lineCov">          2 :         r = fsp_wait_lid_loaded(vpd_lid_no);</span>
 <span class="lineNum">     193 </span>                :            : 
-<span class="lineNum">     194 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (r)</span>
+<span class="lineNum">     194 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (r)</span>
 <span class="lineNum">     195 </span>                :            :                 goto fail;
 <span class="lineNum">     196 </span>                :            : 
 <span class="lineNum">     197 </span>                :            :         /* Validate it */
-<span class="lineNum">     198 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (lxrn &lt; 9)</span>
-<span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 :                 record[3] = '0' + lxrn;</span>
+<span class="lineNum">     198 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (lxrn &lt; 9)</span>
+<span class="lineNum">     199 </span>                :<span class="lineCov">          2 :                 record[3] = '0' + lxrn;</span>
 <span class="lineNum">     200 </span>                :            :         else
 <span class="lineNum">     201 </span>                :<span class="lineNoCov">          0 :                 memcpy(record, &quot;VINI&quot;, 4);</span>
 <span class="lineNum">     202 </span>                :            : 
-<span class="lineNum">     203 </span>                :<span class="lineNoCov">          0 :         valid_lx = vpd_find(vpd, vpd_size, record, &quot;LX&quot;, &amp;lx_size);</span>
-<span class="lineNum">     204 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!valid_lx || lx_size != 8) {</span>
+<span class="lineNum">     203 </span>                :<span class="lineCov">          2 :         valid_lx = vpd_find(vpd, vpd_size, record, &quot;LX&quot;, &amp;lx_size);</span>
+<span class="lineNum">     204 </span>[<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!valid_lx || lx_size != 8) {</span>
 <span class="lineNum">     205 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;VPD: Cannot find validation LX record\n&quot;);</span>
 <span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :                 goto fail;</span>
 <span class="lineNum">     207 </span>                :            :         }
-<span class="lineNum">     208 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (memcmp(valid_lx, lx, 8) != 0) {</span>
+<span class="lineNum">     208 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (memcmp(valid_lx, lx, 8) != 0) {</span>
 <span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;VPD: LX record mismatch !\n&quot;);</span>
 <span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :                 goto fail;</span>
 <span class="lineNum">     211 </span>                :            :         }
 <span class="lineNum">     212 </span>                :            : 
-<span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 :         printf(&quot;VPD: Loaded %zu bytes\n&quot;, vpd_size);</span>
+<span class="lineNum">     213 </span>                :<span class="lineCov">          2 :         printf(&quot;VPD: Loaded %zu bytes\n&quot;, vpd_size);</span>
 <span class="lineNum">     214 </span>                :            : 
 <span class="lineNum">     215 </span>                :            :         /* Got it ! */
-<span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 :         vpd = realloc(vpd, vpd_size);</span>
+<span class="lineNum">     216 </span>                :<span class="lineCov">          2 :         vpd = realloc(vpd, vpd_size);</span>
 <span class="lineNum">     217 </span>                :            : 
-<span class="lineNum">     218 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!vpd)</span>
+<span class="lineNum">     218 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!vpd)</span>
 <span class="lineNum">     219 </span>                :            :                 goto fail;
 <span class="lineNum">     220 </span>                :            : 
-<span class="lineNum">     221 </span>                :<span class="lineNoCov">          0 :         dt_add_property(hub_node, &quot;ibm,io-vpd&quot;, vpd, vpd_size);</span>
-<span class="lineNum">     222 </span>                :<span class="lineNoCov">          0 :         free(vpd);</span>
-<span class="lineNum">     223 </span>                :<span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">     221 </span>                :<span class="lineCov">          2 :         dt_add_property(hub_node, &quot;ibm,io-vpd&quot;, vpd, vpd_size);</span>
+<span class="lineNum">     222 </span>                :<span class="lineCov">          2 :         free(vpd);</span>
+<span class="lineNum">     223 </span>                :<span class="lineCov">          2 :         return;</span>
 <span class="lineNum">     224 </span>                :            : 
 <span class="lineNum">     225 </span>                :            : fail:
 <span class="lineNum">     226 </span>                :<span class="lineNoCov">          0 :         free(vpd);</span>
@@ -300,18 +300,18 @@
 <span class="lineNum">     229 </span>                :<span class="lineNoCov">          0 :         return;</span>
 <a name="230"><span class="lineNum">     230 </span>                :            : }</a>
 <span class="lineNum">     231 </span>                :            : 
-<span class="lineNum">     232 </span>                :<span class="lineCov">          6 : void vpd_preload(struct dt_node *hub_node)</span>
+<span class="lineNum">     232 </span>                :<span class="lineCov">          9 : void vpd_preload(struct dt_node *hub_node)</span>
 <span class="lineNum">     233 </span>                :            : {
 <span class="lineNum">     234 </span>                :            :         const uint32_t *p;
 <span class="lineNum">     235 </span>                :            :         const char *lxr;
 <span class="lineNum">     236 </span>                :            : 
-<span class="lineNum">     237 </span>                :<span class="lineCov">          6 :         p = dt_prop_get_def(hub_node, &quot;ibm,vpd-lx-info&quot;, NULL);</span>
-<span class="lineNum">     238 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (!p)</span>
-<span class="lineNum">     239 </span>                :<span class="lineCov">          6 :                 return;</span>
+<span class="lineNum">     237 </span>                :<span class="lineCov">          9 :         p = dt_prop_get_def(hub_node, &quot;ibm,vpd-lx-info&quot;, NULL);</span>
+<span class="lineNum">     238 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          9 :         if (!p)</span>
+<span class="lineNum">     239 </span>                :<span class="lineCov">          9 :                 return;</span>
 <span class="lineNum">     240 </span>                :            : 
-<span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 :         lxr = (const char *)&amp;p[1];</span>
+<span class="lineNum">     241 </span>                :<span class="lineCov">          2 :         lxr = (const char *)&amp;p[1];</span>
 <span class="lineNum">     242 </span>                :            : 
-<span class="lineNum">     243 </span>                :<span class="lineNoCov">          0 :         vpd = vpd_lid_preload(lxr);</span>
+<span class="lineNum">     243 </span>                :<span class="lineCov">          2 :         vpd = vpd_lid_preload(lxr);</span>
 <span class="lineNum">     244 </span>                :            : }
 </pre>
       </td>

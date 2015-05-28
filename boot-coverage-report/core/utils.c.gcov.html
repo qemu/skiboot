@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">3</td>
             <td class="headerCovTableEntry">38</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">7.9 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntry">4</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">25.0 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntry">20</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">5.0 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -130,13 +130,13 @@
 <span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 :         for (;;) ;</span>
 <a name="60"><span class="lineNum">      60 </span>                :            : }</a>
 <span class="lineNum">      61 </span>                :            : 
-<span class="lineNum">      62 </span>                :<span class="lineNoCov">          0 : char __attrconst tohex(uint8_t nibble)</span>
+<span class="lineNum">      62 </span>                :<span class="lineCov">        172 : char __attrconst tohex(uint8_t nibble)</span>
 <span class="lineNum">      63 </span>                :            : {
 <span class="lineNum">      64 </span>                :            :         static const char __tohex[] = {'0','1','2','3','4','5','6','7','8','9',
 <span class="lineNum">      65 </span>                :            :                                        'A','B','C','D','E','F'};
-<span class="lineNum">      66 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (nibble &gt; 0xf)</span>
+<span class="lineNum">      66 </span>        [<span class="branchCov" title="Branch 0 was taken 172 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        172 :         if (nibble &gt; 0xf)</span>
 <span class="lineNum">      67 </span>                :            :                 return '?';
-<span class="lineNum">      68 </span>                :<span class="lineNoCov">          0 :         return __tohex[nibble];</span>
+<span class="lineNum">      68 </span>                :<span class="lineCov">        172 :         return __tohex[nibble];</span>
 <a name="69"><span class="lineNum">      69 </span>                :            : }</a>
 <span class="lineNum">      70 </span>                :            : 
 <span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 : unsigned long get_symbol(unsigned long addr, char **sym, char **sym_end)</span>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -359,13 +359,13 @@
 <span class="lineNum">     288 </span>                :<span class="lineNoCov">          0 :         cec_register(&amp;ioc-&gt;hub);</span>
 <a name="289"><span class="lineNum">     289 </span>                :            : }</a>
 <span class="lineNum">     290 </span>                :            : 
-<span class="lineNum">     291 </span>                :<span class="lineCov">          6 : void probe_p5ioc2(void)</span>
+<span class="lineNum">     291 </span>                :<span class="lineCov">          8 : void probe_p5ioc2(void)</span>
 <span class="lineNum">     292 </span>                :            : {
 <span class="lineNum">     293 </span>                :            :         struct dt_node *np;
 <span class="lineNum">     294 </span>                :            : 
-<span class="lineNum">     295 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         dt_for_each_compatible(dt_root, np, &quot;ibm,p5ioc2&quot;)</span>
+<span class="lineNum">     295 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 8 times"> + </span>]:<span class="lineCov">          8 :         dt_for_each_compatible(dt_root, np, &quot;ibm,p5ioc2&quot;)</span>
 <span class="lineNum">     296 </span>                :<span class="lineNoCov">          0 :                 p5ioc2_create_hub(np);</span>
-<span class="lineNum">     297 </span>                :<span class="lineCov">          6 : }</span>
+<span class="lineNum">     297 </span>                :<span class="lineCov">          8 : }</span>
 <span class="lineNum">     298 </span>                :            : 
 </pre>
       </td>

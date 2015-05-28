@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -524,12 +524,12 @@
 <span class="lineNum">     453 </span>                :            :         /* Handle the lpc interrupt source (errors etc...) TODO... */
 <a name="454"><span class="lineNum">     454 </span>                :<span class="lineNoCov">          0 : }</span></a>
 <span class="lineNum">     455 </span>                :            : 
-<span class="lineNum">     456 </span>                :<span class="lineCov">          6 : void lpc_init(void)</span>
+<span class="lineNum">     456 </span>                :<span class="lineCov">          8 : void lpc_init(void)</span>
 <span class="lineNum">     457 </span>                :            : {
 <span class="lineNum">     458 </span>                :            :         struct dt_node *xn;
-<span class="lineNum">     459 </span>                :<span class="lineCov">          6 :         bool has_lpc = false;</span>
+<span class="lineNum">     459 </span>                :<span class="lineCov">          8 :         bool has_lpc = false;</span>
 <span class="lineNum">     460 </span>                :            : 
-<span class="lineNum">     461 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         dt_for_each_compatible(dt_root, xn, &quot;ibm,power8-lpc&quot;) {</span>
+<span class="lineNum">     461 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 8 times"> + </span>]:<span class="lineCov">          8 :         dt_for_each_compatible(dt_root, xn, &quot;ibm,power8-lpc&quot;) {</span>
 <span class="lineNum">     462 </span>                :<span class="lineNoCov">          0 :                 uint32_t gcid = dt_get_chip_id(xn);</span>
 <span class="lineNum">     463 </span>                :            :                 struct proc_chip *chip;
 <span class="lineNum">     464 </span>                :            : 
@@ -550,14 +550,14 @@
 <span class="lineNum">     479 </span>                :            :                        chip-&gt;id, chip-&gt;lpc_xbase);
 <span class="lineNum">     480 </span>                :<span class="lineNoCov">          0 :                 has_lpc = true;</span>
 <span class="lineNum">     481 </span>                :            :         }
-<span class="lineNum">     482 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (lpc_default_chip_id &gt;= 0)</span>
+<span class="lineNum">     482 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :         if (lpc_default_chip_id &gt;= 0)</span>
 <span class="lineNum">     483 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;LPC: Default bus on chip %d\n&quot;, lpc_default_chip_id);</span>
 <span class="lineNum">     484 </span>                :            : 
-<span class="lineNum">     485 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (has_lpc) {</span>
+<span class="lineNum">     485 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :         if (has_lpc) {</span>
 <span class="lineNum">     486 </span>                :<span class="lineNoCov">          0 :                 opal_register(OPAL_LPC_WRITE, opal_lpc_write, 5);</span>
 <span class="lineNum">     487 </span>                :<span class="lineNoCov">          0 :                 opal_register(OPAL_LPC_READ, opal_lpc_read, 5);</span>
 <span class="lineNum">     488 </span>                :            :         }
-<a name="489"><span class="lineNum">     489 </span>                :<span class="lineCov">          6 : }</span></a>
+<a name="489"><span class="lineNum">     489 </span>                :<span class="lineCov">          8 : }</span></a>
 <span class="lineNum">     490 </span>                :            : 
 <span class="lineNum">     491 </span>                :<span class="lineNoCov">          0 : void lpc_used_by_console(void)</span>
 <span class="lineNum">     492 </span>                :            : {

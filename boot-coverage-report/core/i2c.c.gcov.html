@@ -31,18 +31,18 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">5</td>
             <td class="headerCovTableEntry">49</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">10.2 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntry">4</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">25.0 %</td>
           </tr>
           <tr>
             <td></td>
@@ -96,13 +96,13 @@
 <span class="lineNum">      25 </span>                :            : /* Used to assign OPAL IDs */
 <a name="26"><span class="lineNum">      26 </span>                :            : static uint32_t i2c_next_bus;</a>
 <span class="lineNum">      27 </span>                :            : 
-<span class="lineNum">      28 </span>                :<span class="lineNoCov">          0 : void i2c_add_bus(struct i2c_bus *bus)</span>
+<span class="lineNum">      28 </span>                :<span class="lineCov">          2 : void i2c_add_bus(struct i2c_bus *bus)</span>
 <span class="lineNum">      29 </span>                :            : {
-<span class="lineNum">      30 </span>                :<span class="lineNoCov">          0 :         bus-&gt;opal_id = ++i2c_next_bus;</span>
-<span class="lineNum">      31 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(bus-&gt;dt_node, &quot;ibm,opal-id&quot;, bus-&gt;opal_id);</span>
+<span class="lineNum">      30 </span>                :<span class="lineCov">          2 :         bus-&gt;opal_id = ++i2c_next_bus;</span>
+<span class="lineNum">      31 </span>                :<span class="lineCov">          2 :         dt_add_property_cells(bus-&gt;dt_node, &quot;ibm,opal-id&quot;, bus-&gt;opal_id);</span>
 <span class="lineNum">      32 </span>                :            : 
-<span class="lineNum">      33 </span>                :<span class="lineNoCov">          0 :         list_add_tail(&amp;i2c_bus_list, &amp;bus-&gt;link);</span>
-<a name="34"><span class="lineNum">      34 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      33 </span>                :<span class="lineCov">          2 :         list_add_tail(&amp;i2c_bus_list, &amp;bus-&gt;link);</span>
+<a name="34"><span class="lineNum">      34 </span>                :<span class="lineCov">          2 : }</span></a>
 <span class="lineNum">      35 </span>                :            : 
 <span class="lineNum">      36 </span>                :<span class="lineNoCov">          0 : struct i2c_bus *i2c_find_bus_by_id(uint32_t opal_id)</span>
 <span class="lineNum">      37 </span>                :            : {

@@ -31,13 +31,13 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">110</td>
+            <td class="headerCovTableEntry">120</td>
             <td class="headerCovTableEntry">135</td>
-            <td class="headerCovTableEntryMed">81.5 %</td>
+            <td class="headerCovTableEntryMed">88.9 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">7</td>
@@ -49,9 +49,9 @@
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">61</td>
+            <td class="headerCovTableEntry">81</td>
             <td class="headerCovTableEntry">91</td>
-            <td class="headerCovTableEntryLo">67.0 %</td>
+            <td class="headerCovTableEntryMed">89.0 %</td>
           </tr>
           <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -94,157 +94,157 @@
 <span class="lineNum">      23 </span>                :            : };
 <a name="24"><span class="lineNum">      24 </span>                :            : </a>
 <span class="lineNum">      25 </span>                :            : static int
-<span class="lineNum">      26 </span>                :<span class="lineCov">        131 : print_str_fill(char **buffer, size_t bufsize, char *sizec,</span>
+<span class="lineNum">      26 </span>                :<span class="lineCov">       1652 : print_str_fill(char **buffer, size_t bufsize, char *sizec,</span>
 <span class="lineNum">      27 </span>                :            :                                         const char *str, char c)
 <span class="lineNum">      28 </span>                :            : {
 <span class="lineNum">      29 </span>                :            :         int i, sizei, len;
-<span class="lineNum">      30 </span>                :<span class="lineCov">        131 :         char *bstart = *buffer;</span>
+<span class="lineNum">      30 </span>                :<span class="lineCov">       1652 :         char *bstart = *buffer;</span>
 <span class="lineNum">      31 </span>                :            : 
-<span class="lineNum">      32 </span>                :<span class="lineCov">        131 :         sizei = strtoul(sizec, NULL, 10);</span>
-<span class="lineNum">      33 </span>                :<span class="lineCov">        131 :         len = strlen(str);</span>
-<span class="lineNum">      34 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 131 times"> + </span>]:<span class="lineCov">        131 :         if (sizei &gt; len) {</span>
-<span class="lineNum">      35 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 for (i = 0;</span>
-<span class="lineNum">      36 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         (i &lt; (sizei - len)) &amp;&amp; ((*buffer - bstart) &lt; bufsize);</span>
-<span class="lineNum">      37 </span>                :<span class="lineNoCov">          0 :                                                                         i++) {</span>
-<span class="lineNum">      38 </span>                :<span class="lineNoCov">          0 :                         **buffer = c;</span>
-<span class="lineNum">      39 </span>                :<span class="lineNoCov">          0 :                         *buffer += 1;</span>
+<span class="lineNum">      32 </span>                :<span class="lineCov">       1652 :         sizei = strtoul(sizec, NULL, 10);</span>
+<span class="lineNum">      33 </span>                :<span class="lineCov">       1651 :         len = strlen(str);</span>
+<span class="lineNum">      34 </span>        [<span class="branchCov" title="Branch 0 was taken 103 times"> + </span><span class="branchCov" title="Branch 1 was taken 1549 times"> + </span>]:<span class="lineCov">       1652 :         if (sizei &gt; len) {</span>
+<span class="lineNum">      35 </span>        [<span class="branchCov" title="Branch 0 was taken 725 times"> + </span><span class="branchCov" title="Branch 1 was taken 103 times"> + </span>]:<span class="lineCov">        828 :                 for (i = 0;</span>
+<span class="lineNum">      36 </span>        [<span class="branchCov" title="Branch 0 was taken 725 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        725 :                         (i &lt; (sizei - len)) &amp;&amp; ((*buffer - bstart) &lt; bufsize);</span>
+<span class="lineNum">      37 </span>                :<span class="lineCov">        725 :                                                                         i++) {</span>
+<span class="lineNum">      38 </span>                :<span class="lineCov">        725 :                         **buffer = c;</span>
+<span class="lineNum">      39 </span>                :<span class="lineCov">        725 :                         *buffer += 1;</span>
 <span class="lineNum">      40 </span>                :            :                 }
 <span class="lineNum">      41 </span>                :            :         }
-<span class="lineNum">      42 </span>                :<span class="lineCov">        131 :         return 1;</span>
+<span class="lineNum">      42 </span>                :<span class="lineCov">       1652 :         return 1;</span>
 <span class="lineNum">      43 </span>                :            : }
 <a name="44"><span class="lineNum">      44 </span>                :            : </a>
 <span class="lineNum">      45 </span>                :            : static int
-<span class="lineNum">      46 </span>                :<span class="lineCov">        173 : print_str(char **buffer, size_t bufsize, const char *str)</span>
+<span class="lineNum">      46 </span>                :<span class="lineCov">       1861 : print_str(char **buffer, size_t bufsize, const char *str)</span>
 <span class="lineNum">      47 </span>                :            : {
-<span class="lineNum">      48 </span>                :<span class="lineCov">        173 :         char *bstart = *buffer;</span>
+<span class="lineNum">      48 </span>                :<span class="lineCov">       1861 :         char *bstart = *buffer;</span>
 <span class="lineNum">      49 </span>                :            :         int i;
 <span class="lineNum">      50 </span>                :            : 
-<span class="lineNum">      51 </span>[<span class="branchCov" title="Branch 1 was taken 2939 times"> + </span><span class="branchCov" title="Branch 2 was taken 173 times"> + </span>][<span class="branchCov" title="Branch 3 was taken 2939 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">       3112 :         for (i = 0; (i &lt; strlen(str)) &amp;&amp; ((*buffer - bstart) &lt; bufsize); i++) {</span>
-<span class="lineNum">      52 </span>                :<span class="lineCov">       2939 :                 **buffer = str[i];</span>
-<span class="lineNum">      53 </span>                :<span class="lineCov">       2939 :                 *buffer += 1;</span>
+<span class="lineNum">      51 </span>[<span class="branchCov" title="Branch 1 was taken 17700 times"> + </span><span class="branchCov" title="Branch 2 was taken 1832 times"> + </span>][<span class="branchCov" title="Branch 3 was taken 17677 times"> + </span><span class="branchCov" title="Branch 4 was taken 23 times"> + </span>]:<span class="lineCov">      19538 :         for (i = 0; (i &lt; strlen(str)) &amp;&amp; ((*buffer - bstart) &lt; bufsize); i++) {</span>
+<span class="lineNum">      52 </span>                :<span class="lineCov">      17677 :                 **buffer = str[i];</span>
+<span class="lineNum">      53 </span>                :<span class="lineCov">      17677 :                 *buffer += 1;</span>
 <span class="lineNum">      54 </span>                :            :         }
-<span class="lineNum">      55 </span>                :<span class="lineCov">        173 :         return 1;</span>
+<span class="lineNum">      55 </span>                :<span class="lineCov">       1855 :         return 1;</span>
 <span class="lineNum">      56 </span>                :            : }
 <a name="57"><span class="lineNum">      57 </span>                :            : </a>
 <span class="lineNum">      58 </span>                :            : static unsigned int __attrconst
-<span class="lineNum">      59 </span>                :<span class="lineCov">       2138 : print_intlen(unsigned long value, unsigned short int base)</span>
+<span class="lineNum">      59 </span>                :<span class="lineCov">      29173 : print_intlen(unsigned long value, unsigned short int base)</span>
 <span class="lineNum">      60 </span>                :            : {
-<span class="lineNum">      61 </span>                :<span class="lineCov">       2138 :         int i = 0;</span>
+<span class="lineNum">      61 </span>                :<span class="lineCov">      29173 :         int i = 0;</span>
 <span class="lineNum">      62 </span>                :            : 
-<span class="lineNum">      63 </span>        [<span class="branchCov" title="Branch 0 was taken 9978 times"> + </span><span class="branchCov" title="Branch 1 was taken 2138 times"> + </span>]:<span class="lineCov">      12116 :         while (value &gt; 0) {</span>
-<span class="lineNum">      64 </span>                :<span class="lineCov">       9978 :                 value /= base;</span>
-<span class="lineNum">      65 </span>                :<span class="lineCov">       9978 :                 i++;</span>
+<span class="lineNum">      63 </span>        [<span class="branchCov" title="Branch 0 was taken 133725 times"> + </span><span class="branchCov" title="Branch 1 was taken 29173 times"> + </span>]:<span class="lineCov">     162898 :         while (value &gt; 0) {</span>
+<span class="lineNum">      64 </span>                :<span class="lineCov">     133725 :                 value /= base;</span>
+<span class="lineNum">      65 </span>                :<span class="lineCov">     133725 :                 i++;</span>
 <span class="lineNum">      66 </span>                :            :         }
-<span class="lineNum">      67 </span>        [<span class="branchCov" title="Branch 0 was taken 140 times"> + </span><span class="branchCov" title="Branch 1 was taken 1998 times"> + </span>]:<span class="lineCov">       2138 :         if (i == 0)</span>
-<span class="lineNum">      68 </span>                :<span class="lineCov">        140 :                 i = 1;</span>
-<span class="lineNum">      69 </span>                :<span class="lineCov">       2138 :         return i;</span>
+<span class="lineNum">      67 </span>        [<span class="branchCov" title="Branch 0 was taken 2154 times"> + </span><span class="branchCov" title="Branch 1 was taken 27019 times"> + </span>]:<span class="lineCov">      29173 :         if (i == 0)</span>
+<span class="lineNum">      68 </span>                :<span class="lineCov">       2154 :                 i = 1;</span>
+<span class="lineNum">      69 </span>                :<span class="lineCov">      29173 :         return i;</span>
 <span class="lineNum">      70 </span>                :            : }
 <a name="71"><span class="lineNum">      71 </span>                :            : </a>
 <span class="lineNum">      72 </span>                :            : static int
-<span class="lineNum">      73 </span>                :<span class="lineCov">       1069 : print_itoa(char **buffer, size_t bufsize, unsigned long value,</span>
+<span class="lineNum">      73 </span>                :<span class="lineCov">      14581 : print_itoa(char **buffer, size_t bufsize, unsigned long value,</span>
 <span class="lineNum">      74 </span>                :            :                                         unsigned short base, bool upper)
 <span class="lineNum">      75 </span>                :            : {
-<span class="lineNum">      76 </span>                :<span class="lineCov">       1069 :         const char zeichen[] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};</span>
+<span class="lineNum">      76 </span>                :<span class="lineCov">      14581 :         const char zeichen[] = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};</span>
 <span class="lineNum">      77 </span>                :            :         char c;
 <span class="lineNum">      78 </span>                :            :         int i, len;
 <span class="lineNum">      79 </span>                :            : 
-<span class="lineNum">      80 </span>        [<span class="branchCov" title="Branch 0 was taken 1069 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       1069 :         if(base &lt;= 2 || base &gt; 16)</span>
+<span class="lineNum">      80 </span>        [<span class="branchCov" title="Branch 0 was taken 14591 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">      14581 :         if(base &lt;= 2 || base &gt; 16)</span>
 <span class="lineNum">      81 </span>                :            :                 return 0;
 <span class="lineNum">      82 </span>                :            : 
-<span class="lineNum">      83 </span>                :<span class="lineCov">       1069 :         len = i = print_intlen(value, base);</span>
+<span class="lineNum">      83 </span>                :<span class="lineCov">      14591 :         len = i = print_intlen(value, base);</span>
 <span class="lineNum">      84 </span>                :            : 
 <span class="lineNum">      85 </span>                :            :         /* Don't print to buffer if bufsize is not enough. */
-<span class="lineNum">      86 </span>        [<span class="branchCov" title="Branch 0 was taken 1069 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       1069 :         if (len &gt; bufsize)</span>
+<span class="lineNum">      86 </span>        [<span class="branchCov" title="Branch 0 was taken 14599 times"> + </span><span class="branchCov" title="Branch 1 was taken 13 times"> + </span>]:<span class="lineCov">      14593 :         if (len &gt; bufsize)</span>
 <span class="lineNum">      87 </span>                :            :                 return 0;
 <span class="lineNum">      88 </span>                :            : 
 <span class="lineNum">      89 </span>                :            :         do {
-<span class="lineNum">      90 </span>                :<span class="lineCov">       5059 :                 c = zeichen[value % base];</span>
-<span class="lineNum">      91 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5059 times"> + </span>]:<span class="lineCov">       5059 :                 if (upper)</span>
-<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 :                         c = toupper(c);</span>
+<span class="lineNum">      90 </span>                :<span class="lineCov">      68729 :                 c = zeichen[value % base];</span>
+<span class="lineNum">      91 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchCov" title="Branch 1 was taken 68713 times"> + </span>]:<span class="lineCov">      68729 :                 if (upper)</span>
+<span class="lineNum">      92 </span>                :<span class="lineCov">         16 :                         c = toupper(c);</span>
 <span class="lineNum">      93 </span>                :            : 
-<span class="lineNum">      94 </span>                :<span class="lineCov">       5059 :                 (*buffer)[--i] = c;</span>
-<span class="lineNum">      95 </span>                :<span class="lineCov">       5059 :                 value /= base;</span>
-<span class="lineNum">      96 </span>        [<span class="branchCov" title="Branch 0 was taken 3990 times"> + </span><span class="branchCov" title="Branch 1 was taken 1069 times"> + </span>]:<span class="lineCov">       5059 :         } while(value);</span>
+<span class="lineNum">      94 </span>                :<span class="lineCov">      68729 :                 (*buffer)[--i] = c;</span>
+<span class="lineNum">      95 </span>                :<span class="lineCov">      68729 :                 value /= base;</span>
+<span class="lineNum">      96 </span>        [<span class="branchCov" title="Branch 0 was taken 54130 times"> + </span><span class="branchCov" title="Branch 1 was taken 14599 times"> + </span>]:<span class="lineCov">      68729 :         } while(value);</span>
 <span class="lineNum">      97 </span>                :            : 
-<span class="lineNum">      98 </span>                :<span class="lineCov">       1069 :         *buffer += len;</span>
+<span class="lineNum">      98 </span>                :<span class="lineCov">      14599 :         *buffer += len;</span>
 <span class="lineNum">      99 </span>                :            : 
-<span class="lineNum">     100 </span>                :<span class="lineCov">       1069 :         return 1;</span>
+<span class="lineNum">     100 </span>                :<span class="lineCov">      14599 :         return 1;</span>
 <span class="lineNum">     101 </span>                :            : }
 <span class="lineNum">     102 </span>                :            : 
 <span class="lineNum">     103 </span>                :            : 
 <a name="104"><span class="lineNum">     104 </span>                :            : </a>
 <span class="lineNum">     105 </span>                :            : static int
-<span class="lineNum">     106 </span>                :<span class="lineCov">       1069 : print_fill(char **buffer, size_t bufsize, char *sizec, unsigned long size,</span>
+<span class="lineNum">     106 </span>                :<span class="lineCov">      14505 : print_fill(char **buffer, size_t bufsize, char *sizec, unsigned long size,</span>
 <span class="lineNum">     107 </span>                :            :                                 unsigned short int base, char c, int optlen)
 <span class="lineNum">     108 </span>                :            : {
 <span class="lineNum">     109 </span>                :            :         int i, sizei, len;
-<span class="lineNum">     110 </span>                :<span class="lineCov">       1069 :         char *bstart = *buffer;</span>
+<span class="lineNum">     110 </span>                :<span class="lineCov">      14505 :         char *bstart = *buffer;</span>
 <span class="lineNum">     111 </span>                :            : 
-<span class="lineNum">     112 </span>                :<span class="lineCov">       1069 :         sizei = strtoul(sizec, NULL, 10);</span>
-<span class="lineNum">     113 </span>                :<span class="lineCov">       1069 :         len = print_intlen(size, base) + optlen;</span>
-<span class="lineNum">     114 </span>        [<span class="branchCov" title="Branch 0 was taken 78 times"> + </span><span class="branchCov" title="Branch 1 was taken 991 times"> + </span>]:<span class="lineCov">       1069 :         if (sizei &gt; len) {</span>
-<span class="lineNum">     115 </span>        [<span class="branchCov" title="Branch 0 was taken 288 times"> + </span><span class="branchCov" title="Branch 1 was taken 78 times"> + </span>]:<span class="lineCov">        366 :                 for (i = 0;</span>
-<span class="lineNum">     116 </span>        [<span class="branchCov" title="Branch 0 was taken 288 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        288 :                         (i &lt; (sizei - len)) &amp;&amp; ((*buffer - bstart) &lt; bufsize);</span>
-<span class="lineNum">     117 </span>                :<span class="lineCov">        288 :                                                                         i++) {</span>
-<span class="lineNum">     118 </span>                :<span class="lineCov">        288 :                         **buffer = c;</span>
-<span class="lineNum">     119 </span>                :<span class="lineCov">        288 :                         *buffer += 1;</span>
+<span class="lineNum">     112 </span>                :<span class="lineCov">      14505 :         sizei = strtoul(sizec, NULL, 10);</span>
+<span class="lineNum">     113 </span>                :<span class="lineCov">      14550 :         len = print_intlen(size, base) + optlen;</span>
+<span class="lineNum">     114 </span>        [<span class="branchCov" title="Branch 0 was taken 2384 times"> + </span><span class="branchCov" title="Branch 1 was taken 12226 times"> + </span>]:<span class="lineCov">      14610 :         if (sizei &gt; len) {</span>
+<span class="lineNum">     115 </span>        [<span class="branchCov" title="Branch 0 was taken 8040 times"> + </span><span class="branchCov" title="Branch 1 was taken 2409 times"> + </span>]:<span class="lineCov">      10449 :                 for (i = 0;</span>
+<span class="lineNum">     116 </span>        [<span class="branchCov" title="Branch 0 was taken 8065 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       8040 :                         (i &lt; (sizei - len)) &amp;&amp; ((*buffer - bstart) &lt; bufsize);</span>
+<span class="lineNum">     117 </span>                :<span class="lineCov">       8065 :                                                                         i++) {</span>
+<span class="lineNum">     118 </span>                :<span class="lineCov">       8065 :                         **buffer = c;</span>
+<span class="lineNum">     119 </span>                :<span class="lineCov">       8065 :                         *buffer += 1;</span>
 <span class="lineNum">     120 </span>                :            :                 }
 <span class="lineNum">     121 </span>                :            :         }
 <span class="lineNum">     122 </span>                :            : 
-<span class="lineNum">     123 </span>                :<span class="lineCov">       1069 :         return 0;</span>
+<span class="lineNum">     123 </span>                :<span class="lineCov">      14610 :         return 0;</span>
 <span class="lineNum">     124 </span>                :            : }
 <span class="lineNum">     125 </span>                :            : 
 <a name="126"><span class="lineNum">     126 </span>                :            : </a>
 <span class="lineNum">     127 </span>                :            : static int
-<span class="lineNum">     128 </span>                :<span class="lineCov">       1200 : print_format(char **buffer, size_t bufsize, const char *format, void *var)</span>
+<span class="lineNum">     128 </span>                :<span class="lineCov">      16108 : print_format(char **buffer, size_t bufsize, const char *format, void *var)</span>
 <span class="lineNum">     129 </span>                :            : {
 <span class="lineNum">     130 </span>                :            :         char *start;
-<span class="lineNum">     131 </span>                :<span class="lineCov">       1200 :         unsigned int i = 0, length_mod = sizeof(int);</span>
-<span class="lineNum">     132 </span>                :<span class="lineCov">       1200 :         unsigned long value = 0;</span>
+<span class="lineNum">     131 </span>                :<span class="lineCov">      16108 :         unsigned int i = 0, length_mod = sizeof(int);</span>
+<span class="lineNum">     132 </span>                :<span class="lineCov">      16108 :         unsigned long value = 0;</span>
 <span class="lineNum">     133 </span>                :            :         unsigned long signBit;
 <span class="lineNum">     134 </span>                :            :         char *form, sizec[32];
-<span class="lineNum">     135 </span>                :<span class="lineCov">       1200 :         char sign = ' ';</span>
-<span class="lineNum">     136 </span>                :<span class="lineCov">       1200 :         bool upper = false;</span>
+<span class="lineNum">     135 </span>                :<span class="lineCov">      16108 :         char sign = ' ';</span>
+<span class="lineNum">     136 </span>                :<span class="lineCov">      16108 :         bool upper = false;</span>
 <span class="lineNum">     137 </span>                :            : 
-<span class="lineNum">     138 </span>                :<span class="lineCov">       1200 :         form  = (char *) format;</span>
-<span class="lineNum">     139 </span>                :<span class="lineCov">       1200 :         start = *buffer;</span>
+<span class="lineNum">     138 </span>                :<span class="lineCov">      16108 :         form  = (char *) format;</span>
+<span class="lineNum">     139 </span>                :<span class="lineCov">      16108 :         start = *buffer;</span>
 <span class="lineNum">     140 </span>                :            : 
-<span class="lineNum">     141 </span>                :<span class="lineCov">       1200 :         form++;</span>
-<span class="lineNum">     142 </span>[<span class="branchCov" title="Branch 0 was taken 1122 times"> + </span><span class="branchCov" title="Branch 1 was taken 78 times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 1122 times"> + </span>]:<span class="lineCov">       1200 :         if(*form == '0' || *form == '.') {</span>
-<span class="lineNum">     143 </span>                :<span class="lineCov">         78 :                 sign = '0';</span>
-<span class="lineNum">     144 </span>                :<span class="lineCov">       1200 :                 form++;</span>
+<span class="lineNum">     141 </span>                :<span class="lineCov">      16108 :         form++;</span>
+<span class="lineNum">     142 </span>[<span class="branchCov" title="Branch 0 was taken 12409 times"> + </span><span class="branchCov" title="Branch 1 was taken 3699 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 6 times"> + </span><span class="branchCov" title="Branch 3 was taken 12419 times"> + </span>]:<span class="lineCov">      16108 :         if(*form == '0' || *form == '.') {</span>
+<span class="lineNum">     143 </span>                :<span class="lineCov">       3689 :                 sign = '0';</span>
+<span class="lineNum">     144 </span>                :<span class="lineCov">      16108 :                 form++;</span>
 <span class="lineNum">     145 </span>                :            :         }
 <span class="lineNum">     146 </span>                :            : 
-<span class="lineNum">     147 </span>[<span class="branchCov" title="Branch 0 was taken 1888 times"> + </span><span class="branchCov" title="Branch 1 was taken 1200 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 1888 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">       3088 :         while ((*form != '\0') &amp;&amp; ((*buffer - start) &lt; bufsize)) {</span>
-<span class="lineNum">     148 </span>  [<span class="branchCov" title="Branch 0 was taken 819 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 208 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span> :<span class="lineCov">       1888 :                 switch(*form) {</span>
-<span class="lineNum">         </span><span class="branchCov" title="Branch 4 was taken 42 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken 131 times"> + </span><span class="branchCov" title="Branch 7 was taken 544 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span> 
-<span class="lineNum">         </span>         <span class="branchCov" title="Branch 9 was taken 138 times"> + </span><span class="branchCov" title="Branch 10 was taken 6 times"> + </span>]
+<span class="lineNum">     147 </span>[<span class="branchCov" title="Branch 0 was taken 25863 times"> + </span><span class="branchCov" title="Branch 1 was taken 16141 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 25847 times"> + </span><span class="branchCov" title="Branch 3 was taken 23 times"> + </span>]:<span class="lineCov">      42004 :         while ((*form != '\0') &amp;&amp; ((*buffer - start) &lt; bufsize)) {</span>
+<span class="lineNum">     148 </span>  [<span class="branchCov" title="Branch 0 was taken 8973 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 5388 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span> :<span class="lineCov">      25847 :                 switch(*form) {</span>
+<span class="lineNum">         </span><span class="branchCov" title="Branch 4 was taken 209 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span><span class="branchCov" title="Branch 6 was taken 1652 times"> + </span><span class="branchCov" title="Branch 7 was taken 4992 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span> 
+<span class="lineNum">         </span>         <span class="branchCov" title="Branch 9 was taken 4754 times"> + </span><span class="branchCov" title="Branch 10 was taken 6 times"> + </span>]
 <span class="lineNum">     149 </span>                :            :                         case 'u':
 <span class="lineNum">     150 </span>                :            :                         case 'd':
 <span class="lineNum">     151 </span>                :            :                         case 'i':
-<span class="lineNum">     152 </span>                :<span class="lineCov">        819 :                                 sizec[i] = '\0';</span>
-<span class="lineNum">     153 </span>                :<span class="lineCov">        819 :                                 value = (unsigned long) var;</span>
-<span class="lineNum">     154 </span>                :<span class="lineCov">        819 :                                 signBit = 0x1ULL &lt;&lt; (length_mod * 8 - 1);</span>
-<span class="lineNum">     155 </span>[<span class="branchCov" title="Branch 0 was taken 413 times"> + </span><span class="branchCov" title="Branch 1 was taken 406 times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 413 times"> + </span>]:<span class="lineCov">        819 :                                 if ((*form != 'u') &amp;&amp; (signBit &amp; value)) {</span>
-<span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 :                                         **buffer = '-';</span>
-<span class="lineNum">     157 </span>                :<span class="lineNoCov">          0 :                                         *buffer += 1;</span>
-<span class="lineNum">     158 </span>                :<span class="lineNoCov">          0 :                                         value = (-(unsigned long)value) &amp; convert[length_mod];</span>
+<span class="lineNum">     152 </span>                :<span class="lineCov">       8973 :                                 sizec[i] = '\0';</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">       8973 :                                 value = (unsigned long) var;</span>
+<span class="lineNum">     154 </span>                :<span class="lineCov">       8973 :                                 signBit = 0x1ULL &lt;&lt; (length_mod * 8 - 1);</span>
+<span class="lineNum">     155 </span>[<span class="branchCov" title="Branch 0 was taken 5350 times"> + </span><span class="branchCov" title="Branch 1 was taken 3623 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 5348 times"> + </span>]:<span class="lineCov">       8973 :                                 if ((*form != 'u') &amp;&amp; (signBit &amp; value)) {</span>
+<span class="lineNum">     156 </span>                :<span class="lineCov">          2 :                                         **buffer = '-';</span>
+<span class="lineNum">     157 </span>                :<span class="lineCov">          2 :                                         *buffer += 1;</span>
+<span class="lineNum">     158 </span>                :<span class="lineCov">          2 :                                         value = (-(unsigned long)value) &amp; convert[length_mod];</span>
 <span class="lineNum">     159 </span>                :            :                                 }
-<span class="lineNum">     160 </span>                :<span class="lineCov">        819 :                                 print_fill(buffer, bufsize - (*buffer - start),</span>
+<span class="lineNum">     160 </span>                :<span class="lineCov">       8973 :                                 print_fill(buffer, bufsize - (*buffer - start),</span>
 <span class="lineNum">     161 </span>                :            :                                                 sizec, value, 10, sign, 0);
-<span class="lineNum">     162 </span>                :<span class="lineCov">        819 :                                 print_itoa(buffer, bufsize - (*buffer - start),</span>
+<span class="lineNum">     162 </span>                :<span class="lineCov">       8971 :                                 print_itoa(buffer, bufsize - (*buffer - start),</span>
 <span class="lineNum">     163 </span>                :            :                                                         value, 10, upper);
-<span class="lineNum">     164 </span>                :<span class="lineCov">        819 :                                 break;</span>
+<span class="lineNum">     164 </span>                :<span class="lineCov">       9082 :                                 break;</span>
 <span class="lineNum">     165 </span>                :            :                         case 'X':
-<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :                                 upper = true;</span>
+<span class="lineNum">     166 </span>                :<span class="lineCov">          2 :                                 upper = true;</span>
 <span class="lineNum">     167 </span>                :            :                         case 'x':
-<span class="lineNum">     168 </span>                :<span class="lineCov">        208 :                                 sizec[i] = '\0';</span>
-<span class="lineNum">     169 </span>                :<span class="lineCov">        208 :                                 value = (unsigned long) var &amp; convert[length_mod];</span>
-<span class="lineNum">     170 </span>                :<span class="lineCov">        208 :                                 print_fill(buffer, bufsize - (*buffer - start),</span>
+<span class="lineNum">     168 </span>                :<span class="lineCov">       5390 :                                 sizec[i] = '\0';</span>
+<span class="lineNum">     169 </span>                :<span class="lineCov">       5390 :                                 value = (unsigned long) var &amp; convert[length_mod];</span>
+<span class="lineNum">     170 </span>                :<span class="lineCov">       5390 :                                 print_fill(buffer, bufsize - (*buffer - start),</span>
 <span class="lineNum">     171 </span>                :            :                                                 sizec, value, 16, sign, 0);
-<span class="lineNum">     172 </span>                :<span class="lineCov">        208 :                                 print_itoa(buffer, bufsize - (*buffer - start),</span>
+<span class="lineNum">     172 </span>                :<span class="lineCov">       5325 :                                 print_itoa(buffer, bufsize - (*buffer - start),</span>
 <span class="lineNum">     173 </span>                :            :                                                         value, 16, upper);
-<span class="lineNum">     174 </span>                :<span class="lineCov">        208 :                                 break;</span>
+<span class="lineNum">     174 </span>                :<span class="lineCov">       5330 :                                 break;</span>
 <span class="lineNum">     175 </span>                :            :                         case 'O':
 <span class="lineNum">     176 </span>                :            :                         case 'o':
 <span class="lineNum">     177 </span>                :<span class="lineNoCov">          0 :                                 sizec[i] = '\0';</span>
@@ -255,14 +255,14 @@
 <span class="lineNum">     182 </span>                :            :                                                         value, 8, upper);
 <span class="lineNum">     183 </span>                :<span class="lineNoCov">          0 :                                 break;</span>
 <span class="lineNum">     184 </span>                :            :                         case 'p':
-<span class="lineNum">     185 </span>                :<span class="lineCov">         42 :                                 sizec[i] = '\0';</span>
-<span class="lineNum">     186 </span>                :<span class="lineCov">         42 :                                 print_fill(buffer, bufsize - (*buffer - start),</span>
+<span class="lineNum">     185 </span>                :<span class="lineCov">        209 :                                 sizec[i] = '\0';</span>
+<span class="lineNum">     186 </span>                :<span class="lineCov">        209 :                                 print_fill(buffer, bufsize - (*buffer - start),</span>
 <span class="lineNum">     187 </span>                :            :                                         sizec, (unsigned long) var, 16, ' ', 2);
-<span class="lineNum">     188 </span>                :<span class="lineCov">         42 :                                 print_str(buffer, bufsize - (*buffer - start),</span>
+<span class="lineNum">     188 </span>                :<span class="lineCov">        209 :                                 print_str(buffer, bufsize - (*buffer - start),</span>
 <span class="lineNum">     189 </span>                :            :                                                                         &quot;0x&quot;);
-<span class="lineNum">     190 </span>                :<span class="lineCov">         42 :                                 print_itoa(buffer, bufsize - (*buffer - start),</span>
+<span class="lineNum">     190 </span>                :<span class="lineCov">        209 :                                 print_itoa(buffer, bufsize - (*buffer - start),</span>
 <span class="lineNum">     191 </span>                :            :                                                 (unsigned long) var, 16, upper);
-<span class="lineNum">     192 </span>                :<span class="lineCov">         42 :                                 break;</span>
+<span class="lineNum">     192 </span>                :<span class="lineCov">        209 :                                 break;</span>
 <span class="lineNum">     193 </span>                :            :                         case 'c':
 <span class="lineNum">     194 </span>                :<span class="lineNoCov">          0 :                                 sizec[i] = '\0';</span>
 <span class="lineNum">     195 </span>                :<span class="lineNoCov">          0 :                                 print_fill(buffer, bufsize - (*buffer - start),</span>
@@ -271,21 +271,21 @@
 <span class="lineNum">     198 </span>                :<span class="lineNoCov">          0 :                                 *buffer += 1;</span>
 <span class="lineNum">     199 </span>                :<span class="lineNoCov">          0 :                                 break;</span>
 <span class="lineNum">     200 </span>                :            :                         case 's':
-<span class="lineNum">     201 </span>                :<span class="lineCov">        131 :                                 sizec[i] = '\0';</span>
-<span class="lineNum">     202 </span>                :<span class="lineCov">        131 :                                 print_str_fill(buffer,</span>
-<span class="lineNum">     203 </span>                :<span class="lineCov">        131 :                                         bufsize - (*buffer - start), sizec,</span>
+<span class="lineNum">     201 </span>                :<span class="lineCov">       1652 :                                 sizec[i] = '\0';</span>
+<span class="lineNum">     202 </span>                :<span class="lineCov">       1652 :                                 print_str_fill(buffer,</span>
+<span class="lineNum">     203 </span>                :<span class="lineCov">       1652 :                                         bufsize - (*buffer - start), sizec,</span>
 <span class="lineNum">     204 </span>                :            :                                                         (char *) var, ' ');
 <span class="lineNum">     205 </span>                :            : 
-<span class="lineNum">     206 </span>                :<span class="lineCov">        131 :                                 print_str(buffer, bufsize - (*buffer - start),</span>
+<span class="lineNum">     206 </span>                :<span class="lineCov">       1652 :                                 print_str(buffer, bufsize - (*buffer - start),</span>
 <span class="lineNum">     207 </span>                :            :                                                                 (char *) var);
-<span class="lineNum">     208 </span>                :<span class="lineCov">        131 :                                 break;</span>
+<span class="lineNum">     208 </span>                :<span class="lineCov">       1652 :                                 break;</span>
 <span class="lineNum">     209 </span>                :            :                         case 'l':
-<span class="lineNum">     210 </span>                :<span class="lineCov">        544 :                                 form++;</span>
-<span class="lineNum">     211 </span>        [<span class="branchCov" title="Branch 0 was taken 352 times"> + </span><span class="branchCov" title="Branch 1 was taken 192 times"> + </span>]:<span class="lineCov">        544 :                                 if(*form == 'l') {</span>
+<span class="lineNum">     210 </span>                :<span class="lineCov">       4992 :                                 form++;</span>
+<span class="lineNum">     211 </span>        [<span class="branchCov" title="Branch 0 was taken 3439 times"> + </span><span class="branchCov" title="Branch 1 was taken 1553 times"> + </span>]:<span class="lineCov">       4992 :                                 if(*form == 'l') {</span>
 <span class="lineNum">     212 </span>                :            :                                         length_mod = sizeof(long long int);
 <span class="lineNum">     213 </span>                :            :                                 } else {
-<span class="lineNum">     214 </span>                :<span class="lineCov">        352 :                                         form--;</span>
-<span class="lineNum">     215 </span>                :<span class="lineCov">        352 :                                         length_mod = sizeof(long int);</span>
+<span class="lineNum">     214 </span>                :<span class="lineCov">       3439 :                                         form--;</span>
+<span class="lineNum">     215 </span>                :<span class="lineCov">       3439 :                                         length_mod = sizeof(long int);</span>
 <span class="lineNum">     216 </span>                :            :                                 }
 <span class="lineNum">     217 </span>                :            :                                 break;
 <span class="lineNum">     218 </span>                :            :                         case 'h':
@@ -301,14 +301,14 @@
 <span class="lineNum">     228 </span>                :            :                                 length_mod = sizeof(size_t);
 <span class="lineNum">     229 </span>                :            :                                 break;
 <span class="lineNum">     230 </span>                :            :                         default:
-<span class="lineNum">     231 </span>        [<span class="branchCov" title="Branch 0 was taken 138 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        138 :                                 if(*form &gt;= '0' &amp;&amp; *form &lt;= '9')</span>
-<span class="lineNum">     232 </span>                :<span class="lineCov">        138 :                                         sizec[i++] = *form;</span>
+<span class="lineNum">     231 </span>        [<span class="branchCov" title="Branch 0 was taken 4676 times"> + </span><span class="branchCov" title="Branch 1 was taken 78 times"> + </span>]:<span class="lineCov">       4754 :                                 if(*form &gt;= '0' &amp;&amp; *form &lt;= '9')</span>
+<span class="lineNum">     232 </span>                :<span class="lineCov">       4676 :                                         sizec[i++] = *form;</span>
 <span class="lineNum">     233 </span>                :            :                 }
-<span class="lineNum">     234 </span>                :<span class="lineCov">       1888 :                 form++;</span>
+<span class="lineNum">     234 </span>                :<span class="lineCov">      25896 :                 form++;</span>
 <span class="lineNum">     235 </span>                :            :         }
 <span class="lineNum">     236 </span>                :            : 
 <span class="lineNum">     237 </span>                :            :         
-<span class="lineNum">     238 </span>                :<span class="lineCov">       1200 :         return (long int) (*buffer - start);</span>
+<span class="lineNum">     238 </span>                :<span class="lineCov">      16157 :         return (long int) (*buffer - start);</span>
 <span class="lineNum">     239 </span>                :            : }
 <span class="lineNum">     240 </span>                :            : 
 <span class="lineNum">     241 </span>                :            : 
@@ -317,61 +317,61 @@
 <span class="lineNum">     244 </span>                :            :  * BUG: buffer size checking does not fully work yet
 <a name="245"><span class="lineNum">     245 </span>                :            :  */</a>
 <span class="lineNum">     246 </span>                :            : int
-<span class="lineNum">     247 </span>                :<span class="lineCov">        763 : vsnprintf(char *buffer, size_t bufsize, const char *format, va_list arg)</span>
+<span class="lineNum">     247 </span>                :<span class="lineCov">       7431 : vsnprintf(char *buffer, size_t bufsize, const char *format, va_list arg)</span>
 <span class="lineNum">     248 </span>                :            : {
 <span class="lineNum">     249 </span>                :            :         char *ptr, *bstart;
 <span class="lineNum">     250 </span>                :            : 
-<span class="lineNum">     251 </span>                :<span class="lineCov">        763 :         bstart = buffer;</span>
-<span class="lineNum">     252 </span>                :<span class="lineCov">        763 :         ptr = (char *) format;</span>
+<span class="lineNum">     251 </span>                :<span class="lineCov">       7431 :         bstart = buffer;</span>
+<span class="lineNum">     252 </span>                :<span class="lineCov">       7431 :         ptr = (char *) format;</span>
 <span class="lineNum">     253 </span>                :            : 
 <span class="lineNum">     254 </span>                :            :         /*
 <span class="lineNum">     255 </span>                :            :          * Return from here if size passed is zero, otherwise we would
 <span class="lineNum">     256 </span>                :            :          * overrun buffer while setting NULL character at the end.
 <span class="lineNum">     257 </span>                :            :          */
-<span class="lineNum">     258 </span>[<span class="branchCov" title="Branch 0 was taken 763 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 763 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        763 :         if (!buffer || !bufsize)</span>
+<span class="lineNum">     258 </span>[<span class="branchCov" title="Branch 0 was taken 7410 times"> + </span><span class="branchCov" title="Branch 1 was taken 36 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 7544 times"> + </span><span class="branchCov" title="Branch 3 was taken 9 times"> + </span>]:<span class="lineCov">       7431 :         if (!buffer || !bufsize)</span>
 <span class="lineNum">     259 </span>                :            :                 return 0;
 <span class="lineNum">     260 </span>                :            : 
 <span class="lineNum">     261 </span>                :            :         /* Leave one space for NULL character */
-<span class="lineNum">     262 </span>                :<span class="lineCov">        763 :         bufsize--;</span>
+<span class="lineNum">     262 </span>                :<span class="lineCov">       7544 :         bufsize--;</span>
 <span class="lineNum">     263 </span>                :            : 
-<span class="lineNum">     264 </span>[<span class="branchCov" title="Branch 0 was taken 12502 times"> + </span><span class="branchCov" title="Branch 1 was taken 763 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 12502 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">      13265 :         while(*ptr != '\0' &amp;&amp; (buffer - bstart) &lt; bufsize)</span>
+<span class="lineNum">     264 </span>[<span class="branchCov" title="Branch 0 was taken 131975 times"> + </span><span class="branchCov" title="Branch 1 was taken 7536 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 132027 times"> + </span><span class="branchCov" title="Branch 3 was taken 26 times"> + </span>]:<span class="lineCov">     139511 :         while(*ptr != '\0' &amp;&amp; (buffer - bstart) &lt; bufsize)</span>
 <span class="lineNum">     265 </span>                :            :         {
-<span class="lineNum">     266 </span>        [<span class="branchCov" title="Branch 0 was taken 1200 times"> + </span><span class="branchCov" title="Branch 1 was taken 11302 times"> + </span>]:<span class="lineCov">      12502 :                 if(*ptr == '%') {</span>
+<span class="lineNum">     266 </span>        [<span class="branchCov" title="Branch 0 was taken 15771 times"> + </span><span class="branchCov" title="Branch 1 was taken 116256 times"> + </span>]:<span class="lineCov">     132027 :                 if(*ptr == '%') {</span>
 <span class="lineNum">     267 </span>                :            :                         char formstr[20];
 <span class="lineNum">     268 </span>                :            :                         int i=0;
 <span class="lineNum">     269 </span>                :            :                         
 <span class="lineNum">     270 </span>                :            :                         do {
-<span class="lineNum">     271 </span>                :<span class="lineCov">       2158 :                                 formstr[i] = *ptr;</span>
-<span class="lineNum">     272 </span>                :<span class="lineCov">       2158 :                                 ptr++;</span>
-<span class="lineNum">     273 </span>                :<span class="lineCov">       2158 :                                 i++;</span>
-<span class="lineNum">     274 </span>[<span class="branchCov" title="Branch 0 was taken 1745 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 1339 times"> + </span><span class="branchCov" title="Branch 3 was taken 406 times"> + </span>]:<span class="lineCov">       2703 :                         } while(!(*ptr == 'd' || *ptr == 'i' || *ptr == 'u' || *ptr == 'x' || *ptr == 'X'</span>
-<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 1131 times"> + </span><span class="branchCov" title="Branch 5 was taken 208 times"> + </span>][<span class="branchCov" title="Branch 6 was taken 1131 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]
-<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 8 was taken 958 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
-<span class="lineNum">     275 </span>[<span class="branchCov" title="Branch 0 was taken 1089 times"> + </span><span class="branchCov" title="Branch 1 was taken 42 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 1089 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">       1131 :                                                 || *ptr == 'p' || *ptr == 'c' || *ptr == 's' || *ptr == '%'</span>
-<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 958 times"> + </span><span class="branchCov" title="Branch 5 was taken 131 times"> + </span>][<span class="branchCov" title="Branch 6 was taken 958 times"> + </span><span class="branchNoCov" title="Branch 7 was not taken"> - </span>]
-<span class="lineNum">     276 </span>[<span class="branchCov" title="Branch 0 was taken 1745 times"> + </span><span class="branchCov" title="Branch 1 was taken 413 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 958 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">       3116 :                                                 || *ptr == 'O' || *ptr == 'o' )); </span>
-<span class="lineNum">     277 </span>                :<span class="lineCov">       1200 :                         formstr[i++] = *ptr;</span>
-<span class="lineNum">     278 </span>                :<span class="lineCov">       1200 :                         formstr[i] = '\0';</span>
-<span class="lineNum">     279 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1200 times"> + </span>]:<span class="lineCov">       1200 :                         if(*ptr == '%') {</span>
+<span class="lineNum">     271 </span>                :<span class="lineCov">      30600 :                                 formstr[i] = *ptr;</span>
+<span class="lineNum">     272 </span>                :<span class="lineCov">      30600 :                                 ptr++;</span>
+<span class="lineNum">     273 </span>                :<span class="lineCov">      30600 :                                 i++;</span>
+<span class="lineNum">     274 </span>[<span class="branchCov" title="Branch 0 was taken 25450 times"> + </span><span class="branchCov" title="Branch 1 was taken 231 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 21884 times"> + </span><span class="branchCov" title="Branch 3 was taken 3566 times"> + </span>]:<span class="lineCov">      40498 :                         } while(!(*ptr == 'd' || *ptr == 'i' || *ptr == 'u' || *ptr == 'x' || *ptr == 'X'</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 16688 times"> + </span><span class="branchCov" title="Branch 5 was taken 5196 times"> + </span>][<span class="branchCov" title="Branch 6 was taken 16680 times"> + </span><span class="branchCov" title="Branch 7 was taken 8 times"> + </span>]
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 8 was taken 14829 times"> + </span><span class="branchNoCov" title="Branch 9 was not taken"> - </span>]
+<span class="lineNum">     275 </span>[<span class="branchCov" title="Branch 0 was taken 16477 times"> + </span><span class="branchCov" title="Branch 1 was taken 203 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 16472 times"> + </span><span class="branchCov" title="Branch 3 was taken 5 times"> + </span>]:<span class="lineCov">      16680 :                                                 || *ptr == 'p' || *ptr == 'c' || *ptr == 's' || *ptr == '%'</span>
+<span class="lineNum">         </span>[<span class="branchCov" title="Branch 4 was taken 14824 times"> + </span><span class="branchCov" title="Branch 5 was taken 1648 times"> + </span>][<span class="branchCov" title="Branch 6 was taken 14812 times"> + </span><span class="branchCov" title="Branch 7 was taken 12 times"> + </span>]
+<span class="lineNum">     276 </span>[<span class="branchCov" title="Branch 0 was taken 25681 times"> + </span><span class="branchCov" title="Branch 1 was taken 4919 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 14817 times"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">      45412 :                                                 || *ptr == 'O' || *ptr == 'o' )); </span>
+<span class="lineNum">     277 </span>                :<span class="lineCov">      15771 :                         formstr[i++] = *ptr;</span>
+<span class="lineNum">     278 </span>                :<span class="lineCov">      15771 :                         formstr[i] = '\0';</span>
+<span class="lineNum">     279 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 15771 times"> + </span>]:<span class="lineCov">      15771 :                         if(*ptr == '%') {</span>
 <span class="lineNum">     280 </span>                :<span class="lineNoCov">          0 :                                 *buffer++ = '%';</span>
 <span class="lineNum">     281 </span>                :            :                         } else {
-<span class="lineNum">     282 </span>                :<span class="lineCov">       1200 :                                 print_format(&amp;buffer,</span>
-<span class="lineNum">     283 </span>                :<span class="lineCov">       1200 :                                         bufsize - (buffer - bstart),</span>
+<span class="lineNum">     282 </span>                :<span class="lineCov">      15771 :                                 print_format(&amp;buffer,</span>
+<span class="lineNum">     283 </span>                :<span class="lineCov">      15771 :                                         bufsize - (buffer - bstart),</span>
 <span class="lineNum">     284 </span>                :            :                                         formstr, va_arg(arg, void *));
 <span class="lineNum">     285 </span>                :            :                         }
-<span class="lineNum">     286 </span>                :<span class="lineCov">       1200 :                         ptr++;</span>
+<span class="lineNum">     286 </span>                :<span class="lineCov">      15711 :                         ptr++;</span>
 <span class="lineNum">     287 </span>                :            :                 } else {
 <span class="lineNum">     288 </span>                :            : 
-<span class="lineNum">     289 </span>                :<span class="lineCov">      11302 :                         *buffer = *ptr;</span>
+<span class="lineNum">     289 </span>                :<span class="lineCov">     116256 :                         *buffer = *ptr;</span>
 <span class="lineNum">     290 </span>                :            : 
-<span class="lineNum">     291 </span>                :<span class="lineCov">      11302 :                         buffer++;</span>
-<span class="lineNum">     292 </span>                :<span class="lineCov">      12502 :                         ptr++;</span>
+<span class="lineNum">     291 </span>                :<span class="lineCov">     116256 :                         buffer++;</span>
+<span class="lineNum">     292 </span>                :<span class="lineCov">     131967 :                         ptr++;</span>
 <span class="lineNum">     293 </span>                :            :                 }
 <span class="lineNum">     294 </span>                :            :         }
 <span class="lineNum">     295 </span>                :            :         
-<span class="lineNum">     296 </span>                :<span class="lineCov">        763 :         *buffer = '\0';</span>
+<span class="lineNum">     296 </span>                :<span class="lineCov">       7484 :         *buffer = '\0';</span>
 <span class="lineNum">     297 </span>                :            : 
-<span class="lineNum">     298 </span>                :<span class="lineCov">        763 :         return (buffer - bstart);</span>
+<span class="lineNum">     298 </span>                :<span class="lineCov">       7484 :         return (buffer - bstart);</span>
 <span class="lineNum">     299 </span>                :            : }
 </pre>
       </td>

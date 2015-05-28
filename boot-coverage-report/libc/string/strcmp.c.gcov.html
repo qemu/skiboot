@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -49,9 +49,9 @@
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">5</td>
             <td class="headerCovTableEntry">6</td>
-            <td class="headerCovTableEntryMed">83.3 %</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -85,16 +85,16 @@
 <span class="lineNum">      14 </span>                :            : 
 <a name="15"><span class="lineNum">      15 </span>                :            : </a>
 <span class="lineNum">      16 </span>                :            : int
-<span class="lineNum">      17 </span>                :<span class="lineCov">      14508 : strcmp(const char *s1, const char *s2)</span>
+<span class="lineNum">      17 </span>                :<span class="lineCov">     187705 : strcmp(const char *s1, const char *s2)</span>
 <span class="lineNum">      18 </span>                :            : {
-<span class="lineNum">      19 </span>[<span class="branchCov" title="Branch 0 was taken 29604 times"> + </span><span class="branchCov" title="Branch 1 was taken 1098 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 29604 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">      30702 :         while (*s1 != 0 &amp;&amp; *s2 != 0) {</span>
-<span class="lineNum">      20 </span>        [<span class="branchCov" title="Branch 0 was taken 16194 times"> + </span><span class="branchCov" title="Branch 1 was taken 13410 times"> + </span>]:<span class="lineCov">      29604 :                 if (*s1 != *s2)</span>
+<span class="lineNum">      19 </span>[<span class="branchCov" title="Branch 0 was taken 466229 times"> + </span><span class="branchCov" title="Branch 1 was taken 8690 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 466029 times"> + </span><span class="branchCov" title="Branch 3 was taken 200 times"> + </span>]:<span class="lineCov">     474919 :         while (*s1 != 0 &amp;&amp; *s2 != 0) {</span>
+<span class="lineNum">      20 </span>        [<span class="branchCov" title="Branch 0 was taken 287214 times"> + </span><span class="branchCov" title="Branch 1 was taken 178815 times"> + </span>]:<span class="lineCov">     466029 :                 if (*s1 != *s2)</span>
 <span class="lineNum">      21 </span>                :            :                         break;
-<span class="lineNum">      22 </span>                :<span class="lineCov">      16194 :                 s1 += 1;</span>
-<span class="lineNum">      23 </span>                :<span class="lineCov">      16194 :                 s2 += 1;</span>
+<span class="lineNum">      22 </span>                :<span class="lineCov">     287214 :                 s1 += 1;</span>
+<span class="lineNum">      23 </span>                :<span class="lineCov">     287214 :                 s2 += 1;</span>
 <span class="lineNum">      24 </span>                :            :         }
 <span class="lineNum">      25 </span>                :            : 
-<span class="lineNum">      26 </span>                :<span class="lineCov">      14508 :         return *s1 - *s2;</span>
+<span class="lineNum">      26 </span>                :<span class="lineCov">     187705 :         return *s1 - *s2;</span>
 <span class="lineNum">      27 </span>                :            : }
 <span class="lineNum">      28 </span>                :            : 
 </pre>

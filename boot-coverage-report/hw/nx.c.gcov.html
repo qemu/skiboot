@@ -31,13 +31,13 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">3</td>
             <td class="headerCovTableEntry">6</td>
-            <td class="headerCovTableEntryLo">50.0 %</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -49,9 +49,9 @@
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntry">2</td>
-            <td class="headerCovTableEntryLo">50.0 %</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -93,16 +93,16 @@
 <span class="lineNum">      22 </span>                :            : #include &lt;cpu.h&gt;
 <a name="23"><span class="lineNum">      23 </span>                :            : #include &lt;nx.h&gt;</a>
 <span class="lineNum">      24 </span>                :            : 
-<span class="lineNum">      25 </span>                :<span class="lineCov">          6 : void nx_init(void)</span>
+<span class="lineNum">      25 </span>                :<span class="lineCov">          8 : void nx_init(void)</span>
 <span class="lineNum">      26 </span>                :            : {
 <span class="lineNum">      27 </span>                :            :         struct dt_node *node;
 <span class="lineNum">      28 </span>                :            : 
-<span class="lineNum">      29 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         dt_for_each_compatible(dt_root, node, &quot;ibm,power-nx&quot;) {</span>
-<span class="lineNum">      30 </span>                :<span class="lineNoCov">          0 :                 nx_create_rng_node(node);</span>
-<span class="lineNum">      31 </span>                :<span class="lineNoCov">          0 :                 nx_create_crypto_node(node);</span>
-<span class="lineNum">      32 </span>                :<span class="lineNoCov">          0 :                 nx_create_842_node(node);</span>
+<span class="lineNum">      29 </span>        [<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchCov" title="Branch 2 was taken 8 times"> + </span>]:<span class="lineCov">         14 :         dt_for_each_compatible(dt_root, node, &quot;ibm,power-nx&quot;) {</span>
+<span class="lineNum">      30 </span>                :<span class="lineCov">          6 :                 nx_create_rng_node(node);</span>
+<span class="lineNum">      31 </span>                :<span class="lineCov">          6 :                 nx_create_crypto_node(node);</span>
+<span class="lineNum">      32 </span>                :<span class="lineCov">          6 :                 nx_create_842_node(node);</span>
 <span class="lineNum">      33 </span>                :            :         }
-<span class="lineNum">      34 </span>                :<span class="lineCov">          6 : }</span>
+<span class="lineNum">      34 </span>                :<span class="lineCov">          8 : }</span>
 </pre>
       </td>
     </tr>

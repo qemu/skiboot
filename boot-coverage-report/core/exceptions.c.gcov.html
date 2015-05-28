@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -119,12 +119,12 @@
 <span class="lineNum">      48 </span>                :<span class="lineNoCov">          0 :         _abort();</span>
 <a name="49"><span class="lineNum">      49 </span>                :            : }</a>
 <span class="lineNum">      50 </span>                :            : 
-<span class="lineNum">      51 </span>                :<span class="lineCov">          5 : static int64_t opal_register_exc_handler(uint64_t opal_exception __unused,</span>
+<span class="lineNum">      51 </span>                :<span class="lineCov">          8 : static int64_t opal_register_exc_handler(uint64_t opal_exception __unused,</span>
 <span class="lineNum">      52 </span>                :            :                                          uint64_t handler_address __unused,
 <span class="lineNum">      53 </span>                :            :                                          uint64_t glue_cache_line __unused)
 <span class="lineNum">      54 </span>                :            : {
 <span class="lineNum">      55 </span>                :            :         /* This interface is deprecated */
-<span class="lineNum">      56 </span>                :<span class="lineCov">          5 :         return OPAL_UNSUPPORTED;</span>
+<span class="lineNum">      56 </span>                :<span class="lineCov">          8 :         return OPAL_UNSUPPORTED;</span>
 <span class="lineNum">      57 </span>                :            : }
 <span class="lineNum">      58 </span>                :            : opal_call(OPAL_REGISTER_OPAL_EXCEPTION_HANDLER, opal_register_exc_handler, 3);
 <span class="lineNum">      59 </span>                :            : 

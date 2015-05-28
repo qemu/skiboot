@@ -31,18 +31,18 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">2</td>
             <td class="headerCovTableEntry">7</td>
-            <td class="headerCovTableEntryLo">28.6 %</td>
+            <td class="headerCovTableEntry">7</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntry">2</td>
-            <td class="headerCovTableEntryLo">50.0 %</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td></td>
@@ -120,9 +120,9 @@
 <span class="lineNum">      49 </span>                :            : struct mem_region;
 <a name="50"><span class="lineNum">      50 </span>                :            : extern struct mem_region *mem_region_next(struct mem_region *region);</a>
 <span class="lineNum">      51 </span>                :            : 
-<span class="lineNum">      52 </span>                :<span class="lineCov">       2586 : static inline bool is_rodata(const void *p)</span>
+<span class="lineNum">      52 </span>                :<span class="lineCov">      33047 : static inline bool is_rodata(const void *p)</span>
 <span class="lineNum">      53 </span>                :            : {
-<span class="lineNum">      54 </span>[<span class="branchCov" title="Branch 0 was taken 2154 times"> + </span><span class="branchCov" title="Branch 1 was taken 432 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 54 times"> + </span><span class="branchCov" title="Branch 3 was taken 2100 times"> + </span>]:<span class="lineCov">       2586 :         return ((const char *)p &gt;= __rodata_start &amp;&amp; (const char *)p &lt; __rodata_end);</span>
+<span class="lineNum">      54 </span>[<span class="branchCov" title="Branch 0 was taken 32615 times"> + </span><span class="branchCov" title="Branch 1 was taken 432 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 637 times"> + </span><span class="branchCov" title="Branch 3 was taken 31978 times"> + </span>]:<span class="lineCov">      33047 :         return ((const char *)p &gt;= __rodata_start &amp;&amp; (const char *)p &lt; __rodata_end);</span>
 <span class="lineNum">      55 </span>                :            : }
 <span class="lineNum">      56 </span>                :            : 
 <span class="lineNum">      57 </span>                :            : /* Debug descriptor. This structure is pointed to by the word at offset
@@ -212,14 +212,14 @@
 <span class="lineNum">     141 </span>                :            : {
 <a name="142"><span class="lineNum">     142 </span>                :            :         int left_zeros;</a>
 <span class="lineNum">     143 </span>                :            : 
-<span class="lineNum">     144 </span>                :<span class="lineNoCov">          0 :         asm volatile (&quot;cntlzd %0,%1&quot; : &quot;=r&quot; (left_zeros) : &quot;r&quot; (val));</span>
+<span class="lineNum">     144 </span>                :<span class="lineCov">        106 :         asm volatile (&quot;cntlzd %0,%1&quot; : &quot;=r&quot; (left_zeros) : &quot;r&quot; (val));</span>
 <span class="lineNum">     145 </span>                :            : 
-<span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :         return 63 - left_zeros;</span>
+<span class="lineNum">     146 </span>                :<span class="lineCov">        106 :         return 63 - left_zeros;</span>
 <span class="lineNum">     147 </span>                :            : }
 <span class="lineNum">     148 </span>                :            : 
-<span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 : static inline bool is_pow2(unsigned long val)</span>
+<span class="lineNum">     149 </span>                :<span class="lineCov">          4 : static inline bool is_pow2(unsigned long val)</span>
 <span class="lineNum">     150 </span>                :            : {
-<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :         return val == (1ul &lt;&lt; ilog2(val));</span>
+<span class="lineNum">     151 </span>                :<span class="lineCov">          4 :         return val == (1ul &lt;&lt; ilog2(val));</span>
 <span class="lineNum">     152 </span>                :            : }
 <span class="lineNum">     153 </span>                :            : 
 <span class="lineNum">     154 </span>                :            : #define lo32(x) ((x) &amp; 0xffffffff)
@@ -241,7 +241,7 @@
 <span class="lineNum">     170 </span>                :            : /* Clean the stray high bit which the FSP inserts: we only have 52 bits real */
 <span class="lineNum">     171 </span>                :            : static inline u64 cleanup_addr(u64 addr)
 <span class="lineNum">     172 </span>                :            : {
-<span class="lineNum">     173 </span>                :<span class="lineNoCov">          0 :         return addr &amp; ((1ULL &lt;&lt; 52) - 1);</span>
+<span class="lineNum">     173 </span>                :<span class="lineCov">        279 :         return addr &amp; ((1ULL &lt;&lt; 52) - 1);</span>
 <span class="lineNum">     174 </span>                :            : }
 <span class="lineNum">     175 </span>                :            : 
 <span class="lineNum">     176 </span>                :            : /* Start the kernel */

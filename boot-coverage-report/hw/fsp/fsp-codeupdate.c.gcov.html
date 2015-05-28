@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">150</td>
             <td class="headerCovTableEntry">507</td>
-            <td class="headerCovTableEntryLo">0.8 %</td>
+            <td class="headerCovTableEntryLo">29.6 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">19</td>
             <td class="headerCovTableEntry">41</td>
-            <td class="headerCovTableEntryLo">2.4 %</td>
+            <td class="headerCovTableEntryLo">46.3 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">43</td>
             <td class="headerCovTableEntry">247</td>
-            <td class="headerCovTableEntryLo">0.4 %</td>
+            <td class="headerCovTableEntryLo">17.4 %</td>
           </tr>
           <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -165,43 +165,43 @@
 <span class="lineNum">      94 </span>                :            :                 OPAL_PLATFORM_FIRMWARE,
 <a name="95"><span class="lineNum">      95 </span>                :            :                 OPAL_PREDICTIVE_ERR_FAULT_RECTIFY_REBOOT, OPAL_NA, NULL);</a>
 <span class="lineNum">      96 </span>                :            : 
-<span class="lineNum">      97 </span>                :<span class="lineNoCov">          0 : static inline void code_update_tce_map(uint32_t tce_offset,</span>
+<span class="lineNum">      97 </span>                :<span class="lineCov">          2 : static inline void code_update_tce_map(uint32_t tce_offset,</span>
 <span class="lineNum">      98 </span>                :            :                                        void *buffer, uint32_t size)
 <span class="lineNum">      99 </span>                :            : {
-<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 :         uint32_t tlen = ALIGN_UP(size, TCE_PSIZE);</span>
+<span class="lineNum">     100 </span>                :<span class="lineCov">          2 :         uint32_t tlen = ALIGN_UP(size, TCE_PSIZE);</span>
 <span class="lineNum">     101 </span>                :            : 
-<span class="lineNum">     102 </span>                :<span class="lineNoCov">          0 :         fsp_tce_map(PSI_DMA_CODE_UPD + tce_offset, buffer, tlen);</span>
-<a name="103"><span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     102 </span>                :<span class="lineCov">          2 :         fsp_tce_map(PSI_DMA_CODE_UPD + tce_offset, buffer, tlen);</span>
+<a name="103"><span class="lineNum">     103 </span>                :<span class="lineCov">          2 : }</span></a>
 <span class="lineNum">     104 </span>                :            : 
-<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 : static inline void code_update_tce_unmap(uint32_t size)</span>
+<span class="lineNum">     105 </span>                :<span class="lineCov">          2 : static inline void code_update_tce_unmap(uint32_t size)</span>
 <span class="lineNum">     106 </span>                :            : {
-<span class="lineNum">     107 </span>                :<span class="lineNoCov">          0 :         fsp_tce_unmap(PSI_DMA_CODE_UPD, size);</span>
-<a name="108"><span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     107 </span>                :<span class="lineCov">          2 :         fsp_tce_unmap(PSI_DMA_CODE_UPD, size);</span>
+<a name="108"><span class="lineNum">     108 </span>                :<span class="lineCov">          2 : }</span></a>
 <span class="lineNum">     109 </span>                :            : 
-<span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 : static inline void set_def_fw_version(uint32_t side)</span>
+<span class="lineNum">     110 </span>                :<span class="lineCov">          4 : static inline void set_def_fw_version(uint32_t side)</span>
 <span class="lineNum">     111 </span>                :            : {
-<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :         strncpy(fw_vpd[side].mi_keyword, FW_VERSION_UNKNOWN, MI_KEYWORD_SIZE);</span>
-<span class="lineNum">     113 </span>                :<span class="lineNoCov">          0 :         strncpy(fw_vpd[side].ext_fw_id, FW_VERSION_UNKNOWN, ML_KEYWORD_SIZE);</span>
-<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     112 </span>                :<span class="lineCov">          4 :         strncpy(fw_vpd[side].mi_keyword, FW_VERSION_UNKNOWN, MI_KEYWORD_SIZE);</span>
+<span class="lineNum">     113 </span>                :<span class="lineCov">          4 :         strncpy(fw_vpd[side].ext_fw_id, FW_VERSION_UNKNOWN, ML_KEYWORD_SIZE);</span>
+<span class="lineNum">     114 </span>                :<span class="lineCov">          4 : }</span>
 <span class="lineNum">     115 </span>                :            : 
 <span class="lineNum">     116 </span>                :            : /*
 <a name="117"><span class="lineNum">     117 </span>                :            :  * Get IPL side</a>
 <span class="lineNum">     118 </span>                :            :  */
-<span class="lineNum">     119 </span>                :<span class="lineNoCov">          0 : static void get_ipl_side(void)</span>
+<span class="lineNum">     119 </span>                :<span class="lineCov">          2 : static void get_ipl_side(void)</span>
 <span class="lineNum">     120 </span>                :            : {
 <span class="lineNum">     121 </span>                :            :         struct dt_node *iplp;
-<span class="lineNum">     122 </span>                :<span class="lineNoCov">          0 :         const char *side = NULL;</span>
+<span class="lineNum">     122 </span>                :<span class="lineCov">          2 :         const char *side = NULL;</span>
 <span class="lineNum">     123 </span>                :            : 
-<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :         iplp = dt_find_by_path(dt_root, &quot;ipl-params/ipl-params&quot;);</span>
-<span class="lineNum">     125 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (iplp)</span>
-<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 :                 side = dt_prop_get_def(iplp, &quot;cec-ipl-side&quot;, NULL);</span>
-<span class="lineNum">     127 </span>                :<span class="lineNoCov">          0 :         prlog(PR_NOTICE, &quot;CUPD: IPL SIDE = %s\n&quot;, side);</span>
+<span class="lineNum">     124 </span>                :<span class="lineCov">          2 :         iplp = dt_find_by_path(dt_root, &quot;ipl-params/ipl-params&quot;);</span>
+<span class="lineNum">     125 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (iplp)</span>
+<span class="lineNum">     126 </span>                :<span class="lineCov">          2 :                 side = dt_prop_get_def(iplp, &quot;cec-ipl-side&quot;, NULL);</span>
+<span class="lineNum">     127 </span>                :<span class="lineCov">          2 :         prlog(PR_NOTICE, &quot;CUPD: IPL SIDE = %s\n&quot;, side);</span>
 <span class="lineNum">     128 </span>                :            : 
-<span class="lineNum">     129 </span>[<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>][<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!side || !strcmp(side, &quot;temp&quot;))</span>
-<span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 :                 ipl_side = FW_IPL_SIDE_TEMP;</span>
+<span class="lineNum">     129 </span>[<span class="branchCov" title="Branch 3 was taken 1 time"> + </span><span class="branchCov" title="Branch 4 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!side || !strcmp(side, &quot;temp&quot;))</span>
+<span class="lineNum">     130 </span>                :<span class="lineCov">          1 :                 ipl_side = FW_IPL_SIDE_TEMP;</span>
 <span class="lineNum">     131 </span>                :            :         else
-<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 :                 ipl_side = FW_IPL_SIDE_PERM;</span>
-<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     132 </span>                :<span class="lineCov">          1 :                 ipl_side = FW_IPL_SIDE_PERM;</span>
+<span class="lineNum">     133 </span>                :<span class="lineCov">          2 : }</span>
 <span class="lineNum">     134 </span>                :            : 
 <span class="lineNum">     135 </span>                :            : 
 <span class="lineNum">     136 </span>                :            : /*
@@ -209,78 +209,78 @@
 <span class="lineNum">     138 </span>                :            :  * system parameters from FSP.
 <a name="139"><span class="lineNum">     139 </span>                :            :  */</a>
 <span class="lineNum">     140 </span>                :            : 
-<span class="lineNum">     141 </span>                :<span class="lineNoCov">          0 : static void inc_in_flight_param(void)</span>
+<span class="lineNum">     141 </span>                :<span class="lineCov">          4 : static void inc_in_flight_param(void)</span>
 <span class="lineNum">     142 </span>                :            : {
-<span class="lineNum">     143 </span>                :<span class="lineNoCov">          0 :         lock(&amp;flash_lock);</span>
-<span class="lineNum">     144 </span>                :<span class="lineNoCov">          0 :         in_flight_params++;</span>
-<span class="lineNum">     145 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;flash_lock);</span>
-<a name="146"><span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     143 </span>                :<span class="lineCov">          4 :         lock(&amp;flash_lock);</span>
+<span class="lineNum">     144 </span>                :<span class="lineCov">          4 :         in_flight_params++;</span>
+<span class="lineNum">     145 </span>                :<span class="lineCov">          4 :         unlock(&amp;flash_lock);</span>
+<a name="146"><span class="lineNum">     146 </span>                :<span class="lineCov">          4 : }</span></a>
 <span class="lineNum">     147 </span>                :            : 
-<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 : static void dec_in_flight_param(void)</span>
+<span class="lineNum">     148 </span>                :<span class="lineCov">          4 : static void dec_in_flight_param(void)</span>
 <span class="lineNum">     149 </span>                :            : {
-<span class="lineNum">     150 </span>                :<span class="lineNoCov">          0 :         lock(&amp;flash_lock);</span>
-<span class="lineNum">     151 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(in_flight_params &gt; 0);</span>
-<span class="lineNum">     152 </span>                :<span class="lineNoCov">          0 :         in_flight_params--;</span>
-<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;flash_lock);</span>
-<a name="154"><span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     150 </span>                :<span class="lineCov">          4 :         lock(&amp;flash_lock);</span>
+<span class="lineNum">     151 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :         assert(in_flight_params &gt; 0);</span>
+<span class="lineNum">     152 </span>                :<span class="lineCov">          4 :         in_flight_params--;</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">          4 :         unlock(&amp;flash_lock);</span>
+<a name="154"><span class="lineNum">     154 </span>                :<span class="lineCov">          4 : }</span></a>
 <span class="lineNum">     155 </span>                :            : 
-<span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 : static void got_code_update_policy(uint32_t param_id __unused, int err_len,</span>
+<span class="lineNum">     156 </span>                :<span class="lineCov">          2 : static void got_code_update_policy(uint32_t param_id __unused, int err_len,</span>
 <span class="lineNum">     157 </span>                :            :                                    void *data __unused)
 <span class="lineNum">     158 </span>                :            : {
-<span class="lineNum">     159 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (err_len != 4) {</span>
+<span class="lineNum">     159 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (err_len != 4) {</span>
 <span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_INIT), &quot;CUPD: Error &quot;</span>
 <span class="lineNum">     161 </span>                :            :                         &quot;retrieving code update policy: %d\n&quot;, err_len);
 <span class="lineNum">     162 </span>                :            :         } else
-<span class="lineNum">     163 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_NOTICE, &quot;CUPD: Code update policy from FSP: %d\n&quot;,</span>
+<span class="lineNum">     163 </span>                :<span class="lineCov">          2 :                 prlog(PR_NOTICE, &quot;CUPD: Code update policy from FSP: %d\n&quot;,</span>
 <span class="lineNum">     164 </span>                :            :                       update_policy);
 <span class="lineNum">     165 </span>                :            : 
-<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :         dec_in_flight_param();</span>
-<a name="167"><span class="lineNum">     167 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     166 </span>                :<span class="lineCov">          2 :         dec_in_flight_param();</span>
+<a name="167"><span class="lineNum">     167 </span>                :<span class="lineCov">          2 : }</span></a>
 <span class="lineNum">     168 </span>                :            : 
-<span class="lineNum">     169 </span>                :<span class="lineNoCov">          0 : static void get_code_update_policy(void)</span>
+<span class="lineNum">     169 </span>                :<span class="lineCov">          2 : static void get_code_update_policy(void)</span>
 <span class="lineNum">     170 </span>                :            : {
 <span class="lineNum">     171 </span>                :            :         int rc;
 <span class="lineNum">     172 </span>                :            : 
-<span class="lineNum">     173 </span>                :<span class="lineNoCov">          0 :         inc_in_flight_param();</span>
-<span class="lineNum">     174 </span>                :<span class="lineNoCov">          0 :         rc = fsp_get_sys_param(SYS_PARAM_FLASH_POLICY, &amp;update_policy, 4,</span>
+<span class="lineNum">     173 </span>                :<span class="lineCov">          2 :         inc_in_flight_param();</span>
+<span class="lineNum">     174 </span>                :<span class="lineCov">          2 :         rc = fsp_get_sys_param(SYS_PARAM_FLASH_POLICY, &amp;update_policy, 4,</span>
 <span class="lineNum">     175 </span>                :            :                                got_code_update_policy, NULL);
-<span class="lineNum">     176 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     176 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (rc) {</span>
 <span class="lineNum">     177 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_INIT),</span>
 <span class="lineNum">     178 </span>                :            :                         &quot;CUPD: Error %d queueing param request\n&quot;, rc);
 <span class="lineNum">     179 </span>                :<span class="lineNoCov">          0 :                 dec_in_flight_param();</span>
 <span class="lineNum">     180 </span>                :            :         }
-<a name="181"><span class="lineNum">     181 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<a name="181"><span class="lineNum">     181 </span>                :<span class="lineCov">          2 : }</span></a>
 <span class="lineNum">     182 </span>                :            : 
-<span class="lineNum">     183 </span>                :<span class="lineNoCov">          0 : static void got_platform_hmc_managed(uint32_t param_id __unused, int err_len,</span>
+<span class="lineNum">     183 </span>                :<span class="lineCov">          2 : static void got_platform_hmc_managed(uint32_t param_id __unused, int err_len,</span>
 <span class="lineNum">     184 </span>                :            :                                      void *data __unused)
 <span class="lineNum">     185 </span>                :            : {
-<span class="lineNum">     186 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (err_len != 4) {</span>
+<span class="lineNum">     186 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (err_len != 4) {</span>
 <span class="lineNum">     187 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_INIT), &quot;CUPD: Error &quot;</span>
 <span class="lineNum">     188 </span>                :            :                         &quot;retrieving hmc managed status: %d\n&quot;, err_len);
 <span class="lineNum">     189 </span>                :            :         } else
-<span class="lineNum">     190 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_NOTICE, &quot;CUPD: HMC managed status from FSP: %d\n&quot;,</span>
+<span class="lineNum">     190 </span>                :<span class="lineCov">          2 :                 prlog(PR_NOTICE, &quot;CUPD: HMC managed status from FSP: %d\n&quot;,</span>
 <span class="lineNum">     191 </span>                :            :                       hmc_managed);
 <span class="lineNum">     192 </span>                :            : 
-<span class="lineNum">     193 </span>                :<span class="lineNoCov">          0 :         dec_in_flight_param();</span>
-<a name="194"><span class="lineNum">     194 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">     193 </span>                :<span class="lineCov">          2 :         dec_in_flight_param();</span>
+<a name="194"><span class="lineNum">     194 </span>                :<span class="lineCov">          2 : }</span></a>
 <span class="lineNum">     195 </span>                :            : 
-<span class="lineNum">     196 </span>                :<span class="lineNoCov">          0 : static void get_platform_hmc_managed(void)</span>
+<span class="lineNum">     196 </span>                :<span class="lineCov">          2 : static void get_platform_hmc_managed(void)</span>
 <span class="lineNum">     197 </span>                :            : {
 <span class="lineNum">     198 </span>                :            :         int rc;
 <span class="lineNum">     199 </span>                :            : 
-<span class="lineNum">     200 </span>                :<span class="lineNoCov">          0 :         inc_in_flight_param();</span>
-<span class="lineNum">     201 </span>                :<span class="lineNoCov">          0 :         rc = fsp_get_sys_param(SYS_PARAM_HMC_MANAGED, &amp;hmc_managed, 4,</span>
+<span class="lineNum">     200 </span>                :<span class="lineCov">          2 :         inc_in_flight_param();</span>
+<span class="lineNum">     201 </span>                :<span class="lineCov">          2 :         rc = fsp_get_sys_param(SYS_PARAM_HMC_MANAGED, &amp;hmc_managed, 4,</span>
 <span class="lineNum">     202 </span>                :            :                                got_platform_hmc_managed, NULL);
-<span class="lineNum">     203 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     203 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (rc) {</span>
 <span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_INIT),</span>
 <span class="lineNum">     205 </span>                :            :                         &quot;CUPD: Error %d queueing param request\n&quot;, rc);
 <span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :                 dec_in_flight_param();</span>
 <span class="lineNum">     207 </span>                :            :         }
-<a name="208"><span class="lineNum">     208 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<a name="208"><span class="lineNum">     208 </span>                :<span class="lineCov">          2 : }</span></a>
 <span class="lineNum">     209 </span>                :            : 
-<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 : static int64_t code_update_check_state(void)</span>
+<span class="lineNum">     210 </span>                :<span class="lineCov">          2 : static int64_t code_update_check_state(void)</span>
 <span class="lineNum">     211 </span>                :            : {
-<span class="lineNum">     212 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch(flash_state) {</span>
+<span class="lineNum">     212 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         switch(flash_state) {</span>
 <span class="lineNum">     213 </span>                :            :         case FLASH_STATE_ABSENT:
 <span class="lineNum">     214 </span>                :            :                 return OPAL_HARDWARE;
 <span class="lineNum">     215 </span>                :            :         case FLASH_STATE_INVALID:
@@ -297,18 +297,18 @@
 <span class="lineNum">     226 </span>                :            : /*
 <a name="227"><span class="lineNum">     227 </span>                :            :  * Get common marker LID additional data section</a>
 <span class="lineNum">     228 </span>                :            :  */
-<span class="lineNum">     229 </span>                :<span class="lineNoCov">          0 : static void *get_adf_sec_data(struct com_marker_adf_sec *adf_sec,</span>
+<span class="lineNum">     229 </span>                :<span class="lineCov">          4 : static void *get_adf_sec_data(struct com_marker_adf_sec *adf_sec,</span>
 <span class="lineNum">     230 </span>                :            :                               uint32_t name)
 <span class="lineNum">     231 </span>                :            : {
 <span class="lineNum">     232 </span>                :            :         struct com_marker_adf_header *adf_header;
 <span class="lineNum">     233 </span>                :            :         int i;
 <span class="lineNum">     234 </span>                :            : 
-<span class="lineNum">     235 </span>                :<span class="lineNoCov">          0 :         adf_header = (void *)adf_sec-&gt;adf_data;</span>
-<span class="lineNum">     236 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; be32_to_cpu(adf_sec-&gt;adf_cnt); i++) {</span>
-<span class="lineNum">     237 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (be32_to_cpu(adf_header-&gt;name) == name)</span>
+<span class="lineNum">     235 </span>                :<span class="lineCov">          4 :         adf_header = (void *)adf_sec-&gt;adf_data;</span>
+<span class="lineNum">     236 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         10 :         for (i = 0; i &lt; be32_to_cpu(adf_sec-&gt;adf_cnt); i++) {</span>
+<span class="lineNum">     237 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">         10 :                 if (be32_to_cpu(adf_header-&gt;name) == name)</span>
 <span class="lineNum">     238 </span>                :            :                         return adf_header;
 <span class="lineNum">     239 </span>                :            : 
-<span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 :                 adf_header = (void *)adf_header + be32_to_cpu(adf_header-&gt;size);</span>
+<span class="lineNum">     240 </span>                :<span class="lineCov">          6 :                 adf_header = (void *)adf_header + be32_to_cpu(adf_header-&gt;size);</span>
 <span class="lineNum">     241 </span>                :            :         }
 <span class="lineNum">     242 </span>                :            :         return NULL;
 <span class="lineNum">     243 </span>                :            : }
@@ -321,46 +321,46 @@
 <span class="lineNum">     250 </span>                :            :  *   section only. If we are adding FW IP support, then we have
 <a name="251"><span class="lineNum">     251 </span>                :            :  *   to parse &quot;Firmware IP Protection ADF&quot; as well.</a>
 <span class="lineNum">     252 </span>                :            :  */
-<span class="lineNum">     253 </span>                :<span class="lineNoCov">          0 : static void parse_marker_lid(uint32_t side)</span>
+<span class="lineNum">     253 </span>                :<span class="lineCov">          4 : static void parse_marker_lid(uint32_t side)</span>
 <span class="lineNum">     254 </span>                :            : {
 <span class="lineNum">     255 </span>                :            :         struct com_marker_header *header;
 <span class="lineNum">     256 </span>                :            :         struct com_marker_mi_section *mi_sec;
 <span class="lineNum">     257 </span>                :            :         struct com_marker_adf_sec *adf_sec;
 <span class="lineNum">     258 </span>                :            :         struct com_marker_adf_sp *adf_sp;
 <span class="lineNum">     259 </span>                :            : 
-<span class="lineNum">     260 </span>                :<span class="lineNoCov">          0 :         header = (void *)lid_data;</span>
+<span class="lineNum">     260 </span>                :<span class="lineCov">          4 :         header = (void *)lid_data;</span>
 <span class="lineNum">     261 </span>                :            : 
 <span class="lineNum">     262 </span>                :            :         /* Get MI details */
-<span class="lineNum">     263 </span>                :<span class="lineNoCov">          0 :         mi_sec = (void *)header + be32_to_cpu(header-&gt;MI_offset);</span>
+<span class="lineNum">     263 </span>                :<span class="lineCov">          4 :         mi_sec = (void *)header + be32_to_cpu(header-&gt;MI_offset);</span>
 <span class="lineNum">     264 </span>                :            :         /*
 <span class="lineNum">     265 </span>                :            :          * If Marker LID is invalid, then FSP will return a Marker
 <span class="lineNum">     266 </span>                :            :          * LID with ASCII zeros for the entire MI keyword.
 <span class="lineNum">     267 </span>                :            :          */
-<span class="lineNum">     268 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (mi_sec-&gt;mi_keyword[0] == '0')</span>
+<span class="lineNum">     268 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :         if (mi_sec-&gt;mi_keyword[0] == '0')</span>
 <span class="lineNum">     269 </span>                :            :                 return;
 <span class="lineNum">     270 </span>                :            : 
-<span class="lineNum">     271 </span>                :<span class="lineNoCov">          0 :         strncpy(fw_vpd[side].mi_keyword, mi_sec-&gt;mi_keyword, MI_KEYWORD_SIZE);</span>
-<span class="lineNum">     272 </span>                :<span class="lineNoCov">          0 :         fw_vpd[side].mi_keyword[MI_KEYWORD_SIZE - 1] = '\0';</span>
-<span class="lineNum">     273 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         prlog(PR_NOTICE, &quot;CUPD: %s side MI Keyword = %s\n&quot;,</span>
+<span class="lineNum">     271 </span>                :<span class="lineCov">          4 :         strncpy(fw_vpd[side].mi_keyword, mi_sec-&gt;mi_keyword, MI_KEYWORD_SIZE);</span>
+<span class="lineNum">     272 </span>                :<span class="lineCov">          4 :         fw_vpd[side].mi_keyword[MI_KEYWORD_SIZE - 1] = '\0';</span>
+<span class="lineNum">     273 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          4 :         prlog(PR_NOTICE, &quot;CUPD: %s side MI Keyword = %s\n&quot;,</span>
 <span class="lineNum">     274 </span>                :            :               side == 0x00 ? &quot;P&quot; : &quot;T&quot;, fw_vpd[side].mi_keyword);
 <span class="lineNum">     275 </span>                :            : 
 <span class="lineNum">     276 </span>                :            :         /* Get ML details */
-<span class="lineNum">     277 </span>                :<span class="lineNoCov">          0 :         adf_sec = (void *)header + be32_to_cpu(mi_sec-&gt;adf_offset);</span>
-<span class="lineNum">     278 </span>                :<span class="lineNoCov">          0 :         adf_sp = get_adf_sec_data(adf_sec, ADF_NAME_SP);</span>
-<span class="lineNum">     279 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!adf_sp)</span>
+<span class="lineNum">     277 </span>                :<span class="lineCov">          4 :         adf_sec = (void *)header + be32_to_cpu(mi_sec-&gt;adf_offset);</span>
+<span class="lineNum">     278 </span>                :<span class="lineCov">          4 :         adf_sp = get_adf_sec_data(adf_sec, ADF_NAME_SP);</span>
+<span class="lineNum">     279 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :         if (!adf_sp)</span>
 <span class="lineNum">     280 </span>                :            :                 return;
 <span class="lineNum">     281 </span>                :            : 
-<span class="lineNum">     282 </span>                :<span class="lineNoCov">          0 :         strncpy(fw_vpd[side].ext_fw_id,</span>
-<span class="lineNum">     283 </span>                :<span class="lineNoCov">          0 :                 (void *)adf_sp + be32_to_cpu(adf_sp-&gt;sp_name_offset),</span>
+<span class="lineNum">     282 </span>                :<span class="lineCov">          4 :         strncpy(fw_vpd[side].ext_fw_id,</span>
+<span class="lineNum">     283 </span>                :<span class="lineCov">          4 :                 (void *)adf_sp + be32_to_cpu(adf_sp-&gt;sp_name_offset),</span>
 <span class="lineNum">     284 </span>                :            :                 ML_KEYWORD_SIZE);
-<span class="lineNum">     285 </span>                :<span class="lineNoCov">          0 :         fw_vpd[side].ext_fw_id[ML_KEYWORD_SIZE - 1] = '\0';</span>
-<span class="lineNum">     286 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         prlog(PR_NOTICE, &quot;CUPD: %s side ML Keyword = %s\n&quot;,</span>
+<span class="lineNum">     285 </span>                :<span class="lineCov">          4 :         fw_vpd[side].ext_fw_id[ML_KEYWORD_SIZE - 1] = '\0';</span>
+<span class="lineNum">     286 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          4 :         prlog(PR_NOTICE, &quot;CUPD: %s side ML Keyword = %s\n&quot;,</span>
 <span class="lineNum">     287 </span>                :            :               side == 0x00 ? &quot;P&quot; : &quot;T&quot;, fw_vpd[side].ext_fw_id);
 <a name="288"><span class="lineNum">     288 </span>                :            : }</a>
 <span class="lineNum">     289 </span>                :            : 
-<span class="lineNum">     290 </span>                :<span class="lineNoCov">          0 : static void validate_com_marker_lid(void)</span>
+<span class="lineNum">     290 </span>                :<span class="lineCov">          2 : static void validate_com_marker_lid(void)</span>
 <span class="lineNum">     291 </span>                :            : {
-<span class="lineNum">     292 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!strncmp(fw_vpd[ipl_side].mi_keyword, FW_VERSION_UNKNOWN,</span>
+<span class="lineNum">     292 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!strncmp(fw_vpd[ipl_side].mi_keyword, FW_VERSION_UNKNOWN,</span>
 <span class="lineNum">     293 </span>                :            :                      sizeof(FW_VERSION_UNKNOWN))) {
 <span class="lineNum">     294 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_MARKER_LID),</span>
 <span class="lineNum">     295 </span>                :            :                         &quot;CUPD: IPL side Marker LID is not valid\n&quot;);
@@ -368,10 +368,10 @@
 <span class="lineNum">     297 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">     298 </span>                :            :         }
 <span class="lineNum">     299 </span>                :            : 
-<span class="lineNum">     300 </span>                :<span class="lineNoCov">          0 :         flash_state = FLASH_STATE_READ;</span>
+<span class="lineNum">     300 </span>                :<span class="lineCov">          2 :         flash_state = FLASH_STATE_READ;</span>
 <a name="301"><span class="lineNum">     301 </span>                :            : }</a>
 <span class="lineNum">     302 </span>                :            : 
-<span class="lineNum">     303 </span>                :<span class="lineNoCov">          0 : static void fetch_lid_data_complete(struct fsp_msg *msg)</span>
+<span class="lineNum">     303 </span>                :<span class="lineCov">          4 : static void fetch_lid_data_complete(struct fsp_msg *msg)</span>
 <span class="lineNum">     304 </span>                :            : {
 <span class="lineNum">     305 </span>                :            :         void *buffer;
 <span class="lineNum">     306 </span>                :            :         size_t length, chunk;
@@ -380,23 +380,23 @@
 <span class="lineNum">     309 </span>                :            :         uint8_t flags, status;
 <span class="lineNum">     310 </span>                :            :         int rc;
 <span class="lineNum">     311 </span>                :            : 
-<span class="lineNum">     312 </span>                :<span class="lineNoCov">          0 :         status = (msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
-<span class="lineNum">     313 </span>                :<span class="lineNoCov">          0 :         flags = (msg-&gt;data.words[0] &gt;&gt; 16) &amp; 0xff;</span>
-<span class="lineNum">     314 </span>                :<span class="lineNoCov">          0 :         id = msg-&gt;data.words[0] &amp; 0xffff;</span>
-<span class="lineNum">     315 </span>                :<span class="lineNoCov">          0 :         lid_id = msg-&gt;data.words[1];</span>
-<span class="lineNum">     316 </span>                :<span class="lineNoCov">          0 :         offset = msg-&gt;resp-&gt;data.words[1];</span>
-<span class="lineNum">     317 </span>                :<span class="lineNoCov">          0 :         length = msg-&gt;resp-&gt;data.words[2];</span>
+<span class="lineNum">     312 </span>                :<span class="lineCov">          4 :         status = (msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">     313 </span>                :<span class="lineCov">          4 :         flags = (msg-&gt;data.words[0] &gt;&gt; 16) &amp; 0xff;</span>
+<span class="lineNum">     314 </span>                :<span class="lineCov">          4 :         id = msg-&gt;data.words[0] &amp; 0xffff;</span>
+<span class="lineNum">     315 </span>                :<span class="lineCov">          4 :         lid_id = msg-&gt;data.words[1];</span>
+<span class="lineNum">     316 </span>                :<span class="lineCov">          4 :         offset = msg-&gt;resp-&gt;data.words[1];</span>
+<span class="lineNum">     317 </span>                :<span class="lineCov">          4 :         length = msg-&gt;resp-&gt;data.words[2];</span>
 <span class="lineNum">     318 </span>                :            : 
-<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :         prlog(PR_NOTICE, &quot;CUPD: Marker LID id : size : status = &quot;</span>
+<span class="lineNum">     319 </span>                :<span class="lineCov">          4 :         prlog(PR_NOTICE, &quot;CUPD: Marker LID id : size : status = &quot;</span>
 <span class="lineNum">     320 </span>                :            :               &quot;0x%x : 0x%x : 0x%x\n&quot;,
 <span class="lineNum">     321 </span>                :            :               msg-&gt;data.words[1], msg-&gt;resp-&gt;data.words[2], status);
 <span class="lineNum">     322 </span>                :            : 
-<span class="lineNum">     323 </span>                :<span class="lineNoCov">          0 :         fsp_freemsg(msg);</span>
+<span class="lineNum">     323 </span>                :<span class="lineCov">          4 :         fsp_freemsg(msg);</span>
 <span class="lineNum">     324 </span>                :            : 
-<span class="lineNum">     325 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (status) {</span>
+<span class="lineNum">     325 </span>     [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :         switch (status) {</span>
 <span class="lineNum">     326 </span>                :            :         case FSP_STATUS_SUCCESS: /* Read complete, parse VPD */
-<span class="lineNum">     327 </span>                :<span class="lineNoCov">          0 :                 parse_marker_lid(lid_id == P_COM_MARKER_LID_ID ? 0 : 1);</span>
-<span class="lineNum">     328 </span>                :<span class="lineNoCov">          0 :                 break;</span>
+<span class="lineNum">     327 </span>                :<span class="lineCov">          4 :                 parse_marker_lid(lid_id == P_COM_MARKER_LID_ID ? 0 : 1);</span>
+<span class="lineNum">     328 </span>                :<span class="lineCov">          4 :                 break;</span>
 <span class="lineNum">     329 </span>                :            :         case FSP_STATUS_MORE_DATA: /* More data left */
 <span class="lineNum">     330 </span>                :<span class="lineNoCov">          0 :                 offset += length;</span>
 <span class="lineNum">     331 </span>                :<span class="lineNoCov">          0 :                 chunk = MARKER_LID_SIZE - offset;</span>
@@ -411,7 +411,7 @@
 <span class="lineNum">     340 </span>                :            :                          * information.
 <span class="lineNum">     341 </span>                :            :                          */
 <span class="lineNum">     342 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (rc == OPAL_SUCCESS)</span>
-<span class="lineNum">     343 </span>                :<span class="lineNoCov">          0 :                                 return;</span>
+<span class="lineNum">     343 </span>                :<span class="lineCov">          2 :                                 return;</span>
 <span class="lineNum">     344 </span>                :            :                 }
 <span class="lineNum">     345 </span>                :            :                 break;
 <span class="lineNum">     346 </span>                :            :         default:        /* Fetch LID call failed */
@@ -419,10 +419,10 @@
 <span class="lineNum">     348 </span>                :            :         }
 <span class="lineNum">     349 </span>                :            : 
 <span class="lineNum">     350 </span>                :            :         /* If required, fetch T side marker LID */
-<span class="lineNum">     351 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (lid_id == P_COM_MARKER_LID_ID &amp;&amp;</span>
-<span class="lineNum">     352 </span>                :<span class="lineNoCov">          0 :             lid_fetch_side == FETCH_BOTH_SIDE) {</span>
-<span class="lineNum">     353 </span>                :<span class="lineNoCov">          0 :                 length = MARKER_LID_SIZE;</span>
-<span class="lineNum">     354 </span>                :<span class="lineNoCov">          0 :                 rc = fsp_fetch_data_queue(flags, id, T_COM_MARKER_LID_ID,</span>
+<span class="lineNum">     351 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          4 :         if (lid_id == P_COM_MARKER_LID_ID &amp;&amp;</span>
+<span class="lineNum">     352 </span>                :<span class="lineCov">          2 :             lid_fetch_side == FETCH_BOTH_SIDE) {</span>
+<span class="lineNum">     353 </span>                :<span class="lineCov">          2 :                 length = MARKER_LID_SIZE;</span>
+<span class="lineNum">     354 </span>                :<span class="lineCov">          2 :                 rc = fsp_fetch_data_queue(flags, id, T_COM_MARKER_LID_ID,</span>
 <span class="lineNum">     355 </span>                :            :                                           0, (void *)PSI_DMA_CODE_UPD,
 <span class="lineNum">     356 </span>                :            :                                           &amp;length, fetch_lid_data_complete);
 <span class="lineNum">     357 </span>                :            : 
@@ -430,92 +430,92 @@
 <span class="lineNum">     359 </span>                :            :                  * validation hoping that we have at least boot side
 <span class="lineNum">     360 </span>                :            :                  * information.
 <span class="lineNum">     361 </span>                :            :                  */
-<span class="lineNum">     362 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc == OPAL_SUCCESS)</span>
+<span class="lineNum">     362 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 if (rc == OPAL_SUCCESS)</span>
 <span class="lineNum">     363 </span>                :            :                         return;
 <span class="lineNum">     364 </span>                :            :         }
 <span class="lineNum">     365 </span>                :            : 
-<span class="lineNum">     366 </span>                :<span class="lineNoCov">          0 :         lock(&amp;flash_lock);</span>
+<span class="lineNum">     366 </span>                :<span class="lineCov">          2 :         lock(&amp;flash_lock);</span>
 <span class="lineNum">     367 </span>                :            : 
 <span class="lineNum">     368 </span>                :            :         /* Validate marker LID data */
-<span class="lineNum">     369 </span>                :<span class="lineNoCov">          0 :         validate_com_marker_lid();</span>
+<span class="lineNum">     369 </span>                :<span class="lineCov">          2 :         validate_com_marker_lid();</span>
 <span class="lineNum">     370 </span>                :            :         /* TCE unmap */
-<span class="lineNum">     371 </span>                :<span class="lineNoCov">          0 :         code_update_tce_unmap(MARKER_LID_SIZE);</span>
+<span class="lineNum">     371 </span>                :<span class="lineCov">          2 :         code_update_tce_unmap(MARKER_LID_SIZE);</span>
 <span class="lineNum">     372 </span>                :            : 
-<span class="lineNum">     373 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;flash_lock);</span>
+<span class="lineNum">     373 </span>                :<span class="lineCov">          2 :         unlock(&amp;flash_lock);</span>
 <a name="374"><span class="lineNum">     374 </span>                :            : }</a>
 <span class="lineNum">     375 </span>                :            : 
-<span class="lineNum">     376 </span>                :<span class="lineNoCov">          0 : static void fetch_com_marker_lid(void)</span>
+<span class="lineNum">     376 </span>                :<span class="lineCov">          2 : static void fetch_com_marker_lid(void)</span>
 <span class="lineNum">     377 </span>                :            : {
-<span class="lineNum">     378 </span>                :<span class="lineNoCov">          0 :         size_t length = MARKER_LID_SIZE;</span>
+<span class="lineNum">     378 </span>                :<span class="lineCov">          2 :         size_t length = MARKER_LID_SIZE;</span>
 <span class="lineNum">     379 </span>                :            :         uint32_t lid_id;
 <span class="lineNum">     380 </span>                :            :         int rc;
 <span class="lineNum">     381 </span>                :            : 
 <span class="lineNum">     382 </span>                :            :         /* Read in progress? */
-<span class="lineNum">     383 </span>                :<span class="lineNoCov">          0 :         rc = code_update_check_state();</span>
-<span class="lineNum">     384 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc == OPAL_HARDWARE || rc == OPAL_BUSY)</span>
+<span class="lineNum">     383 </span>                :<span class="lineCov">          2 :         rc = code_update_check_state();</span>
+<span class="lineNum">     384 </span>[<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (rc == OPAL_HARDWARE || rc == OPAL_BUSY)</span>
 <span class="lineNum">     385 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">     386 </span>                :            : 
-<span class="lineNum">     387 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (lid_fetch_side == FETCH_T_SIDE_ONLY) {</span>
+<span class="lineNum">     387 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (lid_fetch_side == FETCH_T_SIDE_ONLY) {</span>
 <span class="lineNum">     388 </span>                :<span class="lineNoCov">          0 :                 lid_id = T_COM_MARKER_LID_ID;</span>
 <span class="lineNum">     389 </span>                :<span class="lineNoCov">          0 :                 set_def_fw_version(FW_IPL_SIDE_TEMP);</span>
-<span class="lineNum">     390 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         } else if (lid_fetch_side == FETCH_P_SIDE_ONLY) {</span>
+<span class="lineNum">     390 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         } else if (lid_fetch_side == FETCH_P_SIDE_ONLY) {</span>
 <span class="lineNum">     391 </span>                :<span class="lineNoCov">          0 :                 lid_id = P_COM_MARKER_LID_ID;</span>
 <span class="lineNum">     392 </span>                :<span class="lineNoCov">          0 :                 set_def_fw_version(FW_IPL_SIDE_PERM);</span>
 <span class="lineNum">     393 </span>                :            :         } else {
-<span class="lineNum">     394 </span>                :<span class="lineNoCov">          0 :                 lid_id = P_COM_MARKER_LID_ID;</span>
-<span class="lineNum">     395 </span>                :<span class="lineNoCov">          0 :                 set_def_fw_version(FW_IPL_SIDE_PERM);</span>
-<span class="lineNum">     396 </span>                :<span class="lineNoCov">          0 :                 set_def_fw_version(FW_IPL_SIDE_TEMP);</span>
+<span class="lineNum">     394 </span>                :<span class="lineCov">          2 :                 lid_id = P_COM_MARKER_LID_ID;</span>
+<span class="lineNum">     395 </span>                :<span class="lineCov">          2 :                 set_def_fw_version(FW_IPL_SIDE_PERM);</span>
+<span class="lineNum">     396 </span>                :<span class="lineCov">          2 :                 set_def_fw_version(FW_IPL_SIDE_TEMP);</span>
 <span class="lineNum">     397 </span>                :            :         }
 <span class="lineNum">     398 </span>                :            : 
-<span class="lineNum">     399 </span>                :<span class="lineNoCov">          0 :         code_update_tce_map(0, lid_data, length);</span>
-<span class="lineNum">     400 </span>                :<span class="lineNoCov">          0 :         rc = fsp_fetch_data_queue(0x00, 0x05, lid_id, 0,</span>
+<span class="lineNum">     399 </span>                :<span class="lineCov">          2 :         code_update_tce_map(0, lid_data, length);</span>
+<span class="lineNum">     400 </span>                :<span class="lineCov">          2 :         rc = fsp_fetch_data_queue(0x00, 0x05, lid_id, 0,</span>
 <span class="lineNum">     401 </span>                :            :                                   (void *)PSI_DMA_CODE_UPD, &amp;length,
 <span class="lineNum">     402 </span>                :            :                                   fetch_lid_data_complete);
-<span class="lineNum">     403 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!rc)</span>
-<span class="lineNum">     404 </span>                :<span class="lineNoCov">          0 :                 flash_state = FLASH_STATE_READING;</span>
+<span class="lineNum">     403 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!rc)</span>
+<span class="lineNum">     404 </span>                :<span class="lineCov">          2 :                 flash_state = FLASH_STATE_READING;</span>
 <span class="lineNum">     405 </span>                :            :         else
-<span class="lineNum">     406 </span>                :<span class="lineNoCov">          0 :                 flash_state = FLASH_STATE_INVALID;</span>
+<span class="lineNum">     406 </span>                :<span class="lineCov">          2 :                 flash_state = FLASH_STATE_INVALID;</span>
 <span class="lineNum">     407 </span>                :            : }
 <span class="lineNum">     408 </span>                :            : 
 <span class="lineNum">     409 </span>                :            : /*
 <span class="lineNum">     410 </span>                :            :  * Add MI and ML keyword details into DT
 <a name="411"><span class="lineNum">     411 </span>                :            :  */</a>
 <span class="lineNum">     412 </span>                :            : #define FW_VER_SIZE     64
-<span class="lineNum">     413 </span>                :<span class="lineNoCov">          0 : static void add_opal_firmware_version(void)</span>
+<span class="lineNum">     413 </span>                :<span class="lineCov">          2 : static void add_opal_firmware_version(void)</span>
 <span class="lineNum">     414 </span>                :            : {
 <span class="lineNum">     415 </span>                :            :         struct dt_node *dt_fw;
 <span class="lineNum">     416 </span>                :            :         char buffer[FW_VER_SIZE];
 <span class="lineNum">     417 </span>                :            :         int offset;
 <span class="lineNum">     418 </span>                :            : 
-<span class="lineNum">     419 </span>                :<span class="lineNoCov">          0 :         dt_fw = dt_find_by_path(dt_root, &quot;ibm,opal/firmware&quot;);</span>
-<span class="lineNum">     420 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!dt_fw)</span>
+<span class="lineNum">     419 </span>                :<span class="lineCov">          2 :         dt_fw = dt_find_by_path(dt_root, &quot;ibm,opal/firmware&quot;);</span>
+<span class="lineNum">     420 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!dt_fw)</span>
 <span class="lineNum">     421 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">     422 </span>                :            : 
 <span class="lineNum">     423 </span>                :            :         /* MI version */
-<span class="lineNum">     424 </span>                :<span class="lineNoCov">          0 :         offset = snprintf(buffer, FW_VER_SIZE, &quot;MI %s %s&quot;,</span>
+<span class="lineNum">     424 </span>                :<span class="lineCov">          2 :         offset = snprintf(buffer, FW_VER_SIZE, &quot;MI %s %s&quot;,</span>
 <span class="lineNum">     425 </span>                :            :                           fw_vpd[FW_IPL_SIDE_TEMP].mi_keyword,
 <span class="lineNum">     426 </span>                :            :                           fw_vpd[FW_IPL_SIDE_PERM].mi_keyword);
-<span class="lineNum">     427 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ipl_side == FW_IPL_SIDE_TEMP)</span>
-<span class="lineNum">     428 </span>                :<span class="lineNoCov">          0 :                 snprintf(buffer + offset, FW_VER_SIZE - offset,</span>
+<span class="lineNum">     427 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if (ipl_side == FW_IPL_SIDE_TEMP)</span>
+<span class="lineNum">     428 </span>                :<span class="lineCov">          1 :                 snprintf(buffer + offset, FW_VER_SIZE - offset,</span>
 <span class="lineNum">     429 </span>                :            :                          &quot; %s&quot;, fw_vpd[FW_IPL_SIDE_TEMP].mi_keyword);
 <span class="lineNum">     430 </span>                :            :         else
-<span class="lineNum">     431 </span>                :<span class="lineNoCov">          0 :                 snprintf(buffer + offset, FW_VER_SIZE - offset,</span>
+<span class="lineNum">     431 </span>                :<span class="lineCov">          1 :                 snprintf(buffer + offset, FW_VER_SIZE - offset,</span>
 <span class="lineNum">     432 </span>                :            :                          &quot; %s&quot;, fw_vpd[FW_IPL_SIDE_PERM].mi_keyword);
 <span class="lineNum">     433 </span>                :            : 
-<span class="lineNum">     434 </span>                :<span class="lineNoCov">          0 :         dt_add_property(dt_fw, &quot;mi-version&quot;, buffer, strlen(buffer));</span>
+<span class="lineNum">     434 </span>                :<span class="lineCov">          2 :         dt_add_property(dt_fw, &quot;mi-version&quot;, buffer, strlen(buffer));</span>
 <span class="lineNum">     435 </span>                :            : 
 <span class="lineNum">     436 </span>                :            :         /* ML version */
-<span class="lineNum">     437 </span>                :<span class="lineNoCov">          0 :         offset = snprintf(buffer, FW_VER_SIZE, &quot;ML %s %s&quot;,</span>
+<span class="lineNum">     437 </span>                :<span class="lineCov">          2 :         offset = snprintf(buffer, FW_VER_SIZE, &quot;ML %s %s&quot;,</span>
 <span class="lineNum">     438 </span>                :            :                           fw_vpd[FW_IPL_SIDE_TEMP].ext_fw_id,
 <span class="lineNum">     439 </span>                :            :                           fw_vpd[FW_IPL_SIDE_PERM].ext_fw_id);
-<span class="lineNum">     440 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ipl_side == FW_IPL_SIDE_TEMP)</span>
-<span class="lineNum">     441 </span>                :<span class="lineNoCov">          0 :                 snprintf(buffer + offset, FW_VER_SIZE - offset,</span>
+<span class="lineNum">     440 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if (ipl_side == FW_IPL_SIDE_TEMP)</span>
+<span class="lineNum">     441 </span>                :<span class="lineCov">          1 :                 snprintf(buffer + offset, FW_VER_SIZE - offset,</span>
 <span class="lineNum">     442 </span>                :            :                          &quot; %s&quot;, fw_vpd[FW_IPL_SIDE_TEMP].ext_fw_id);
 <span class="lineNum">     443 </span>                :            :         else
-<span class="lineNum">     444 </span>                :<span class="lineNoCov">          0 :                 snprintf(buffer + offset, FW_VER_SIZE - offset,</span>
+<span class="lineNum">     444 </span>                :<span class="lineCov">          1 :                 snprintf(buffer + offset, FW_VER_SIZE - offset,</span>
 <span class="lineNum">     445 </span>                :            :                          &quot; %s&quot;, fw_vpd[FW_IPL_SIDE_PERM].ext_fw_id);
 <span class="lineNum">     446 </span>                :            : 
-<span class="lineNum">     447 </span>                :<span class="lineNoCov">          0 :         dt_add_property(dt_fw, &quot;ml-version&quot;, buffer, strlen(buffer));</span>
+<span class="lineNum">     447 </span>                :<span class="lineCov">          2 :         dt_add_property(dt_fw, &quot;ml-version&quot;, buffer, strlen(buffer));</span>
 <span class="lineNum">     448 </span>                :            : }
 <span class="lineNum">     449 </span>                :            : 
 <span class="lineNum">     450 </span>                :            : /*
@@ -523,32 +523,32 @@
 <span class="lineNum">     452 </span>                :            :  * ensure the common marker LID read and parsing has happened
 <a name="453"><span class="lineNum">     453 </span>                :            :  * before we transfer control.</a>
 <span class="lineNum">     454 </span>                :            :  */
-<span class="lineNum">     455 </span>                :<span class="lineCov">          6 : void fsp_code_update_wait_vpd(bool is_boot)</span>
+<span class="lineNum">     455 </span>                :<span class="lineCov">          8 : void fsp_code_update_wait_vpd(bool is_boot)</span>
 <span class="lineNum">     456 </span>                :            : {
-<span class="lineNum">     457 </span>                :<span class="lineCov">          6 :         int waited = 0;</span>
+<span class="lineNum">     457 </span>                :<span class="lineCov">          8 :         int waited = 0;</span>
 <span class="lineNum">     458 </span>                :            : 
-<span class="lineNum">     459 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (!fsp_present())</span>
-<span class="lineNum">     460 </span>                :<span class="lineCov">          6 :                 return;</span>
+<span class="lineNum">     459 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          8 :         if (!fsp_present())</span>
+<span class="lineNum">     460 </span>                :<span class="lineCov">          8 :                 return;</span>
 <span class="lineNum">     461 </span>                :            : 
-<span class="lineNum">     462 </span>                :<span class="lineNoCov">          0 :         prlog(PR_NOTICE, &quot;CUPD: Waiting read marker LID&quot;</span>
+<span class="lineNum">     462 </span>                :<span class="lineCov">          2 :         prlog(PR_NOTICE, &quot;CUPD: Waiting read marker LID&quot;</span>
 <span class="lineNum">     463 </span>                :            :               &quot; and in flight parsm completion...\n&quot;);
 <span class="lineNum">     464 </span>                :            : 
-<span class="lineNum">     465 </span>                :<span class="lineNoCov">          0 :         lock(&amp;flash_lock);</span>
+<span class="lineNum">     465 </span>                :<span class="lineCov">          2 :         lock(&amp;flash_lock);</span>
 <span class="lineNum">     466 </span>                :            :         while(true) {
-<span class="lineNum">     467 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!(flash_state == FLASH_STATE_READING || in_flight_params))</span>
+<span class="lineNum">     467 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 if (!(flash_state == FLASH_STATE_READING || in_flight_params))</span>
 <span class="lineNum">     468 </span>                :            :                         break;
 <span class="lineNum">     469 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;flash_lock);</span>
 <span class="lineNum">     470 </span>                :<span class="lineNoCov">          0 :                 time_wait_ms(5);</span>
 <span class="lineNum">     471 </span>                :<span class="lineNoCov">          0 :                 waited+=5;</span>
 <span class="lineNum">     472 </span>                :<span class="lineNoCov">          0 :                 lock(&amp;flash_lock);</span>
 <span class="lineNum">     473 </span>                :<span class="lineNoCov">          0 :         }</span>
-<span class="lineNum">     474 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;flash_lock);</span>
+<span class="lineNum">     474 </span>                :<span class="lineCov">          2 :         unlock(&amp;flash_lock);</span>
 <span class="lineNum">     475 </span>                :            : 
-<span class="lineNum">     476 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (waited)</span>
+<span class="lineNum">     476 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (waited)</span>
 <span class="lineNum">     477 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_DEBUG, &quot;CUPD: fsp_code_update_wait_vpd %d\n&quot;, waited);</span>
 <span class="lineNum">     478 </span>                :            : 
-<span class="lineNum">     479 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (is_boot)</span>
-<span class="lineNum">     480 </span>                :<span class="lineNoCov">          0 :                 add_opal_firmware_version();</span>
+<span class="lineNum">     479 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (is_boot)</span>
+<span class="lineNum">     480 </span>                :<span class="lineCov">          2 :                 add_opal_firmware_version();</span>
 <a name="481"><span class="lineNum">     481 </span>                :            : }</a>
 <span class="lineNum">     482 </span>                :            : 
 <span class="lineNum">     483 </span>                :<span class="lineNoCov">          0 : static int code_update_start(void)</span>
@@ -1325,40 +1325,40 @@
 <span class="lineNum">    1253 </span>                :            :         .message = code_update_notify,
 <a name="1254"><span class="lineNum">    1254 </span>                :            : };</a>
 <span class="lineNum">    1255 </span>                :            : 
-<span class="lineNum">    1256 </span>                :<span class="lineNoCov">          0 : void fsp_code_update_init(void)</span>
+<span class="lineNum">    1256 </span>                :<span class="lineCov">          2 : void fsp_code_update_init(void)</span>
 <span class="lineNum">    1257 </span>                :            : {
-<span class="lineNum">    1258 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fsp_present()) {</span>
+<span class="lineNum">    1258 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!fsp_present()) {</span>
 <span class="lineNum">    1259 </span>                :<span class="lineNoCov">          0 :                 flash_state = FLASH_STATE_ABSENT;</span>
 <span class="lineNum">    1260 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">    1261 </span>                :            :         }
 <span class="lineNum">    1262 </span>                :            : 
 <span class="lineNum">    1263 </span>                :            :         /* OPAL interface */
-<span class="lineNum">    1264 </span>                :<span class="lineNoCov">          0 :         opal_register(OPAL_FLASH_VALIDATE, fsp_opal_validate_flash, 3);</span>
-<span class="lineNum">    1265 </span>                :<span class="lineNoCov">          0 :         opal_register(OPAL_FLASH_MANAGE, fsp_opal_manage_flash, 1);</span>
-<span class="lineNum">    1266 </span>                :<span class="lineNoCov">          0 :         opal_register(OPAL_FLASH_UPDATE, fsp_opal_update_flash, 1);</span>
+<span class="lineNum">    1264 </span>                :<span class="lineCov">          2 :         opal_register(OPAL_FLASH_VALIDATE, fsp_opal_validate_flash, 3);</span>
+<span class="lineNum">    1265 </span>                :<span class="lineCov">          2 :         opal_register(OPAL_FLASH_MANAGE, fsp_opal_manage_flash, 1);</span>
+<span class="lineNum">    1266 </span>                :<span class="lineCov">          2 :         opal_register(OPAL_FLASH_UPDATE, fsp_opal_update_flash, 1);</span>
 <span class="lineNum">    1267 </span>                :            : 
 <span class="lineNum">    1268 </span>                :            :         /* register Code Update Class D3 */
-<span class="lineNum">    1269 </span>                :<span class="lineNoCov">          0 :         fsp_register_client(&amp;fsp_get_notify, FSP_MCLASS_CODE_UPDATE);</span>
+<span class="lineNum">    1269 </span>                :<span class="lineCov">          2 :         fsp_register_client(&amp;fsp_get_notify, FSP_MCLASS_CODE_UPDATE);</span>
 <span class="lineNum">    1270 </span>                :            :         /* Register for Class AA (FSP R/R) */
-<span class="lineNum">    1271 </span>                :<span class="lineNoCov">          0 :         fsp_register_client(&amp;fsp_cupd_client_rr, FSP_MCLASS_RR_EVENT);</span>
+<span class="lineNum">    1271 </span>                :<span class="lineCov">          2 :         fsp_register_client(&amp;fsp_cupd_client_rr, FSP_MCLASS_RR_EVENT);</span>
 <span class="lineNum">    1272 </span>                :            : 
 <span class="lineNum">    1273 </span>                :            :         /* Flash hook */
-<span class="lineNum">    1274 </span>                :<span class="lineNoCov">          0 :         fsp_flash_term_hook = NULL;</span>
+<span class="lineNum">    1274 </span>                :<span class="lineCov">          2 :         fsp_flash_term_hook = NULL;</span>
 <span class="lineNum">    1275 </span>                :            : 
 <span class="lineNum">    1276 </span>                :            :         /* Fetch various code update related sys parameters */
-<span class="lineNum">    1277 </span>                :<span class="lineNoCov">          0 :         get_ipl_side();</span>
-<span class="lineNum">    1278 </span>                :<span class="lineNoCov">          0 :         get_code_update_policy();</span>
-<span class="lineNum">    1279 </span>                :<span class="lineNoCov">          0 :         get_platform_hmc_managed();</span>
+<span class="lineNum">    1277 </span>                :<span class="lineCov">          2 :         get_ipl_side();</span>
+<span class="lineNum">    1278 </span>                :<span class="lineCov">          2 :         get_code_update_policy();</span>
+<span class="lineNum">    1279 </span>                :<span class="lineCov">          2 :         get_platform_hmc_managed();</span>
 <span class="lineNum">    1280 </span>                :            : 
 <span class="lineNum">    1281 </span>                :            :         /* Fetch common marker LID */
-<span class="lineNum">    1282 </span>                :<span class="lineNoCov">          0 :         lid_data = memalign(TCE_PSIZE, MARKER_LID_SIZE);</span>
-<span class="lineNum">    1283 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!lid_data) {</span>
+<span class="lineNum">    1282 </span>                :<span class="lineCov">          2 :         lid_data = memalign(TCE_PSIZE, MARKER_LID_SIZE);</span>
+<span class="lineNum">    1283 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!lid_data) {</span>
 <span class="lineNum">    1284 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_CU_INIT),</span>
 <span class="lineNum">    1285 </span>                :            :                         &quot;CUPD: Failed to allocate memory for marker LID\n&quot;);
 <span class="lineNum">    1286 </span>                :<span class="lineNoCov">          0 :                 flash_state = FLASH_STATE_ABSENT;</span>
 <span class="lineNum">    1287 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">    1288 </span>                :            :         }
-<span class="lineNum">    1289 </span>                :<span class="lineNoCov">          0 :         fetch_com_marker_lid();</span>
+<span class="lineNum">    1289 </span>                :<span class="lineCov">          2 :         fetch_com_marker_lid();</span>
 <span class="lineNum">    1290 </span>                :            : }
 </pre>
       </td>

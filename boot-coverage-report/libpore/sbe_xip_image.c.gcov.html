@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">119</td>
             <td class="headerCovTableEntry">640</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">18.6 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">11</td>
             <td class="headerCovTableEntry">51</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">21.6 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">46</td>
             <td class="headerCovTableEntry">443</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">10.4 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -328,7 +328,7 @@
 <span class="lineNum">     257 </span>                :            :     prx[2] = pix[1];
 <a name="258"><span class="lineNum">     258 </span>                :            :     prx[3] = pix[0];</a>
 <span class="lineNum">     259 </span>                :            : #else
-<span class="lineNum">     260 </span>                :<span class="lineNoCov">          0 :     rx = i_x;</span>
+<span class="lineNum">     260 </span>                :<span class="lineCov">       5773 :     rx = i_x;</span>
 <span class="lineNum">     261 </span>                :            : #endif
 <span class="lineNum">     262 </span>                :            : 
 <span class="lineNum">     263 </span>                :            :     return rx;
@@ -355,7 +355,7 @@
 <span class="lineNum">     284 </span>                :            :     prx[6] = pix[1];
 <a name="285"><span class="lineNum">     285 </span>                :            :     prx[7] = pix[0];</a>
 <span class="lineNum">     286 </span>                :            : #else
-<span class="lineNum">     287 </span>                :<span class="lineNoCov">          0 :     rx = i_x;</span>
+<span class="lineNum">     287 </span>                :<span class="lineCov">       5763 :     rx = i_x;</span>
 <span class="lineNum">     288 </span>                :            : #endif
 <span class="lineNum">     289 </span>                :            : 
 <span class="lineNum">     290 </span>                :            :     return rx;
@@ -367,7 +367,7 @@
 <span class="lineNum">     296 </span>                :            : XIP_STATIC uint64_t
 <span class="lineNum">     297 </span>                :            : xipLinkAddress(const void* i_image)
 <span class="lineNum">     298 </span>                :            : {
-<span class="lineNum">     299 </span>                :<span class="lineNoCov">          0 :     return xipRevLe64(((SbeXipHeader*)i_image)-&gt;iv_linkAddress);</span>
+<span class="lineNum">     299 </span>                :<span class="lineCov">       3843 :     return xipRevLe64(((SbeXipHeader*)i_image)-&gt;iv_linkAddress);</span>
 <span class="lineNum">     300 </span>                :            : }
 <span class="lineNum">     301 </span>                :            : 
 <span class="lineNum">     302 </span>                :            : 
@@ -376,7 +376,7 @@
 <span class="lineNum">     305 </span>                :            : XIP_STATIC uint32_t
 <span class="lineNum">     306 </span>                :            : xipImageSize(const void* i_image)
 <span class="lineNum">     307 </span>                :            : {
-<span class="lineNum">     308 </span>                :<span class="lineNoCov">          0 :     return xipRevLe32(((SbeXipHeader*)i_image)-&gt;iv_imageSize);</span>
+<span class="lineNum">     308 </span>                :<span class="lineCov">       1440 :     return xipRevLe32(((SbeXipHeader*)i_image)-&gt;iv_imageSize);</span>
 <span class="lineNum">     309 </span>                :            : }
 <span class="lineNum">     310 </span>                :            : 
 <span class="lineNum">     311 </span>                :            : 
@@ -411,7 +411,7 @@
 <span class="lineNum">     340 </span>                :            : XIP_STATIC void*
 <a name="341"><span class="lineNum">     341 </span>                :            : xipHostAddressFromOffset(const void* i_image, const uint32_t offset)</a>
 <span class="lineNum">     342 </span>                :            : {
-<span class="lineNum">     343 </span>                :<span class="lineNoCov">          0 :     return (void*)((unsigned long)i_image + offset);</span>
+<span class="lineNum">     343 </span>                :<span class="lineCov">       1440 :     return (void*)((unsigned long)i_image + offset);</span>
 <span class="lineNum">     344 </span>                :            : }
 <span class="lineNum">     345 </span>                :            : 
 <span class="lineNum">     346 </span>                :            : 
@@ -458,7 +458,7 @@
 <span class="lineNum">     387 </span>                :            : XIP_STATIC uint64_t
 <span class="lineNum">     388 </span>                :            : xipMagic(const void* i_image)
 <span class="lineNum">     389 </span>                :            : {
-<span class="lineNum">     390 </span>                :<span class="lineNoCov">          0 :     return xipRevLe64(((SbeXipHeader*)i_image)-&gt;iv_magic);</span>
+<span class="lineNum">     390 </span>                :<span class="lineCov">       1920 :     return xipRevLe64(((SbeXipHeader*)i_image)-&gt;iv_magic);</span>
 <span class="lineNum">     391 </span>                :            : }
 <span class="lineNum">     392 </span>                :            : 
 <span class="lineNum">     393 </span>                :            : 
@@ -467,7 +467,7 @@
 <span class="lineNum">     396 </span>                :            : XIP_STATIC uint8_t
 <span class="lineNum">     397 </span>                :            : xipHeaderVersion(const void* i_image)
 <span class="lineNum">     398 </span>                :            : {
-<span class="lineNum">     399 </span>                :<span class="lineNoCov">          0 :     return ((SbeXipHeader*)i_image)-&gt;iv_headerVersion;</span>
+<span class="lineNum">     399 </span>                :<span class="lineCov">       1921 :     return ((SbeXipHeader*)i_image)-&gt;iv_headerVersion;</span>
 <span class="lineNum">     400 </span>                :            : }
 <span class="lineNum">     401 </span>                :            : 
 <span class="lineNum">     402 </span>                :            : 
@@ -476,7 +476,7 @@
 <span class="lineNum">     405 </span>                :            : XIP_STATIC uint8_t
 <a name="406"><span class="lineNum">     406 </span>                :            : xipNormalized(const void* i_image)</a>
 <span class="lineNum">     407 </span>                :            : {
-<span class="lineNum">     408 </span>                :<span class="lineNoCov">          0 :     return ((SbeXipHeader*)i_image)-&gt;iv_normalized;</span>
+<span class="lineNum">     408 </span>                :<span class="lineCov">        968 :     return ((SbeXipHeader*)i_image)-&gt;iv_normalized;</span>
 <span class="lineNum">     409 </span>                :            : }
 <span class="lineNum">     410 </span>                :            : 
 <span class="lineNum">     411 </span>                :            : 
@@ -485,7 +485,7 @@
 <span class="lineNum">     414 </span>                :            : XIP_STATIC uint8_t
 <a name="415"><span class="lineNum">     415 </span>                :            : xipSorted(const void* i_image)</a>
 <span class="lineNum">     416 </span>                :            : {
-<span class="lineNum">     417 </span>                :<span class="lineNoCov">          0 :     return ((SbeXipHeader*)i_image)-&gt;iv_tocSorted;</span>
+<span class="lineNum">     417 </span>                :<span class="lineCov">        966 :     return ((SbeXipHeader*)i_image)-&gt;iv_tocSorted;</span>
 <span class="lineNum">     418 </span>                :            : }
 <span class="lineNum">     419 </span>                :            : 
 <span class="lineNum">     420 </span>                :            : 
@@ -493,26 +493,26 @@
 <span class="lineNum">     422 </span>                :            : /// version, and optionally is normalized.
 <span class="lineNum">     423 </span>                :            : 
 <span class="lineNum">     424 </span>                :            : XIP_STATIC int 
-<span class="lineNum">     425 </span>                :<span class="lineNoCov">          0 : xipQuickCheck(const void* i_image, const int i_normalizationRequired)</span>
+<span class="lineNum">     425 </span>                :<span class="lineCov">       1917 : xipQuickCheck(const void* i_image, const int i_normalizationRequired)</span>
 <span class="lineNum">     426 </span>                :            : {
 <span class="lineNum">     427 </span>                :            :     int rc;
 <span class="lineNum">     428 </span>                :            : 
 <span class="lineNum">     429 </span>                :            :     do {
-<span class="lineNum">     430 </span>                :<span class="lineNoCov">          0 :         rc = 0;</span>
+<span class="lineNum">     430 </span>                :<span class="lineCov">       1917 :         rc = 0;</span>
 <span class="lineNum">     431 </span>                :            : 
-<span class="lineNum">     432 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (i_image == 0) {</span>
+<span class="lineNum">     432 </span>        [<span class="branchCov" title="Branch 0 was taken 1920 times"> + </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineCov">       1917 :         if (i_image == 0) {</span>
 <span class="lineNum">     433 </span>                :            :             rc = TRACE_ERRORX(SBE_XIP_IMAGE_ERROR, 
 <span class="lineNum">     434 </span>                :            :                               &quot;Image pointer is NULL (0)\n&quot;);
 <span class="lineNum">     435 </span>                :            :             break;
 <span class="lineNum">     436 </span>                :            :         }
-<span class="lineNum">     437 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((xipMagic(i_image) &gt;&gt; 32) != SBE_XIP_MAGIC) {</span>
+<span class="lineNum">     437 </span>        [<span class="branchCov" title="Branch 0 was taken 1921 times"> + </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineCov">       1920 :         if ((xipMagic(i_image) &gt;&gt; 32) != SBE_XIP_MAGIC) {</span>
 <span class="lineNum">     438 </span>                :            :             rc = TRACE_ERRORX(SBE_XIP_IMAGE_ERROR,
 <span class="lineNum">     439 </span>                :            :                               &quot;Magic number mismatch; Found &quot;
 <span class="lineNum">     440 </span>                :            :                               &quot;&quot; F0x016llx &quot;, expected 0x%08x........\n&quot;,
 <span class="lineNum">     441 </span>                :            :                               xipMagic(i_image), SBE_XIP_MAGIC);
 <span class="lineNum">     442 </span>                :            :             break;
 <span class="lineNum">     443 </span>                :            :         }
-<span class="lineNum">     444 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((xipHeaderVersion(i_image)) != SBE_XIP_HEADER_VERSION) {</span>
+<span class="lineNum">     444 </span>        [<span class="branchCov" title="Branch 0 was taken 1921 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       1921 :         if ((xipHeaderVersion(i_image)) != SBE_XIP_HEADER_VERSION) {</span>
 <span class="lineNum">     445 </span>                :            :             rc = TRACE_ERRORX(SBE_XIP_IMAGE_ERROR,
 <span class="lineNum">     446 </span>                :            :                               &quot;Header version mismatch; Expecting %d, &quot;
 <span class="lineNum">     447 </span>                :            :                               &quot;found %d\n&quot;,
@@ -520,14 +520,14 @@
 <span class="lineNum">     449 </span>                :            :                               xipHeaderVersion(i_image));
 <span class="lineNum">     450 </span>                :            :             break;
 <span class="lineNum">     451 </span>                :            :         }
-<span class="lineNum">     452 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (i_normalizationRequired &amp;&amp; !xipNormalized(i_image)) {</span>
+<span class="lineNum">     452 </span>[<span class="branchCov" title="Branch 0 was taken 484 times"> + </span><span class="branchCov" title="Branch 1 was taken 1437 times"> + </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 484 times"> + </span>]:<span class="lineCov">       1921 :         if (i_normalizationRequired &amp;&amp; !xipNormalized(i_image)) {</span>
 <span class="lineNum">     453 </span>                :<span class="lineNoCov">          0 :             rc = TRACE_ERRORX(SBE_XIP_NOT_NORMALIZED,</span>
 <span class="lineNum">     454 </span>                :            :                               &quot;Image not normalized\n&quot;);
 <span class="lineNum">     455 </span>                :<span class="lineNoCov">          0 :             break;</span>
 <span class="lineNum">     456 </span>                :            :         }
 <span class="lineNum">     457 </span>                :            :     } while(0);
 <span class="lineNum">     458 </span>                :            : 
-<span class="lineNum">     459 </span>                :<span class="lineNoCov">          0 :     return rc;</span>
+<span class="lineNum">     459 </span>                :<span class="lineCov">       1917 :     return rc;</span>
 <span class="lineNum">     460 </span>                :            : }
 <span class="lineNum">     461 </span>                :            : 
 <span class="lineNum">     462 </span>                :            : 
@@ -543,7 +543,7 @@
 <span class="lineNum">     472 </span>                :            : /// Translate a section table entry
 <a name="473"><span class="lineNum">     473 </span>                :            :  </a>
 <span class="lineNum">     474 </span>                :            : XIP_STATIC void
-<span class="lineNum">     475 </span>                :<span class="lineNoCov">          0 : xipTranslateSection(SbeXipSection* o_dest, const SbeXipSection* i_src)</span>
+<span class="lineNum">     475 </span>                :<span class="lineCov">       2406 : xipTranslateSection(SbeXipSection* o_dest, const SbeXipSection* i_src)</span>
 <span class="lineNum">     476 </span>                :            : {
 <span class="lineNum">     477 </span>                :            : #ifndef _BIG_ENDIAN
 <span class="lineNum">     478 </span>                :            : 
@@ -558,17 +558,17 @@
 <span class="lineNum">     487 </span>                :            :     o_dest-&gt;iv_reserved8[1] = 0;
 <span class="lineNum">     488 </span>                :            :     o_dest-&gt;iv_reserved8[2] = 0;
 <span class="lineNum">     489 </span>                :            : #else
-<span class="lineNum">     490 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (o_dest != i_src) {</span>
-<span class="lineNum">     491 </span>                :<span class="lineNoCov">          0 :         *o_dest = *i_src;</span>
+<span class="lineNum">     490 </span>        [<span class="branchCov" title="Branch 0 was taken 2404 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">       2406 :     if (o_dest != i_src) {</span>
+<span class="lineNum">     491 </span>                :<span class="lineCov">       2404 :         *o_dest = *i_src;</span>
 <span class="lineNum">     492 </span>                :            :     }
 <span class="lineNum">     493 </span>                :            : #endif  /* _BIG_ENDIAN */
-<span class="lineNum">     494 </span>                :<span class="lineNoCov">          0 : }    </span>
+<span class="lineNum">     494 </span>                :<span class="lineCov">       2406 : }    </span>
 <span class="lineNum">     495 </span>                :            : 
 <span class="lineNum">     496 </span>                :            : 
 <span class="lineNum">     497 </span>                :            : /// Translate a TOC entry
 <a name="498"><span class="lineNum">     498 </span>                :            : </a>
 <span class="lineNum">     499 </span>                :            : XIP_STATIC void
-<span class="lineNum">     500 </span>                :<span class="lineNoCov">          0 : xipTranslateToc(SbeXipToc* o_dest, SbeXipToc* i_src)</span>
+<span class="lineNum">     500 </span>                :<span class="lineCov">        484 : xipTranslateToc(SbeXipToc* o_dest, SbeXipToc* i_src)</span>
 <span class="lineNum">     501 </span>                :            : {
 <span class="lineNum">     502 </span>                :            : #ifndef _BIG_ENDIAN
 <span class="lineNum">     503 </span>                :            : 
@@ -583,11 +583,11 @@
 <span class="lineNum">     512 </span>                :            :     o_dest-&gt;iv_elements = i_src-&gt;iv_elements;
 <span class="lineNum">     513 </span>                :            :     o_dest-&gt;iv_pad = 0;
 <span class="lineNum">     514 </span>                :            : #else
-<span class="lineNum">     515 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (o_dest != i_src) {</span>
-<span class="lineNum">     516 </span>                :<span class="lineNoCov">          0 :         *o_dest = *i_src;</span>
+<span class="lineNum">     515 </span>        [<span class="branchCov" title="Branch 0 was taken 484 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        484 :     if (o_dest != i_src) {</span>
+<span class="lineNum">     516 </span>                :<span class="lineCov">        484 :         *o_dest = *i_src;</span>
 <span class="lineNum">     517 </span>                :            :     }
 <span class="lineNum">     518 </span>                :            : #endif  /* _BIG_ENDIAN */
-<span class="lineNum">     519 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     519 </span>                :<span class="lineCov">        484 : }</span>
 <span class="lineNum">     520 </span>                :            : 
 <span class="lineNum">     521 </span>                :            : 
 <span class="lineNum">     522 </span>                :            : /// Find the final (highest-address) section of the image
@@ -630,13 +630,13 @@
 <span class="lineNum">     559 </span>                :            : {
 <a name="560"><span class="lineNum">     560 </span>                :            :     int rc;</a>
 <span class="lineNum">     561 </span>                :            : 
-<span class="lineNum">     562 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if ((i_sectionId &lt; 0) || (i_sectionId &gt;= SBE_XIP_SECTIONS)) {</span>
+<span class="lineNum">     562 </span>[<span class="branchCov" title="Branch 0 was taken 2408 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">       2408 :     if ((i_sectionId &lt; 0) || (i_sectionId &gt;= SBE_XIP_SECTIONS)) {</span>
 <span class="lineNum">         </span>[<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>][<span class="branchNoExec" title="Branch 6 was not executed"> # </span><span class="branchNoExec" title="Branch 7 was not executed"> # </span>]
 <span class="lineNum">     563 </span>                :            :         rc = TRACE_ERROR(SBE_XIP_INVALID_ARGUMENT);
 <span class="lineNum">     564 </span>                :            :     } else {
-<span class="lineNum">     565 </span>                :<span class="lineNoCov">          0 :         *o_imageSection = </span>
+<span class="lineNum">     565 </span>                :<span class="lineCov">       2890 :         *o_imageSection = </span>
 <span class="lineNum">     566 </span>                :            :             &amp;(((SbeXipHeader*)i_image)-&gt;iv_section[i_sectionId]);
-<span class="lineNum">     567 </span>                :<span class="lineNoCov">          0 :         rc = 0;</span>
+<span class="lineNum">     567 </span>                :<span class="lineCov">       2408 :         rc = 0;</span>
 <span class="lineNum">     568 </span>                :            :     }
 <span class="lineNum">     569 </span>                :            :     return rc;
 <span class="lineNum">     570 </span>                :            : }
@@ -768,7 +768,7 @@
 <span class="lineNum">     696 </span>                :            : /// All return values are optional.
 <span class="lineNum">     697 </span>                :            : 
 <span class="lineNum">     698 </span>                :            : XIP_STATIC int
-<span class="lineNum">     699 </span>                :<span class="lineNoCov">          0 : xipGetToc(void* i_image,</span>
+<span class="lineNum">     699 </span>                :<span class="lineCov">        481 : xipGetToc(void* i_image,</span>
 <span class="lineNum">     700 </span>                :            :           SbeXipToc** o_toc,
 <span class="lineNum">     701 </span>                :            :           size_t* o_entries,
 <span class="lineNum">     702 </span>                :            :           int* o_sorted,
@@ -778,27 +778,27 @@
 <span class="lineNum">     706 </span>                :            :     SbeXipSection tocSection, stringsSection;
 <span class="lineNum">     707 </span>                :            : 
 <span class="lineNum">     708 </span>                :            :     do {
-<span class="lineNum">     709 </span>                :<span class="lineNoCov">          0 :         rc = sbe_xip_get_section(i_image, SBE_XIP_SECTION_TOC, &amp;tocSection);</span>
-<span class="lineNum">     710 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) break;</span>
+<span class="lineNum">     709 </span>                :<span class="lineCov">        481 :         rc = sbe_xip_get_section(i_image, SBE_XIP_SECTION_TOC, &amp;tocSection);</span>
+<span class="lineNum">     710 </span>        [<span class="branchCov" title="Branch 0 was taken 484 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        484 :         if (rc) break;</span>
 <span class="lineNum">     711 </span>                :            : 
-<span class="lineNum">     712 </span>                :<span class="lineNoCov">          0 :         rc = sbe_xip_get_section(i_image, SBE_XIP_SECTION_STRINGS,</span>
+<span class="lineNum">     712 </span>                :<span class="lineCov">        484 :         rc = sbe_xip_get_section(i_image, SBE_XIP_SECTION_STRINGS,</span>
 <span class="lineNum">     713 </span>                :            :                                  &amp;stringsSection);
-<span class="lineNum">     714 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) break;</span>
+<span class="lineNum">     714 </span>        [<span class="branchCov" title="Branch 0 was taken 484 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        484 :         if (rc) break;</span>
 <span class="lineNum">     715 </span>                :            : 
-<span class="lineNum">     716 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (o_toc) {</span>
-<span class="lineNum">     717 </span>                :<span class="lineNoCov">          0 :             *o_toc = (SbeXipToc*)((uint8_t*)i_image + tocSection.iv_offset);</span>
+<span class="lineNum">     716 </span>        [<span class="branchCov" title="Branch 0 was taken 484 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        484 :         if (o_toc) {</span>
+<span class="lineNum">     717 </span>                :<span class="lineCov">        484 :             *o_toc = (SbeXipToc*)((uint8_t*)i_image + tocSection.iv_offset);</span>
 <span class="lineNum">     718 </span>                :            :         }
-<span class="lineNum">     719 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (o_entries) {</span>
-<span class="lineNum">     720 </span>                :<span class="lineNoCov">          0 :             *o_entries = tocSection.iv_size / sizeof(SbeXipToc);</span>
+<span class="lineNum">     719 </span>        [<span class="branchCov" title="Branch 0 was taken 484 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        484 :         if (o_entries) {</span>
+<span class="lineNum">     720 </span>                :<span class="lineCov">        484 :             *o_entries = tocSection.iv_size / sizeof(SbeXipToc);</span>
 <span class="lineNum">     721 </span>                :            :         }
-<span class="lineNum">     722 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (o_sorted) {</span>
-<span class="lineNum">     723 </span>                :<span class="lineNoCov">          0 :             *o_sorted = xipSorted(i_image);</span>
+<span class="lineNum">     722 </span>        [<span class="branchCov" title="Branch 0 was taken 484 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        484 :         if (o_sorted) {</span>
+<span class="lineNum">     723 </span>                :<span class="lineCov">        484 :             *o_sorted = xipSorted(i_image);</span>
 <span class="lineNum">     724 </span>                :            :         }
-<span class="lineNum">     725 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (o_strings) {</span>
-<span class="lineNum">     726 </span>                :<span class="lineNoCov">          0 :             *o_strings = (char*)i_image + stringsSection.iv_offset;</span>
+<span class="lineNum">     725 </span>        [<span class="branchCov" title="Branch 0 was taken 483 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">        484 :         if (o_strings) {</span>
+<span class="lineNum">     726 </span>                :<span class="lineCov">        483 :             *o_strings = (char*)i_image + stringsSection.iv_offset;</span>
 <span class="lineNum">     727 </span>                :            :         }
 <span class="lineNum">     728 </span>                :            :     } while (0);
-<span class="lineNum">     729 </span>                :<span class="lineNoCov">          0 :     return rc;</span>
+<span class="lineNum">     729 </span>                :<span class="lineCov">        484 :     return rc;</span>
 <span class="lineNum">     730 </span>                :            : }
 <span class="lineNum">     731 </span>                :            : 
 <span class="lineNum">     732 </span>                :            : 
@@ -900,7 +900,7 @@
 <span class="lineNum">     828 </span>                :            : /// A classic binary search of a (presumed) sorted array
 <span class="lineNum">     829 </span>                :            : 
 <span class="lineNum">     830 </span>                :            : XIP_STATIC int
-<span class="lineNum">     831 </span>                :<span class="lineNoCov">          0 : xipBinarySearch(void* i_image, const char* i_id, SbeXipToc** o_entry)</span>
+<span class="lineNum">     831 </span>                :<span class="lineCov">        482 : xipBinarySearch(void* i_image, const char* i_id, SbeXipToc** o_entry)</span>
 <span class="lineNum">     832 </span>                :            : {
 <span class="lineNum">     833 </span>                :            :     int rc;
 <span class="lineNum">     834 </span>                :            :     SbeXipToc *imageToc;
@@ -909,36 +909,36 @@
 <span class="lineNum">     837 </span>                :            :     int sorted, left, right, next, sort;
 <span class="lineNum">     838 </span>                :            : 
 <span class="lineNum">     839 </span>                :            :     do {
-<span class="lineNum">     840 </span>                :<span class="lineNoCov">          0 :         *o_entry = 0;</span>
+<span class="lineNum">     840 </span>                :<span class="lineCov">        482 :         *o_entry = 0;</span>
 <span class="lineNum">     841 </span>                :            : 
-<span class="lineNum">     842 </span>                :<span class="lineNoCov">          0 :         rc = xipGetToc(i_image, &amp;imageToc, &amp;entries, &amp;sorted, &amp;strings);</span>
-<span class="lineNum">     843 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) break;</span>
+<span class="lineNum">     842 </span>                :<span class="lineCov">        482 :         rc = xipGetToc(i_image, &amp;imageToc, &amp;entries, &amp;sorted, &amp;strings);</span>
+<span class="lineNum">     843 </span>        [<span class="branchCov" title="Branch 0 was taken 483 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        483 :         if (rc) break;</span>
 <span class="lineNum">     844 </span>                :            : 
-<span class="lineNum">     845 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!sorted) {</span>
+<span class="lineNum">     845 </span>        [<span class="branchCov" title="Branch 0 was taken 482 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">        483 :         if (!sorted) {</span>
 <span class="lineNum">     846 </span>                :            :             rc = TRACE_ERROR(SBE_XIP_BUG);
 <span class="lineNum">     847 </span>                :            :             break;
 <span class="lineNum">     848 </span>                :            :         }
 <span class="lineNum">     849 </span>                :            : 
-<span class="lineNum">     850 </span>                :<span class="lineNoCov">          0 :         left = 0;</span>
-<span class="lineNum">     851 </span>                :<span class="lineNoCov">          0 :         right = entries - 1;</span>
-<span class="lineNum">     852 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while (left &lt;= right) {</span>
-<span class="lineNum">     853 </span>                :<span class="lineNoCov">          0 :             next = (left + right) / 2;</span>
-<span class="lineNum">     854 </span>                :<span class="lineNoCov">          0 :             sort = strcmp(i_id, strings + xipRevLe32(imageToc[next].iv_id));</span>
-<span class="lineNum">     855 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if (sort == 0) {</span>
-<span class="lineNum">     856 </span>                :<span class="lineNoCov">          0 :                 *o_entry = &amp;(imageToc[next]);</span>
-<span class="lineNum">     857 </span>                :<span class="lineNoCov">          0 :                 break;</span>
-<span class="lineNum">     858 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             } else if (sort &lt; 0) {</span>
-<span class="lineNum">     859 </span>                :<span class="lineNoCov">          0 :                 right = next - 1;</span>
+<span class="lineNum">     850 </span>                :<span class="lineCov">        482 :         left = 0;</span>
+<span class="lineNum">     851 </span>                :<span class="lineCov">        482 :         right = entries - 1;</span>
+<span class="lineNum">     852 </span>        [<span class="branchCov" title="Branch 0 was taken 4329 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">       4333 :         while (left &lt;= right) {</span>
+<span class="lineNum">     853 </span>                :<span class="lineCov">       4329 :             next = (left + right) / 2;</span>
+<span class="lineNum">     854 </span>                :<span class="lineCov">       4329 :             sort = strcmp(i_id, strings + xipRevLe32(imageToc[next].iv_id));</span>
+<span class="lineNum">     855 </span>        [<span class="branchCov" title="Branch 0 was taken 484 times"> + </span><span class="branchCov" title="Branch 1 was taken 3851 times"> + </span>]:<span class="lineCov">       4335 :             if (sort == 0) {</span>
+<span class="lineNum">     856 </span>                :<span class="lineCov">        484 :                 *o_entry = &amp;(imageToc[next]);</span>
+<span class="lineNum">     857 </span>                :<span class="lineCov">        484 :                 break;</span>
+<span class="lineNum">     858 </span>        [<span class="branchCov" title="Branch 0 was taken 970 times"> + </span><span class="branchCov" title="Branch 1 was taken 2881 times"> + </span>]:<span class="lineCov">       3851 :             } else if (sort &lt; 0) {</span>
+<span class="lineNum">     859 </span>                :<span class="lineCov">        970 :                 right = next - 1;</span>
 <span class="lineNum">     860 </span>                :            :             } else {
-<span class="lineNum">     861 </span>                :<span class="lineNoCov">          0 :                 left = next + 1;</span>
+<span class="lineNum">     861 </span>                :<span class="lineCov">       3851 :                 left = next + 1;</span>
 <span class="lineNum">     862 </span>                :            :             }
 <span class="lineNum">     863 </span>                :            :         }
-<span class="lineNum">     864 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (*o_entry == 0) {</span>
+<span class="lineNum">     864 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 488 times"> + </span>]:<span class="lineCov">        488 :         if (*o_entry == 0) {</span>
 <span class="lineNum">     865 </span>                :<span class="lineNoCov">          0 :             rc = TRACE_ERROR(SBE_XIP_ITEM_NOT_FOUND);</span>
 <span class="lineNum">     866 </span>                :<span class="lineNoCov">          0 :             break;</span>
 <span class="lineNum">     867 </span>                :            :         }
 <span class="lineNum">     868 </span>                :            :     } while (0);
-<span class="lineNum">     869 </span>                :<span class="lineNoCov">          0 :     return rc;</span>
+<span class="lineNum">     869 </span>                :<span class="lineCov">        489 :     return rc;</span>
 <span class="lineNum">     870 </span>                :            : }
 <span class="lineNum">     871 </span>                :            : 
 <span class="lineNum">     872 </span>                :            : 
@@ -1118,7 +1118,7 @@
 <span class="lineNum">    1046 </span>                :            : /// structure
 <span class="lineNum">    1047 </span>                :            : 
 <span class="lineNum">    1048 </span>                :            : XIP_STATIC int
-<span class="lineNum">    1049 </span>                :<span class="lineNoCov">          0 : xipDecodeToc(void* i_image, </span>
+<span class="lineNum">    1049 </span>                :<span class="lineCov">        484 : xipDecodeToc(void* i_image, </span>
 <span class="lineNum">    1050 </span>                :            :              SbeXipToc* i_imageToc, 
 <span class="lineNum">    1051 </span>                :            :              SbeXipItem* o_item)
 <span class="lineNum">    1052 </span>                :            : {
@@ -1127,7 +1127,7 @@
 <span class="lineNum">    1055 </span>                :            :     SbeXipSection dataSection, stringsSection;
 <span class="lineNum">    1056 </span>                :            : 
 <span class="lineNum">    1057 </span>                :            :     do {
-<span class="lineNum">    1058 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!xipNormalized(i_image)) {</span>
+<span class="lineNum">    1058 </span>        [<span class="branchCov" title="Branch 0 was taken 484 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        484 :         if (!xipNormalized(i_image)) {</span>
 <span class="lineNum">    1059 </span>                :            :             rc = TRACE_ERROR(SBE_XIP_NOT_NORMALIZED);
 <span class="lineNum">    1060 </span>                :            :             break;
 <span class="lineNum">    1061 </span>                :            :         }
@@ -1137,15 +1137,15 @@
 <span class="lineNum">    1065 </span>                :            :         // number of elements in the outgoing structure. The Id string is
 <span class="lineNum">    1066 </span>                :            :         // always located in the TOC_STRINGS section.
 <span class="lineNum">    1067 </span>                :            : 
-<span class="lineNum">    1068 </span>                :<span class="lineNoCov">          0 :         xipTranslateToc(&amp;hostToc, i_imageToc);</span>
+<span class="lineNum">    1068 </span>                :<span class="lineCov">        484 :         xipTranslateToc(&amp;hostToc, i_imageToc);</span>
 <span class="lineNum">    1069 </span>                :            : 
-<span class="lineNum">    1070 </span>                :<span class="lineNoCov">          0 :         o_item-&gt;iv_toc = i_imageToc;</span>
-<span class="lineNum">    1071 </span>                :<span class="lineNoCov">          0 :         o_item-&gt;iv_type = hostToc.iv_type;</span>
-<span class="lineNum">    1072 </span>                :<span class="lineNoCov">          0 :         o_item-&gt;iv_elements = hostToc.iv_elements;</span>
+<span class="lineNum">    1070 </span>                :<span class="lineCov">        483 :         o_item-&gt;iv_toc = i_imageToc;</span>
+<span class="lineNum">    1071 </span>                :<span class="lineCov">        483 :         o_item-&gt;iv_type = hostToc.iv_type;</span>
+<span class="lineNum">    1072 </span>                :<span class="lineCov">        483 :         o_item-&gt;iv_elements = hostToc.iv_elements;</span>
 <span class="lineNum">    1073 </span>                :            :     
-<span class="lineNum">    1074 </span>                :<span class="lineNoCov">          0 :         sbe_xip_get_section(i_image, SBE_XIP_SECTION_STRINGS, &amp;stringsSection);</span>
-<span class="lineNum">    1075 </span>                :<span class="lineNoCov">          0 :         o_item-&gt;iv_id = </span>
-<span class="lineNum">    1076 </span>                :<span class="lineNoCov">          0 :             (char*)i_image + stringsSection.iv_offset + hostToc.iv_id;</span>
+<span class="lineNum">    1074 </span>                :<span class="lineCov">        483 :         sbe_xip_get_section(i_image, SBE_XIP_SECTION_STRINGS, &amp;stringsSection);</span>
+<span class="lineNum">    1075 </span>                :<span class="lineCov">        483 :         o_item-&gt;iv_id = </span>
+<span class="lineNum">    1076 </span>                :<span class="lineCov">        483 :             (char*)i_image + stringsSection.iv_offset + hostToc.iv_id;</span>
 <span class="lineNum">    1077 </span>                :            :         
 <span class="lineNum">    1078 </span>                :            : 
 <span class="lineNum">    1079 </span>                :            :         // The data (or text address) are addressed by relative offsets from
@@ -1153,25 +1153,25 @@
 <span class="lineNum">    1081 </span>                :            :         // even though the section has been removed from the image, so this
 <span class="lineNum">    1082 </span>                :            :         // case needs to be covered. 
 <span class="lineNum">    1083 </span>                :            :         
-<span class="lineNum">    1084 </span>                :<span class="lineNoCov">          0 :         rc = sbe_xip_get_section(i_image, hostToc.iv_section, &amp;dataSection);</span>
-<span class="lineNum">    1085 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) break;</span>
+<span class="lineNum">    1084 </span>                :<span class="lineCov">        483 :         rc = sbe_xip_get_section(i_image, hostToc.iv_section, &amp;dataSection);</span>
+<span class="lineNum">    1085 </span>        [<span class="branchCov" title="Branch 0 was taken 484 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        484 :         if (rc) break;</span>
 <span class="lineNum">    1086 </span>                :            : 
-<span class="lineNum">    1087 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (dataSection.iv_size == 0) {</span>
+<span class="lineNum">    1087 </span>        [<span class="branchCov" title="Branch 0 was taken 484 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        484 :         if (dataSection.iv_size == 0) {</span>
 <span class="lineNum">    1088 </span>                :            :             rc = TRACE_ERROR(SBE_XIP_DATA_NOT_PRESENT);
 <span class="lineNum">    1089 </span>                :            :             break;
 <span class="lineNum">    1090 </span>                :            :         }
 <span class="lineNum">    1091 </span>                :            : 
-<span class="lineNum">    1092 </span>                :<span class="lineNoCov">          0 :         o_item-&gt;iv_imageData = </span>
-<span class="lineNum">    1093 </span>                :<span class="lineNoCov">          0 :             (void*)((uint8_t*)i_image + </span>
-<span class="lineNum">    1094 </span>                :<span class="lineNoCov">          0 :                     dataSection.iv_offset + hostToc.iv_data);</span>
+<span class="lineNum">    1092 </span>                :<span class="lineCov">        484 :         o_item-&gt;iv_imageData = </span>
+<span class="lineNum">    1093 </span>                :<span class="lineCov">        484 :             (void*)((uint8_t*)i_image + </span>
+<span class="lineNum">    1094 </span>                :<span class="lineCov">        484 :                     dataSection.iv_offset + hostToc.iv_data);</span>
 <span class="lineNum">    1095 </span>                :            : 
-<span class="lineNum">    1096 </span>                :<span class="lineNoCov">          0 :         o_item-&gt;iv_address = </span>
-<span class="lineNum">    1097 </span>                :<span class="lineNoCov">          0 :             xipLinkAddress(i_image) + dataSection.iv_offset + hostToc.iv_data;</span>
+<span class="lineNum">    1096 </span>                :<span class="lineCov">        484 :         o_item-&gt;iv_address = </span>
+<span class="lineNum">    1097 </span>                :<span class="lineCov">        484 :             xipLinkAddress(i_image) + dataSection.iv_offset + hostToc.iv_data;</span>
 <span class="lineNum">    1098 </span>                :            : 
-<span class="lineNum">    1099 </span>                :<span class="lineNoCov">          0 :         o_item-&gt;iv_partial = 0;</span>
+<span class="lineNum">    1099 </span>                :<span class="lineCov">        484 :         o_item-&gt;iv_partial = 0;</span>
 <span class="lineNum">    1100 </span>                :            :             
 <span class="lineNum">    1101 </span>                :            :     } while (0);
-<span class="lineNum">    1102 </span>                :<span class="lineNoCov">          0 :     return rc;</span>
+<span class="lineNum">    1102 </span>                :<span class="lineCov">        484 :     return rc;</span>
 <span class="lineNum">    1103 </span>                :            : }    
 <span class="lineNum">    1104 </span>                :            : 
 <span class="lineNum">    1105 </span>                :            : 
@@ -1775,20 +1775,20 @@
 <span class="lineNum">    1703 </span>                :            : 
 <span class="lineNum">    1704 </span>                :            : 
 <span class="lineNum">    1705 </span>                :            : int
-<span class="lineNum">    1706 </span>                :<span class="lineNoCov">          0 : sbe_xip_get_section(const void* i_image,</span>
+<span class="lineNum">    1706 </span>                :<span class="lineCov">       2408 : sbe_xip_get_section(const void* i_image,</span>
 <span class="lineNum">    1707 </span>                :            :                     const int i_sectionId,
 <span class="lineNum">    1708 </span>                :            :                     SbeXipSection* o_hostSection)
 <span class="lineNum">    1709 </span>                :            : {
 <span class="lineNum">    1710 </span>                :            :     int rc;
 <span class="lineNum">    1711 </span>                :            :     SbeXipSection *imageSection;
 <span class="lineNum">    1712 </span>                :            : 
-<span class="lineNum">    1713 </span>                :<span class="lineNoCov">          0 :     rc = xipGetSectionPointer(i_image, i_sectionId, &amp;imageSection);</span>
+<span class="lineNum">    1713 </span>                :<span class="lineCov">       2408 :     rc = xipGetSectionPointer(i_image, i_sectionId, &amp;imageSection);</span>
 <span class="lineNum">    1714 </span>                :            : 
-<span class="lineNum">    1715 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (!rc) {</span>
-<span class="lineNum">    1716 </span>                :<span class="lineNoCov">          0 :         xipTranslateSection(o_hostSection, imageSection);</span>
+<span class="lineNum">    1715 </span>        [<span class="branchCov" title="Branch 0 was taken 2408 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">       2408 :     if (!rc) {</span>
+<span class="lineNum">    1716 </span>                :<span class="lineCov">       2408 :         xipTranslateSection(o_hostSection, imageSection);</span>
 <span class="lineNum">    1717 </span>                :            :     }
 <span class="lineNum">    1718 </span>                :            : 
-<span class="lineNum">    1719 </span>                :<span class="lineNoCov">          0 :     return rc;</span>
+<span class="lineNum">    1719 </span>                :<span class="lineCov">       2405 :     return rc;</span>
 <span class="lineNum">    1720 </span>                :            : }
 <span class="lineNum">    1721 </span>                :            : 
 <span class="lineNum">    1722 </span>                :            : 
@@ -1796,7 +1796,7 @@
 <span class="lineNum">    1724 </span>                :            : // .fixed and .header sections.
 <span class="lineNum">    1725 </span>                :            : 
 <span class="lineNum">    1726 </span>                :            : int
-<span class="lineNum">    1727 </span>                :<span class="lineNoCov">          0 : sbe_xip_find(void* i_image, </span>
+<span class="lineNum">    1727 </span>                :<span class="lineCov">        481 : sbe_xip_find(void* i_image, </span>
 <span class="lineNum">    1728 </span>                :            :              const char* i_id,
 <span class="lineNum">    1729 </span>                :            :              SbeXipItem* o_item)
 <span class="lineNum">    1730 </span>                :            : {
@@ -1806,13 +1806,13 @@
 <span class="lineNum">    1734 </span>                :            :     SbeXipSection* tocSection;
 <span class="lineNum">    1735 </span>                :            : 
 <span class="lineNum">    1736 </span>                :            :     do {
-<span class="lineNum">    1737 </span>                :<span class="lineNoCov">          0 :         rc = xipQuickCheck(i_image, 1);</span>
-<span class="lineNum">    1738 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) break;</span>
+<span class="lineNum">    1737 </span>                :<span class="lineCov">        481 :         rc = xipQuickCheck(i_image, 1);</span>
+<span class="lineNum">    1738 </span>        [<span class="branchCov" title="Branch 0 was taken 482 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">        483 :         if (rc) break;</span>
 <span class="lineNum">    1739 </span>                :            : 
-<span class="lineNum">    1740 </span>                :<span class="lineNoCov">          0 :         rc = xipGetSectionPointer(i_image, SBE_XIP_SECTION_TOC, &amp;tocSection);</span>
+<span class="lineNum">    1740 </span>                :<span class="lineCov">        482 :         rc = xipGetSectionPointer(i_image, SBE_XIP_SECTION_TOC, &amp;tocSection);</span>
 <span class="lineNum">    1741 </span>                :            :         if (rc) break;
 <span class="lineNum">    1742 </span>                :            : 
-<span class="lineNum">    1743 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (tocSection-&gt;iv_size == 0) {</span>
+<span class="lineNum">    1743 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 482 times"> + </span>]:<span class="lineCov">        482 :         if (tocSection-&gt;iv_size == 0) {</span>
 <span class="lineNum">    1744 </span>                :<span class="lineNoCov">          0 :             rc = xipFixedFind(i_image, i_id, o_item);</span>
 <span class="lineNum">    1745 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             if (rc) {</span>
 <span class="lineNum">    1746 </span>                :<span class="lineNoCov">          0 :                 rc = xipHeaderFind(i_image, i_id, o_item);</span>
@@ -1820,24 +1820,24 @@
 <span class="lineNum">    1748 </span>                :            :             break;
 <span class="lineNum">    1749 </span>                :            :         }
 <span class="lineNum">    1750 </span>                :            : 
-<span class="lineNum">    1751 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (xipSorted(i_image)) {</span>
-<span class="lineNum">    1752 </span>                :<span class="lineNoCov">          0 :             rc = xipBinarySearch(i_image, i_id, &amp;toc);</span>
+<span class="lineNum">    1751 </span>        [<span class="branchCov" title="Branch 0 was taken 482 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        482 :         if (xipSorted(i_image)) {</span>
+<span class="lineNum">    1752 </span>                :<span class="lineCov">        482 :             rc = xipBinarySearch(i_image, i_id, &amp;toc);</span>
 <span class="lineNum">    1753 </span>                :            :         } else {
 <span class="lineNum">    1754 </span>                :<span class="lineNoCov">          0 :             rc = xipLinearSearch(i_image, i_id, &amp;toc);</span>
 <span class="lineNum">    1755 </span>                :            :         }
-<span class="lineNum">    1756 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) break;</span>
+<span class="lineNum">    1756 </span>        [<span class="branchCov" title="Branch 0 was taken 484 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        484 :         if (rc) break;</span>
 <span class="lineNum">    1757 </span>                :            : 
-<span class="lineNum">    1758 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (o_item) {</span>
-<span class="lineNum">    1759 </span>                :<span class="lineNoCov">          0 :             pitem = o_item;</span>
+<span class="lineNum">    1758 </span>        [<span class="branchCov" title="Branch 0 was taken 484 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        484 :         if (o_item) {</span>
+<span class="lineNum">    1759 </span>                :<span class="lineCov">        484 :             pitem = o_item;</span>
 <span class="lineNum">    1760 </span>                :            :         } else {
 <span class="lineNum">    1761 </span>                :            :             pitem = &amp;item;
 <span class="lineNum">    1762 </span>                :            :         }
-<span class="lineNum">    1763 </span>                :<span class="lineNoCov">          0 :         rc = xipDecodeToc(i_image, toc, pitem);</span>
+<span class="lineNum">    1763 </span>                :<span class="lineCov">        484 :         rc = xipDecodeToc(i_image, toc, pitem);</span>
 <span class="lineNum">    1764 </span>                :            :         if (rc) break;
 <span class="lineNum">    1765 </span>                :            : 
 <span class="lineNum">    1766 </span>                :            :     } while (0);
 <span class="lineNum">    1767 </span>                :            : 
-<span class="lineNum">    1768 </span>                :<span class="lineNoCov">          0 :     return rc;</span>
+<span class="lineNum">    1768 </span>                :<span class="lineCov">        485 :     return rc;</span>
 <span class="lineNum">    1769 </span>                :            : }
 <span class="lineNum">    1770 </span>                :            : 
 <span class="lineNum">    1771 </span>                :            : 
@@ -1954,21 +1954,21 @@
 <span class="lineNum">    1882 </span>                :            : 
 <span class="lineNum">    1883 </span>                :            : 
 <span class="lineNum">    1884 </span>                :            : int
-<span class="lineNum">    1885 </span>                :<span class="lineNoCov">          0 : sbe_xip_get_scalar(void *i_image, const char* i_id, uint64_t* o_data)</span>
+<span class="lineNum">    1885 </span>                :<span class="lineCov">          4 : sbe_xip_get_scalar(void *i_image, const char* i_id, uint64_t* o_data)</span>
 <span class="lineNum">    1886 </span>                :            : {
 <span class="lineNum">    1887 </span>                :            :     int rc;
 <span class="lineNum">    1888 </span>                :            :     SbeXipItem item;
 <span class="lineNum">    1889 </span>                :            :     
-<span class="lineNum">    1890 </span>                :<span class="lineNoCov">          0 :     rc = sbe_xip_find(i_image, i_id, &amp;item);</span>
-<span class="lineNum">    1891 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (!rc) {</span>
-<span class="lineNum">    1892 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span> :<span class="lineNoCov">          0 :         switch (item.iv_type) {</span>
-<span class="lineNum">         </span>            <span class="branchNoExec" title="Branch 4 was not executed"> # </span>]
+<span class="lineNum">    1890 </span>                :<span class="lineCov">          4 :     rc = sbe_xip_find(i_image, i_id, &amp;item);</span>
+<span class="lineNum">    1891 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :     if (!rc) {</span>
+<span class="lineNum">    1892 </span>  [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span> :<span class="lineCov">          4 :         switch (item.iv_type) {</span>
+<span class="lineNum">         </span>            <span class="branchNoCov" title="Branch 4 was not taken"> - </span>]
 <span class="lineNum">    1893 </span>                :            :         case SBE_XIP_UINT8:
 <span class="lineNum">    1894 </span>                :<span class="lineNoCov">          0 :             *o_data = *((uint8_t*)(item.iv_imageData));</span>
 <span class="lineNum">    1895 </span>                :<span class="lineNoCov">          0 :             break;</span>
 <span class="lineNum">    1896 </span>                :            :         case SBE_XIP_UINT32:
-<span class="lineNum">    1897 </span>                :<span class="lineNoCov">          0 :             *o_data = xipRevLe32(*((uint32_t*)(item.iv_imageData)));</span>
-<span class="lineNum">    1898 </span>                :<span class="lineNoCov">          0 :             break;</span>
+<span class="lineNum">    1897 </span>                :<span class="lineCov">          8 :             *o_data = xipRevLe32(*((uint32_t*)(item.iv_imageData)));</span>
+<span class="lineNum">    1898 </span>                :<span class="lineCov">          4 :             break;</span>
 <span class="lineNum">    1899 </span>                :            :         case SBE_XIP_UINT64:
 <span class="lineNum">    1900 </span>                :<span class="lineNoCov">          0 :             *o_data = xipRevLe64(*((uint64_t*)(item.iv_imageData)));</span>
 <span class="lineNum">    1901 </span>                :<span class="lineNoCov">          0 :             break;</span>
@@ -1980,7 +1980,7 @@
 <span class="lineNum">    1907 </span>                :            :             break;
 <span class="lineNum">    1908 </span>                :            :         }
 <span class="lineNum">    1909 </span>                :            :     }
-<span class="lineNum">    1910 </span>                :<span class="lineNoCov">          0 :     return rc;</span>
+<span class="lineNum">    1910 </span>                :<span class="lineCov">          4 :     return rc;</span>
 <span class="lineNum">    1911 </span>                :            : }
 <span class="lineNum">    1912 </span>                :            : 
 <span class="lineNum">    1913 </span>                :            : 
@@ -2492,59 +2492,59 @@
 <span class="lineNum">    2419 </span>                :            : 
 <span class="lineNum">    2420 </span>                :            : 
 <span class="lineNum">    2421 </span>                :            : int
-<span class="lineNum">    2422 </span>                :<span class="lineNoCov">          0 : sbe_xip_pore2host(const void* i_image, </span>
+<span class="lineNum">    2422 </span>                :<span class="lineCov">        959 : sbe_xip_pore2host(const void* i_image, </span>
 <span class="lineNum">    2423 </span>                :            :                   const uint64_t i_poreAddress,
 <span class="lineNum">    2424 </span>                :            :                   void** o_hostAddress)
 <span class="lineNum">    2425 </span>                :            : {
 <span class="lineNum">    2426 </span>                :            :     int rc;
 <span class="lineNum">    2427 </span>                :            : 
 <span class="lineNum">    2428 </span>                :            :     do {
-<span class="lineNum">    2429 </span>                :<span class="lineNoCov">          0 :         rc = xipQuickCheck(i_image, 0);</span>
-<span class="lineNum">    2430 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) break;</span>
+<span class="lineNum">    2429 </span>                :<span class="lineCov">        959 :         rc = xipQuickCheck(i_image, 0);</span>
+<span class="lineNum">    2430 </span>        [<span class="branchCov" title="Branch 0 was taken 959 times"> + </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineCov">        958 :         if (rc) break;</span>
 <span class="lineNum">    2431 </span>                :            : 
-<span class="lineNum">    2432 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((i_poreAddress &lt; xipLinkAddress(i_image)) ||</span>
+<span class="lineNum">    2432 </span>[<span class="branchCov" title="Branch 0 was taken 960 times"> + </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchCov" title="Branch 2 was taken 960 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        959 :         if ((i_poreAddress &lt; xipLinkAddress(i_image)) ||</span>
 <span class="lineNum">    2433 </span>                :            :             (i_poreAddress &gt; 
-<span class="lineNum">    2434 </span>                :<span class="lineNoCov">          0 :              (xipLinkAddress(i_image) + xipImageSize(i_image)))) {</span>
+<span class="lineNum">    2434 </span>                :<span class="lineCov">       1920 :              (xipLinkAddress(i_image) + xipImageSize(i_image)))) {</span>
 <span class="lineNum">    2435 </span>                :            :             rc = TRACE_ERROR(SBE_XIP_INVALID_ARGUMENT);
 <span class="lineNum">    2436 </span>                :            :             break;
 <span class="lineNum">    2437 </span>                :            :         }
 <span class="lineNum">    2438 </span>                :            : 
-<span class="lineNum">    2439 </span>                :<span class="lineNoCov">          0 :         *o_hostAddress = </span>
-<span class="lineNum">    2440 </span>                :<span class="lineNoCov">          0 :             xipHostAddressFromOffset(i_image, </span>
+<span class="lineNum">    2439 </span>                :<span class="lineCov">        960 :         *o_hostAddress = </span>
+<span class="lineNum">    2440 </span>                :<span class="lineCov">       1920 :             xipHostAddressFromOffset(i_image, </span>
 <span class="lineNum">    2441 </span>                :            :                                      i_poreAddress - xipLinkAddress(i_image));
 <span class="lineNum">    2442 </span>                :            :     } while(0);
 <span class="lineNum">    2443 </span>                :            : 
-<span class="lineNum">    2444 </span>                :<span class="lineNoCov">          0 :     return rc;</span>
+<span class="lineNum">    2444 </span>                :<span class="lineCov">        958 :     return rc;</span>
 <span class="lineNum">    2445 </span>                :            : }
 <span class="lineNum">    2446 </span>                :            :     
 <span class="lineNum">    2447 </span>                :            :     
 <span class="lineNum">    2448 </span>                :            : int
-<span class="lineNum">    2449 </span>                :<span class="lineNoCov">          0 : sbe_xip_host2pore(const void* i_image, </span>
+<span class="lineNum">    2449 </span>                :<span class="lineCov">        478 : sbe_xip_host2pore(const void* i_image, </span>
 <span class="lineNum">    2450 </span>                :            :                   void* i_hostAddress,
 <span class="lineNum">    2451 </span>                :            :                   uint64_t* o_poreAddress)
 <span class="lineNum">    2452 </span>                :            : {
 <span class="lineNum">    2453 </span>                :            :     int rc;
 <span class="lineNum">    2454 </span>                :            : 
 <span class="lineNum">    2455 </span>                :            :     do {
-<span class="lineNum">    2456 </span>                :<span class="lineNoCov">          0 :         rc = xipQuickCheck(i_image, 0);</span>
-<span class="lineNum">    2457 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) break;</span>
+<span class="lineNum">    2456 </span>                :<span class="lineCov">        478 :         rc = xipQuickCheck(i_image, 0);</span>
+<span class="lineNum">    2457 </span>        [<span class="branchCov" title="Branch 0 was taken 480 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        480 :         if (rc) break;</span>
 <span class="lineNum">    2458 </span>                :            : 
-<span class="lineNum">    2459 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((i_hostAddress &lt; i_image) ||</span>
+<span class="lineNum">    2459 </span>[<span class="branchCov" title="Branch 0 was taken 480 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 480 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        480 :         if ((i_hostAddress &lt; i_image) ||</span>
 <span class="lineNum">    2460 </span>                :            :             (i_hostAddress &gt; 
-<span class="lineNum">    2461 </span>                :<span class="lineNoCov">          0 :              xipHostAddressFromOffset(i_image, xipImageSize(i_image)))) {</span>
+<span class="lineNum">    2461 </span>                :<span class="lineCov">        480 :              xipHostAddressFromOffset(i_image, xipImageSize(i_image)))) {</span>
 <span class="lineNum">    2462 </span>                :            :             rc = TRACE_ERROR(SBE_XIP_INVALID_ARGUMENT);
 <span class="lineNum">    2463 </span>                :            :             break;
 <span class="lineNum">    2464 </span>                :            :         }
 <span class="lineNum">    2465 </span>                :            : 
-<span class="lineNum">    2466 </span>                :<span class="lineNoCov">          0 :         *o_poreAddress = xipLinkAddress(i_image) + </span>
-<span class="lineNum">    2467 </span>                :<span class="lineNoCov">          0 :             ((unsigned long)i_hostAddress - (unsigned long)i_image);</span>
-<span class="lineNum">    2468 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (*o_poreAddress % 4) {</span>
+<span class="lineNum">    2466 </span>                :<span class="lineCov">        480 :         *o_poreAddress = xipLinkAddress(i_image) + </span>
+<span class="lineNum">    2467 </span>                :<span class="lineCov">        480 :             ((unsigned long)i_hostAddress - (unsigned long)i_image);</span>
+<span class="lineNum">    2468 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 480 times"> + </span>]:<span class="lineCov">        480 :         if (*o_poreAddress % 4) {</span>
 <span class="lineNum">    2469 </span>                :<span class="lineNoCov">          0 :             rc = TRACE_ERROR(SBE_XIP_ALIGNMENT_ERROR);</span>
 <span class="lineNum">    2470 </span>                :<span class="lineNoCov">          0 :             break;</span>
 <span class="lineNum">    2471 </span>                :            :         }
 <span class="lineNum">    2472 </span>                :            :     } while(0);
 <span class="lineNum">    2473 </span>                :            : 
-<span class="lineNum">    2474 </span>                :<span class="lineNoCov">          0 :     return rc;</span>
+<span class="lineNum">    2474 </span>                :<span class="lineCov">        480 :     return rc;</span>
 <span class="lineNum">    2475 </span>                :            : }
 <span class="lineNum">    2476 </span>                :            :         
 <a name="2477"><span class="lineNum">    2477 </span>                :            : </a>

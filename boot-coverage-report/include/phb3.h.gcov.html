@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">0</td>
             <td class="headerCovTableEntry">15</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntry">15</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">0</td>
             <td class="headerCovTableEntry">3</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">0</td>
             <td class="headerCovTableEntry">2</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -390,38 +390,38 @@
 <span class="lineNum">     319 </span>                :            :         return container_of(phb, struct phb3, phb);
 <a name="320"><span class="lineNum">     320 </span>                :            : }</a>
 <span class="lineNum">     321 </span>                :            : 
-<span class="lineNum">     322 </span>                :<span class="lineNoCov">          0 : static inline uint64_t phb3_read_reg_asb(struct phb3 *p, uint64_t offset)</span>
+<span class="lineNum">     322 </span>                :<span class="lineCov">         17 : static inline uint64_t phb3_read_reg_asb(struct phb3 *p, uint64_t offset)</span>
 <span class="lineNum">     323 </span>                :            : {
 <span class="lineNum">     324 </span>                :            :         uint64_t val;
 <span class="lineNum">     325 </span>                :            : 
-<span class="lineNum">     326 </span>                :<span class="lineNoCov">          0 :         xscom_write(p-&gt;chip_id, p-&gt;spci_xscom, offset);</span>
-<span class="lineNum">     327 </span>                :<span class="lineNoCov">          0 :         xscom_read(p-&gt;chip_id, p-&gt;spci_xscom + 0x2, &amp;val);</span>
+<span class="lineNum">     326 </span>                :<span class="lineCov">         17 :         xscom_write(p-&gt;chip_id, p-&gt;spci_xscom, offset);</span>
+<span class="lineNum">     327 </span>                :<span class="lineCov">         17 :         xscom_read(p-&gt;chip_id, p-&gt;spci_xscom + 0x2, &amp;val);</span>
 <span class="lineNum">     328 </span>                :            : 
-<span class="lineNum">     329 </span>                :<span class="lineNoCov">          0 :         return val;</span>
+<span class="lineNum">     329 </span>                :<span class="lineCov">         17 :         return val;</span>
 <a name="330"><span class="lineNum">     330 </span>                :            : }</a>
 <span class="lineNum">     331 </span>                :            : 
-<span class="lineNum">     332 </span>                :<span class="lineNoCov">          0 : static inline void phb3_write_reg_asb(struct phb3 *p,</span>
+<span class="lineNum">     332 </span>                :<span class="lineCov">         56 : static inline void phb3_write_reg_asb(struct phb3 *p,</span>
 <span class="lineNum">     333 </span>                :            :                                       uint64_t offset, uint64_t val)
 <span class="lineNum">     334 </span>                :            : {
-<span class="lineNum">     335 </span>                :<span class="lineNoCov">          0 :         xscom_write(p-&gt;chip_id, p-&gt;spci_xscom, offset);</span>
-<span class="lineNum">     336 </span>                :<span class="lineNoCov">          0 :         xscom_write(p-&gt;chip_id, p-&gt;spci_xscom + 0x2, val);</span>
-<span class="lineNum">     337 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     335 </span>                :<span class="lineCov">         56 :         xscom_write(p-&gt;chip_id, p-&gt;spci_xscom, offset);</span>
+<span class="lineNum">     336 </span>                :<span class="lineCov">         56 :         xscom_write(p-&gt;chip_id, p-&gt;spci_xscom + 0x2, val);</span>
+<span class="lineNum">     337 </span>                :<span class="lineCov">         56 : }</span>
 <span class="lineNum">     338 </span>                :            : 
 <span class="lineNum">     339 </span>                :            : static inline bool phb3_err_pending(struct phb3 *p)
 <span class="lineNum">     340 </span>                :            : {
 <span class="lineNum">     341 </span>                :            :         return p-&gt;err_pending;
 <a name="342"><span class="lineNum">     342 </span>                :            : }</a>
 <span class="lineNum">     343 </span>                :            : 
-<span class="lineNum">     344 </span>                :<span class="lineNoCov">          0 : static inline void phb3_set_err_pending(struct phb3 *p, bool pending)</span>
+<span class="lineNum">     344 </span>                :<span class="lineCov">        165 : static inline void phb3_set_err_pending(struct phb3 *p, bool pending)</span>
 <span class="lineNum">     345 </span>                :            : {
-<span class="lineNum">     346 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!pending) {</span>
-<span class="lineNum">     347 </span>                :<span class="lineNoCov">          0 :                 p-&gt;err.err_src   = PHB3_ERR_SRC_NONE;</span>
-<span class="lineNum">     348 </span>                :<span class="lineNoCov">          0 :                 p-&gt;err.err_class = PHB3_ERR_CLASS_NONE;</span>
-<span class="lineNum">     349 </span>                :<span class="lineNoCov">          0 :                 p-&gt;err.err_bit   = -1;</span>
+<span class="lineNum">     346 </span>        [<span class="branchCov" title="Branch 0 was taken 96 times"> + </span><span class="branchCov" title="Branch 1 was taken 69 times"> + </span>]:<span class="lineCov">        165 :         if (!pending) {</span>
+<span class="lineNum">     347 </span>                :<span class="lineCov">         96 :                 p-&gt;err.err_src   = PHB3_ERR_SRC_NONE;</span>
+<span class="lineNum">     348 </span>                :<span class="lineCov">         96 :                 p-&gt;err.err_class = PHB3_ERR_CLASS_NONE;</span>
+<span class="lineNum">     349 </span>                :<span class="lineCov">         96 :                 p-&gt;err.err_bit   = -1;</span>
 <span class="lineNum">     350 </span>                :            :         }
 <span class="lineNum">     351 </span>                :            : 
-<span class="lineNum">     352 </span>                :<span class="lineNoCov">          0 :         p-&gt;err_pending = pending;</span>
-<span class="lineNum">     353 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     352 </span>                :<span class="lineCov">        165 :         p-&gt;err_pending = pending;</span>
+<span class="lineNum">     353 </span>                :<span class="lineCov">        165 : }</span>
 <span class="lineNum">     354 </span>                :            : 
 <span class="lineNum">     355 </span>                :            : #endif /* __PHB3_H */
 </pre>

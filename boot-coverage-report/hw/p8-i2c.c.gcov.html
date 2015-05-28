@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">78</td>
             <td class="headerCovTableEntry">490</td>
-            <td class="headerCovTableEntryLo">0.8 %</td>
+            <td class="headerCovTableEntryLo">15.9 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">5</td>
             <td class="headerCovTableEntry">28</td>
-            <td class="headerCovTableEntryLo">3.6 %</td>
+            <td class="headerCovTableEntryLo">17.9 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">26</td>
             <td class="headerCovTableEntry">234</td>
-            <td class="headerCovTableEntryLo">1.3 %</td>
+            <td class="headerCovTableEntryLo">11.1 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -343,9 +343,9 @@
 <span class="lineNum">     272 </span>                :            :                          estat, intr);
 <a name="273"><span class="lineNum">     273 </span>                :<span class="lineNoCov">          0 : }</span></a>
 <span class="lineNum">     274 </span>                :            : 
-<span class="lineNum">     275 </span>                :<span class="lineNoCov">          0 : static bool p8_i2c_has_irqs(void)</span>
+<span class="lineNum">     275 </span>                :<span class="lineCov">          2 : static bool p8_i2c_has_irqs(void)</span>
 <span class="lineNum">     276 </span>                :            : {
-<span class="lineNum">     277 </span>                :<span class="lineNoCov">          0 :         struct proc_chip *chip = next_chip(NULL);</span>
+<span class="lineNum">     277 </span>                :<span class="lineCov">          2 :         struct proc_chip *chip = next_chip(NULL);</span>
 <span class="lineNum">     278 </span>                :            : 
 <span class="lineNum">     279 </span>                :            :         /* The i2c interrurpt was only added to Murano DD2.1 and Venice
 <span class="lineNum">     280 </span>                :            :          * DD2.0. When operating without interrupts, we need to bump the
@@ -354,9 +354,9 @@
 <span class="lineNum">     283 </span>                :            :          *
 <span class="lineNum">     284 </span>                :            :          * Also we don't have interrupts for the Centaur i2c.
 <span class="lineNum">     285 </span>                :            :          */
-<span class="lineNum">     286 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch (chip-&gt;type) {</span>
+<span class="lineNum">     286 </span>  [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          2 :         switch (chip-&gt;type) {</span>
 <span class="lineNum">     287 </span>                :            :         case PROC_CHIP_P8_MURANO:
-<span class="lineNum">     288 </span>                :<span class="lineNoCov">          0 :                 return chip-&gt;ec_level &gt;= 0x21;</span>
+<span class="lineNum">     288 </span>                :<span class="lineCov">          2 :                 return chip-&gt;ec_level &gt;= 0x21;</span>
 <span class="lineNum">     289 </span>                :            :         case PROC_CHIP_P8_VENICE:
 <span class="lineNum">     290 </span>                :<span class="lineNoCov">          0 :                 return chip-&gt;ec_level &gt;= 0x20;</span>
 <span class="lineNum">     291 </span>                :            :         case PROC_CHIP_P8_NAPLES:
@@ -380,27 +380,27 @@
 <span class="lineNum">     309 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
 <a name="310"><span class="lineNum">     310 </span>                :            : }</a>
 <span class="lineNum">     311 </span>                :            : 
-<span class="lineNum">     312 </span>                :<span class="lineNoCov">          0 : static int p8_i2c_prog_watermark(struct p8_i2c_master *master)</span>
+<span class="lineNum">     312 </span>                :<span class="lineCov">          2 : static int p8_i2c_prog_watermark(struct p8_i2c_master *master)</span>
 <span class="lineNum">     313 </span>                :            : {
 <span class="lineNum">     314 </span>                :            :         uint64_t watermark;
 <span class="lineNum">     315 </span>                :            :         int rc;
 <span class="lineNum">     316 </span>                :            : 
-<span class="lineNum">     317 </span>                :<span class="lineNoCov">          0 :         rc = xscom_read(master-&gt;chip_id, master-&gt;xscom_base + I2C_WATERMARK_REG,</span>
+<span class="lineNum">     317 </span>                :<span class="lineCov">          2 :         rc = xscom_read(master-&gt;chip_id, master-&gt;xscom_base + I2C_WATERMARK_REG,</span>
 <span class="lineNum">     318 </span>                :            :                         &amp;watermark);
-<span class="lineNum">     319 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     319 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (rc) {</span>
 <span class="lineNum">     320 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR, &quot;I2C: Failed to read the WATERMARK_REG\n&quot;);</span>
 <span class="lineNum">     321 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
 <span class="lineNum">     322 </span>                :            :         }
 <span class="lineNum">     323 </span>                :            : 
 <span class="lineNum">     324 </span>                :            :         /* Set the high/low watermark */
-<span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 :         watermark = SETFIELD(I2C_WATERMARK_HIGH, watermark, I2C_FIFO_HI_LVL);</span>
-<span class="lineNum">     326 </span>                :<span class="lineNoCov">          0 :         watermark = SETFIELD(I2C_WATERMARK_LOW, watermark, I2C_FIFO_LO_LVL);</span>
-<span class="lineNum">     327 </span>                :<span class="lineNoCov">          0 :         rc = xscom_write(master-&gt;chip_id, master-&gt;xscom_base +</span>
+<span class="lineNum">     325 </span>                :<span class="lineCov">          2 :         watermark = SETFIELD(I2C_WATERMARK_HIGH, watermark, I2C_FIFO_HI_LVL);</span>
+<span class="lineNum">     326 </span>                :<span class="lineCov">          2 :         watermark = SETFIELD(I2C_WATERMARK_LOW, watermark, I2C_FIFO_LO_LVL);</span>
+<span class="lineNum">     327 </span>                :<span class="lineCov">          2 :         rc = xscom_write(master-&gt;chip_id, master-&gt;xscom_base +</span>
 <span class="lineNum">     328 </span>                :            :                          I2C_WATERMARK_REG, watermark);
-<span class="lineNum">     329 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">     329 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (rc)</span>
 <span class="lineNum">     330 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR, &quot;I2C: Failed to set high/low watermark level\n&quot;);</span>
 <span class="lineNum">     331 </span>                :            : 
-<span class="lineNum">     332 </span>                :<span class="lineNoCov">          0 :         return rc;</span>
+<span class="lineNum">     332 </span>                :<span class="lineCov">          2 :         return rc;</span>
 <a name="333"><span class="lineNum">     333 </span>                :            : }</a>
 <span class="lineNum">     334 </span>                :            : 
 <span class="lineNum">     335 </span>                :<span class="lineNoCov">          0 : static int p8_i2c_prog_mode(struct p8_i2c_master_port *port, bool enhanced_mode)</span>
@@ -1065,7 +1065,7 @@
 <span class="lineNum">     993 </span>                :            : static inline uint32_t p8_i2c_get_bit_rate_divisor(uint32_t lb_freq,
 <a name="994"><span class="lineNum">     994 </span>                :            :                                                    uint32_t bus_speed)</a>
 <span class="lineNum">     995 </span>                :            : {
-<span class="lineNum">     996 </span>                :<span class="lineNoCov">          0 :         return (((lb_freq / bus_speed) - 1) / 4);</span>
+<span class="lineNum">     996 </span>                :<span class="lineCov">          2 :         return (((lb_freq / bus_speed) - 1) / 4);</span>
 <span class="lineNum">     997 </span>                :            : }
 <span class="lineNum">     998 </span>                :            : 
 <span class="lineNum">     999 </span>                :            : static inline uint64_t p8_i2c_get_poll_interval(uint32_t bus_speed)
@@ -1073,7 +1073,7 @@
 <span class="lineNum">    1001 </span>                :            :         uint64_t usec;
 <span class="lineNum">    1002 </span>                :            : 
 <span class="lineNum">    1003 </span>                :            :         /* Polling Interval = 8 * (1/bus_speed) * (1/10) -&gt; convert to uSec */
-<span class="lineNum">    1004 </span>                :<span class="lineNoCov">          0 :         usec = ((8 * USEC_PER_SEC) / (10 * bus_speed));</span>
+<span class="lineNum">    1004 </span>                :<span class="lineCov">          2 :         usec = ((8 * USEC_PER_SEC) / (10 * bus_speed));</span>
 <span class="lineNum">    1005 </span>                :            :         return usecs_to_tb(usec);
 <a name="1006"><span class="lineNum">    1006 </span>                :            : }</a>
 <span class="lineNum">    1007 </span>                :            : 
@@ -1185,16 +1185,16 @@
 <span class="lineNum">    1113 </span>                :            :         &quot;ibm,centaur-i2cm&quot;
 <a name="1114"><span class="lineNum">    1114 </span>                :            : };</a>
 <span class="lineNum">    1115 </span>                :            : 
-<span class="lineNum">    1116 </span>                :<span class="lineNoCov">          0 : static void p8_i2c_add_bus_prop(struct p8_i2c_master_port *port)</span>
+<span class="lineNum">    1116 </span>                :<span class="lineCov">          2 : static void p8_i2c_add_bus_prop(struct p8_i2c_master_port *port)</span>
 <span class="lineNum">    1117 </span>                :            : {
 <span class="lineNum">    1118 </span>                :            :         const struct dt_property *c, *p;
-<span class="lineNum">    1119 </span>                :<span class="lineNoCov">          0 :         struct dt_node *np = port-&gt;bus.dt_node;</span>
+<span class="lineNum">    1119 </span>                :<span class="lineCov">          2 :         struct dt_node *np = port-&gt;bus.dt_node;</span>
 <span class="lineNum">    1120 </span>                :            :         char name[32];
 <span class="lineNum">    1121 </span>                :            : 
-<span class="lineNum">    1122 </span>                :<span class="lineNoCov">          0 :         c = dt_find_property(np, &quot;compatible&quot;);</span>
-<span class="lineNum">    1123 </span>                :<span class="lineNoCov">          0 :         p = dt_find_property(np, &quot;ibm,port-name&quot;);</span>
+<span class="lineNum">    1122 </span>                :<span class="lineCov">          2 :         c = dt_find_property(np, &quot;compatible&quot;);</span>
+<span class="lineNum">    1123 </span>                :<span class="lineCov">          2 :         p = dt_find_property(np, &quot;ibm,port-name&quot;);</span>
 <span class="lineNum">    1124 </span>                :            : 
-<span class="lineNum">    1125 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!c) {</span>
+<span class="lineNum">    1125 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!c) {</span>
 <span class="lineNum">    1126 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (port-&gt;master-&gt;type == I2C_POWER8)</span>
 <span class="lineNum">    1127 </span>                :<span class="lineNoCov">          0 :                         dt_add_property_strings(np, &quot;compatible&quot;,</span>
 <span class="lineNum">    1128 </span>                :            :                                                 &quot;ibm,power8-i2c-port&quot;,
@@ -1205,7 +1205,7 @@
 <span class="lineNum">    1133 </span>                :            :                                                 &quot;ibm,opal-i2c&quot;);
 <span class="lineNum">    1134 </span>                :            :         }
 <span class="lineNum">    1135 </span>                :            : 
-<span class="lineNum">    1136 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!p) {</span>
+<span class="lineNum">    1136 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!p) {</span>
 <span class="lineNum">    1137 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (port-&gt;master-&gt;type == I2C_POWER8)</span>
 <span class="lineNum">    1138 </span>                :<span class="lineNoCov">          0 :                         snprintf(name, sizeof(name), &quot;p8_%08x_e%dp%d&quot;,</span>
 <span class="lineNum">    1139 </span>                :            :                                  port-&gt;master-&gt;chip_id, port-&gt;master-&gt;engine_id,
@@ -1217,9 +1217,9 @@
 <span class="lineNum">    1145 </span>                :            : 
 <span class="lineNum">    1146 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_string(np, &quot;ibm,port-name&quot;, name);</span>
 <span class="lineNum">    1147 </span>                :            :         }
-<span class="lineNum">    1148 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">    1148 </span>                :<span class="lineCov">          2 : }</span>
 <span class="lineNum">    1149 </span>                :            : 
-<span class="lineNum">    1150 </span>                :<span class="lineNoCov">          0 : static void p8_i2c_init_one(struct dt_node *i2cm, enum p8_i2c_master_type type)</span>
+<span class="lineNum">    1150 </span>                :<span class="lineCov">          2 : static void p8_i2c_init_one(struct dt_node *i2cm, enum p8_i2c_master_type type)</span>
 <span class="lineNum">    1151 </span>                :            : {
 <span class="lineNum">    1152 </span>                :            :         struct p8_i2c_master_port *port;
 <span class="lineNum">    1153 </span>                :            :         uint32_t lb_freq, count, max_bus_speed;
@@ -1230,66 +1230,66 @@
 <span class="lineNum">    1158 </span>                :            :         static bool irq_printed;
 <span class="lineNum">    1159 </span>                :            :         int rc;
 <span class="lineNum">    1160 </span>                :            : 
-<span class="lineNum">    1161 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (type == I2C_CENTAUR) {</span>
+<span class="lineNum">    1161 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (type == I2C_CENTAUR) {</span>
 <span class="lineNum">    1162 </span>                :            :                 /* Not supported yet ! No interrupt, possibly diff reg layout... */
 <span class="lineNum">    1163 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">    1164 </span>                :            :         }
 <span class="lineNum">    1165 </span>                :            : 
-<span class="lineNum">    1166 </span>                :<span class="lineNoCov">          0 :         master = zalloc(sizeof(*master));</span>
-<span class="lineNum">    1167 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!master) {</span>
+<span class="lineNum">    1166 </span>                :<span class="lineCov">          2 :         master = zalloc(sizeof(*master));</span>
+<span class="lineNum">    1167 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!master) {</span>
 <span class="lineNum">    1168 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_I2C_INIT),</span>
 <span class="lineNum">    1169 </span>                :            :                                  &quot;I2C: Failed to allocate master &quot;
 <span class="lineNum">    1170 </span>                :            :                                  &quot;structure\n&quot;);
 <span class="lineNum">    1171 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">    1172 </span>                :            :         }
-<span class="lineNum">    1173 </span>                :<span class="lineNoCov">          0 :         master-&gt;type = type;</span>
+<span class="lineNum">    1173 </span>                :<span class="lineCov">          2 :         master-&gt;type = type;</span>
 <span class="lineNum">    1174 </span>                :            : 
 <span class="lineNum">    1175 </span>                :            :         /* Local bus speed in Hz */
-<span class="lineNum">    1176 </span>                :<span class="lineNoCov">          0 :         lb_freq = dt_prop_get_u32(i2cm, &quot;clock-frequency&quot;);</span>
+<span class="lineNum">    1176 </span>                :<span class="lineCov">          2 :         lb_freq = dt_prop_get_u32(i2cm, &quot;clock-frequency&quot;);</span>
 <span class="lineNum">    1177 </span>                :            : 
 <span class="lineNum">    1178 </span>                :            :         /* XXX HACK for bad HB value */
-<span class="lineNum">    1179 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (lb_freq == 600000000) {</span>
+<span class="lineNum">    1179 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (lb_freq == 600000000) {</span>
 <span class="lineNum">    1180 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR, &quot;I2C: Fixing up HB bad clock freq !\n&quot;);</span>
 <span class="lineNum">    1181 </span>                :<span class="lineNoCov">          0 :                 lb_freq = 50000000;</span>
 <span class="lineNum">    1182 </span>                :            :         }
 <span class="lineNum">    1183 </span>                :            : 
 <span class="lineNum">    1184 </span>                :            :         /* Initialise the i2c master structure */
-<span class="lineNum">    1185 </span>                :<span class="lineNoCov">          0 :         master-&gt;state = state_idle;</span>
-<span class="lineNum">    1186 </span>                :<span class="lineNoCov">          0 :         master-&gt;chip_id = dt_get_chip_id(i2cm);</span>
-<span class="lineNum">    1187 </span>                :<span class="lineNoCov">          0 :         master-&gt;engine_id = dt_prop_get_u32(i2cm, &quot;chip-engine#&quot;);</span>
-<span class="lineNum">    1188 </span>                :<span class="lineNoCov">          0 :         master-&gt;xscom_base = dt_get_address(i2cm, 0, NULL);</span>
-<span class="lineNum">    1189 </span>                :<span class="lineNoCov">          0 :         chip = get_chip(master-&gt;chip_id);</span>
-<span class="lineNum">    1190 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         assert(chip);</span>
-<span class="lineNum">    1191 </span>                :<span class="lineNoCov">          0 :         init_timer(&amp;master-&gt;timeout, p8_i2c_timeout, master);</span>
-<span class="lineNum">    1192 </span>                :<span class="lineNoCov">          0 :         init_timer(&amp;master-&gt;poller, p8_i2c_poll, master);</span>
-<span class="lineNum">    1193 </span>                :<span class="lineNoCov">          0 :         init_timer(&amp;master-&gt;recovery, p8_i2c_recover, master);</span>
+<span class="lineNum">    1185 </span>                :<span class="lineCov">          2 :         master-&gt;state = state_idle;</span>
+<span class="lineNum">    1186 </span>                :<span class="lineCov">          2 :         master-&gt;chip_id = dt_get_chip_id(i2cm);</span>
+<span class="lineNum">    1187 </span>                :<span class="lineCov">          2 :         master-&gt;engine_id = dt_prop_get_u32(i2cm, &quot;chip-engine#&quot;);</span>
+<span class="lineNum">    1188 </span>                :<span class="lineCov">          2 :         master-&gt;xscom_base = dt_get_address(i2cm, 0, NULL);</span>
+<span class="lineNum">    1189 </span>                :<span class="lineCov">          2 :         chip = get_chip(master-&gt;chip_id);</span>
+<span class="lineNum">    1190 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         assert(chip);</span>
+<span class="lineNum">    1191 </span>                :<span class="lineCov">          2 :         init_timer(&amp;master-&gt;timeout, p8_i2c_timeout, master);</span>
+<span class="lineNum">    1192 </span>                :<span class="lineCov">          2 :         init_timer(&amp;master-&gt;poller, p8_i2c_poll, master);</span>
+<span class="lineNum">    1193 </span>                :<span class="lineCov">          2 :         init_timer(&amp;master-&gt;recovery, p8_i2c_recover, master);</span>
 <span class="lineNum">    1194 </span>                :            : 
-<span class="lineNum">    1195 </span>                :<span class="lineNoCov">          0 :         prlog(PR_INFO, &quot;I2C: Chip %08x Eng. %d\n&quot;,</span>
+<span class="lineNum">    1195 </span>                :<span class="lineCov">          2 :         prlog(PR_INFO, &quot;I2C: Chip %08x Eng. %d\n&quot;,</span>
 <span class="lineNum">    1196 </span>                :            :               master-&gt;chip_id, master-&gt;engine_id);
 <span class="lineNum">    1197 </span>                :            : 
-<span class="lineNum">    1198 </span>                :<span class="lineNoCov">          0 :         rc = xscom_read(master-&gt;chip_id, master-&gt;xscom_base +</span>
+<span class="lineNum">    1198 </span>                :<span class="lineCov">          2 :         rc = xscom_read(master-&gt;chip_id, master-&gt;xscom_base +</span>
 <span class="lineNum">    1199 </span>                :            :                         I2C_EXTD_STAT_REG, &amp;ex_stat);
-<span class="lineNum">    1200 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">    1200 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (rc) {</span>
 <span class="lineNum">    1201 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_I2C_INIT), &quot;I2C: &quot;</span>
 <span class="lineNum">    1202 </span>                :            :                                  &quot;Failed to read EXTD_STAT_REG\n&quot;);
 <span class="lineNum">    1203 </span>                :<span class="lineNoCov">          0 :                 free(master);</span>
 <span class="lineNum">    1204 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">    1205 </span>                :            :         }
 <span class="lineNum">    1206 </span>                :            : 
-<span class="lineNum">    1207 </span>                :<span class="lineNoCov">          0 :         master-&gt;fifo_size = GETFIELD(I2C_EXTD_STAT_FIFO_SIZE, ex_stat);</span>
-<span class="lineNum">    1208 </span>                :<span class="lineNoCov">          0 :         list_head_init(&amp;master-&gt;req_list);</span>
+<span class="lineNum">    1207 </span>                :<span class="lineCov">          2 :         master-&gt;fifo_size = GETFIELD(I2C_EXTD_STAT_FIFO_SIZE, ex_stat);</span>
+<span class="lineNum">    1208 </span>                :<span class="lineCov">          2 :         list_head_init(&amp;master-&gt;req_list);</span>
 <span class="lineNum">    1209 </span>                :            : 
 <span class="lineNum">    1210 </span>                :            :         /* Check if interrupt is usable */
-<span class="lineNum">    1211 </span>                :<span class="lineNoCov">          0 :         master-&gt;irq_ok = p8_i2c_has_irqs();</span>
-<span class="lineNum">    1212 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!irq_printed) {</span>
-<span class="lineNum">    1213 </span>                :<span class="lineNoCov">          0 :                 irq_printed = true;</span>
-<span class="lineNum">    1214 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 prlog(PR_INFO, &quot;I2C: Interrupts %sfunctional\n&quot;,</span>
+<span class="lineNum">    1211 </span>                :<span class="lineCov">          2 :         master-&gt;irq_ok = p8_i2c_has_irqs();</span>
+<span class="lineNum">    1212 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if (!irq_printed) {</span>
+<span class="lineNum">    1213 </span>                :<span class="lineCov">          1 :                 irq_printed = true;</span>
+<span class="lineNum">    1214 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :                 prlog(PR_INFO, &quot;I2C: Interrupts %sfunctional\n&quot;,</span>
 <span class="lineNum">    1215 </span>                :            :                       master-&gt;irq_ok ? &quot;&quot; : &quot;non-&quot;);
 <span class="lineNum">    1216 </span>                :            :         }
 <span class="lineNum">    1217 </span>                :            : 
 <span class="lineNum">    1218 </span>                :            :         /* Program the watermark register */
-<span class="lineNum">    1219 </span>                :<span class="lineNoCov">          0 :         rc = p8_i2c_prog_watermark(master);</span>
-<span class="lineNum">    1220 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">    1219 </span>                :<span class="lineCov">          2 :         rc = p8_i2c_prog_watermark(master);</span>
+<span class="lineNum">    1220 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (rc) {</span>
 <span class="lineNum">    1221 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_I2C_INIT),</span>
 <span class="lineNum">    1222 </span>                :            :                                  &quot;I2C: Failed to program the &quot;
 <span class="lineNum">    1223 </span>                :            :                                  &quot;WATERMARK_REG\n&quot;);
@@ -1298,12 +1298,12 @@
 <span class="lineNum">    1226 </span>                :            :         }
 <span class="lineNum">    1227 </span>                :            : 
 <span class="lineNum">    1228 </span>                :            :         /* Allocate ports driven by this master */
-<span class="lineNum">    1229 </span>                :<span class="lineNoCov">          0 :         count = 0;</span>
-<span class="lineNum">    1230 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         dt_for_each_child(i2cm, i2cm_port)</span>
-<span class="lineNum">    1231 </span>                :<span class="lineNoCov">          0 :                 count++;</span>
+<span class="lineNum">    1229 </span>                :<span class="lineCov">          2 :         count = 0;</span>
+<span class="lineNum">    1230 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          4 :         dt_for_each_child(i2cm, i2cm_port)</span>
+<span class="lineNum">    1231 </span>                :<span class="lineCov">          2 :                 count++;</span>
 <span class="lineNum">    1232 </span>                :            : 
-<span class="lineNum">    1233 </span>                :<span class="lineNoCov">          0 :         port = zalloc(sizeof(*port) * count);</span>
-<span class="lineNum">    1234 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!port) {</span>
+<span class="lineNum">    1233 </span>                :<span class="lineCov">          2 :         port = zalloc(sizeof(*port) * count);</span>
+<span class="lineNum">    1234 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!port) {</span>
 <span class="lineNum">    1235 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_I2C_INIT),</span>
 <span class="lineNum">    1236 </span>                :            :                                  &quot;I2C: Insufficient memory\n&quot;);
 <span class="lineNum">    1237 </span>                :<span class="lineNoCov">          0 :                 free(master);</span>
@@ -1311,32 +1311,32 @@
 <span class="lineNum">    1239 </span>                :            :         }
 <span class="lineNum">    1240 </span>                :            : 
 <span class="lineNum">    1241 </span>                :            :         /* Add master to chip's list */
-<span class="lineNum">    1242 </span>                :<span class="lineNoCov">          0 :         list_add_tail(&amp;chip-&gt;i2cms, &amp;master-&gt;link);</span>
-<span class="lineNum">    1243 </span>                :<span class="lineNoCov">          0 :         max_bus_speed = 0;</span>
+<span class="lineNum">    1242 </span>                :<span class="lineCov">          2 :         list_add_tail(&amp;chip-&gt;i2cms, &amp;master-&gt;link);</span>
+<span class="lineNum">    1243 </span>                :<span class="lineCov">          2 :         max_bus_speed = 0;</span>
 <span class="lineNum">    1244 </span>                :            : 
-<span class="lineNum">    1245 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         dt_for_each_child(i2cm, i2cm_port) {</span>
+<span class="lineNum">    1245 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          4 :         dt_for_each_child(i2cm, i2cm_port) {</span>
 <span class="lineNum">    1246 </span>                :            :                 uint32_t speed;
 <span class="lineNum">    1247 </span>                :            : 
-<span class="lineNum">    1248 </span>                :<span class="lineNoCov">          0 :                 port-&gt;port_num = dt_prop_get_u32(i2cm_port, &quot;reg&quot;);</span>
-<span class="lineNum">    1249 </span>                :<span class="lineNoCov">          0 :                 port-&gt;master = master;</span>
-<span class="lineNum">    1250 </span>                :<span class="lineNoCov">          0 :                 speed = dt_prop_get_u32(i2cm_port, &quot;bus-frequency&quot;);</span>
-<span class="lineNum">    1251 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (speed &gt; max_bus_speed)</span>
-<span class="lineNum">    1252 </span>                :<span class="lineNoCov">          0 :                         max_bus_speed = speed;</span>
-<span class="lineNum">    1253 </span>                :<span class="lineNoCov">          0 :                 port-&gt;bit_rate_div =</span>
+<span class="lineNum">    1248 </span>                :<span class="lineCov">          2 :                 port-&gt;port_num = dt_prop_get_u32(i2cm_port, &quot;reg&quot;);</span>
+<span class="lineNum">    1249 </span>                :<span class="lineCov">          2 :                 port-&gt;master = master;</span>
+<span class="lineNum">    1250 </span>                :<span class="lineCov">          2 :                 speed = dt_prop_get_u32(i2cm_port, &quot;bus-frequency&quot;);</span>
+<span class="lineNum">    1251 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :                 if (speed &gt; max_bus_speed)</span>
+<span class="lineNum">    1252 </span>                :<span class="lineCov">          2 :                         max_bus_speed = speed;</span>
+<span class="lineNum">    1253 </span>                :<span class="lineCov">          2 :                 port-&gt;bit_rate_div =</span>
 <span class="lineNum">    1254 </span>                :            :                         p8_i2c_get_bit_rate_divisor(lb_freq, speed);
-<span class="lineNum">    1255 </span>                :<span class="lineNoCov">          0 :                 port-&gt;bus.dt_node = i2cm_port;</span>
-<span class="lineNum">    1256 </span>                :<span class="lineNoCov">          0 :                 port-&gt;bus.queue_req = p8_i2c_queue_request;</span>
-<span class="lineNum">    1257 </span>                :<span class="lineNoCov">          0 :                 port-&gt;bus.alloc_req = p8_i2c_alloc_request;</span>
-<span class="lineNum">    1258 </span>                :<span class="lineNoCov">          0 :                 port-&gt;bus.free_req = p8_i2c_free_request;</span>
-<span class="lineNum">    1259 </span>                :<span class="lineNoCov">          0 :                 i2c_add_bus(&amp;port-&gt;bus);</span>
+<span class="lineNum">    1255 </span>                :<span class="lineCov">          2 :                 port-&gt;bus.dt_node = i2cm_port;</span>
+<span class="lineNum">    1256 </span>                :<span class="lineCov">          2 :                 port-&gt;bus.queue_req = p8_i2c_queue_request;</span>
+<span class="lineNum">    1257 </span>                :<span class="lineCov">          2 :                 port-&gt;bus.alloc_req = p8_i2c_alloc_request;</span>
+<span class="lineNum">    1258 </span>                :<span class="lineCov">          2 :                 port-&gt;bus.free_req = p8_i2c_free_request;</span>
+<span class="lineNum">    1259 </span>                :<span class="lineCov">          2 :                 i2c_add_bus(&amp;port-&gt;bus);</span>
 <span class="lineNum">    1260 </span>                :            : 
 <span class="lineNum">    1261 </span>                :            :                 /* Add OPAL properties to the bus node */
-<span class="lineNum">    1262 </span>                :<span class="lineNoCov">          0 :                 p8_i2c_add_bus_prop(port);</span>
-<span class="lineNum">    1263 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_INFO, &quot; P%d: &lt;%s&gt; %d kHz\n&quot;,</span>
+<span class="lineNum">    1262 </span>                :<span class="lineCov">          2 :                 p8_i2c_add_bus_prop(port);</span>
+<span class="lineNum">    1263 </span>                :<span class="lineCov">          2 :                 prlog(PR_INFO, &quot; P%d: &lt;%s&gt; %d kHz\n&quot;,</span>
 <span class="lineNum">    1264 </span>                :            :                       port-&gt;port_num,
 <span class="lineNum">    1265 </span>                :            :                       (char *)dt_prop_get(i2cm_port,
 <span class="lineNum">    1266 </span>                :            :                                           &quot;ibm,port-name&quot;), speed/1000);
-<span class="lineNum">    1267 </span>                :<span class="lineNoCov">          0 :                 port++;</span>
+<span class="lineNum">    1267 </span>                :<span class="lineCov">          2 :                 port++;</span>
 <span class="lineNum">    1268 </span>                :            :         }
 <span class="lineNum">    1269 </span>                :            : 
 <span class="lineNum">    1270 </span>                :            :         /* If we have no interrupt, calculate a poll interval,
@@ -1344,25 +1344,25 @@
 <span class="lineNum">    1272 </span>                :            :          * on OPAL pollers only (which allows us to operate
 <span class="lineNum">    1273 </span>                :            :          * during boot before interrupts are functional etc...
 <span class="lineNum">    1274 </span>                :            :          */
-<span class="lineNum">    1275 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (master-&gt;irq_ok)</span>
+<span class="lineNum">    1275 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (master-&gt;irq_ok)</span>
 <span class="lineNum">    1276 </span>                :<span class="lineNoCov">          0 :                 master-&gt;poll_interval = TIMER_POLL;</span>
 <span class="lineNum">    1277 </span>                :            :         else
-<span class="lineNum">    1278 </span>                :<span class="lineNoCov">          0 :                 master-&gt;poll_interval = p8_i2c_get_poll_interval(max_bus_speed);</span>
-<span class="lineNum">    1279 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         master-&gt;byte_timeout = master-&gt;irq_ok ?</span>
+<span class="lineNum">    1278 </span>                :<span class="lineCov">          2 :                 master-&gt;poll_interval = p8_i2c_get_poll_interval(max_bus_speed);</span>
+<span class="lineNum">    1279 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         master-&gt;byte_timeout = master-&gt;irq_ok ?</span>
 <span class="lineNum">    1280 </span>                :            :                 msecs_to_tb(I2C_TIMEOUT_IRQ_MS) :
 <span class="lineNum">    1281 </span>                :            :                 msecs_to_tb(I2C_TIMEOUT_POLL_MS);
 <a name="1282"><span class="lineNum">    1282 </span>                :            : }</a>
 <span class="lineNum">    1283 </span>                :            : 
-<span class="lineNum">    1284 </span>                :<span class="lineCov">          6 : void p8_i2c_init(void)</span>
+<span class="lineNum">    1284 </span>                :<span class="lineCov">          8 : void p8_i2c_init(void)</span>
 <span class="lineNum">    1285 </span>                :            : {
 <span class="lineNum">    1286 </span>                :            :         struct dt_node *i2cm;
 <span class="lineNum">    1287 </span>                :            :         int i;
 <span class="lineNum">    1288 </span>                :            : 
-<span class="lineNum">    1289 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">         18 :         for (i = 0; i &lt; MAX_I2C_TYPE; i++) {</span>
-<span class="lineNum">    1290 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 12 times"> + </span>]:<span class="lineCov">         12 :                 dt_for_each_compatible(dt_root, i2cm, compat[i])</span>
-<span class="lineNum">    1291 </span>                :<span class="lineNoCov">          0 :                         p8_i2c_init_one(i2cm, i);</span>
+<span class="lineNum">    1289 </span>        [<span class="branchCov" title="Branch 0 was taken 16 times"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">         24 :         for (i = 0; i &lt; MAX_I2C_TYPE; i++) {</span>
+<span class="lineNum">    1290 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 16 times"> + </span>]:<span class="lineCov">         18 :                 dt_for_each_compatible(dt_root, i2cm, compat[i])</span>
+<span class="lineNum">    1291 </span>                :<span class="lineCov">          2 :                         p8_i2c_init_one(i2cm, i);</span>
 <span class="lineNum">    1292 </span>                :            :         }
-<span class="lineNum">    1293 </span>                :<span class="lineCov">          6 : }</span>
+<span class="lineNum">    1293 </span>                :<span class="lineCov">          8 : }</span>
 </pre>
       </td>
     </tr>

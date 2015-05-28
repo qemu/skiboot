@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">57</td>
             <td class="headerCovTableEntry">78</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">73.1 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">7</td>
             <td class="headerCovTableEntry">8</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryMed">87.5 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">17</td>
             <td class="headerCovTableEntry">31</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">54.8 %</td>
           </tr>
           <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -114,38 +114,38 @@
 <span class="lineNum">      43 </span>                :            :                 OPAL_SURVEILLANCE_ERR, OPAL_PREDICTIVE_ERR_GENERAL,
 <a name="44"><span class="lineNum">      44 </span>                :            :                 OPAL_MISCELLANEOUS_INFO_ONLY, NULL);</a>
 <span class="lineNum">      45 </span>                :            : 
-<span class="lineNum">      46 </span>                :<span class="lineNoCov">          0 : static void fsp_surv_ack(struct fsp_msg *msg)</span>
+<span class="lineNum">      46 </span>                :<span class="lineCov">         10 : static void fsp_surv_ack(struct fsp_msg *msg)</span>
 <span class="lineNum">      47 </span>                :            : {
 <span class="lineNum">      48 </span>                :            :         uint8_t val;
 <span class="lineNum">      49 </span>                :            : 
-<span class="lineNum">      50 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!msg-&gt;resp)</span>
-<span class="lineNum">      51 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">      50 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         10 :         if (!msg-&gt;resp)</span>
+<span class="lineNum">      51 </span>                :<span class="lineCov">         10 :                 return;</span>
 <span class="lineNum">      52 </span>                :            : 
-<span class="lineNum">      53 </span>                :<span class="lineNoCov">          0 :         val = (msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
-<span class="lineNum">      54 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (val == 0) {</span>
+<span class="lineNum">      53 </span>                :<span class="lineCov">         10 :         val = (msg-&gt;resp-&gt;word1 &gt;&gt; 8) &amp; 0xff;</span>
+<span class="lineNum">      54 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         10 :         if (val == 0) {</span>
 <span class="lineNum">      55 </span>                :            :                 /* reset the pending flag */
-<span class="lineNum">      56 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_DEBUG,</span>
+<span class="lineNum">      56 </span>                :<span class="lineCov">         10 :                 prlog(PR_DEBUG,</span>
 <span class="lineNum">      57 </span>                :            :                       &quot;SURV: Received heartbeat acknowledge from FSP\n&quot;);
-<span class="lineNum">      58 </span>                :<span class="lineNoCov">          0 :                 lock(&amp;surv_lock);</span>
-<span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 :                 fsp_surv_ack_pending = false;</span>
-<span class="lineNum">      60 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;surv_lock);</span>
+<span class="lineNum">      58 </span>                :<span class="lineCov">         10 :                 lock(&amp;surv_lock);</span>
+<span class="lineNum">      59 </span>                :<span class="lineCov">         10 :                 fsp_surv_ack_pending = false;</span>
+<span class="lineNum">      60 </span>                :<span class="lineCov">         10 :                 unlock(&amp;surv_lock);</span>
 <span class="lineNum">      61 </span>                :            :         } else
 <span class="lineNum">      62 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR,</span>
 <span class="lineNum">      63 </span>                :            :                       &quot;SURV: Heartbeat Acknowledgment error from FSP\n&quot;);
 <span class="lineNum">      64 </span>                :            : 
-<span class="lineNum">      65 </span>                :<span class="lineNoCov">          0 :         fsp_freemsg(msg);</span>
+<span class="lineNum">      65 </span>                :<span class="lineCov">         10 :         fsp_freemsg(msg);</span>
 <a name="66"><span class="lineNum">      66 </span>                :            : }</a>
 <span class="lineNum">      67 </span>                :            : 
-<span class="lineNum">      68 </span>                :<span class="lineNoCov">          0 : static void fsp_surv_check_timeout(void)</span>
+<span class="lineNum">      68 </span>                :<span class="lineCov">      23821 : static void fsp_surv_check_timeout(void)</span>
 <span class="lineNum">      69 </span>                :            : {
-<span class="lineNum">      70 </span>                :<span class="lineNoCov">          0 :         u64 now = mftb();</span>
+<span class="lineNum">      70 </span>                :<span class="lineCov">      23821 :         u64 now = mftb();</span>
 <span class="lineNum">      71 </span>                :            : 
 <span class="lineNum">      72 </span>                :            :         /*
 <span class="lineNum">      73 </span>                :            :          * We just checked fsp_surv_ack_pending to be true in fsp_surv_hbeat
 <span class="lineNum">      74 </span>                :            :          * and we haven't dropped the surv_lock between then and now. So, we
 <span class="lineNum">      75 </span>                :            :          * just go ahead and check timeouts.
 <span class="lineNum">      76 </span>                :            :          */
-<span class="lineNum">      77 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (tb_compare(now, surv_ack_timer) == TB_AAFTERB) {</span>
+<span class="lineNum">      77 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 23821 times"> + </span>]:<span class="lineCov">      23821 :         if (tb_compare(now, surv_ack_timer) == TB_AAFTERB) {</span>
 <span class="lineNum">      78 </span>                :            :                 /* XXX: We should be logging a PEL to the host, assuming
 <span class="lineNum">      79 </span>                :            :                  * the FSP is dead, pending a R/R.
 <span class="lineNum">      80 </span>                :            :                  */
@@ -157,19 +157,19 @@
 <span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 :                 fsp_trigger_reset();</span>
 <span class="lineNum">      87 </span>                :            :         }
 <span class="lineNum">      88 </span>                :            : 
-<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :         return;</span>
+<span class="lineNum">      89 </span>                :<span class="lineCov">      23821 :         return;</span>
 <span class="lineNum">      90 </span>                :            : }
 <a name="91"><span class="lineNum">      91 </span>                :            : </a>
 <span class="lineNum">      92 </span>                :            : /* Send surveillance heartbeat based on a timebase trigger */
-<span class="lineNum">      93 </span>                :<span class="lineNoCov">          0 : static void fsp_surv_hbeat(void)</span>
+<span class="lineNum">      93 </span>                :<span class="lineCov">      74324 : static void fsp_surv_hbeat(void)</span>
 <span class="lineNum">      94 </span>                :            : {
-<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 :         u64 now = mftb();</span>
+<span class="lineNum">      95 </span>                :<span class="lineCov">      74324 :         u64 now = mftb();</span>
 <span class="lineNum">      96 </span>                :            :         struct fsp_msg *msg;
 <span class="lineNum">      97 </span>                :            : 
 <span class="lineNum">      98 </span>                :            :         /* Check if an ack is pending... if so, don't send the ping just yet */
-<span class="lineNum">      99 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_surv_ack_pending) {</span>
-<span class="lineNum">     100 </span>                :<span class="lineNoCov">          0 :                 fsp_surv_check_timeout();</span>
-<span class="lineNum">     101 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">      99 </span>        [<span class="branchCov" title="Branch 0 was taken 23821 times"> + </span><span class="branchCov" title="Branch 1 was taken 50503 times"> + </span>]:<span class="lineCov">      74324 :         if (fsp_surv_ack_pending) {</span>
+<span class="lineNum">     100 </span>                :<span class="lineCov">      23821 :                 fsp_surv_check_timeout();</span>
+<span class="lineNum">     101 </span>                :<span class="lineCov">      23821 :                 return;</span>
 <span class="lineNum">     102 </span>                :            :         }
 <span class="lineNum">     103 </span>                :            : 
 <span class="lineNum">     104 </span>                :            :         /* add timebase callbacks */
@@ -179,40 +179,40 @@
 <span class="lineNum">     108 </span>                :            :          *
 <span class="lineNum">     109 </span>                :            :          * Verify if the command building format and call is fine.
 <span class="lineNum">     110 </span>                :            :          */
-<span class="lineNum">     111 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (surv_timer == 0 ||</span>
-<span class="lineNum">     112 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :             (tb_compare(now, surv_timer) == TB_AAFTERB) ||</span>
+<span class="lineNum">     111 </span>  [<span class="branchCov" title="Branch 0 was taken 50501 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 50492 times"> + </span><span class="branchCov" title="Branch 3 was taken 9 times"> + </span>]:<span class="lineCov">     101004 :         if (surv_timer == 0 ||</span>
+<span class="lineNum">     112 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 50492 times"> + </span>]:<span class="lineCov">     100993 :             (tb_compare(now, surv_timer) == TB_AAFTERB) ||</span>
 <span class="lineNum">     113 </span>                :            :             (tb_compare(now, surv_timer) == TB_AEQUALB)) {
-<span class="lineNum">     114 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_DEBUG,</span>
+<span class="lineNum">     114 </span>                :<span class="lineCov">         11 :                 prlog(PR_DEBUG,</span>
 <span class="lineNum">     115 </span>                :            :                       &quot;SURV: Sending the heartbeat command to FSP\n&quot;);
-<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :                 msg = fsp_mkmsg(FSP_CMD_SURV_HBEAT, 1, 120);</span>
-<span class="lineNum">     117 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!msg) {</span>
+<span class="lineNum">     116 </span>                :<span class="lineCov">         11 :                 msg = fsp_mkmsg(FSP_CMD_SURV_HBEAT, 1, 120);</span>
+<span class="lineNum">     117 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 11 times"> + </span>]:<span class="lineCov">         11 :                 if (!msg) {</span>
 <span class="lineNum">     118 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;SURV: Failed to allocate heartbeat msg\n&quot;);</span>
 <span class="lineNum">     119 </span>                :<span class="lineNoCov">          0 :                         return;</span>
 <span class="lineNum">     120 </span>                :            :                 }
-<span class="lineNum">     121 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (fsp_queue_msg(msg, fsp_surv_ack)) {</span>
+<span class="lineNum">     121 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 11 times"> + </span>]:<span class="lineCov">         11 :                 if (fsp_queue_msg(msg, fsp_surv_ack)) {</span>
 <span class="lineNum">     122 </span>                :<span class="lineNoCov">          0 :                         fsp_freemsg(msg);</span>
 <span class="lineNum">     123 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;SURV: Failed to queue heartbeat msg\n&quot;);</span>
 <span class="lineNum">     124 </span>                :            :                 } else {
-<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :                         fsp_surv_ack_pending = true;</span>
-<span class="lineNum">     126 </span>                :<span class="lineNoCov">          0 :                         surv_timer = now + secs_to_tb(60);</span>
-<span class="lineNum">     127 </span>                :<span class="lineNoCov">          0 :                         surv_ack_timer = now + secs_to_tb(FSP_SURV_ACK_TIMEOUT);</span>
+<span class="lineNum">     125 </span>                :<span class="lineCov">         11 :                         fsp_surv_ack_pending = true;</span>
+<span class="lineNum">     126 </span>                :<span class="lineCov">         11 :                         surv_timer = now + secs_to_tb(60);</span>
+<span class="lineNum">     127 </span>                :<span class="lineCov">         11 :                         surv_ack_timer = now + secs_to_tb(FSP_SURV_ACK_TIMEOUT);</span>
 <span class="lineNum">     128 </span>                :            :                 }
 <span class="lineNum">     129 </span>                :            :         }
 <a name="130"><span class="lineNum">     130 </span>                :            : }</a>
 <span class="lineNum">     131 </span>                :            : 
-<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 : static void fsp_surv_poll(void *data __unused)</span>
+<span class="lineNum">     132 </span>                :<span class="lineCov">      75008 : static void fsp_surv_poll(void *data __unused)</span>
 <span class="lineNum">     133 </span>                :            : {
-<span class="lineNum">     134 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fsp_surv_state)</span>
-<span class="lineNum">     135 </span>                :<span class="lineNoCov">          0 :                 return;</span>
-<span class="lineNum">     136 </span>                :<span class="lineNoCov">          0 :         lock(&amp;surv_lock);</span>
-<span class="lineNum">     137 </span>                :<span class="lineNoCov">          0 :         fsp_surv_hbeat();</span>
-<span class="lineNum">     138 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;surv_lock);</span>
+<span class="lineNum">     134 </span>        [<span class="branchCov" title="Branch 0 was taken 74322 times"> + </span><span class="branchCov" title="Branch 1 was taken 686 times"> + </span>]:<span class="lineCov">      75008 :         if (!fsp_surv_state)</span>
+<span class="lineNum">     135 </span>                :<span class="lineCov">      75008 :                 return;</span>
+<span class="lineNum">     136 </span>                :<span class="lineCov">      74322 :         lock(&amp;surv_lock);</span>
+<span class="lineNum">     137 </span>                :<span class="lineCov">      74322 :         fsp_surv_hbeat();</span>
+<span class="lineNum">     138 </span>                :<span class="lineCov">      74322 :         unlock(&amp;surv_lock);</span>
 <a name="139"><span class="lineNum">     139 </span>                :            : }</a>
 <span class="lineNum">     140 </span>                :            : 
-<span class="lineNum">     141 </span>                :<span class="lineNoCov">          0 : static void fsp_surv_got_param(uint32_t param_id __unused, int err_len,</span>
+<span class="lineNum">     141 </span>                :<span class="lineCov">          2 : static void fsp_surv_got_param(uint32_t param_id __unused, int err_len,</span>
 <span class="lineNum">     142 </span>                :            :                                void *data __unused)
 <span class="lineNum">     143 </span>                :            : {
-<span class="lineNum">     144 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (err_len != 4) {</span>
+<span class="lineNum">     144 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (err_len != 4) {</span>
 <span class="lineNum">     145 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_SURVE_STATUS),</span>
 <span class="lineNum">     146 </span>                :            :                 &quot;SURV: Error (%d) retrieving surv status; initiating R/R\n&quot;,
 <span class="lineNum">     147 </span>                :            :                         err_len);
@@ -220,41 +220,41 @@
 <span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">     150 </span>                :            :         }
 <span class="lineNum">     151 </span>                :            : 
-<span class="lineNum">     152 </span>                :<span class="lineNoCov">          0 :         printf(&quot;SURV: Status from FSP: %d\n&quot;, surv_state_param);</span>
-<span class="lineNum">     153 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!(surv_state_param &amp; 0x01))</span>
+<span class="lineNum">     152 </span>                :<span class="lineCov">          2 :         printf(&quot;SURV: Status from FSP: %d\n&quot;, surv_state_param);</span>
+<span class="lineNum">     153 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!(surv_state_param &amp; 0x01))</span>
 <span class="lineNum">     154 </span>                :            :                 return;
 <span class="lineNum">     155 </span>                :            : 
-<span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 :         lock(&amp;surv_lock);</span>
-<span class="lineNum">     157 </span>                :<span class="lineNoCov">          0 :         fsp_surv_state = true;</span>
+<span class="lineNum">     156 </span>                :<span class="lineCov">          2 :         lock(&amp;surv_lock);</span>
+<span class="lineNum">     157 </span>                :<span class="lineCov">          2 :         fsp_surv_state = true;</span>
 <span class="lineNum">     158 </span>                :            : 
 <span class="lineNum">     159 </span>                :            :         /* Also send one heartbeat now. The next one will not happen
 <span class="lineNum">     160 </span>                :            :          * until we hit the OS.
 <span class="lineNum">     161 </span>                :            :          */
-<span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :         fsp_surv_hbeat();</span>
-<span class="lineNum">     163 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;surv_lock);</span>
+<span class="lineNum">     162 </span>                :<span class="lineCov">          2 :         fsp_surv_hbeat();</span>
+<span class="lineNum">     163 </span>                :<span class="lineCov">          2 :         unlock(&amp;surv_lock);</span>
 <a name="164"><span class="lineNum">     164 </span>                :            : }</a>
 <span class="lineNum">     165 </span>                :            : 
-<span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 : void fsp_surv_query(void)</span>
+<span class="lineNum">     166 </span>                :<span class="lineCov">          2 : void fsp_surv_query(void)</span>
 <span class="lineNum">     167 </span>                :            : {
 <span class="lineNum">     168 </span>                :            :         int rc;
 <span class="lineNum">     169 </span>                :            : 
-<span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 :         printf(&quot;SURV: Querying FSP's surveillance status\n&quot;);</span>
+<span class="lineNum">     170 </span>                :<span class="lineCov">          2 :         printf(&quot;SURV: Querying FSP's surveillance status\n&quot;);</span>
 <span class="lineNum">     171 </span>                :            : 
 <span class="lineNum">     172 </span>                :            :         /* Reset surveillance settings */
-<span class="lineNum">     173 </span>                :<span class="lineNoCov">          0 :         lock(&amp;surv_lock);</span>
-<span class="lineNum">     174 </span>                :<span class="lineNoCov">          0 :         fsp_surv_state = false;</span>
-<span class="lineNum">     175 </span>                :<span class="lineNoCov">          0 :         surv_timer = 0;</span>
-<span class="lineNum">     176 </span>                :<span class="lineNoCov">          0 :         surv_ack_timer = 0;</span>
-<span class="lineNum">     177 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;surv_lock);</span>
+<span class="lineNum">     173 </span>                :<span class="lineCov">          2 :         lock(&amp;surv_lock);</span>
+<span class="lineNum">     174 </span>                :<span class="lineCov">          2 :         fsp_surv_state = false;</span>
+<span class="lineNum">     175 </span>                :<span class="lineCov">          2 :         surv_timer = 0;</span>
+<span class="lineNum">     176 </span>                :<span class="lineCov">          2 :         surv_ack_timer = 0;</span>
+<span class="lineNum">     177 </span>                :<span class="lineCov">          2 :         unlock(&amp;surv_lock);</span>
 <span class="lineNum">     178 </span>                :            : 
 <span class="lineNum">     179 </span>                :            :         /* Query FPS for surveillance state */
-<span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :         rc = fsp_get_sys_param(SYS_PARAM_SURV, &amp;surv_state_param, 4,</span>
+<span class="lineNum">     180 </span>                :<span class="lineCov">          2 :         rc = fsp_get_sys_param(SYS_PARAM_SURV, &amp;surv_state_param, 4,</span>
 <span class="lineNum">     181 </span>                :            :                                fsp_surv_got_param, NULL);
-<span class="lineNum">     182 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">     182 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (rc) {</span>
 <span class="lineNum">     183 </span>                :<span class="lineNoCov">          0 :                 log_simple_error(&amp;e_info(OPAL_RC_SURVE_INIT),</span>
 <span class="lineNum">     184 </span>                :            :                         &quot;SURV: Error %d queueing param request\n&quot;, rc);
 <span class="lineNum">     185 </span>                :            :         }
-<a name="186"><span class="lineNum">     186 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<a name="186"><span class="lineNum">     186 </span>                :<span class="lineCov">          2 : }</span></a>
 <span class="lineNum">     187 </span>                :            : 
 <span class="lineNum">     188 </span>                :<span class="lineNoCov">          0 : static bool fsp_surv_msg_rr(u32 cmd_sub_mod, struct fsp_msg *msg)</span>
 <span class="lineNum">     189 </span>                :            : {
@@ -278,21 +278,21 @@
 <span class="lineNum">     207 </span>                :            : };
 <a name="208"><span class="lineNum">     208 </span>                :            : </a>
 <span class="lineNum">     209 </span>                :            : /* This is called at boot time */
-<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 : void fsp_init_surveillance(void)</span>
+<span class="lineNum">     210 </span>                :<span class="lineCov">          2 : void fsp_init_surveillance(void)</span>
 <span class="lineNum">     211 </span>                :            : {
 <span class="lineNum">     212 </span>                :            :         /* Always register the poller, so we don't have to add/remove
 <span class="lineNum">     213 </span>                :            :          * it on reset-reload or change of surveillance state. Also the
 <span class="lineNum">     214 </span>                :            :          * poller list has no locking so we don't want to play with it
 <span class="lineNum">     215 </span>                :            :          * at runtime.
 <span class="lineNum">     216 </span>                :            :          */
-<span class="lineNum">     217 </span>                :<span class="lineNoCov">          0 :         opal_add_poller(fsp_surv_poll, NULL);</span>
+<span class="lineNum">     217 </span>                :<span class="lineCov">          2 :         opal_add_poller(fsp_surv_poll, NULL);</span>
 <span class="lineNum">     218 </span>                :            : 
 <span class="lineNum">     219 </span>                :            :         /* Register for the reset/reload event */
-<span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 :         fsp_register_client(&amp;fsp_surv_client_rr, FSP_MCLASS_RR_EVENT);</span>
+<span class="lineNum">     220 </span>                :<span class="lineCov">          2 :         fsp_register_client(&amp;fsp_surv_client_rr, FSP_MCLASS_RR_EVENT);</span>
 <span class="lineNum">     221 </span>                :            : 
 <span class="lineNum">     222 </span>                :            :         /* Send query to FSP */
-<span class="lineNum">     223 </span>                :<span class="lineNoCov">          0 :         fsp_surv_query();</span>
-<span class="lineNum">     224 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     223 </span>                :<span class="lineCov">          2 :         fsp_surv_query();</span>
+<span class="lineNum">     224 </span>                :<span class="lineCov">          2 : }</span>
 <span class="lineNum">     225 </span>                :            : 
 </pre>
       </td>

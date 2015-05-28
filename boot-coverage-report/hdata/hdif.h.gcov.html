@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">0</td>
             <td class="headerCovTableEntry">4</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">0</td>
             <td class="headerCovTableEntry">1</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
             <td class="headerCovTableEntry">4</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -147,12 +147,12 @@
 <span class="lineNum">      76 </span>                :            :         .size   = _size,                                \
 <a name="77"><span class="lineNum">      77 </span>                :            : }</a>
 <span class="lineNum">      78 </span>                :            : 
-<span class="lineNum">      79 </span>                :<span class="lineNoCov">          0 : static inline bool HDIF_check(const void *hdif, const char id[])</span>
+<span class="lineNum">      79 </span>                :<span class="lineCov">        645 : static inline bool HDIF_check(const void *hdif, const char id[])</span>
 <span class="lineNum">      80 </span>                :            : {
-<span class="lineNum">      81 </span>                :<span class="lineNoCov">          0 :         const struct HDIF_common_hdr *hdr = hdif;</span>
+<span class="lineNum">      81 </span>                :<span class="lineCov">        645 :         const struct HDIF_common_hdr *hdr = hdif;</span>
 <span class="lineNum">      82 </span>                :            : 
-<span class="lineNum">      83 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         return hdr-&gt;d1f0 == CPU_TO_BE16(0xd1f0) &amp;&amp;</span>
-<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :                 memcmp(hdr-&gt;id, id, sizeof(hdr-&gt;id)) == 0;</span>
+<span class="lineNum">      83 </span>  [<span class="branchCov" title="Branch 0 was taken 645 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 645 times"> + </span>]:<span class="lineCov">       1290 :         return hdr-&gt;d1f0 == CPU_TO_BE16(0xd1f0) &amp;&amp;</span>
+<span class="lineNum">      84 </span>                :<span class="lineCov">        645 :                 memcmp(hdr-&gt;id, id, sizeof(hdr-&gt;id)) == 0;</span>
 <span class="lineNum">      85 </span>                :            : }
 <span class="lineNum">      86 </span>                :            : 
 <span class="lineNum">      87 </span>                :            : /* HDIF_get_idata - Get a pointer to internal data block

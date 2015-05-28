@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">29</td>
             <td class="headerCovTableEntry">33</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryMed">87.9 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">0</td>
             <td class="headerCovTableEntry">1</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">9</td>
             <td class="headerCovTableEntry">16</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">56.2 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -93,7 +93,7 @@
 <span class="lineNum">      22 </span>                :            : #include &lt;cpu.h&gt;
 <a name="23"><span class="lineNum">      23 </span>                :            : #include &lt;nx.h&gt;</a>
 <span class="lineNum">      24 </span>                :            : 
-<span class="lineNum">      25 </span>                :<span class="lineNoCov">          0 : void nx_create_rng_node(struct dt_node *node)</span>
+<span class="lineNum">      25 </span>                :<span class="lineCov">          6 : void nx_create_rng_node(struct dt_node *node)</span>
 <span class="lineNum">      26 </span>                :            : {
 <span class="lineNum">      27 </span>                :            :         u64 bar, cfg;
 <span class="lineNum">      28 </span>                :            :         u64 xbar, xcfg;
@@ -103,28 +103,28 @@
 <span class="lineNum">      32 </span>                :            :         struct dt_node *rng;
 <span class="lineNum">      33 </span>                :            :         int rc;
 <span class="lineNum">      34 </span>                :            : 
-<span class="lineNum">      35 </span>                :<span class="lineNoCov">          0 :         gcid = dt_get_chip_id(node);</span>
-<span class="lineNum">      36 </span>                :<span class="lineNoCov">          0 :         pb_base = dt_get_address(node, 0, NULL);</span>
+<span class="lineNum">      35 </span>                :<span class="lineCov">          6 :         gcid = dt_get_chip_id(node);</span>
+<span class="lineNum">      36 </span>                :<span class="lineCov">          6 :         pb_base = dt_get_address(node, 0, NULL);</span>
 <span class="lineNum">      37 </span>                :            : 
-<span class="lineNum">      38 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (dt_node_is_compatible(node, &quot;ibm,power7-nx&quot;)) {</span>
-<span class="lineNum">      39 </span>                :<span class="lineNoCov">          0 :                 xbar = pb_base + NX_P7_RNG_BAR;</span>
-<span class="lineNum">      40 </span>                :<span class="lineNoCov">          0 :                 xcfg = pb_base + NX_P7_RNG_CFG;</span>
-<span class="lineNum">      41 </span>                :<span class="lineNoCov">          0 :                 addr_mask = NX_P7_RNG_BAR_ADDR;</span>
-<span class="lineNum">      42 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         } else if (dt_node_is_compatible(node, &quot;ibm,power8-nx&quot;)) {</span>
-<span class="lineNum">      43 </span>                :<span class="lineNoCov">          0 :                 xbar = pb_base + NX_P8_RNG_BAR;</span>
-<span class="lineNum">      44 </span>                :<span class="lineNoCov">          0 :                 xcfg = pb_base + NX_P8_RNG_CFG;</span>
-<span class="lineNum">      45 </span>                :<span class="lineNoCov">          0 :                 addr_mask = NX_P8_RNG_BAR_ADDR;</span>
+<span class="lineNum">      38 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 4 times"> + </span>]:<span class="lineCov">          6 :         if (dt_node_is_compatible(node, &quot;ibm,power7-nx&quot;)) {</span>
+<span class="lineNum">      39 </span>                :<span class="lineCov">          2 :                 xbar = pb_base + NX_P7_RNG_BAR;</span>
+<span class="lineNum">      40 </span>                :<span class="lineCov">          2 :                 xcfg = pb_base + NX_P7_RNG_CFG;</span>
+<span class="lineNum">      41 </span>                :<span class="lineCov">          2 :                 addr_mask = NX_P7_RNG_BAR_ADDR;</span>
+<span class="lineNum">      42 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :         } else if (dt_node_is_compatible(node, &quot;ibm,power8-nx&quot;)) {</span>
+<span class="lineNum">      43 </span>                :<span class="lineCov">          4 :                 xbar = pb_base + NX_P8_RNG_BAR;</span>
+<span class="lineNum">      44 </span>                :<span class="lineCov">          4 :                 xcfg = pb_base + NX_P8_RNG_CFG;</span>
+<span class="lineNum">      45 </span>                :<span class="lineCov">          4 :                 addr_mask = NX_P8_RNG_BAR_ADDR;</span>
 <span class="lineNum">      46 </span>                :            :         } else {
 <span class="lineNum">      47 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;NX%d: Unknown NX type!\n&quot;, gcid);</span>
 <span class="lineNum">      48 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">      49 </span>                :            :         }
 <span class="lineNum">      50 </span>                :            : 
-<span class="lineNum">      51 </span>                :<span class="lineNoCov">          0 :         rc = xscom_read(gcid, xbar, &amp;bar); /* Get RNG BAR */</span>
-<span class="lineNum">      52 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">      51 </span>                :<span class="lineCov">          6 :         rc = xscom_read(gcid, xbar, &amp;bar); /* Get RNG BAR */</span>
+<span class="lineNum">      52 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (rc)</span>
 <span class="lineNum">      53 </span>                :            :                 return; /* Hope xscom always prints error message */
 <span class="lineNum">      54 </span>                :            : 
-<span class="lineNum">      55 </span>                :<span class="lineNoCov">          0 :         rc = xscom_read(gcid, xcfg, &amp;cfg); /* Get RNG CFG */</span>
-<span class="lineNum">      56 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">      55 </span>                :<span class="lineCov">          6 :         rc = xscom_read(gcid, xcfg, &amp;cfg); /* Get RNG CFG */</span>
+<span class="lineNum">      56 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (rc)</span>
 <span class="lineNum">      57 </span>                :            :                 return;
 <span class="lineNum">      58 </span>                :            : 
 <span class="lineNum">      59 </span>                :            :         /*
@@ -133,39 +133,39 @@
 <span class="lineNum">      62 </span>                :            :          *
 <span class="lineNum">      63 </span>                :            :          * FIXME? Always assusme BAR gets a valid address from FSP
 <span class="lineNum">      64 </span>                :            :          */
-<span class="lineNum">      65 </span>                :<span class="lineNoCov">          0 :         rng_addr = bar &amp; addr_mask;</span>
-<span class="lineNum">      66 </span>                :<span class="lineNoCov">          0 :         len  = GETFIELD(NX_RNG_BAR_SIZE, bar);</span>
-<span class="lineNum">      67 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (len &gt; 4) {</span>
+<span class="lineNum">      65 </span>                :<span class="lineCov">          6 :         rng_addr = bar &amp; addr_mask;</span>
+<span class="lineNum">      66 </span>                :<span class="lineCov">          6 :         len  = GETFIELD(NX_RNG_BAR_SIZE, bar);</span>
+<span class="lineNum">      67 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (len &gt; 4) {</span>
 <span class="lineNum">      68 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;NX%d: Corrupted bar size %lld\n&quot;, gcid, len);</span>
 <span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">      70 </span>                :            :         }
-<span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 :         rng_len = (u64[]){  0x1000,         /* 4K */</span>
+<span class="lineNum">      71 </span>                :<span class="lineCov">          6 :         rng_len = (u64[]){  0x1000,         /* 4K */</span>
 <span class="lineNum">      72 </span>                :            :                             0x10000,        /* 64K */
 <span class="lineNum">      73 </span>                :            :                             0x400000000,    /* 16G*/
 <span class="lineNum">      74 </span>                :            :                             0x100000,       /* 1M */
 <span class="lineNum">      75 </span>                :            :                             0x1000000       /* 16M */} [len];
 <span class="lineNum">      76 </span>                :            : 
 <span class="lineNum">      77 </span>                :            : 
-<span class="lineNum">      78 </span>                :<span class="lineNoCov">          0 :         prlog(PR_INFO, &quot;NX%d: RNG BAR set to 0x%016llx..0x%016llx\n&quot;,</span>
+<span class="lineNum">      78 </span>                :<span class="lineCov">          6 :         prlog(PR_INFO, &quot;NX%d: RNG BAR set to 0x%016llx..0x%016llx\n&quot;,</span>
 <span class="lineNum">      79 </span>                :            :               gcid, rng_addr, rng_addr + rng_len - 1);
 <span class="lineNum">      80 </span>                :            : 
 <span class="lineNum">      81 </span>                :            :         /* RNG must be enabled before MMIO is enabled */
-<span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 :         rc = xscom_write(gcid, xcfg, cfg | NX_RNG_CFG_ENABLE);</span>
-<span class="lineNum">      83 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">      82 </span>                :<span class="lineCov">          6 :         rc = xscom_write(gcid, xcfg, cfg | NX_RNG_CFG_ENABLE);</span>
+<span class="lineNum">      83 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (rc)</span>
 <span class="lineNum">      84 </span>                :            :                 return;
 <span class="lineNum">      85 </span>                :            : 
 <span class="lineNum">      86 </span>                :            :         /* The BAR needs to be enabled too */
-<span class="lineNum">      87 </span>                :<span class="lineNoCov">          0 :         rc = xscom_write(gcid, xbar, bar | NX_RNG_BAR_ENABLE);</span>
-<span class="lineNum">      88 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc)</span>
+<span class="lineNum">      87 </span>                :<span class="lineCov">          6 :         rc = xscom_write(gcid, xbar, bar | NX_RNG_BAR_ENABLE);</span>
+<span class="lineNum">      88 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (rc)</span>
 <span class="lineNum">      89 </span>                :            :                 return;
-<span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :         rng = dt_new_addr(dt_root, &quot;hwrng&quot;, rng_addr);</span>
-<span class="lineNum">      91 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!rng)</span>
+<span class="lineNum">      90 </span>                :<span class="lineCov">          6 :         rng = dt_new_addr(dt_root, &quot;hwrng&quot;, rng_addr);</span>
+<span class="lineNum">      91 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (!rng)</span>
 <span class="lineNum">      92 </span>                :            :                 return;
 <span class="lineNum">      93 </span>                :            : 
-<span class="lineNum">      94 </span>                :<span class="lineNoCov">          0 :         dt_add_property_strings(rng, &quot;compatible&quot;, &quot;ibm,power-rng&quot;);</span>
-<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(rng, &quot;reg&quot;, hi32(rng_addr), lo32(rng_addr),</span>
+<span class="lineNum">      94 </span>                :<span class="lineCov">          6 :         dt_add_property_strings(rng, &quot;compatible&quot;, &quot;ibm,power-rng&quot;);</span>
+<span class="lineNum">      95 </span>                :<span class="lineCov">          6 :         dt_add_property_cells(rng, &quot;reg&quot;, hi32(rng_addr), lo32(rng_addr),</span>
 <span class="lineNum">      96 </span>                :            :                               hi32(rng_len), lo32(rng_len));
-<span class="lineNum">      97 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(rng, &quot;ibm,chip-id&quot;, gcid);</span>
+<span class="lineNum">      97 </span>                :<span class="lineCov">          6 :         dt_add_property_cells(rng, &quot;ibm,chip-id&quot;, gcid);</span>
 <span class="lineNum">      98 </span>                :            : }
 </pre>
       </td>

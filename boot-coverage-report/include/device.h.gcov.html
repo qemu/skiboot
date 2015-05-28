@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -179,10 +179,10 @@
 <span class="lineNum">     108 </span>                :            :                                            const char *name,
 <a name="109"><span class="lineNum">     109 </span>                :            :                                            int count, ...);</a>
 <span class="lineNum">     110 </span>                :            : 
-<span class="lineNum">     111 </span>                :<span class="lineCov">         18 : static inline struct dt_property *dt_add_property_u64(struct dt_node *node,</span>
+<span class="lineNum">     111 </span>                :<span class="lineCov">         34 : static inline struct dt_property *dt_add_property_u64(struct dt_node *node,</span>
 <span class="lineNum">     112 </span>                :            :                                                       const char *name, u64 val)
 <span class="lineNum">     113 </span>                :            : {
-<span class="lineNum">     114 </span>                :<span class="lineCov">         18 :         return dt_add_property_cells(node, name, (u32)(val &gt;&gt; 32), (u32)val);</span>
+<span class="lineNum">     114 </span>                :<span class="lineCov">         34 :         return dt_add_property_cells(node, name, (u32)(val &gt;&gt; 32), (u32)val);</span>
 <span class="lineNum">     115 </span>                :            : }
 <span class="lineNum">     116 </span>                :            : 
 <span class="lineNum">     117 </span>                :            : void dt_del_property(struct dt_node *node, struct dt_property *prop);

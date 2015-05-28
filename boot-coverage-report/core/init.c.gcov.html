@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">184</td>
+            <td class="headerCovTableEntry">206</td>
             <td class="headerCovTableEntry">293</td>
-            <td class="headerCovTableEntryLo">62.8 %</td>
+            <td class="headerCovTableEntryLo">70.3 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">12</td>
+            <td class="headerCovTableEntry">14</td>
             <td class="headerCovTableEntry">17</td>
-            <td class="headerCovTableEntryLo">70.6 %</td>
+            <td class="headerCovTableEntryMed">82.4 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">58</td>
+            <td class="headerCovTableEntry">71</td>
             <td class="headerCovTableEntry">140</td>
-            <td class="headerCovTableEntryLo">41.4 %</td>
+            <td class="headerCovTableEntryLo">50.7 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -300,24 +300,24 @@
 <span class="lineNum">     229 </span>                :<span class="lineNoCov">          0 :         return true;</span>
 <a name="230"><span class="lineNum">     230 </span>                :            : }</a>
 <span class="lineNum">     231 </span>                :            : 
-<span class="lineNum">     232 </span>                :<span class="lineCov">          5 : static bool try_load_elf32(struct elf_hdr *header)</span>
+<span class="lineNum">     232 </span>                :<span class="lineCov">          7 : static bool try_load_elf32(struct elf_hdr *header)</span>
 <span class="lineNum">     233 </span>                :            : {
-<span class="lineNum">     234 </span>                :<span class="lineCov">          5 :         struct elf32_hdr *kh = (struct elf32_hdr *)header;</span>
-<span class="lineNum">     235 </span>                :<span class="lineCov">          5 :         uint64_t load_base = (uint64_t)kh;</span>
+<span class="lineNum">     234 </span>                :<span class="lineCov">          7 :         struct elf32_hdr *kh = (struct elf32_hdr *)header;</span>
+<span class="lineNum">     235 </span>                :<span class="lineCov">          7 :         uint64_t load_base = (uint64_t)kh;</span>
 <span class="lineNum">     236 </span>                :            :         struct elf32_phdr *ph;
 <span class="lineNum">     237 </span>                :            :         unsigned int i;
 <span class="lineNum">     238 </span>                :            : 
 <span class="lineNum">     239 </span>                :            :         /* Check it's a ppc32 LE ELF */
-<span class="lineNum">     240 </span>[<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         if (header-&gt;ei_ident == ELF_IDENT            &amp;&amp;</span>
+<span class="lineNum">     240 </span>[<span class="branchCov" title="Branch 0 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 7 times"> + </span>]:<span class="lineCov">          7 :         if (header-&gt;ei_ident == ELF_IDENT            &amp;&amp;</span>
 <span class="lineNum">     241 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :             header-&gt;ei_data == ELF_DATA_LSB          &amp;&amp;</span>
 <span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 :             header-&gt;e_machine == le16_to_cpu(ELF_MACH_PPC32)) {</span>
 <span class="lineNum">     243 </span>                :<span class="lineNoCov">          0 :                 return try_load_elf32_le(header);</span>
 <span class="lineNum">     244 </span>                :            :         }
 <span class="lineNum">     245 </span>                :            : 
 <span class="lineNum">     246 </span>                :            :         /* Check it's a ppc32 ELF */
-<span class="lineNum">     247 </span>[<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          5 :         if (header-&gt;ei_ident != ELF_IDENT            ||</span>
-<span class="lineNum">     248 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :             header-&gt;ei_data != ELF_DATA_MSB          ||</span>
-<span class="lineNum">     249 </span>                :<span class="lineCov">          5 :             header-&gt;e_machine != ELF_MACH_PPC32) {</span>
+<span class="lineNum">     247 </span>[<span class="branchCov" title="Branch 0 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          7 :         if (header-&gt;ei_ident != ELF_IDENT            ||</span>
+<span class="lineNum">     248 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          7 :             header-&gt;ei_data != ELF_DATA_MSB          ||</span>
+<span class="lineNum">     249 </span>                :<span class="lineCov">          7 :             header-&gt;e_machine != ELF_MACH_PPC32) {</span>
 <span class="lineNum">     250 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;INIT: Kernel doesn't look like an ppc32 ELF\n&quot;);</span>
 <span class="lineNum">     251 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
 <span class="lineNum">     252 </span>                :            :         }
@@ -329,30 +329,30 @@
 <span class="lineNum">     258 </span>                :            :          * to work for the Linux Kernel because it's a fairly dumb ELF
 <span class="lineNum">     259 </span>                :            :          * but it will not work for any ELF binary.
 <span class="lineNum">     260 </span>                :            :          */
-<span class="lineNum">     261 </span>                :<span class="lineCov">          5 :         ph = (struct elf32_phdr *)(load_base + kh-&gt;e_phoff);</span>
-<span class="lineNum">     262 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         15 :         for (i = 0; i &lt; kh-&gt;e_phnum; i++, ph++) {</span>
-<span class="lineNum">     263 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">         15 :                 if (ph-&gt;p_type != ELF_PTYPE_LOAD)</span>
-<span class="lineNum">     264 </span>                :<span class="lineCov">         10 :                         continue;</span>
-<span class="lineNum">     265 </span>[<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 5 times"> + </span>]:<span class="lineCov">          5 :                 if (ph-&gt;p_vaddr &gt; kh-&gt;e_entry ||</span>
-<span class="lineNum">     266 </span>                :<span class="lineCov">          5 :                     (ph-&gt;p_vaddr + ph-&gt;p_memsz) &lt; kh-&gt;e_entry)</span>
+<span class="lineNum">     261 </span>                :<span class="lineCov">          7 :         ph = (struct elf32_phdr *)(load_base + kh-&gt;e_phoff);</span>
+<span class="lineNum">     262 </span>        [<span class="branchCov" title="Branch 0 was taken 21 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         21 :         for (i = 0; i &lt; kh-&gt;e_phnum; i++, ph++) {</span>
+<span class="lineNum">     263 </span>        [<span class="branchCov" title="Branch 0 was taken 14 times"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">         21 :                 if (ph-&gt;p_type != ELF_PTYPE_LOAD)</span>
+<span class="lineNum">     264 </span>                :<span class="lineCov">         14 :                         continue;</span>
+<span class="lineNum">     265 </span>[<span class="branchCov" title="Branch 0 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 7 times"> + </span>]:<span class="lineCov">          7 :                 if (ph-&gt;p_vaddr &gt; kh-&gt;e_entry ||</span>
+<span class="lineNum">     266 </span>                :<span class="lineCov">          7 :                     (ph-&gt;p_vaddr + ph-&gt;p_memsz) &lt; kh-&gt;e_entry)</span>
 <span class="lineNum">     267 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
 <span class="lineNum">     268 </span>                :            : 
 <span class="lineNum">     269 </span>                :            :                 /* Get our entry */
-<span class="lineNum">     270 </span>                :<span class="lineCov">          5 :                 kernel_entry = kh-&gt;e_entry - ph-&gt;p_vaddr + ph-&gt;p_offset;</span>
-<span class="lineNum">     271 </span>                :<span class="lineCov">          5 :                 break;</span>
+<span class="lineNum">     270 </span>                :<span class="lineCov">          7 :                 kernel_entry = kh-&gt;e_entry - ph-&gt;p_vaddr + ph-&gt;p_offset;</span>
+<span class="lineNum">     271 </span>                :<span class="lineCov">          7 :                 break;</span>
 <span class="lineNum">     272 </span>                :            :         }
 <span class="lineNum">     273 </span>                :            : 
-<span class="lineNum">     274 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          5 :         if (!kernel_entry) {</span>
+<span class="lineNum">     274 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          7 :         if (!kernel_entry) {</span>
 <span class="lineNum">     275 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;INIT: Failed to find kernel entry !\n&quot;);</span>
 <span class="lineNum">     276 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
 <span class="lineNum">     277 </span>                :            :         }
 <span class="lineNum">     278 </span>                :            : 
-<span class="lineNum">     279 </span>                :<span class="lineCov">          5 :         kernel_entry += load_base;</span>
-<span class="lineNum">     280 </span>                :<span class="lineCov">          5 :         kernel_32bit = true;</span>
+<span class="lineNum">     279 </span>                :<span class="lineCov">          7 :         kernel_entry += load_base;</span>
+<span class="lineNum">     280 </span>                :<span class="lineCov">          7 :         kernel_32bit = true;</span>
 <span class="lineNum">     281 </span>                :            : 
-<span class="lineNum">     282 </span>                :<span class="lineCov">          5 :         printf(&quot;INIT: 32-bit kernel entry at 0x%llx\n&quot;, kernel_entry);</span>
+<span class="lineNum">     282 </span>                :<span class="lineCov">          7 :         printf(&quot;INIT: 32-bit kernel entry at 0x%llx\n&quot;, kernel_entry);</span>
 <span class="lineNum">     283 </span>                :            : 
-<span class="lineNum">     284 </span>                :<span class="lineCov">          5 :         return true;</span>
+<span class="lineNum">     284 </span>                :<span class="lineCov">          7 :         return true;</span>
 <span class="lineNum">     285 </span>                :            : }
 <span class="lineNum">     286 </span>                :            : 
 <span class="lineNum">     287 </span>                :            : extern char __builtin_kernel_start[];
@@ -362,27 +362,27 @@
 <span class="lineNum">     291 </span>                :            : static size_t kernel_size;
 <a name="292"><span class="lineNum">     292 </span>                :            : static size_t initramfs_size;</a>
 <span class="lineNum">     293 </span>                :            : 
-<span class="lineNum">     294 </span>                :<span class="lineCov">          6 : static bool start_preload_kernel(void)</span>
+<span class="lineNum">     294 </span>                :<span class="lineCov">          8 : static bool start_preload_kernel(void)</span>
 <span class="lineNum">     295 </span>                :            : {
 <span class="lineNum">     296 </span>                :            :         int loaded;
 <span class="lineNum">     297 </span>                :            : 
 <span class="lineNum">     298 </span>                :            :         /* Try to load an external kernel payload through the platform hooks */
-<span class="lineNum">     299 </span>                :<span class="lineCov">          6 :         kernel_size = KERNEL_LOAD_SIZE;</span>
-<span class="lineNum">     300 </span>                :<span class="lineCov">          6 :         loaded = start_preload_resource(RESOURCE_ID_KERNEL,</span>
+<span class="lineNum">     299 </span>                :<span class="lineCov">          8 :         kernel_size = KERNEL_LOAD_SIZE;</span>
+<span class="lineNum">     300 </span>                :<span class="lineCov">          8 :         loaded = start_preload_resource(RESOURCE_ID_KERNEL,</span>
 <span class="lineNum">     301 </span>                :            :                                         RESOURCE_SUBID_NONE,
 <span class="lineNum">     302 </span>                :            :                                         KERNEL_LOAD_BASE,
 <span class="lineNum">     303 </span>                :            :                                         &amp;kernel_size);
-<span class="lineNum">     304 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (loaded != OPAL_SUCCESS) {</span>
+<span class="lineNum">     304 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          8 :         if (loaded != OPAL_SUCCESS) {</span>
 <span class="lineNum">     305 </span>                :<span class="lineCov">          6 :                 printf(&quot;INIT: platform start load kernel failed\n&quot;);</span>
 <span class="lineNum">     306 </span>                :<span class="lineCov">          6 :                 kernel_size = 0;</span>
 <span class="lineNum">     307 </span>                :<span class="lineCov">          6 :                 return false;</span>
 <span class="lineNum">     308 </span>                :            :         }
 <span class="lineNum">     309 </span>                :            : 
-<span class="lineNum">     310 </span>                :<span class="lineNoCov">          0 :         initramfs_size = INITRAMFS_LOAD_SIZE;</span>
-<span class="lineNum">     311 </span>                :<span class="lineNoCov">          0 :         loaded = start_preload_resource(RESOURCE_ID_INITRAMFS,</span>
+<span class="lineNum">     310 </span>                :<span class="lineCov">          2 :         initramfs_size = INITRAMFS_LOAD_SIZE;</span>
+<span class="lineNum">     311 </span>                :<span class="lineCov">          2 :         loaded = start_preload_resource(RESOURCE_ID_INITRAMFS,</span>
 <span class="lineNum">     312 </span>                :            :                                         RESOURCE_SUBID_NONE,
 <span class="lineNum">     313 </span>                :            :                                         INITRAMFS_LOAD_BASE, &amp;initramfs_size);
-<span class="lineNum">     314 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (loaded != OPAL_SUCCESS) {</span>
+<span class="lineNum">     314 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (loaded != OPAL_SUCCESS) {</span>
 <span class="lineNum">     315 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;INIT: platform start load initramfs failed\n&quot;);</span>
 <span class="lineNum">     316 </span>                :<span class="lineNoCov">          0 :                 initramfs_size = 0;</span>
 <span class="lineNum">     317 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
@@ -391,23 +391,23 @@
 <span class="lineNum">     320 </span>                :            :         return true;
 <a name="321"><span class="lineNum">     321 </span>                :            : }</a>
 <span class="lineNum">     322 </span>                :            : 
-<span class="lineNum">     323 </span>                :<span class="lineCov">          6 : static bool load_kernel(void)</span>
+<span class="lineNum">     323 </span>                :<span class="lineCov">          8 : static bool load_kernel(void)</span>
 <span class="lineNum">     324 </span>                :            : {
 <span class="lineNum">     325 </span>                :            :         struct elf_hdr *kh;
 <span class="lineNum">     326 </span>                :            :         int loaded;
 <span class="lineNum">     327 </span>                :            : 
-<span class="lineNum">     328 </span>                :<span class="lineCov">          6 :         prlog(PR_NOTICE, &quot;INIT: Loading kernel\n&quot;);</span>
+<span class="lineNum">     328 </span>                :<span class="lineCov">          8 :         prlog(PR_NOTICE, &quot;INIT: Loading kernel\n&quot;);</span>
 <span class="lineNum">     329 </span>                :            : 
-<span class="lineNum">     330 </span>                :<span class="lineCov">          6 :         loaded = wait_for_resource_loaded(RESOURCE_ID_KERNEL,</span>
+<span class="lineNum">     330 </span>                :<span class="lineCov">          8 :         loaded = wait_for_resource_loaded(RESOURCE_ID_KERNEL,</span>
 <span class="lineNum">     331 </span>                :            :                                           RESOURCE_SUBID_NONE);
 <span class="lineNum">     332 </span>                :            : 
-<span class="lineNum">     333 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (loaded != OPAL_SUCCESS) {</span>
+<span class="lineNum">     333 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :         if (loaded != OPAL_SUCCESS) {</span>
 <span class="lineNum">     334 </span>                :<span class="lineNoCov">          0 :                 printf(&quot;INIT: platform wait for kernel load failed\n&quot;);</span>
 <span class="lineNum">     335 </span>                :<span class="lineNoCov">          0 :                 kernel_size = 0;</span>
 <span class="lineNum">     336 </span>                :            :         }
 <span class="lineNum">     337 </span>                :            : 
 <span class="lineNum">     338 </span>                :            :         /* Try embedded kernel payload */
-<span class="lineNum">     339 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (!kernel_size) {</span>
+<span class="lineNum">     339 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          8 :         if (!kernel_size) {</span>
 <span class="lineNum">     340 </span>                :<span class="lineCov">          6 :                 kernel_size = __builtin_kernel_end - __builtin_kernel_start;</span>
 <span class="lineNum">     341 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                 if (kernel_size) {</span>
 <span class="lineNum">     342 </span>                :            :                         /* Move the built-in kernel up */
@@ -420,132 +420,132 @@
 <span class="lineNum">     349 </span>                :            :                 }
 <span class="lineNum">     350 </span>                :            :         }
 <span class="lineNum">     351 </span>                :            : 
-<span class="lineNum">     352 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (!kernel_size)</span>
+<span class="lineNum">     352 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          8 :         if (!kernel_size)</span>
 <span class="lineNum">     353 </span>                :<span class="lineCov">          6 :                 printf(&quot;Assuming kernel at %p\n&quot;, KERNEL_LOAD_BASE);</span>
 <span class="lineNum">     354 </span>                :            : 
-<span class="lineNum">     355 </span>                :<span class="lineCov">          6 :         printf(&quot;INIT: Kernel loaded, size: %zu bytes (0 = unknown preload)\n&quot;,</span>
+<span class="lineNum">     355 </span>                :<span class="lineCov">          8 :         printf(&quot;INIT: Kernel loaded, size: %zu bytes (0 = unknown preload)\n&quot;,</span>
 <span class="lineNum">     356 </span>                :            :                kernel_size);
 <span class="lineNum">     357 </span>                :            : 
-<span class="lineNum">     358 </span>                :<span class="lineCov">          6 :         kh = (struct elf_hdr *)KERNEL_LOAD_BASE;</span>
-<span class="lineNum">     359 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">          6 :         if (kh-&gt;ei_class == ELF_CLASS_64)</span>
+<span class="lineNum">     358 </span>                :<span class="lineCov">          8 :         kh = (struct elf_hdr *)KERNEL_LOAD_BASE;</span>
+<span class="lineNum">     359 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          8 :         if (kh-&gt;ei_class == ELF_CLASS_64)</span>
 <span class="lineNum">     360 </span>                :<span class="lineCov">          1 :                 return try_load_elf64(kh);</span>
-<span class="lineNum">     361 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          5 :         else if (kh-&gt;ei_class == ELF_CLASS_32)</span>
-<span class="lineNum">     362 </span>                :<span class="lineCov">          5 :                 return try_load_elf32(kh);</span>
+<span class="lineNum">     361 </span>        [<span class="branchCov" title="Branch 0 was taken 7 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          7 :         else if (kh-&gt;ei_class == ELF_CLASS_32)</span>
+<span class="lineNum">     362 </span>                :<span class="lineCov">          7 :                 return try_load_elf32(kh);</span>
 <span class="lineNum">     363 </span>                :            : 
 <span class="lineNum">     364 </span>                :<span class="lineNoCov">          0 :         printf(&quot;INIT: Neither ELF32 not ELF64 ?\n&quot;);</span>
 <span class="lineNum">     365 </span>                :<span class="lineNoCov">          0 :         return false;</span>
 <a name="366"><span class="lineNum">     366 </span>                :            : }</a>
 <span class="lineNum">     367 </span>                :            : 
-<span class="lineNum">     368 </span>                :<span class="lineCov">          6 : static void load_initramfs(void)</span>
+<span class="lineNum">     368 </span>                :<span class="lineCov">          8 : static void load_initramfs(void)</span>
 <span class="lineNum">     369 </span>                :            : {
 <span class="lineNum">     370 </span>                :            :         int loaded;
 <span class="lineNum">     371 </span>                :            : 
-<span class="lineNum">     372 </span>                :<span class="lineCov">          6 :         loaded = wait_for_resource_loaded(RESOURCE_ID_INITRAMFS,</span>
+<span class="lineNum">     372 </span>                :<span class="lineCov">          8 :         loaded = wait_for_resource_loaded(RESOURCE_ID_INITRAMFS,</span>
 <span class="lineNum">     373 </span>                :            :                                           RESOURCE_SUBID_NONE);
 <span class="lineNum">     374 </span>                :            : 
-<span class="lineNum">     375 </span>[<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (loaded != OPAL_SUCCESS || !initramfs_size)</span>
-<span class="lineNum">     376 </span>                :<span class="lineCov">          6 :                 return;</span>
+<span class="lineNum">     375 </span>[<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          8 :         if (loaded != OPAL_SUCCESS || !initramfs_size)</span>
+<span class="lineNum">     376 </span>                :<span class="lineCov">          8 :                 return;</span>
 <span class="lineNum">     377 </span>                :            : 
-<span class="lineNum">     378 </span>                :<span class="lineNoCov">          0 :         printf(&quot;INIT: Initramfs loaded, size: %zu bytes\n&quot;, initramfs_size);</span>
+<span class="lineNum">     378 </span>                :<span class="lineCov">          2 :         printf(&quot;INIT: Initramfs loaded, size: %zu bytes\n&quot;, initramfs_size);</span>
 <span class="lineNum">     379 </span>                :            : 
-<span class="lineNum">     380 </span>                :<span class="lineNoCov">          0 :         dt_add_property_u64(dt_chosen, &quot;linux,initrd-start&quot;,</span>
+<span class="lineNum">     380 </span>                :<span class="lineCov">          2 :         dt_add_property_u64(dt_chosen, &quot;linux,initrd-start&quot;,</span>
 <span class="lineNum">     381 </span>                :            :                         (uint64_t)INITRAMFS_LOAD_BASE);
-<span class="lineNum">     382 </span>                :<span class="lineNoCov">          0 :         dt_add_property_u64(dt_chosen, &quot;linux,initrd-end&quot;,</span>
+<span class="lineNum">     382 </span>                :<span class="lineCov">          2 :         dt_add_property_u64(dt_chosen, &quot;linux,initrd-end&quot;,</span>
 <span class="lineNum">     383 </span>                :            :                         (uint64_t)INITRAMFS_LOAD_BASE + initramfs_size);
 <span class="lineNum">     384 </span>                :            : }
 <span class="lineNum">     385 </span>                :            : 
 <a name="386"><span class="lineNum">     386 </span>                :            : int64_t mem_dump_free(void);</a>
 <span class="lineNum">     387 </span>                :            : 
-<span class="lineNum">     388 </span>                :<span class="lineCov">          6 : void __noreturn load_and_boot_kernel(bool is_reboot)</span>
+<span class="lineNum">     388 </span>                :<span class="lineCov">          8 : void __noreturn load_and_boot_kernel(bool is_reboot)</span>
 <span class="lineNum">     389 </span>                :            : {
 <span class="lineNum">     390 </span>                :            :         const struct dt_property *memprop;
 <span class="lineNum">     391 </span>                :            :         uint64_t mem_top;
 <span class="lineNum">     392 </span>                :            :         void *fdt;
 <span class="lineNum">     393 </span>                :            : 
-<span class="lineNum">     394 </span>                :<span class="lineCov">          6 :         memprop = dt_find_property(dt_root, DT_PRIVATE &quot;maxmem&quot;);</span>
-<span class="lineNum">     395 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (memprop)</span>
-<span class="lineNum">     396 </span>                :<span class="lineNoCov">          0 :                 mem_top = (u64)dt_property_get_cell(memprop, 0) &lt;&lt; 32</span>
-<span class="lineNum">     397 </span>                :<span class="lineNoCov">          0 :                         | dt_property_get_cell(memprop, 1);</span>
+<span class="lineNum">     394 </span>                :<span class="lineCov">          8 :         memprop = dt_find_property(dt_root, DT_PRIVATE &quot;maxmem&quot;);</span>
+<span class="lineNum">     395 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          8 :         if (memprop)</span>
+<span class="lineNum">     396 </span>                :<span class="lineCov">          4 :                 mem_top = (u64)dt_property_get_cell(memprop, 0) &lt;&lt; 32</span>
+<span class="lineNum">     397 </span>                :<span class="lineCov">          2 :                         | dt_property_get_cell(memprop, 1);</span>
 <span class="lineNum">     398 </span>                :            :         else /* XXX HB hack, might want to calc it */
 <span class="lineNum">     399 </span>                :            :                 mem_top = 0x40000000;
 <span class="lineNum">     400 </span>                :            : 
-<span class="lineNum">     401 </span>                :<span class="lineCov">          6 :         op_display(OP_LOG, OP_MOD_INIT, 0x000A);</span>
+<span class="lineNum">     401 </span>                :<span class="lineCov">          8 :         op_display(OP_LOG, OP_MOD_INIT, 0x000A);</span>
 <span class="lineNum">     402 </span>                :            : 
-<span class="lineNum">     403 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (platform.exit)</span>
-<span class="lineNum">     404 </span>                :<span class="lineNoCov">          0 :                 platform.exit();</span>
+<span class="lineNum">     403 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          8 :         if (platform.exit)</span>
+<span class="lineNum">     404 </span>                :<span class="lineCov">          2 :                 platform.exit();</span>
 <span class="lineNum">     405 </span>                :            : 
 <span class="lineNum">     406 </span>                :            :         /* Load kernel LID */
-<span class="lineNum">     407 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (!load_kernel()) {</span>
+<span class="lineNum">     407 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 8 times"> + </span>]:<span class="lineCov">          8 :         if (!load_kernel()) {</span>
 <span class="lineNum">     408 </span>                :<span class="lineNoCov">          0 :                 op_display(OP_FATAL, OP_MOD_INIT, 1);</span>
 <span class="lineNum">     409 </span>                :<span class="lineNoCov">          0 :                 abort();</span>
 <span class="lineNum">     410 </span>                :            :         }
 <span class="lineNum">     411 </span>                :            : 
-<span class="lineNum">     412 </span>                :<span class="lineCov">          6 :         load_initramfs();</span>
+<span class="lineNum">     412 </span>                :<span class="lineCov">          8 :         load_initramfs();</span>
 <span class="lineNum">     413 </span>                :            : 
-<span class="lineNum">     414 </span>                :<span class="lineCov">          6 :         ipmi_set_fw_progress_sensor(IPMI_FW_OS_BOOT);</span>
+<span class="lineNum">     414 </span>                :<span class="lineCov">          8 :         ipmi_set_fw_progress_sensor(IPMI_FW_OS_BOOT);</span>
 <span class="lineNum">     415 </span>                :            : 
-<span class="lineNum">     416 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (!is_reboot) {</span>
+<span class="lineNum">     416 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          8 :         if (!is_reboot) {</span>
 <span class="lineNum">     417 </span>                :            :                 /* We wait for the nvram read to complete here so we can
 <span class="lineNum">     418 </span>                :            :                  * grab stuff from there such as the kernel arguments
 <span class="lineNum">     419 </span>                :            :                  */
-<span class="lineNum">     420 </span>                :<span class="lineCov">          6 :                 fsp_nvram_wait_open();</span>
+<span class="lineNum">     420 </span>                :<span class="lineCov">          8 :                 fsp_nvram_wait_open();</span>
 <span class="lineNum">     421 </span>                :            : 
 <span class="lineNum">     422 </span>                :            :                 /* Wait for FW VPD data read to complete */
-<span class="lineNum">     423 </span>                :<span class="lineCov">          6 :                 fsp_code_update_wait_vpd(true);</span>
+<span class="lineNum">     423 </span>                :<span class="lineCov">          8 :                 fsp_code_update_wait_vpd(true);</span>
 <span class="lineNum">     424 </span>                :            :         }
-<span class="lineNum">     425 </span>                :<span class="lineCov">          6 :         fsp_console_select_stdout();</span>
+<span class="lineNum">     425 </span>                :<span class="lineCov">          8 :         fsp_console_select_stdout();</span>
 <span class="lineNum">     426 </span>                :            : 
 <span class="lineNum">     427 </span>                :            :         /*
 <span class="lineNum">     428 </span>                :            :          * OCC takes few secs to boot.  Call this as late as
 <span class="lineNum">     429 </span>                :            :          * as possible to avoid delay.
 <span class="lineNum">     430 </span>                :            :          */
-<span class="lineNum">     431 </span>                :<span class="lineCov">          6 :         occ_pstates_init();</span>
+<span class="lineNum">     431 </span>                :<span class="lineCov">          8 :         occ_pstates_init();</span>
 <span class="lineNum">     432 </span>                :            : 
 <span class="lineNum">     433 </span>                :            :         /* Set kernel command line argument if specified */
 <span class="lineNum">     434 </span>                :            : #ifdef KERNEL_COMMAND_LINE
 <span class="lineNum">     435 </span>                :            :         dt_add_property_string(dt_chosen, &quot;bootargs&quot;, KERNEL_COMMAND_LINE);
 <span class="lineNum">     436 </span>                :            : #endif
 <span class="lineNum">     437 </span>                :            : 
-<span class="lineNum">     438 </span>                :<span class="lineCov">          6 :         op_display(OP_LOG, OP_MOD_INIT, 0x000B);</span>
+<span class="lineNum">     438 </span>                :<span class="lineCov">          8 :         op_display(OP_LOG, OP_MOD_INIT, 0x000B);</span>
 <span class="lineNum">     439 </span>                :            : 
 <span class="lineNum">     440 </span>                :            :         /* Create the device tree blob to boot OS. */
-<span class="lineNum">     441 </span>                :<span class="lineCov">          6 :         fdt = create_dtb(dt_root);</span>
-<span class="lineNum">     442 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (!fdt) {</span>
+<span class="lineNum">     441 </span>                :<span class="lineCov">          8 :         fdt = create_dtb(dt_root);</span>
+<span class="lineNum">     442 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :         if (!fdt) {</span>
 <span class="lineNum">     443 </span>                :<span class="lineNoCov">          0 :                 op_display(OP_FATAL, OP_MOD_INIT, 2);</span>
 <span class="lineNum">     444 </span>                :<span class="lineNoCov">          0 :                 abort();</span>
 <span class="lineNum">     445 </span>                :            :         }
 <span class="lineNum">     446 </span>                :            : 
-<span class="lineNum">     447 </span>                :<span class="lineCov">          6 :         op_display(OP_LOG, OP_MOD_INIT, 0x000C);</span>
+<span class="lineNum">     447 </span>                :<span class="lineCov">          8 :         op_display(OP_LOG, OP_MOD_INIT, 0x000C);</span>
 <span class="lineNum">     448 </span>                :            : 
 <span class="lineNum">     449 </span>                :            :         /* Start the kernel */
-<span class="lineNum">     450 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (!is_reboot)</span>
-<span class="lineNum">     451 </span>                :<span class="lineCov">          6 :                 op_panel_disable_src_echo();</span>
+<span class="lineNum">     450 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          8 :         if (!is_reboot)</span>
+<span class="lineNum">     451 </span>                :<span class="lineCov">          8 :                 op_panel_disable_src_echo();</span>
 <span class="lineNum">     452 </span>                :            : 
 <span class="lineNum">     453 </span>                :            :         /* Clear SRCs on the op-panel when Linux starts */
-<span class="lineNum">     454 </span>                :<span class="lineCov">          6 :         op_panel_clear_src();</span>
+<span class="lineNum">     454 </span>                :<span class="lineCov">          8 :         op_panel_clear_src();</span>
 <span class="lineNum">     455 </span>                :            : 
-<span class="lineNum">     456 </span>                :<span class="lineCov">          6 :         cpu_give_self_os();</span>
+<span class="lineNum">     456 </span>                :<span class="lineCov">          8 :         cpu_give_self_os();</span>
 <span class="lineNum">     457 </span>                :            : 
-<span class="lineNum">     458 </span>                :<span class="lineCov">          6 :         mem_dump_free();</span>
+<span class="lineNum">     458 </span>                :<span class="lineCov">          8 :         mem_dump_free();</span>
 <span class="lineNum">     459 </span>                :            : 
-<span class="lineNum">     460 </span>                :<span class="lineCov">          6 :         printf(&quot;INIT: Starting kernel at 0x%llx, fdt at %p (size 0x%x)\n&quot;,</span>
+<span class="lineNum">     460 </span>                :<span class="lineCov">          8 :         printf(&quot;INIT: Starting kernel at 0x%llx, fdt at %p (size 0x%x)\n&quot;,</span>
 <span class="lineNum">     461 </span>                :            :                kernel_entry, fdt, fdt_totalsize(fdt));
 <span class="lineNum">     462 </span>                :            : 
-<span class="lineNum">     463 </span>                :<span class="lineCov">          6 :         fdt_set_boot_cpuid_phys(fdt, this_cpu()-&gt;pir);</span>
-<span class="lineNum">     464 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          6 :         if (kernel_32bit)</span>
-<span class="lineNum">     465 </span>                :<span class="lineCov">          5 :                 start_kernel32(kernel_entry, fdt, mem_top);</span>
+<span class="lineNum">     463 </span>                :<span class="lineCov">          8 :         fdt_set_boot_cpuid_phys(fdt, this_cpu()-&gt;pir);</span>
+<span class="lineNum">     464 </span>        [<span class="branchCov" title="Branch 0 was taken 7 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          8 :         if (kernel_32bit)</span>
+<span class="lineNum">     465 </span>                :<span class="lineCov">          7 :                 start_kernel32(kernel_entry, fdt, mem_top);</span>
 <span class="lineNum">     466 </span>                :<span class="lineCov">          1 :         start_kernel(kernel_entry, fdt, mem_top);</span>
 <a name="467"><span class="lineNum">     467 </span>                :            : }</a>
 <span class="lineNum">     468 </span>                :            : 
-<span class="lineNum">     469 </span>                :<span class="lineCov">          6 : static void dt_fixups(void)</span>
+<span class="lineNum">     469 </span>                :<span class="lineCov">          8 : static void dt_fixups(void)</span>
 <span class="lineNum">     470 </span>                :            : {
 <span class="lineNum">     471 </span>                :            :         struct dt_node *n;
-<span class="lineNum">     472 </span>                :<span class="lineCov">          6 :         struct dt_node *primary_lpc = NULL;</span>
+<span class="lineNum">     472 </span>                :<span class="lineCov">          8 :         struct dt_node *primary_lpc = NULL;</span>
 <span class="lineNum">     473 </span>                :            : 
 <span class="lineNum">     474 </span>                :            :         /* lpc node missing #address/size cells. Also pick one as
 <span class="lineNum">     475 </span>                :            :          * primary for now (TBD: How to convey that from HB)
 <span class="lineNum">     476 </span>                :            :          */
-<span class="lineNum">     477 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         dt_for_each_compatible(dt_root, n, &quot;ibm,power8-lpc&quot;) {</span>
+<span class="lineNum">     477 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 8 times"> + </span>]:<span class="lineCov">          8 :         dt_for_each_compatible(dt_root, n, &quot;ibm,power8-lpc&quot;) {</span>
 <span class="lineNum">     478 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!primary_lpc || dt_has_node_property(n, &quot;primary&quot;, NULL))</span>
 <span class="lineNum">     479 </span>                :<span class="lineNoCov">          0 :                         primary_lpc = n;</span>
 <span class="lineNum">     480 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (dt_has_node_property(n, &quot;#address-cells&quot;, NULL))</span>
@@ -556,75 +556,75 @@
 <span class="lineNum">     485 </span>                :            :         }
 <span class="lineNum">     486 </span>                :            : 
 <span class="lineNum">     487 </span>                :            :         /* Missing &quot;primary&quot; property in LPC bus */
-<span class="lineNum">     488 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineCov">          6 :         if (primary_lpc &amp;&amp; !dt_has_node_property(primary_lpc, &quot;primary&quot;, NULL))</span>
-<span class="lineNum">     489 </span>                :<span class="lineCov">          6 :                 dt_add_property(primary_lpc, &quot;primary&quot;, NULL, 0);</span>
+<span class="lineNum">     488 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>][<span class="branchNoExec" title="Branch 3 was not executed"> # </span><span class="branchNoExec" title="Branch 4 was not executed"> # </span>]:<span class="lineCov">          8 :         if (primary_lpc &amp;&amp; !dt_has_node_property(primary_lpc, &quot;primary&quot;, NULL))</span>
+<span class="lineNum">     489 </span>                :<span class="lineCov">          8 :                 dt_add_property(primary_lpc, &quot;primary&quot;, NULL, 0);</span>
 <span class="lineNum">     490 </span>                :            : 
 <span class="lineNum">     491 </span>                :            :         /* Missing &quot;scom-controller&quot; */
-<span class="lineNum">     492 </span>        [<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">         12 :         dt_for_each_compatible(dt_root, n, &quot;ibm,xscom&quot;) {</span>
-<span class="lineNum">     493 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                 if (!dt_has_node_property(n, &quot;scom-controller&quot;, NULL))</span>
-<span class="lineNum">     494 </span>                :<span class="lineCov">          6 :                         dt_add_property(n, &quot;scom-controller&quot;, NULL, 0);</span>
+<span class="lineNum">     492 </span>        [<span class="branchCov" title="Branch 1 was taken 12 times"> + </span><span class="branchCov" title="Branch 2 was taken 8 times"> + </span>]:<span class="lineCov">         20 :         dt_for_each_compatible(dt_root, n, &quot;ibm,xscom&quot;) {</span>
+<span class="lineNum">     493 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 12 times"> + </span>]:<span class="lineCov">         12 :                 if (!dt_has_node_property(n, &quot;scom-controller&quot;, NULL))</span>
+<span class="lineNum">     494 </span>                :<span class="lineCov">         12 :                         dt_add_property(n, &quot;scom-controller&quot;, NULL, 0);</span>
 <span class="lineNum">     495 </span>                :            :         }
-<a name="496"><span class="lineNum">     496 </span>                :<span class="lineCov">          6 : }</span></a>
+<a name="496"><span class="lineNum">     496 </span>                :<span class="lineCov">          8 : }</span></a>
 <span class="lineNum">     497 </span>                :            : 
-<span class="lineNum">     498 </span>                :<span class="lineCov">          6 : static void add_arch_vector(void)</span>
+<span class="lineNum">     498 </span>                :<span class="lineCov">          8 : static void add_arch_vector(void)</span>
 <span class="lineNum">     499 </span>                :            : {
 <span class="lineNum">     500 </span>                :            :         /**
 <span class="lineNum">     501 </span>                :            :          * vec5 = a PVR-list : Number-of-option-vectors :
 <span class="lineNum">     502 </span>                :            :          *        option-vectors[Number-of-option-vectors + 1]
 <span class="lineNum">     503 </span>                :            :          */
-<span class="lineNum">     504 </span>                :<span class="lineCov">          6 :         uint8_t vec5[] = {0x05, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00};</span>
+<span class="lineNum">     504 </span>                :<span class="lineCov">          8 :         uint8_t vec5[] = {0x05, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00};</span>
 <span class="lineNum">     505 </span>                :            : 
-<span class="lineNum">     506 </span>        [<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          6 :         if (dt_has_node_property(dt_chosen, &quot;ibm,architecture-vec-5&quot;, NULL))</span>
+<span class="lineNum">     506 </span>        [<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          8 :         if (dt_has_node_property(dt_chosen, &quot;ibm,architecture-vec-5&quot;, NULL))</span>
 <span class="lineNum">     507 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">     508 </span>                :            : 
-<span class="lineNum">     509 </span>                :<span class="lineCov">          6 :         dt_add_property(dt_chosen, &quot;ibm,architecture-vec-5&quot;,</span>
+<span class="lineNum">     509 </span>                :<span class="lineCov">          8 :         dt_add_property(dt_chosen, &quot;ibm,architecture-vec-5&quot;,</span>
 <span class="lineNum">     510 </span>                :            :                         vec5, sizeof(vec5));
 <a name="511"><span class="lineNum">     511 </span>                :            : }</a>
 <span class="lineNum">     512 </span>                :            : 
-<span class="lineNum">     513 </span>                :<span class="lineCov">          6 : static void dt_init_misc(void)</span>
+<span class="lineNum">     513 </span>                :<span class="lineCov">          8 : static void dt_init_misc(void)</span>
 <span class="lineNum">     514 </span>                :            : {
 <span class="lineNum">     515 </span>                :            :         /* Check if there's a /chosen node, if not, add one */
-<span class="lineNum">     516 </span>                :<span class="lineCov">          6 :         dt_chosen = dt_find_by_path(dt_root, &quot;/chosen&quot;);</span>
-<span class="lineNum">     517 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (!dt_chosen)</span>
-<span class="lineNum">     518 </span>                :<span class="lineNoCov">          0 :                 dt_chosen = dt_new(dt_root, &quot;chosen&quot;);</span>
-<span class="lineNum">     519 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         assert(dt_chosen);</span>
+<span class="lineNum">     516 </span>                :<span class="lineCov">          8 :         dt_chosen = dt_find_by_path(dt_root, &quot;/chosen&quot;);</span>
+<span class="lineNum">     517 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          8 :         if (!dt_chosen)</span>
+<span class="lineNum">     518 </span>                :<span class="lineCov">          2 :                 dt_chosen = dt_new(dt_root, &quot;chosen&quot;);</span>
+<span class="lineNum">     519 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :         assert(dt_chosen);</span>
 <span class="lineNum">     520 </span>                :            : 
 <span class="lineNum">     521 </span>                :            :         /* Add IBM architecture vectors if needed */
-<span class="lineNum">     522 </span>                :<span class="lineCov">          6 :         add_arch_vector();</span>
+<span class="lineNum">     522 </span>                :<span class="lineCov">          8 :         add_arch_vector();</span>
 <span class="lineNum">     523 </span>                :            : 
 <span class="lineNum">     524 </span>                :            :         /* Add the &quot;OPAL virtual ICS*/
-<span class="lineNum">     525 </span>                :<span class="lineCov">          6 :         add_ics_node();</span>
+<span class="lineNum">     525 </span>                :<span class="lineCov">          8 :         add_ics_node();</span>
 <span class="lineNum">     526 </span>                :            : 
 <span class="lineNum">     527 </span>                :            :         /* Additional fixups. TODO: Move into platform */
-<span class="lineNum">     528 </span>                :<span class="lineCov">          6 :         dt_fixups();</span>
-<a name="529"><span class="lineNum">     529 </span>                :<span class="lineCov">          6 : }</span></a>
+<span class="lineNum">     528 </span>                :<span class="lineCov">          8 :         dt_fixups();</span>
+<a name="529"><span class="lineNum">     529 </span>                :<span class="lineCov">          8 : }</span></a>
 <span class="lineNum">     530 </span>                :            : 
 <span class="lineNum">     531 </span>                :<span class="lineNoCov">          0 : static void branch_null(void)</span>
 <span class="lineNum">     532 </span>                :            : {
 <span class="lineNum">     533 </span>                :<span class="lineNoCov">          0 :         assert_fail(&quot;Branch to NULL !&quot;);</span>
 <a name="534"><span class="lineNum">     534 </span>                :            : }</a>
 <span class="lineNum">     535 </span>                :            : 
-<span class="lineNum">     536 </span>                :<span class="lineCov">          6 : static void setup_branch_null_catcher(void)</span>
+<span class="lineNum">     536 </span>                :<span class="lineCov">          8 : static void setup_branch_null_catcher(void)</span>
 <span class="lineNum">     537 </span>                :            : {
-<span class="lineNum">     538 </span>                :<span class="lineCov">          6 :         void (*bn)(void) = branch_null;</span>
-<span class="lineNum">     539 </span>                :<span class="lineCov">          6 :         memcpy(0, bn, 16);</span>
-<span class="lineNum">     540 </span>                :<span class="lineCov">          6 : }</span>
+<span class="lineNum">     538 </span>                :<span class="lineCov">          8 :         void (*bn)(void) = branch_null;</span>
+<span class="lineNum">     539 </span>                :<span class="lineCov">          8 :         memcpy(0, bn, 16);</span>
+<span class="lineNum">     540 </span>                :<span class="lineCov">          8 : }</span>
 <span class="lineNum">     541 </span>                :            : 
 <span class="lineNum">     542 </span>                :            : /* Called from head.S, thus no prototype. */
 <span class="lineNum">     543 </span>                :            : void __noreturn main_cpu_entry(const void *fdt, u32 master_cpu);
 <span class="lineNum">     544 </span>                :            : 
 <a name="545"><span class="lineNum">     545 </span>                :            : typedef void (*ctorcall_t)(void);</a>
 <span class="lineNum">     546 </span>                :            : 
-<span class="lineNum">     547 </span>                :<span class="lineCov">          6 : static void do_ctors(void)</span>
+<span class="lineNum">     547 </span>                :<span class="lineCov">          8 : static void do_ctors(void)</span>
 <span class="lineNum">     548 </span>                :            : {
 <span class="lineNum">     549 </span>                :            :         extern ctorcall_t __ctors_start[], __ctors_end[];
 <span class="lineNum">     550 </span>                :            :         ctorcall_t *call;
 <span class="lineNum">     551 </span>                :            : 
-<span class="lineNum">     552 </span>        [<span class="branchCov" title="Branch 0 was taken 1056 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">       1062 :         for (call = __ctors_start; call &lt; __ctors_end; call++)</span>
-<span class="lineNum">     553 </span>                :<span class="lineCov">       1056 :                 (*call)();</span>
-<a name="554"><span class="lineNum">     554 </span>                :<span class="lineCov">          6 : }</span></a>
+<span class="lineNum">     552 </span>        [<span class="branchCov" title="Branch 0 was taken 1408 times"> + </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">       1416 :         for (call = __ctors_start; call &lt; __ctors_end; call++)</span>
+<span class="lineNum">     553 </span>                :<span class="lineCov">       1408 :                 (*call)();</span>
+<a name="554"><span class="lineNum">     554 </span>                :<span class="lineCov">          8 : }</span></a>
 <span class="lineNum">     555 </span>                :            : 
-<span class="lineNum">     556 </span>                :<span class="lineCov">          6 : void __noreturn main_cpu_entry(const void *fdt, u32 master_cpu)</span>
+<span class="lineNum">     556 </span>                :<span class="lineCov">          8 : void __noreturn main_cpu_entry(const void *fdt, u32 master_cpu)</span>
 <span class="lineNum">     557 </span>                :            : {
 <span class="lineNum">     558 </span>                :            :         /*
 <span class="lineNum">     559 </span>                :            :          * WARNING: At this point. the timebases have
@@ -639,245 +639,247 @@
 <span class="lineNum">     568 </span>                :            :          * putting any other useful info in there jus yet) otherwise
 <span class="lineNum">     569 </span>                :            :          * printf an locks are going to play funny games with &quot;con_suspend&quot;
 <span class="lineNum">     570 </span>                :            :          */
-<span class="lineNum">     571 </span>                :<span class="lineCov">          6 :         pre_init_boot_cpu();</span>
+<span class="lineNum">     571 </span>                :<span class="lineCov">          8 :         pre_init_boot_cpu();</span>
 <span class="lineNum">     572 </span>                :            : 
 <span class="lineNum">     573 </span>                :            :         /*
 <span class="lineNum">     574 </span>                :            :          * Before first printk, ensure console buffer is clear or
 <span class="lineNum">     575 </span>                :            :          * reading tools might think it has wrapped
 <span class="lineNum">     576 </span>                :            :          */
-<span class="lineNum">     577 </span>                :<span class="lineCov">          6 :         clear_console();</span>
+<span class="lineNum">     577 </span>                :<span class="lineCov">          8 :         clear_console();</span>
 <span class="lineNum">     578 </span>                :            : 
 <span class="lineNum">     579 </span>                :            :         /* Put at 0 an OPD to a warning function in case we branch through
 <span class="lineNum">     580 </span>                :            :          * a NULL function pointer
 <span class="lineNum">     581 </span>                :            :          */
-<span class="lineNum">     582 </span>                :<span class="lineCov">          6 :         setup_branch_null_catcher();</span>
+<span class="lineNum">     582 </span>                :<span class="lineCov">          8 :         setup_branch_null_catcher();</span>
 <span class="lineNum">     583 </span>                :            : 
-<span class="lineNum">     584 </span>                :<span class="lineCov">          6 :         do_ctors();</span>
+<span class="lineNum">     584 </span>                :<span class="lineCov">          8 :         do_ctors();</span>
 <span class="lineNum">     585 </span>                :            : 
-<span class="lineNum">     586 </span>                :<span class="lineCov">          6 :         printf(&quot;SkiBoot %s starting...\n&quot;, version);</span>
-<span class="lineNum">     587 </span>                :<span class="lineCov">          6 :         printf(&quot;initial console log level: memory %d, driver %d\n&quot;,</span>
-<span class="lineNum">     588 </span>                :            :                (debug_descriptor.console_log_levels &gt;&gt; 4),
-<span class="lineNum">     589 </span>                :            :                (debug_descriptor.console_log_levels &amp; 0x0f));
-<span class="lineNum">     590 </span>                :<span class="lineCov">          6 :         prlog(PR_TRACE, &quot;You will not see this\n&quot;);</span>
-<span class="lineNum">     591 </span>                :            : 
-<span class="lineNum">     592 </span>                :            : #ifdef SKIBOOT_GCOV
-<span class="lineNum">     593 </span>                :<span class="lineCov">          6 :         skiboot_gcov_done();</span>
-<span class="lineNum">     594 </span>                :            : #endif
-<span class="lineNum">     595 </span>                :            : 
-<span class="lineNum">     596 </span>                :            :         /* Initialize boot cpu's cpu_thread struct */
-<span class="lineNum">     597 </span>                :<span class="lineCov">          6 :         init_boot_cpu();</span>
-<span class="lineNum">     598 </span>                :            : 
-<span class="lineNum">     599 </span>                :            :         /* Now locks can be used */
-<span class="lineNum">     600 </span>                :<span class="lineCov">          6 :         init_locks();</span>
-<span class="lineNum">     601 </span>                :            : 
-<span class="lineNum">     602 </span>                :            :         /* Create the OPAL call table early on, entries can be overridden
-<span class="lineNum">     603 </span>                :            :          * later on (FSP console code for example)
-<span class="lineNum">     604 </span>                :            :          */
-<span class="lineNum">     605 </span>                :<span class="lineCov">          6 :         opal_table_init();</span>
-<span class="lineNum">     606 </span>                :            : 
-<span class="lineNum">     607 </span>                :            :         /*
-<span class="lineNum">     608 </span>                :            :          * If we are coming in with a flat device-tree, we expand it
-<span class="lineNum">     609 </span>                :            :          * now. Else look for HDAT and create a device-tree from them
-<span class="lineNum">     610 </span>                :            :          *
-<span class="lineNum">     611 </span>                :            :          * Hack alert: When entering via the OPAL entry point, fdt
-<span class="lineNum">     612 </span>                :            :          * is set to -1, we record that and pass it to parse_hdat
-<span class="lineNum">     613 </span>                :            :          */
-<span class="lineNum">     614 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (fdt == (void *)-1ul)</span>
-<span class="lineNum">     615 </span>                :<span class="lineNoCov">          0 :                 parse_hdat(true, master_cpu);</span>
-<span class="lineNum">     616 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         else if (fdt == NULL)</span>
-<span class="lineNum">     617 </span>                :<span class="lineNoCov">          0 :                 parse_hdat(false, master_cpu);</span>
-<span class="lineNum">     618 </span>                :            :         else {
-<span class="lineNum">     619 </span>                :<span class="lineCov">          6 :                 dt_expand(fdt);</span>
-<span class="lineNum">     620 </span>                :            :         }
-<span class="lineNum">     621 </span>                :            : 
-<span class="lineNum">     622 </span>                :            :         /*
-<span class="lineNum">     623 </span>                :            :          * From there, we follow a fairly strict initialization order.
-<span class="lineNum">     624 </span>                :            :          *
-<span class="lineNum">     625 </span>                :            :          * First we need to build up our chip data structures and initialize
-<span class="lineNum">     626 </span>                :            :          * XSCOM which will be needed for a number of susbequent things.
-<span class="lineNum">     627 </span>                :            :          *
-<span class="lineNum">     628 </span>                :            :          * We want XSCOM available as early as the platform probe in case the
-<span class="lineNum">     629 </span>                :            :          * probe requires some HW accesses.
-<span class="lineNum">     630 </span>                :            :          *
-<span class="lineNum">     631 </span>                :            :          * We also initialize the FSI master at that point in case we need
-<span class="lineNum">     632 </span>                :            :          * to access chips via that path early on.
-<span class="lineNum">     633 </span>                :            :          */
-<span class="lineNum">     634 </span>                :<span class="lineCov">          6 :         init_chips();</span>
-<span class="lineNum">     635 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (chip_quirk(QUIRK_MAMBO_CALLOUTS))</span>
-<span class="lineNum">     636 </span>                :<span class="lineCov">          6 :                 enable_mambo_console();</span>
-<span class="lineNum">     637 </span>                :<span class="lineCov">          6 :         xscom_init();</span>
-<span class="lineNum">     638 </span>                :<span class="lineCov">          6 :         mfsi_init();</span>
-<span class="lineNum">     639 </span>                :            : 
-<span class="lineNum">     640 </span>                :            :         /*
-<span class="lineNum">     641 </span>                :            :          * Put various bits &amp; pieces in device-tree that might not
-<span class="lineNum">     642 </span>                :            :          * already be there such as the /chosen node if not there yet,
-<span class="lineNum">     643 </span>                :            :          * the ICS node, etc... This can potentially use XSCOM
-<span class="lineNum">     644 </span>                :            :          */
-<span class="lineNum">     645 </span>                :<span class="lineCov">          6 :         dt_init_misc();</span>
-<span class="lineNum">     646 </span>                :            : 
-<span class="lineNum">     647 </span>                :            :         /*
-<span class="lineNum">     648 </span>                :            :          * Initialize LPC (P8 only) so we can get to UART, BMC and
-<span class="lineNum">     649 </span>                :            :          * other system controller. This is done before probe_platform
-<span class="lineNum">     650 </span>                :            :          * so that the platform probing code can access an external
-<span class="lineNum">     651 </span>                :            :          * BMC if needed.
-<span class="lineNum">     652 </span>                :            :          */
-<span class="lineNum">     653 </span>                :<span class="lineCov">          6 :         lpc_init();</span>
-<span class="lineNum">     654 </span>                :            : 
-<span class="lineNum">     655 </span>                :            :         /*
-<span class="lineNum">     656 </span>                :            :          * Now, we init our memory map from the device-tree, and immediately
-<span class="lineNum">     657 </span>                :            :          * reserve areas which we know might contain data coming from
-<span class="lineNum">     658 </span>                :            :          * HostBoot. We need to do these things before we start doing
-<span class="lineNum">     659 </span>                :            :          * allocations outside of our heap, such as chip local allocs,
-<span class="lineNum">     660 </span>                :            :          * otherwise we might clobber those data.
-<span class="lineNum">     661 </span>                :            :          */
-<span class="lineNum">     662 </span>                :<span class="lineCov">          6 :         mem_region_init();</span>
-<span class="lineNum">     663 </span>                :            : 
-<span class="lineNum">     664 </span>                :            :         /* Reserve HOMER and OCC area */
-<span class="lineNum">     665 </span>                :<span class="lineCov">          6 :         homer_init();</span>
-<span class="lineNum">     666 </span>                :            : 
-<span class="lineNum">     667 </span>                :            :         /* Add the /opal node to the device-tree */
-<span class="lineNum">     668 </span>                :<span class="lineCov">          6 :         add_opal_node();</span>
-<span class="lineNum">     669 </span>                :            : 
-<span class="lineNum">     670 </span>                :            :         /*
-<span class="lineNum">     671 </span>                :            :          * We probe the platform now. This means the platform probe gets
-<span class="lineNum">     672 </span>                :            :          * the opportunity to reserve additional areas of memory if needed.
-<span class="lineNum">     673 </span>                :            :          *
-<span class="lineNum">     674 </span>                :            :          * Note: Timebases still not synchronized.
-<span class="lineNum">     675 </span>                :            :          */
-<span class="lineNum">     676 </span>                :<span class="lineCov">          6 :         probe_platform();</span>
-<span class="lineNum">     677 </span>                :            : 
-<span class="lineNum">     678 </span>                :            :         /* Initialize the rest of the cpu thread structs */
-<span class="lineNum">     679 </span>                :<span class="lineCov">          6 :         init_all_cpus();</span>
-<span class="lineNum">     680 </span>                :            : 
-<span class="lineNum">     681 </span>                :            :         /* Allocate our split trace buffers now. Depends add_opal_node() */
-<span class="lineNum">     682 </span>                :<span class="lineCov">          6 :         init_trace_buffers();</span>
-<span class="lineNum">     683 </span>                :            : 
-<span class="lineNum">     684 </span>                :            :         /* Get the ICPs and make sure they are in a sane state */
-<span class="lineNum">     685 </span>                :<span class="lineCov">          6 :         init_interrupts();</span>
-<span class="lineNum">     686 </span>                :            : 
-<span class="lineNum">     687 </span>                :            :         /* Grab centaurs from device-tree if present (only on FSP-less) */
-<span class="lineNum">     688 </span>                :<span class="lineCov">          6 :         centaur_init();</span>
-<span class="lineNum">     689 </span>                :            : 
-<span class="lineNum">     690 </span>                :            :         /* Initialize PSI (depends on probe_platform being called) */
-<span class="lineNum">     691 </span>                :<span class="lineCov">          6 :         psi_init();</span>
-<span class="lineNum">     692 </span>                :            : 
-<span class="lineNum">     693 </span>                :            :         /* Call in secondary CPUs */
-<span class="lineNum">     694 </span>                :<span class="lineCov">          6 :         cpu_bringup();</span>
-<span class="lineNum">     695 </span>                :            : 
-<span class="lineNum">     696 </span>                :            :         /*
-<span class="lineNum">     697 </span>                :            :          * Sycnhronize time bases. Thi resets all the TB values to a small
-<span class="lineNum">     698 </span>                :            :          * value (so they appear to go backward at this point), and synchronize
-<span class="lineNum">     699 </span>                :            :          * all core timebases to the global ChipTOD network
-<span class="lineNum">     700 </span>                :            :          */
-<span class="lineNum">     701 </span>                :<span class="lineCov">          6 :         chiptod_init();</span>
-<span class="lineNum">     702 </span>                :            : 
-<span class="lineNum">     703 </span>                :            :         /* Initialize i2c */
-<span class="lineNum">     704 </span>                :<span class="lineCov">          6 :         p8_i2c_init();</span>
-<span class="lineNum">     705 </span>                :            : 
-<span class="lineNum">     706 </span>                :            :         /* Register routine to dispatch and read sensors */
-<span class="lineNum">     707 </span>                :<span class="lineCov">          6 :         sensor_init();</span>
-<span class="lineNum">     708 </span>                :            : 
-<span class="lineNum">     709 </span>                :            :         /*
-<span class="lineNum">     710 </span>                :            :          * We have initialized the basic HW, we can now call into the
-<span class="lineNum">     711 </span>                :            :          * platform to perform subsequent inits, such as establishing
-<span class="lineNum">     712 </span>                :            :          * communication with the FSP or starting IPMI.
-<span class="lineNum">     713 </span>                :            :          */
-<span class="lineNum">     714 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (platform.init)</span>
-<span class="lineNum">     715 </span>                :<span class="lineCov">          6 :                 platform.init();</span>
-<span class="lineNum">     716 </span>                :            : 
-<span class="lineNum">     717 </span>                :            :         /* Setup dummy console nodes if it's enabled */
-<span class="lineNum">     718 </span>        [<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          6 :         if (dummy_console_enabled())</span>
-<span class="lineNum">     719 </span>                :<span class="lineCov">          6 :                 dummy_console_add_nodes();</span>
-<span class="lineNum">     720 </span>                :            : 
-<span class="lineNum">     721 </span>                :            :         /* Init SLW related stuff, including fastsleep */
-<span class="lineNum">     722 </span>                :<span class="lineCov">          6 :         slw_init();</span>
-<span class="lineNum">     723 </span>                :            : 
-<span class="lineNum">     724 </span>                :<span class="lineCov">          6 :         op_display(OP_LOG, OP_MOD_INIT, 0x0002);</span>
+<span class="lineNum">     586 </span>                :<span class="lineCov">          8 :         smt_extra_high();</span>
+<span class="lineNum">     587 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     588 </span>                :            :         printf(&quot;SkiBoot %s starting...\n&quot;, version);
+<span class="lineNum">     589 </span>                :            :         printf(&quot;initial console log level: memory %d, driver %d\n&quot;,
+<span class="lineNum">     590 </span>                :<span class="lineCov">          8 :                (debug_descriptor.console_log_levels &gt;&gt; 4),</span>
+<span class="lineNum">     591 </span>                :            :                (debug_descriptor.console_log_levels &amp; 0x0f));
+<span class="lineNum">     592 </span>                :            :         prlog(PR_TRACE, &quot;You will not see this\n&quot;);
+<span class="lineNum">     593 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     594 </span>                :            : #ifdef SKIBOOT_GCOV
+<span class="lineNum">     595 </span>                :            :         skiboot_gcov_done();
+<span class="lineNum">     596 </span>                :            : #endif
+<span class="lineNum">     597 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     598 </span>                :            :         /* Initialize boot cpu's cpu_thread struct */
+<span class="lineNum">     599 </span>                :            :         init_boot_cpu();
+<span class="lineNum">     600 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     601 </span>                :            :         /* Now locks can be used */
+<span class="lineNum">     602 </span>                :            :         init_locks();
+<span class="lineNum">     603 </span>                :            : 
+<span class="lineNum">     604 </span>                :            :         /* Create the OPAL call table early on, entries can be overridden
+<span class="lineNum">     605 </span>                :<span class="lineCov">          8 :          * later on (FSP console code for example)</span>
+<span class="lineNum">     606 </span>                :            :          */
+<span class="lineNum">     607 </span>                :            :         opal_table_init();
+<span class="lineNum">     608 </span>                :            : 
+<span class="lineNum">     609 </span>                :            :         /*
+<span class="lineNum">     610 </span>                :            :          * If we are coming in with a flat device-tree, we expand it
+<span class="lineNum">     611 </span>                :            :          * now. Else look for HDAT and create a device-tree from them
+<span class="lineNum">     612 </span>                :            :          *
+<span class="lineNum">     613 </span>                :            :          * Hack alert: When entering via the OPAL entry point, fdt
+<span class="lineNum">     614 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :          * is set to -1, we record that and pass it to parse_hdat</span>
+<span class="lineNum">     615 </span>                :<span class="lineNoCov">          0 :          */</span>
+<span class="lineNum">     616 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          8 :         if (fdt == (void *)-1ul)</span>
+<span class="lineNum">     617 </span>                :<span class="lineCov">          2 :                 parse_hdat(true, master_cpu);</span>
+<span class="lineNum">     618 </span>                :            :         else if (fdt == NULL)
+<span class="lineNum">     619 </span>                :<span class="lineCov">          6 :                 parse_hdat(false, master_cpu);</span>
+<span class="lineNum">     620 </span>                :            :         else {
+<span class="lineNum">     621 </span>                :            :                 dt_expand(fdt);
+<span class="lineNum">     622 </span>                :            :         }
+<span class="lineNum">     623 </span>                :            : 
+<span class="lineNum">     624 </span>                :            :         /*
+<span class="lineNum">     625 </span>                :            :          * From there, we follow a fairly strict initialization order.
+<span class="lineNum">     626 </span>                :            :          *
+<span class="lineNum">     627 </span>                :            :          * First we need to build up our chip data structures and initialize
+<span class="lineNum">     628 </span>                :            :          * XSCOM which will be needed for a number of susbequent things.
+<span class="lineNum">     629 </span>                :            :          *
+<span class="lineNum">     630 </span>                :            :          * We want XSCOM available as early as the platform probe in case the
+<span class="lineNum">     631 </span>                :            :          * probe requires some HW accesses.
+<span class="lineNum">     632 </span>                :            :          *
+<span class="lineNum">     633 </span>                :            :          * We also initialize the FSI master at that point in case we need
+<span class="lineNum">     634 </span>                :<span class="lineCov">          8 :          * to access chips via that path early on.</span>
+<span class="lineNum">     635 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          8 :          */</span>
+<span class="lineNum">     636 </span>                :<span class="lineCov">          6 :         init_chips();</span>
+<span class="lineNum">     637 </span>                :<span class="lineCov">          8 :         if (chip_quirk(QUIRK_MAMBO_CALLOUTS))</span>
+<span class="lineNum">     638 </span>                :<span class="lineCov">          8 :                 enable_mambo_console();</span>
+<span class="lineNum">     639 </span>                :            :         xscom_init();
+<span class="lineNum">     640 </span>                :            :         mfsi_init();
+<span class="lineNum">     641 </span>                :            : 
+<span class="lineNum">     642 </span>                :            :         /*
+<span class="lineNum">     643 </span>                :            :          * Put various bits &amp; pieces in device-tree that might not
+<span class="lineNum">     644 </span>                :            :          * already be there such as the /chosen node if not there yet,
+<span class="lineNum">     645 </span>                :<span class="lineCov">          8 :          * the ICS node, etc... This can potentially use XSCOM</span>
+<span class="lineNum">     646 </span>                :            :          */
+<span class="lineNum">     647 </span>                :            :         dt_init_misc();
+<span class="lineNum">     648 </span>                :            : 
+<span class="lineNum">     649 </span>                :            :         /*
+<span class="lineNum">     650 </span>                :            :          * Initialize LPC (P8 only) so we can get to UART, BMC and
+<span class="lineNum">     651 </span>                :            :          * other system controller. This is done before probe_platform
+<span class="lineNum">     652 </span>                :            :          * so that the platform probing code can access an external
+<span class="lineNum">     653 </span>                :<span class="lineCov">          8 :          * BMC if needed.</span>
+<span class="lineNum">     654 </span>                :            :          */
+<span class="lineNum">     655 </span>                :            :         lpc_init();
+<span class="lineNum">     656 </span>                :            : 
+<span class="lineNum">     657 </span>                :            :         /*
+<span class="lineNum">     658 </span>                :            :          * Now, we init our memory map from the device-tree, and immediately
+<span class="lineNum">     659 </span>                :            :          * reserve areas which we know might contain data coming from
+<span class="lineNum">     660 </span>                :            :          * HostBoot. We need to do these things before we start doing
+<span class="lineNum">     661 </span>                :            :          * allocations outside of our heap, such as chip local allocs,
+<span class="lineNum">     662 </span>                :<span class="lineCov">          8 :          * otherwise we might clobber those data.</span>
+<span class="lineNum">     663 </span>                :            :          */
+<span class="lineNum">     664 </span>                :            :         mem_region_init();
+<span class="lineNum">     665 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     666 </span>                :            :         /* Reserve HOMER and OCC area */
+<span class="lineNum">     667 </span>                :            :         homer_init();
+<span class="lineNum">     668 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     669 </span>                :            :         /* Add the /opal node to the device-tree */
+<span class="lineNum">     670 </span>                :            :         add_opal_node();
+<span class="lineNum">     671 </span>                :            : 
+<span class="lineNum">     672 </span>                :            :         /*
+<span class="lineNum">     673 </span>                :            :          * We probe the platform now. This means the platform probe gets
+<span class="lineNum">     674 </span>                :            :          * the opportunity to reserve additional areas of memory if needed.
+<span class="lineNum">     675 </span>                :            :          *
+<span class="lineNum">     676 </span>                :<span class="lineCov">          8 :          * Note: Timebases still not synchronized.</span>
+<span class="lineNum">     677 </span>                :            :          */
+<span class="lineNum">     678 </span>                :            :         probe_platform();
+<span class="lineNum">     679 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     680 </span>                :            :         /* Initialize the rest of the cpu thread structs */
+<span class="lineNum">     681 </span>                :            :         init_all_cpus();
+<span class="lineNum">     682 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     683 </span>                :            :         /* Allocate our split trace buffers now. Depends add_opal_node() */
+<span class="lineNum">     684 </span>                :            :         init_trace_buffers();
+<span class="lineNum">     685 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     686 </span>                :            :         /* Get the ICPs and make sure they are in a sane state */
+<span class="lineNum">     687 </span>                :            :         init_interrupts();
+<span class="lineNum">     688 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     689 </span>                :            :         /* Grab centaurs from device-tree if present (only on FSP-less) */
+<span class="lineNum">     690 </span>                :            :         centaur_init();
+<span class="lineNum">     691 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     692 </span>                :            :         /* Initialize PSI (depends on probe_platform being called) */
+<span class="lineNum">     693 </span>                :            :         psi_init();
+<span class="lineNum">     694 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     695 </span>                :            :         /* Call in secondary CPUs */
+<span class="lineNum">     696 </span>                :            :         cpu_bringup();
+<span class="lineNum">     697 </span>                :            : 
+<span class="lineNum">     698 </span>                :            :         /*
+<span class="lineNum">     699 </span>                :            :          * Sycnhronize time bases. Thi resets all the TB values to a small
+<span class="lineNum">     700 </span>                :            :          * value (so they appear to go backward at this point), and synchronize
+<span class="lineNum">     701 </span>                :<span class="lineCov">          8 :          * all core timebases to the global ChipTOD network</span>
+<span class="lineNum">     702 </span>                :            :          */
+<span class="lineNum">     703 </span>                :            :         chiptod_init();
+<span class="lineNum">     704 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     705 </span>                :            :         /* Initialize i2c */
+<span class="lineNum">     706 </span>                :            :         p8_i2c_init();
+<span class="lineNum">     707 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     708 </span>                :            :         /* Register routine to dispatch and read sensors */
+<span class="lineNum">     709 </span>                :            :         sensor_init();
+<span class="lineNum">     710 </span>                :            : 
+<span class="lineNum">     711 </span>                :            :         /*
+<span class="lineNum">     712 </span>                :            :          * We have initialized the basic HW, we can now call into the
+<span class="lineNum">     713 </span>                :            :          * platform to perform subsequent inits, such as establishing
+<span class="lineNum">     714 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          8 :          * communication with the FSP or starting IPMI.</span>
+<span class="lineNum">     715 </span>                :<span class="lineCov">          8 :          */</span>
+<span class="lineNum">     716 </span>                :            :         if (platform.init)
+<span class="lineNum">     717 </span>                :            :                 platform.init();
+<span class="lineNum">     718 </span>        [<span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          8 : </span>
+<span class="lineNum">     719 </span>                :<span class="lineCov">          6 :         /* Setup dummy console nodes if it's enabled */</span>
+<span class="lineNum">     720 </span>                :            :         if (dummy_console_enabled())
+<span class="lineNum">     721 </span>                :            :                 dummy_console_add_nodes();
+<span class="lineNum">     722 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     723 </span>                :            :         /* Init SLW related stuff, including fastsleep */
+<span class="lineNum">     724 </span>                :<span class="lineCov">          8 :         slw_init();</span>
 <span class="lineNum">     725 </span>                :            : 
-<span class="lineNum">     726 </span>                :            :         /* Read in NVRAM and set it up */
-<span class="lineNum">     727 </span>                :<span class="lineCov">          6 :         nvram_init();</span>
-<span class="lineNum">     728 </span>                :            : 
-<span class="lineNum">     729 </span>                :<span class="lineCov">          6 :         phb3_preload_vpd();</span>
-<span class="lineNum">     730 </span>                :<span class="lineCov">          6 :         phb3_preload_capp_ucode();</span>
-<span class="lineNum">     731 </span>                :<span class="lineCov">          6 :         start_preload_kernel();</span>
-<span class="lineNum">     732 </span>                :            : 
-<span class="lineNum">     733 </span>                :            :         /* NX init */
-<span class="lineNum">     734 </span>                :<span class="lineCov">          6 :         nx_init();</span>
-<span class="lineNum">     735 </span>                :            : 
-<span class="lineNum">     736 </span>                :            :         /* Initialize the opal messaging */
-<span class="lineNum">     737 </span>                :<span class="lineCov">          6 :         opal_init_msg();</span>
-<span class="lineNum">     738 </span>                :            : 
-<span class="lineNum">     739 </span>                :            :         /* Probe IO hubs */
-<span class="lineNum">     740 </span>                :<span class="lineCov">          6 :         probe_p5ioc2();</span>
-<span class="lineNum">     741 </span>                :<span class="lineCov">          6 :         probe_p7ioc();</span>
-<span class="lineNum">     742 </span>                :            : 
-<span class="lineNum">     743 </span>                :            :         /* Probe PHB3 on P8 */
-<span class="lineNum">     744 </span>                :<span class="lineCov">          6 :         probe_phb3();</span>
-<span class="lineNum">     745 </span>                :            : 
-<span class="lineNum">     746 </span>                :            :         /* Initialize PCI */
-<span class="lineNum">     747 </span>                :<span class="lineCov">          6 :         pci_init_slots();</span>
-<span class="lineNum">     748 </span>                :            : 
-<span class="lineNum">     749 </span>                :            :         /* Add OPAL timer related properties */
-<span class="lineNum">     750 </span>                :<span class="lineCov">          6 :         late_init_timers();</span>
-<span class="lineNum">     751 </span>                :            : 
-<span class="lineNum">     752 </span>                :<span class="lineCov">          6 :         ipmi_set_fw_progress_sensor(IPMI_FW_PCI_INIT);</span>
+<span class="lineNum">     726 </span>                :            :         op_display(OP_LOG, OP_MOD_INIT, 0x0002);
+<span class="lineNum">     727 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     728 </span>                :            :         /* Read in NVRAM and set it up */
+<span class="lineNum">     729 </span>                :<span class="lineCov">          8 :         nvram_init();</span>
+<span class="lineNum">     730 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     731 </span>                :<span class="lineCov">          8 :         phb3_preload_vpd();</span>
+<span class="lineNum">     732 </span>                :            :         phb3_preload_capp_ucode();
+<span class="lineNum">     733 </span>                :            :         start_preload_kernel();
+<span class="lineNum">     734 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     735 </span>                :            :         /* NX init */
+<span class="lineNum">     736 </span>                :            :         nx_init();
+<span class="lineNum">     737 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     738 </span>                :            :         /* Initialize the opal messaging */
+<span class="lineNum">     739 </span>                :            :         opal_init_msg();
+<span class="lineNum">     740 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     741 </span>                :<span class="lineCov">          8 :         /* Probe IO hubs */</span>
+<span class="lineNum">     742 </span>                :            :         probe_p5ioc2();
+<span class="lineNum">     743 </span>                :            :         probe_p7ioc();
+<span class="lineNum">     744 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     745 </span>                :            :         /* Probe PHB3 on P8 */
+<span class="lineNum">     746 </span>                :            :         probe_phb3();
+<span class="lineNum">     747 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     748 </span>                :            :         /* Initialize PCI */
+<span class="lineNum">     749 </span>                :            :         pci_init_slots();
+<span class="lineNum">     750 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     751 </span>                :            :         /* Add OPAL timer related properties */
+<span class="lineNum">     752 </span>                :<span class="lineCov">          8 :         late_init_timers();</span>
 <span class="lineNum">     753 </span>                :            : 
-<span class="lineNum">     754 </span>                :            :         /*
-<span class="lineNum">     755 </span>                :            :          * These last few things must be done as late as possible
-<span class="lineNum">     756 </span>                :            :          * because they rely on various other things having been setup,
-<span class="lineNum">     757 </span>                :            :          * for example, add_opal_interrupts() will add all the interrupt
-<span class="lineNum">     758 </span>                :            :          * sources that are going to the firmware. We can't add a new one
-<span class="lineNum">     759 </span>                :            :          * after that call. Similarily, the mem_region calls will construct
-<span class="lineNum">     760 </span>                :            :          * the reserve maps in the DT so we shouldn't affect the memory
-<span class="lineNum">     761 </span>                :            :          * regions after that
-<span class="lineNum">     762 </span>                :            :          */
-<span class="lineNum">     763 </span>                :            : 
-<span class="lineNum">     764 </span>                :            :         /* Add the list of interrupts going to OPAL */
-<span class="lineNum">     765 </span>                :<span class="lineCov">          6 :         add_opal_interrupts();</span>
-<span class="lineNum">     766 </span>                :            : 
-<span class="lineNum">     767 </span>                :            :         /* Now release parts of memory nodes we haven't used ourselves... */
-<span class="lineNum">     768 </span>                :<span class="lineCov">          6 :         mem_region_release_unused();</span>
-<span class="lineNum">     769 </span>                :            : 
-<span class="lineNum">     770 </span>                :            :         /* ... and add remaining reservations to the DT */
-<span class="lineNum">     771 </span>                :<span class="lineCov">          6 :         mem_region_add_dt_reserved();</span>
-<span class="lineNum">     772 </span>                :            : 
-<span class="lineNum">     773 </span>                :<span class="lineCov">          6 :         prd_register_reserved_memory();</span>
+<span class="lineNum">     754 </span>                :            :         ipmi_set_fw_progress_sensor(IPMI_FW_PCI_INIT);
+<span class="lineNum">     755 </span>                :            : 
+<span class="lineNum">     756 </span>                :            :         /*
+<span class="lineNum">     757 </span>                :            :          * These last few things must be done as late as possible
+<span class="lineNum">     758 </span>                :            :          * because they rely on various other things having been setup,
+<span class="lineNum">     759 </span>                :            :          * for example, add_opal_interrupts() will add all the interrupt
+<span class="lineNum">     760 </span>                :            :          * sources that are going to the firmware. We can't add a new one
+<span class="lineNum">     761 </span>                :            :          * after that call. Similarily, the mem_region calls will construct
+<span class="lineNum">     762 </span>                :            :          * the reserve maps in the DT so we shouldn't affect the memory
+<span class="lineNum">     763 </span>                :            :          * regions after that
+<span class="lineNum">     764 </span>                :            :          */
+<span class="lineNum">     765 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     766 </span>                :            :         /* Add the list of interrupts going to OPAL */
+<span class="lineNum">     767 </span>                :            :         add_opal_interrupts();
+<span class="lineNum">     768 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     769 </span>                :            :         /* Now release parts of memory nodes we haven't used ourselves... */
+<span class="lineNum">     770 </span>                :            :         mem_region_release_unused();
+<span class="lineNum">     771 </span>                :<span class="lineCov">          8 : </span>
+<span class="lineNum">     772 </span>                :            :         /* ... and add remaining reservations to the DT */
+<span class="lineNum">     773 </span>                :<span class="lineCov">          8 :         mem_region_add_dt_reserved();</span>
 <span class="lineNum">     774 </span>                :            : 
-<span class="lineNum">     775 </span>                :<span class="lineCov">          6 :         load_and_boot_kernel(false);</span>
-<a name="776"><span class="lineNum">     776 </span>                :            : }</a>
-<span class="lineNum">     777 </span>                :            : 
-<span class="lineNum">     778 </span>                :<span class="lineNoCov">          0 : void __noreturn __secondary_cpu_entry(void)</span>
-<span class="lineNum">     779 </span>                :            : {
-<span class="lineNum">     780 </span>                :<span class="lineNoCov">          0 :         struct cpu_thread *cpu = this_cpu();</span>
-<span class="lineNum">     781 </span>                :            : 
-<span class="lineNum">     782 </span>                :            :         /* Secondary CPU called in */
-<span class="lineNum">     783 </span>                :<span class="lineNoCov">          0 :         cpu_callin(cpu);</span>
-<span class="lineNum">     784 </span>                :            : 
-<span class="lineNum">     785 </span>                :            :         /* Wait for work to do */
-<span class="lineNum">     786 </span>                :            :         while(true) {
-<span class="lineNum">     787 </span>                :            :                 int i;
-<span class="lineNum">     788 </span>                :            : 
-<span class="lineNum">     789 </span>                :            :                 /* Process pending jobs on this processor */
-<span class="lineNum">     790 </span>                :<span class="lineNoCov">          0 :                 cpu_process_jobs();</span>
-<span class="lineNum">     791 </span>                :            : 
-<span class="lineNum">     792 </span>                :            :                 /* Relax a bit to give the simulator some breathing space */
-<span class="lineNum">     793 </span>                :<span class="lineNoCov">          0 :                 i = 1000;</span>
-<span class="lineNum">     794 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 while (--i)</span>
-<span class="lineNum">     795 </span>                :<span class="lineNoCov">          0 :                         cpu_relax();</span>
-<span class="lineNum">     796 </span>                :            :         }
-<span class="lineNum">     797 </span>                :            : }
-<span class="lineNum">     798 </span>                :            : 
-<span class="lineNum">     799 </span>                :            : /* Called from head.S, thus no prototype. */
-<a name="800"><span class="lineNum">     800 </span>                :            : void __noreturn secondary_cpu_entry(void);</a>
-<span class="lineNum">     801 </span>                :            : 
-<span class="lineNum">     802 </span>                :<span class="lineNoCov">          0 : void __noreturn secondary_cpu_entry(void)</span>
-<span class="lineNum">     803 </span>                :            : {
-<span class="lineNum">     804 </span>                :<span class="lineNoCov">          0 :         struct cpu_thread *cpu = this_cpu();</span>
-<span class="lineNum">     805 </span>                :            : 
-<span class="lineNum">     806 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;INIT: CPU PIR 0x%04x called in\n&quot;, cpu-&gt;pir);</span>
+<span class="lineNum">     775 </span>                :<span class="lineCov">          8 :         prd_register_reserved_memory();</span>
+<a name="776"><span class="lineNum">     776 </span>                :            : </a>
+<span class="lineNum">     777 </span>                :            :         load_and_boot_kernel(false);
+<span class="lineNum">     778 </span>                :<span class="lineCov">        253 : }</span>
+<span class="lineNum">     779 </span>                :            : 
+<span class="lineNum">     780 </span>                :<span class="lineCov">        253 : void __noreturn __nomcount  __secondary_cpu_entry(void)</span>
+<span class="lineNum">     781 </span>                :            : {
+<span class="lineNum">     782 </span>                :            :         struct cpu_thread *cpu = this_cpu();
+<span class="lineNum">     783 </span>                :<span class="lineCov">        253 : </span>
+<span class="lineNum">     784 </span>                :            :         /* Secondary CPU called in */
+<span class="lineNum">     785 </span>                :            :         cpu_callin(cpu);
+<span class="lineNum">     786 </span>                :            : 
+<span class="lineNum">     787 </span>                :            :         /* Wait for work to do */
+<span class="lineNum">     788 </span>                :            :         while(true) {
+<span class="lineNum">     789 </span>                :            :                 int i;
+<span class="lineNum">     790 </span>                :<span class="lineCov">     462728 : </span>
+<span class="lineNum">     791 </span>                :            :                 /* Process pending jobs on this processor */
+<span class="lineNum">     792 </span>                :            :                 cpu_process_jobs();
+<span class="lineNum">     793 </span>                :<span class="lineCov">     462728 : </span>
+<span class="lineNum">     794 </span>        [<span class="branchCov" title="Branch 0 was taken 115685096 times"> + </span><span class="branchCov" title="Branch 1 was taken 462475 times"> + </span>]:<span class="lineCov">  116147571 :                 /* Relax a bit to give the simulator some breathing space */</span>
+<span class="lineNum">     795 </span>                :<span class="lineCov">  115685096 :                 i = 1000;</span>
+<span class="lineNum">     796 </span>                :            :                 while (--i)
+<span class="lineNum">     797 </span>                :            :                         cpu_relax();
+<span class="lineNum">     798 </span>                :            :         }
+<span class="lineNum">     799 </span>                :            : }
+<a name="800"><span class="lineNum">     800 </span>                :            : </a>
+<span class="lineNum">     801 </span>                :            : /* Called from head.S, thus no prototype. */
+<span class="lineNum">     802 </span>                :<span class="lineCov">         34 : void __noreturn secondary_cpu_entry(void);</span>
+<span class="lineNum">     803 </span>                :            : 
+<span class="lineNum">     804 </span>                :<span class="lineCov">         34 : void __noreturn secondary_cpu_entry(void)</span>
+<span class="lineNum">     805 </span>                :            : {
+<span class="lineNum">     806 </span>                :<span class="lineCov">         34 :         struct cpu_thread *cpu = this_cpu();</span>
 <span class="lineNum">     807 </span>                :            : 
-<span class="lineNum">     808 </span>                :<span class="lineNoCov">          0 :         __secondary_cpu_entry();</span>
-<span class="lineNum">     809 </span>                :            : }
+<span class="lineNum">     808 </span>                :<span class="lineCov">        190 :         prlog(PR_DEBUG, &quot;INIT: CPU PIR 0x%04x called in\n&quot;, cpu-&gt;pir);</span>
+<span class="lineNum">     809 </span>                :            : 
+<span class="lineNum">     810 </span>                :            :         __secondary_cpu_entry();
+<span class="lineNum">     811 </span>                :            : }
 </pre>
       </td>
     </tr>

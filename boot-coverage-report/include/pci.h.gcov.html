@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">24</td>
             <td class="headerCovTableEntry">25</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryHi">96.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">0</td>
             <td class="headerCovTableEntry">8</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">0</td>
             <td class="headerCovTableEntry">4</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -203,32 +203,32 @@
 <span class="lineNum">     132 </span>                :            :         struct list_node        link;
 <a name="133"><span class="lineNum">     133 </span>                :            : };</a>
 <span class="lineNum">     134 </span>                :            : 
-<span class="lineNum">     135 </span>                :<span class="lineNoCov">          0 : static inline void pci_set_cap(struct pci_device *pd,</span>
+<span class="lineNum">     135 </span>                :<span class="lineCov">         98 : static inline void pci_set_cap(struct pci_device *pd,</span>
 <span class="lineNum">     136 </span>                :            :                                int id, int pos, bool ext)
 <span class="lineNum">     137 </span>                :            : {
-<span class="lineNum">     138 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!ext) {</span>
-<span class="lineNum">     139 </span>                :<span class="lineNoCov">          0 :                 pd-&gt;cap_list |= (0x1ul &lt;&lt; id);</span>
-<span class="lineNum">     140 </span>                :<span class="lineNoCov">          0 :                 pd-&gt;cap[id] = pos;</span>
+<span class="lineNum">     138 </span>        [<span class="branchCov" title="Branch 0 was taken 50 times"> + </span><span class="branchCov" title="Branch 1 was taken 48 times"> + </span>]:<span class="lineCov">         98 :         if (!ext) {</span>
+<span class="lineNum">     139 </span>                :<span class="lineCov">         50 :                 pd-&gt;cap_list |= (0x1ul &lt;&lt; id);</span>
+<span class="lineNum">     140 </span>                :<span class="lineCov">         50 :                 pd-&gt;cap[id] = pos;</span>
 <span class="lineNum">     141 </span>                :            :         } else {
-<span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 :                 pd-&gt;cap_list |= (0x1ul &lt;&lt; (id + 32));</span>
-<span class="lineNum">     143 </span>                :<span class="lineNoCov">          0 :                 pd-&gt;cap[id + 32] = pos;</span>
+<span class="lineNum">     142 </span>                :<span class="lineCov">         48 :                 pd-&gt;cap_list |= (0x1ul &lt;&lt; (id + 32));</span>
+<span class="lineNum">     143 </span>                :<span class="lineCov">         48 :                 pd-&gt;cap[id + 32] = pos;</span>
 <span class="lineNum">     144 </span>                :            :         }
-<a name="145"><span class="lineNum">     145 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<a name="145"><span class="lineNum">     145 </span>                :<span class="lineCov">         98 : }</span></a>
 <span class="lineNum">     146 </span>                :            : 
-<span class="lineNum">     147 </span>                :<span class="lineNoCov">          0 : static inline bool pci_has_cap(struct pci_device *pd,</span>
+<span class="lineNum">     147 </span>                :<span class="lineCov">        818 : static inline bool pci_has_cap(struct pci_device *pd,</span>
 <span class="lineNum">     148 </span>                :            :                                int id, bool ext)
 <span class="lineNum">     149 </span>                :            : {
-<span class="lineNum">     150 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!ext)</span>
-<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :                 return !!(pd-&gt;cap_list &amp; (0x1ul &lt;&lt; id));</span>
+<span class="lineNum">     150 </span>        [<span class="branchCov" title="Branch 0 was taken 359 times"> + </span><span class="branchCov" title="Branch 1 was taken 50 times"> + </span>]:<span class="lineCov">        409 :         if (!ext)</span>
+<span class="lineNum">     151 </span>                :<span class="lineCov">        359 :                 return !!(pd-&gt;cap_list &amp; (0x1ul &lt;&lt; id));</span>
 <span class="lineNum">     152 </span>                :            :         else
-<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 :                 return !!(pd-&gt;cap_list &amp; (0x1ul &lt;&lt; (id + 32)));</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">         50 :                 return !!(pd-&gt;cap_list &amp; (0x1ul &lt;&lt; (id + 32)));</span>
 <span class="lineNum">     154 </span>                :            : }
 <span class="lineNum">     155 </span>                :            : 
 <span class="lineNum">     156 </span>                :            : static inline int pci_cap(struct pci_device *pd,
 <span class="lineNum">     157 </span>                :            :                           int id, bool ext)
 <span class="lineNum">     158 </span>                :            : {
 <span class="lineNum">     159 </span>                :            :         if (!ext)
-<span class="lineNum">     160 </span>                :<span class="lineNoCov">          0 :                 return pd-&gt;cap[id];</span>
+<span class="lineNum">     160 </span>                :<span class="lineCov">        163 :                 return pd-&gt;cap[id];</span>
 <span class="lineNum">     161 </span>                :            :         else
 <span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :                 return pd-&gt;cap[id + 32];</span>
 <span class="lineNum">     163 </span>                :            : }
@@ -517,40 +517,40 @@
 <span class="lineNum">     446 </span>                :            : };
 <a name="447"><span class="lineNum">     447 </span>                :            : </a>
 <span class="lineNum">     448 </span>                :            : /* Config space ops wrappers */
-<span class="lineNum">     449 </span>                :<span class="lineNoCov">          0 : static inline int64_t pci_cfg_read8(struct phb *phb, uint32_t bdfn,</span>
+<span class="lineNum">     449 </span>                :<span class="lineCov">        173 : static inline int64_t pci_cfg_read8(struct phb *phb, uint32_t bdfn,</span>
 <span class="lineNum">     450 </span>                :            :                                     uint32_t offset, uint8_t *data)
 <span class="lineNum">     451 </span>                :            : {
-<span class="lineNum">     452 </span>                :<span class="lineNoCov">          0 :         return phb-&gt;ops-&gt;cfg_read8(phb, bdfn, offset, data);</span>
+<span class="lineNum">     452 </span>                :<span class="lineCov">        173 :         return phb-&gt;ops-&gt;cfg_read8(phb, bdfn, offset, data);</span>
 <a name="453"><span class="lineNum">     453 </span>                :            : }</a>
 <span class="lineNum">     454 </span>                :            : 
-<span class="lineNum">     455 </span>                :<span class="lineNoCov">          0 : static inline int64_t pci_cfg_read16(struct phb *phb, uint32_t bdfn,</span>
+<span class="lineNum">     455 </span>                :<span class="lineCov">        569 : static inline int64_t pci_cfg_read16(struct phb *phb, uint32_t bdfn,</span>
 <span class="lineNum">     456 </span>                :            :                                      uint32_t offset, uint16_t *data)
 <span class="lineNum">     457 </span>                :            : {
-<span class="lineNum">     458 </span>                :<span class="lineNoCov">          0 :         return phb-&gt;ops-&gt;cfg_read16(phb, bdfn, offset, data);</span>
+<span class="lineNum">     458 </span>                :<span class="lineCov">        569 :         return phb-&gt;ops-&gt;cfg_read16(phb, bdfn, offset, data);</span>
 <a name="459"><span class="lineNum">     459 </span>                :            : }</a>
 <span class="lineNum">     460 </span>                :            : 
-<span class="lineNum">     461 </span>                :<span class="lineNoCov">          0 : static inline int64_t pci_cfg_read32(struct phb *phb, uint32_t bdfn,</span>
+<span class="lineNum">     461 </span>                :<span class="lineCov">        687 : static inline int64_t pci_cfg_read32(struct phb *phb, uint32_t bdfn,</span>
 <span class="lineNum">     462 </span>                :            :                                      uint32_t offset, uint32_t *data)
 <span class="lineNum">     463 </span>                :            : {
-<span class="lineNum">     464 </span>                :<span class="lineNoCov">          0 :         return phb-&gt;ops-&gt;cfg_read32(phb, bdfn, offset, data);</span>
+<span class="lineNum">     464 </span>                :<span class="lineCov">        687 :         return phb-&gt;ops-&gt;cfg_read32(phb, bdfn, offset, data);</span>
 <a name="465"><span class="lineNum">     465 </span>                :            : }</a>
 <span class="lineNum">     466 </span>                :            : 
-<span class="lineNum">     467 </span>                :<span class="lineNoCov">          0 : static inline int64_t pci_cfg_write8(struct phb *phb, uint32_t bdfn,</span>
+<span class="lineNum">     467 </span>                :<span class="lineCov">        208 : static inline int64_t pci_cfg_write8(struct phb *phb, uint32_t bdfn,</span>
 <span class="lineNum">     468 </span>                :            :                                      uint32_t offset, uint8_t data)
 <span class="lineNum">     469 </span>                :            : {
-<span class="lineNum">     470 </span>                :<span class="lineNoCov">          0 :         return phb-&gt;ops-&gt;cfg_write8(phb, bdfn, offset, data);</span>
+<span class="lineNum">     470 </span>                :<span class="lineCov">        208 :         return phb-&gt;ops-&gt;cfg_write8(phb, bdfn, offset, data);</span>
 <a name="471"><span class="lineNum">     471 </span>                :            : }</a>
 <span class="lineNum">     472 </span>                :            : 
-<span class="lineNum">     473 </span>                :<span class="lineNoCov">          0 : static inline int64_t pci_cfg_write16(struct phb *phb, uint32_t bdfn,</span>
+<span class="lineNum">     473 </span>                :<span class="lineCov">        376 : static inline int64_t pci_cfg_write16(struct phb *phb, uint32_t bdfn,</span>
 <span class="lineNum">     474 </span>                :            :                                       uint32_t offset, uint16_t data)
 <span class="lineNum">     475 </span>                :            : {
-<span class="lineNum">     476 </span>                :<span class="lineNoCov">          0 :         return phb-&gt;ops-&gt;cfg_write16(phb, bdfn, offset, data);</span>
+<span class="lineNum">     476 </span>                :<span class="lineCov">        376 :         return phb-&gt;ops-&gt;cfg_write16(phb, bdfn, offset, data);</span>
 <a name="477"><span class="lineNum">     477 </span>                :            : }</a>
 <span class="lineNum">     478 </span>                :            : 
-<span class="lineNum">     479 </span>                :<span class="lineNoCov">          0 : static inline int64_t pci_cfg_write32(struct phb *phb, uint32_t bdfn,</span>
+<span class="lineNum">     479 </span>                :<span class="lineCov">        230 : static inline int64_t pci_cfg_write32(struct phb *phb, uint32_t bdfn,</span>
 <span class="lineNum">     480 </span>                :            :                                       uint32_t offset, uint32_t data)
 <span class="lineNum">     481 </span>                :            : {
-<span class="lineNum">     482 </span>                :<span class="lineNoCov">          0 :         return phb-&gt;ops-&gt;cfg_write32(phb, bdfn, offset, data);</span>
+<span class="lineNum">     482 </span>                :<span class="lineCov">        230 :         return phb-&gt;ops-&gt;cfg_write32(phb, bdfn, offset, data);</span>
 <span class="lineNum">     483 </span>                :            : }
 <span class="lineNum">     484 </span>                :            : 
 <span class="lineNum">     485 </span>                :            : /* Utilities */

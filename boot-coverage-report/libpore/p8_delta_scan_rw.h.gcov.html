@@ -31,13 +31,13 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">0</td>
             <td class="headerCovTableEntry">2</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">0</td>
@@ -488,7 +488,7 @@
 <span class="lineNum">     417 </span>                :            :     uint32_t rx;
 <span class="lineNum">     418 </span>                :            : 
 <span class="lineNum">     419 </span>                :            : #ifdef _BIG_ENDIAN
-<span class="lineNum">     420 </span>                :<span class="lineNoCov">          0 :     rx = i_x;</span>
+<span class="lineNum">     420 </span>                :<span class="lineCov">      10390 :     rx = i_x;</span>
 <span class="lineNum">     421 </span>                :            : #else
 <span class="lineNum">     422 </span>                :            :     uint8_t *pix = (uint8_t*)(&amp;i_x);
 <span class="lineNum">     423 </span>                :            :     uint8_t *prx = (uint8_t*)(&amp;rx);
@@ -508,7 +508,7 @@
 <span class="lineNum">     437 </span>                :            :     uint64_t rx;
 <span class="lineNum">     438 </span>                :            : 
 <span class="lineNum">     439 </span>                :            : #ifdef _BIG_ENDIAN
-<span class="lineNum">     440 </span>                :<span class="lineNoCov">          0 :     rx = i_x;</span>
+<span class="lineNum">     440 </span>                :<span class="lineCov">        960 :     rx = i_x;</span>
 <span class="lineNum">     441 </span>                :            : #else
 <span class="lineNum">     442 </span>                :            :     uint8_t *pix = (uint8_t*)(&amp;i_x);
 <span class="lineNum">     443 </span>                :            :     uint8_t *prx = (uint8_t*)(&amp;rx);

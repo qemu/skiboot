@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">75</td>
             <td class="headerCovTableEntry">332</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">22.6 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntry">2</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">40</td>
             <td class="headerCovTableEntry">201</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">19.9 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -123,52 +123,52 @@
 <span class="lineNum">      52 </span>                :            : // i_coreIndex -   core ID = [0:15]
 <a name="53"><span class="lineNum">      53 </span>                :            : // i_threadIndex - thread to operate on = [0:7]. </a>
 <span class="lineNum">      54 </span>                :            : */
-<span class="lineNum">      55 </span>                :<span class="lineNoCov">          0 : uint32_t p8_pore_gen_cpureg_fixed(  void      *io_image,</span>
+<span class="lineNum">      55 </span>                :<span class="lineCov">        476 : uint32_t p8_pore_gen_cpureg_fixed(  void      *io_image,</span>
 <span class="lineNum">      56 </span>                :            :                               uint8_t   i_modeBuild,
 <span class="lineNum">      57 </span>                :            :                               uint32_t  i_regName, 
 <span class="lineNum">      58 </span>                :            :                               uint64_t  i_regData, 
 <span class="lineNum">      59 </span>                :            :                               uint32_t  i_coreId,
 <span class="lineNum">      60 </span>                :            :                               uint32_t  i_threadId)
 <span class="lineNum">      61 </span>                :            : {
-<span class="lineNum">      62 </span>                :<span class="lineNoCov">          0 :   uint32_t  rc=0, rcLoc=0, iCount=0;</span>
-<span class="lineNum">      63 </span>                :<span class="lineNoCov">          0 :   int       i=0, iReg=-1;</span>
+<span class="lineNum">      62 </span>                :<span class="lineCov">        476 :   uint32_t  rc=0, rcLoc=0, iCount=0;</span>
+<span class="lineNum">      63 </span>                :<span class="lineCov">        476 :   int       i=0, iReg=-1;</span>
 <span class="lineNum">      64 </span>                :            :   uint64_t  xipSlwRamSection;
 <span class="lineNum">      65 </span>                :            :   void      *hostSlwRamSection;
 <span class="lineNum">      66 </span>                :            :   void      *hostSlwSectionFixed;
 <span class="lineNum">      67 </span>                :            :   uint64_t  xipRamTableThis;
 <span class="lineNum">      68 </span>                :            :   void      *hostRamVector;
-<span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 :   void      *hostRamTableThis=NULL;</span>
-<span class="lineNum">      70 </span>                :<span class="lineNoCov">          0 :   void      *hostRamEntryThis=NULL, *hostRamEntryNext=NULL;</span>
-<span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 :   uint8_t   bNewTable=0, bFound=0;</span>
-<span class="lineNum">      72 </span>                :<span class="lineNoCov">          0 :   uint8_t   bEntryEnd=1, headerType=0;</span>
+<span class="lineNum">      69 </span>                :<span class="lineCov">        476 :   void      *hostRamTableThis=NULL;</span>
+<span class="lineNum">      70 </span>                :<span class="lineCov">        476 :   void      *hostRamEntryThis=NULL, *hostRamEntryNext=NULL;</span>
+<span class="lineNum">      71 </span>                :<span class="lineCov">        476 :   uint8_t   bNewTable=0, bFound=0;</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">        476 :   uint8_t   bEntryEnd=1, headerType=0;</span>
 <span class="lineNum">      73 </span>                :            :   SbeXipSection  xipSection;
 <span class="lineNum">      74 </span>                :            :   SbeXipItem    xipTocItem;
 <span class="lineNum">      75 </span>                :            :   RamTableEntry ramEntryThis, *ramEntryNext;
-<span class="lineNum">      76 </span>                :<span class="lineNoCov">          0 :   uint32_t  sprSwiz=0;</span>
-<span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 :   uint8_t       bReplaceEntry=0;</span>
-<span class="lineNum">      78 </span>                :<span class="lineNoCov">          0 :   uint32_t      headerNext=0;</span>
-<span class="lineNum">      79 </span>                :<span class="lineNoCov">          0 :   uint32_t      instrNext=0;</span>
+<span class="lineNum">      76 </span>                :<span class="lineCov">        476 :   uint32_t  sprSwiz=0;</span>
+<span class="lineNum">      77 </span>                :<span class="lineCov">        476 :   uint8_t       bReplaceEntry=0;</span>
+<span class="lineNum">      78 </span>                :<span class="lineCov">        476 :   uint32_t      headerNext=0;</span>
+<span class="lineNum">      79 </span>                :<span class="lineCov">        476 :   uint32_t      instrNext=0;</span>
 <span class="lineNum">      80 </span>                :            :         
 <span class="lineNum">      81 </span>                :            : 
 <span class="lineNum">      82 </span>                :            :   // -------------------------------------------------------------------------
 <span class="lineNum">      83 </span>                :            :   // Validate Ramming parameters.
 <span class="lineNum">      84 </span>                :            :   //
 <span class="lineNum">      85 </span>                :            :   // ...check mode build
-<span class="lineNum">      86 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (i_modeBuild&gt;P8_SLW_MODEBUILD_MAX_VALUE)  {</span>
+<span class="lineNum">      86 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 476 times"> + </span>]:<span class="lineCov">        476 :   if (i_modeBuild&gt;P8_SLW_MODEBUILD_MAX_VALUE)  {</span>
 <span class="lineNum">      87 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;modeBuild=%i invalid. Valid range is [0;%i].&quot;,</span>
 <span class="lineNum">      88 </span>                :            :       i_modeBuild,P8_SLW_MODEBUILD_MAX_VALUE);
 <span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :     rcLoc = 1;</span>
 <span class="lineNum">      90 </span>                :            :   }
 <span class="lineNum">      91 </span>                :            :   // ...check register value
-<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 :   bFound = 0;</span>
-<span class="lineNum">      93 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   for (i=0;i&lt;SLW_SPR_REGS_SIZE;i++)  {</span>
-<span class="lineNum">      94 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (i_regName==SLW_SPR_REGS[i].value)  {</span>
+<span class="lineNum">      92 </span>                :<span class="lineCov">        480 :   bFound = 0;</span>
+<span class="lineNum">      93 </span>        [<span class="branchCov" title="Branch 0 was taken 3595 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">       3596 :   for (i=0;i&lt;SLW_SPR_REGS_SIZE;i++)  {</span>
+<span class="lineNum">      94 </span>        [<span class="branchCov" title="Branch 0 was taken 3116 times"> + </span><span class="branchCov" title="Branch 1 was taken 479 times"> + </span>]:<span class="lineCov">       3595 :     if (i_regName==SLW_SPR_REGS[i].value)  {</span>
 <span class="lineNum">      95 </span>                :            :       bFound = 1;
 <span class="lineNum">      96 </span>                :            :       iReg = i;
 <span class="lineNum">      97 </span>                :            :       break;
 <span class="lineNum">      98 </span>                :            :     }
 <span class="lineNum">      99 </span>                :            :   }
-<span class="lineNum">     100 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (!bFound)  {</span>
+<span class="lineNum">     100 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 480 times"> + </span>]:<span class="lineCov">        480 :   if (!bFound)  {</span>
 <span class="lineNum">     101 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Register value = %i is not supported.\n&quot;,i_regName);</span>
 <span class="lineNum">     102 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;The following registers are supported:\n&quot;);</span>
 <span class="lineNum">     103 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :     for (i=0;i&lt;SLW_SPR_REGS_SIZE;i++)</span>
@@ -176,29 +176,29 @@
 <span class="lineNum">     105 </span>                :            :     rcLoc = 1;
 <span class="lineNum">     106 </span>                :            :   }
 <span class="lineNum">     107 </span>                :            :   // ...check core ID
-<span class="lineNum">     108 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (i_coreId&gt;=SLW_MAX_CORES)  {</span>
+<span class="lineNum">     108 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 480 times"> + </span>]:<span class="lineCov">        480 :   if (i_coreId&gt;=SLW_MAX_CORES)  {</span>
 <span class="lineNum">     109 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Core ID = %i is not within valid range of [0;%i]\n&quot;,i_coreId,SLW_MAX_CORES-1);</span>
 <span class="lineNum">     110 </span>                :<span class="lineNoCov">          0 :     rcLoc = 1;</span>
 <span class="lineNum">     111 </span>                :            :   }
 <span class="lineNum">     112 </span>                :            :   // ...check thread ID
 <span class="lineNum">     113 </span>                :            :   // - ensure it's zero if SPR is not thread scoped, i.e. if SPR is core scoped.
 <span class="lineNum">     114 </span>                :            :   // - error out if threadId exceed max num of threads.
-<span class="lineNum">     115 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (i_regName!=P8_SPR_HSPRG0 &amp;&amp; i_regName!=P8_SPR_LPCR &amp;&amp; i_regName!=P8_MSR_MSR)  {</span>
-<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]
-<span class="lineNum">     116 </span>                :<span class="lineNoCov">          0 :     i_threadId = 0;</span>
+<span class="lineNum">     115 </span>[<span class="branchCov" title="Branch 0 was taken 352 times"> + </span><span class="branchCov" title="Branch 1 was taken 128 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 224 times"> + </span><span class="branchCov" title="Branch 3 was taken 128 times"> + </span>]:<span class="lineCov">        480 :   if (i_regName!=P8_SPR_HSPRG0 &amp;&amp; i_regName!=P8_SPR_LPCR &amp;&amp; i_regName!=P8_MSR_MSR)  {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken 222 times"> + </span><span class="branchCov" title="Branch 5 was taken 2 times"> + </span>]
+<span class="lineNum">     116 </span>                :<span class="lineCov">        222 :     i_threadId = 0;</span>
 <span class="lineNum">     117 </span>                :            :   }
-<span class="lineNum">     118 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (i_threadId&gt;=SLW_CORE_THREADS)  {</span>
+<span class="lineNum">     118 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 480 times"> + </span>]:<span class="lineCov">        480 :   if (i_threadId&gt;=SLW_CORE_THREADS)  {</span>
 <span class="lineNum">     119 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Thread ID = %i is not within valid range of [0;%i]\n&quot;,i_threadId,SLW_CORE_THREADS-1);</span>
 <span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 :     rcLoc = 1;</span>
 <span class="lineNum">     121 </span>                :            :   }
-<span class="lineNum">     122 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (rcLoc)</span>
+<span class="lineNum">     122 </span>        [<span class="branchCov" title="Branch 0 was taken 480 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        480 :   if (rcLoc)</span>
 <span class="lineNum">     123 </span>                :            :     return IMGBUILD_ERR_RAM_INVALID_PARM;
-<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :   rcLoc = 0;</span>
+<span class="lineNum">     124 </span>                :<span class="lineCov">        480 :   rcLoc = 0;</span>
 <span class="lineNum">     125 </span>                :            :   
 <span class="lineNum">     126 </span>                :            :   // -------------------------------------------------------------------------
 <span class="lineNum">     127 </span>                :            :   // Check slw section location and size. (Mainly needed for fixed image.)
 <span class="lineNum">     128 </span>                :            :   //
-<span class="lineNum">     129 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (i_modeBuild==P8_SLW_MODEBUILD_IPL ||</span>
+<span class="lineNum">     129 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 480 times"> + </span>]:<span class="lineCov">        480 :   if (i_modeBuild==P8_SLW_MODEBUILD_IPL ||</span>
 <span class="lineNum">     130 </span>                :            :       i_modeBuild==P8_SLW_MODEBUILD_REBUILD)  {  // Fixed image.
 <span class="lineNum">     131 </span>                :<span class="lineNoCov">          0 :     hostSlwSectionFixed = (void*)( (uintptr_t)io_image + </span>
 <span class="lineNum">     132 </span>                :            :                                    FIXED_SLW_IMAGE_SIZE -
@@ -222,23 +222,23 @@
 <span class="lineNum">     150 </span>                :            :     }
 <span class="lineNum">     151 </span>                :            :   }
 <span class="lineNum">     152 </span>                :            :   else  {  // SRAM non-fixed image.
-<span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 :     rc = sbe_xip_get_section( io_image, SBE_XIP_SECTION_SLW, &amp;xipSection);</span>
-<span class="lineNum">     154 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (rc)  {</span>
+<span class="lineNum">     153 </span>                :<span class="lineCov">        480 :     rc = sbe_xip_get_section( io_image, SBE_XIP_SECTION_SLW, &amp;xipSection);</span>
+<span class="lineNum">     154 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 478 times"> + </span>]:<span class="lineCov">        478 :     if (rc)  {</span>
 <span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;Probably invalid section name for SBE_XIP_SECTION_SLW.\n&quot;);</span>
 <span class="lineNum">     156 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_GET_SECTION;</span>
 <span class="lineNum">     157 </span>                :            :     }
-<span class="lineNum">     158 </span>                :<span class="lineNoCov">          0 :     hostSlwRamSection = (void*)((uintptr_t)io_image + xipSection.iv_offset);</span>
-<span class="lineNum">     159 </span>                :<span class="lineNoCov">          0 :     sbe_xip_host2pore( io_image, hostSlwRamSection, &amp;xipSlwRamSection);</span>
+<span class="lineNum">     158 </span>                :<span class="lineCov">        478 :     hostSlwRamSection = (void*)((uintptr_t)io_image + xipSection.iv_offset);</span>
+<span class="lineNum">     159 </span>                :<span class="lineCov">        478 :     sbe_xip_host2pore( io_image, hostSlwRamSection, &amp;xipSlwRamSection);</span>
 <span class="lineNum">     160 </span>                :            :   }
 <span class="lineNum">     161 </span>                :            : 
 <span class="lineNum">     162 </span>                :            :   // -------------------------------------------------------------------------
 <span class="lineNum">     163 </span>                :            :   // Cross check SPR register and table defines
 <span class="lineNum">     164 </span>                :            :   //
-<span class="lineNum">     165 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (SLW_SPR_REGS_SIZE!=(SLW_MAX_CPUREGS_CORE+SLW_MAX_CPUREGS_THREADS))  {</span>
+<span class="lineNum">     165 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 477 times"> + </span>]:<span class="lineCov">        477 :   if (SLW_SPR_REGS_SIZE!=(SLW_MAX_CPUREGS_CORE+SLW_MAX_CPUREGS_THREADS))  {</span>
 <span class="lineNum">     166 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Defines in *.H header file not in sync.\n&quot;);</span>
 <span class="lineNum">     167 </span>                :<span class="lineNoCov">          0 :     return IMGBUILD_ERR_RAM_HDRS_NOT_SYNCED;</span>
 <span class="lineNum">     168 </span>                :            :   }
-<span class="lineNum">     169 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (xipSection.iv_size!=FIXED_SLW_SECTION_SIZE)  {</span>
+<span class="lineNum">     169 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 477 times"> + </span>]:<span class="lineCov">        477 :   if (xipSection.iv_size!=FIXED_SLW_SECTION_SIZE)  {</span>
 <span class="lineNum">     170 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Fixed SLW table size in *.H header file differs from SLW section size in image.\n&quot;); </span>
 <span class="lineNum">     171 </span>                :<span class="lineNoCov">          0 :     MY_ERR(&quot;Check code or image version.\n&quot;);</span>
 <span class="lineNum">     172 </span>                :<span class="lineNoCov">          0 :     return IMGBUILD_ERR_RAM_HDRS_NOT_SYNCED;</span>
@@ -258,7 +258,7 @@
 <span class="lineNum">     186 </span>                :            :   // -------------------------------------------------------------------------
 <span class="lineNum">     187 </span>                :            :   // Locate RAM vector and locate RAM table associated with &quot;This&quot; core ID.
 <span class="lineNum">     188 </span>                :            :   //
-<span class="lineNum">     189 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (i_modeBuild==P8_SLW_MODEBUILD_IPL ||</span>
+<span class="lineNum">     189 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 477 times"> + </span>]:<span class="lineCov">        477 :   if (i_modeBuild==P8_SLW_MODEBUILD_IPL ||</span>
 <span class="lineNum">     190 </span>                :            :       i_modeBuild==P8_SLW_MODEBUILD_REBUILD)  {  // Fixed image.
 <span class="lineNum">     191 </span>                :<span class="lineNoCov">          0 :     hostRamTableThis = (void*)( (uintptr_t)io_image +</span>
 <span class="lineNum">     192 </span>                :            :                                 FIXED_SLW_IMAGE_SIZE -
@@ -273,16 +273,16 @@
 <span class="lineNum">     201 </span>                :            :     }
 <span class="lineNum">     202 </span>                :            :   }
 <span class="lineNum">     203 </span>                :            :   else  {                 // SRAM non-fixed image.
-<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :     rc = sbe_xip_find( io_image, SLW_HOST_REG_VECTOR_TOC_NAME, &amp;xipTocItem);</span>
-<span class="lineNum">     205 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (rc)  {</span>
+<span class="lineNum">     204 </span>                :<span class="lineCov">        477 :     rc = sbe_xip_find( io_image, SLW_HOST_REG_VECTOR_TOC_NAME, &amp;xipTocItem);</span>
+<span class="lineNum">     205 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 480 times"> + </span>]:<span class="lineCov">        480 :     if (rc)  {</span>
 <span class="lineNum">     206 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;Probably invalid key word for SLW_HOST_REG_VECTOR_TOC_NAME.\n&quot;);</span>
 <span class="lineNum">     207 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_KEYWORD_NOT_FOUND;</span>
 <span class="lineNum">     208 </span>                :            :     }
-<span class="lineNum">     209 </span>                :<span class="lineNoCov">          0 :     sbe_xip_pore2host( io_image, xipTocItem.iv_address, &amp;hostRamVector);</span>
-<span class="lineNum">     210 </span>                :<span class="lineNoCov">          0 :     xipRamTableThis = myRev64(*((uint64_t*)hostRamVector + i_coreId));</span>
-<span class="lineNum">     211 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (xipRamTableThis)  {</span>
-<span class="lineNum">     212 </span>                :<span class="lineNoCov">          0 :       sbe_xip_pore2host( io_image, xipRamTableThis, &amp;hostRamTableThis);</span>
-<span class="lineNum">     213 </span>                :<span class="lineNoCov">          0 :       bNewTable = 0;</span>
+<span class="lineNum">     209 </span>                :<span class="lineCov">        480 :     sbe_xip_pore2host( io_image, xipTocItem.iv_address, &amp;hostRamVector);</span>
+<span class="lineNum">     210 </span>                :<span class="lineCov">        960 :     xipRamTableThis = myRev64(*((uint64_t*)hostRamVector + i_coreId));</span>
+<span class="lineNum">     211 </span>        [<span class="branchCov" title="Branch 0 was taken 480 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        480 :     if (xipRamTableThis)  {</span>
+<span class="lineNum">     212 </span>                :<span class="lineCov">        480 :       sbe_xip_pore2host( io_image, xipRamTableThis, &amp;hostRamTableThis);</span>
+<span class="lineNum">     213 </span>                :<span class="lineCov">        480 :       bNewTable = 0;</span>
 <span class="lineNum">     214 </span>                :            :     }
 <span class="lineNum">     215 </span>                :            :     else  {
 <span class="lineNum">     216 </span>                :<span class="lineNoCov">          0 :       hostRamTableThis = (void*)( (uintptr_t)hostSlwRamSection + </span>
@@ -296,7 +296,7 @@
 <span class="lineNum">     224 </span>                :            :   // Create most of the RAM entry, so it can be used to find a potential existing entry to 
 <span class="lineNum">     225 </span>                :            :         // replace. Postpone decision about bEntryEnd and assume its zero for now (not end). 
 <span class="lineNum">     226 </span>                :            :   //
-<span class="lineNum">     227 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (i_regName==P8_MSR_MSR)  {</span>
+<span class="lineNum">     227 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 480 times"> + </span>]:<span class="lineCov">        480 :   if (i_regName==P8_MSR_MSR)  {</span>
 <span class="lineNum">     228 </span>                :            :     // ...make the MSR header
 <span class="lineNum">     229 </span>                :<span class="lineNoCov">          0 :     headerType = 0x1; // MTMSRD header.</span>
 <span class="lineNum">     230 </span>                :<span class="lineNoCov">          0 :     ramEntryThis.header = ( ((uint32_t)headerType) &lt;&lt; RAM_HEADER_TYPE_START_C   &amp; RAM_HEADER_TYPE_MASK_C )   |</span>
@@ -306,22 +306,22 @@
 <span class="lineNum">     234 </span>                :            :   }
 <span class="lineNum">     235 </span>                :            :   else  {
 <span class="lineNum">     236 </span>                :            :     // ...make the SPR header
-<span class="lineNum">     237 </span>                :<span class="lineNoCov">          0 :     headerType = 0x0; // MTSPR header.</span>
-<span class="lineNum">     238 </span>                :<span class="lineNoCov">          0 :     ramEntryThis.header = ( ((uint32_t)headerType) &lt;&lt; RAM_HEADER_TYPE_START_C   &amp; RAM_HEADER_TYPE_MASK_C )   |</span>
-<span class="lineNum">     239 </span>                :<span class="lineNoCov">          0 :                           (            i_regName   &lt;&lt; RAM_HEADER_SPRN_START_C   &amp; RAM_HEADER_SPRN_MASK_C )   |</span>
-<span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 :                           (            i_threadId  &lt;&lt; RAM_HEADER_THREAD_START_C &amp; RAM_HEADER_THREAD_MASK_C );</span>
+<span class="lineNum">     237 </span>                :<span class="lineCov">        480 :     headerType = 0x0; // MTSPR header.</span>
+<span class="lineNum">     238 </span>                :<span class="lineCov">        480 :     ramEntryThis.header = ( ((uint32_t)headerType) &lt;&lt; RAM_HEADER_TYPE_START_C   &amp; RAM_HEADER_TYPE_MASK_C )   |</span>
+<span class="lineNum">     239 </span>                :<span class="lineCov">        960 :                           (            i_regName   &lt;&lt; RAM_HEADER_SPRN_START_C   &amp; RAM_HEADER_SPRN_MASK_C )   |</span>
+<span class="lineNum">     240 </span>                :<span class="lineCov">        480 :                           (            i_threadId  &lt;&lt; RAM_HEADER_THREAD_START_C &amp; RAM_HEADER_THREAD_MASK_C );</span>
 <span class="lineNum">     241 </span>                :            :     // ...make the SPR instr 
-<span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 :     sprSwiz = i_regName&gt;&gt;5 | (i_regName &amp; 0x0000001f)&lt;&lt;5;</span>
-<span class="lineNum">     243 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (sprSwiz!=SLW_SPR_REGS[iReg].swizzled)  {</span>
+<span class="lineNum">     242 </span>                :<span class="lineCov">        480 :     sprSwiz = i_regName&gt;&gt;5 | (i_regName &amp; 0x0000001f)&lt;&lt;5;</span>
+<span class="lineNum">     243 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 480 times"> + </span>]:<span class="lineCov">        480 :     if (sprSwiz!=SLW_SPR_REGS[iReg].swizzled)  {</span>
 <span class="lineNum">     244 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;Inconsistent swizzle rules implemented. Check code. Dumping data.\n&quot;);</span>
 <span class="lineNum">     245 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;\tsprSwiz (on-the-fly-calc)=%i\n&quot;,sprSwiz);</span>
 <span class="lineNum">     246 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;\tSLW_SPR_REGS[%i].swizzled=%i\n&quot;,iReg,SLW_SPR_REGS[iReg].swizzled);</span>
 <span class="lineNum">     247 </span>                :<span class="lineNoCov">          0 :       return IMGBUILD_ERR_RAM_CODE;</span>
 <span class="lineNum">     248 </span>                :            :     }
-<span class="lineNum">     249 </span>                :<span class="lineNoCov">          0 :     ramEntryThis.instr =  RAM_MTSPR_INSTR_TEMPL_C | ( ( sprSwiz&lt;&lt;RAM_MTSPR_SPR_START_C ) &amp; RAM_MTSPR_SPR_MASK_C );</span>
+<span class="lineNum">     249 </span>                :<span class="lineCov">        480 :     ramEntryThis.instr =  RAM_MTSPR_INSTR_TEMPL_C | ( ( sprSwiz&lt;&lt;RAM_MTSPR_SPR_START_C ) &amp; RAM_MTSPR_SPR_MASK_C );</span>
 <span class="lineNum">     250 </span>                :            :   }
 <span class="lineNum">     251 </span>                :            :   // ...make the data
-<span class="lineNum">     252 </span>                :<span class="lineNoCov">          0 :   ramEntryThis.data  = i_regData;</span>
+<span class="lineNum">     252 </span>                :<span class="lineCov">        480 :   ramEntryThis.data  = i_regData;</span>
 <span class="lineNum">     253 </span>                :            : 
 <span class="lineNum">     254 </span>                :            : 
 <span class="lineNum">     255 </span>                :            : 
@@ -331,8 +331,8 @@
 <span class="lineNum">     259 </span>                :            :         // - Existing Ram entry =&gt; Replace said entry
 <span class="lineNum">     260 </span>                :            :         // - Existing table, new Ram entry =&gt; Last entry
 <span class="lineNum">     261 </span>                :            :   //
-<span class="lineNum">     262 </span>                :<span class="lineNoCov">          0 :         bReplaceEntry = 0;</span>
-<span class="lineNum">     263 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (bNewTable)  {</span>
+<span class="lineNum">     262 </span>                :<span class="lineCov">        480 :         bReplaceEntry = 0;</span>
+<span class="lineNum">     263 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 480 times"> + </span>]:<span class="lineCov">        480 :   if (bNewTable)  {</span>
 <span class="lineNum">     264 </span>                :            :     // Append to beginning of agreed upon static Ram table position for this coreId.
 <span class="lineNum">     265 </span>                :<span class="lineNoCov">          0 :     bEntryEnd = 1;</span>
 <span class="lineNum">     266 </span>                :<span class="lineNoCov">          0 :           ramEntryThis.header = ( ((uint32_t)bEntryEnd)  &lt;&lt; RAM_HEADER_END_START_C    &amp; RAM_HEADER_END_MASK_C )    |</span>
@@ -348,40 +348,40 @@
 <span class="lineNum">     276 </span>                :            :                 // Append at end of existing Ram table for this coreId
 <span class="lineNum">     277 </span>                :            :                 //   or
 <span class="lineNum">     278 </span>                :            :     // Replace an existing Ram entry
-<span class="lineNum">     279 </span>                :<span class="lineNoCov">          0 :     hostRamEntryNext = hostRamTableThis;</span>
-<span class="lineNum">     280 </span>                :<span class="lineNoCov">          0 :     ramEntryNext = (RamTableEntry*)hostRamEntryNext;</span>
-<span class="lineNum">     281 </span>                :<span class="lineNoCov">          0 :                 headerNext = myRev32(ramEntryNext-&gt;header);</span>
-<span class="lineNum">     282 </span>                :<span class="lineNoCov">          0 :                 instrNext = myRev32(ramEntryNext-&gt;instr);</span>
-<span class="lineNum">     283 </span>                :<span class="lineNoCov">          0 :     iCount = 1;</span>
+<span class="lineNum">     279 </span>                :<span class="lineCov">        480 :     hostRamEntryNext = hostRamTableThis;</span>
+<span class="lineNum">     280 </span>                :<span class="lineCov">        480 :     ramEntryNext = (RamTableEntry*)hostRamEntryNext;</span>
+<span class="lineNum">     281 </span>                :<span class="lineCov">        960 :                 headerNext = myRev32(ramEntryNext-&gt;header);</span>
+<span class="lineNum">     282 </span>                :<span class="lineCov">        960 :                 instrNext = myRev32(ramEntryNext-&gt;instr);</span>
+<span class="lineNum">     283 </span>                :<span class="lineCov">        480 :     iCount = 1;</span>
 <span class="lineNum">     284 </span>                :            :                 // Examine all entries, except last entry.
-<span class="lineNum">     285 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :     while ((headerNext &amp; RAM_HEADER_END_MASK_C)==0 &amp;&amp; bReplaceEntry==0)  {</span>
-<span class="lineNum">     286 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :       if (iCount&gt;=SLW_MAX_CPUREGS_OPS)  {</span>
+<span class="lineNum">     285 </span>[<span class="branchCov" title="Branch 0 was taken 4674 times"> + </span><span class="branchCov" title="Branch 1 was taken 206 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 4399 times"> + </span><span class="branchCov" title="Branch 3 was taken 275 times"> + </span>]:<span class="lineCov">       4880 :     while ((headerNext &amp; RAM_HEADER_END_MASK_C)==0 &amp;&amp; bReplaceEntry==0)  {</span>
+<span class="lineNum">     286 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchCov" title="Branch 1 was taken 4400 times"> + </span>]:<span class="lineCov">       4399 :       if (iCount&gt;=SLW_MAX_CPUREGS_OPS)  {</span>
 <span class="lineNum">     287 </span>                :<span class="lineNoCov">          0 :         MY_ERR(&quot;Bad table! Header end bit not found and RAM table full (=%i entries).\n&quot;,SLW_MAX_CPUREGS_OPS);</span>
 <span class="lineNum">     288 </span>                :<span class="lineNoCov">          0 :         return IMGBUILD_ERR_RAM_TABLE_END_NOT_FOUND;</span>
 <span class="lineNum">     289 </span>                :            :       }
-<span class="lineNum">     290 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (ramEntryThis.header==headerNext &amp;&amp; ramEntryThis.instr==instrNext)  {</span>
+<span class="lineNum">     290 </span>[<span class="branchCov" title="Branch 0 was taken 272 times"> + </span><span class="branchCov" title="Branch 1 was taken 4128 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 3 times"> + </span><span class="branchCov" title="Branch 3 was taken 269 times"> + </span>]:<span class="lineCov">       4400 :                         if (ramEntryThis.header==headerNext &amp;&amp; ramEntryThis.instr==instrNext)  {</span>
 <span class="lineNum">     291 </span>                :            :                                 // Its a replacement. Stop searching. Go do the replacement.
 <span class="lineNum">     292 </span>                :            :                                 bReplaceEntry = 1;
 <span class="lineNum">     293 </span>                :            :                     hostRamEntryThis = hostRamEntryNext;
 <span class="lineNum">     294 </span>                :            :                         }
 <span class="lineNum">     295 </span>                :            :                         else  {
-<span class="lineNum">     296 </span>                :<span class="lineNoCov">          0 :         hostRamEntryNext = (void*)((uint8_t*)hostRamEntryNext + XIPSIZE_RAM_ENTRY);</span>
-<span class="lineNum">     297 </span>                :<span class="lineNoCov">          0 :         ramEntryNext = (RamTableEntry*)hostRamEntryNext;</span>
-<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 :                                 headerNext = myRev32(ramEntryNext-&gt;header);</span>
-<span class="lineNum">     299 </span>                :<span class="lineNoCov">          0 :                                 instrNext = myRev32(ramEntryNext-&gt;instr);</span>
-<span class="lineNum">     300 </span>                :<span class="lineNoCov">          0 :         iCount++;</span>
+<span class="lineNum">     296 </span>                :<span class="lineCov">       4131 :         hostRamEntryNext = (void*)((uint8_t*)hostRamEntryNext + XIPSIZE_RAM_ENTRY);</span>
+<span class="lineNum">     297 </span>                :<span class="lineCov">       4131 :         ramEntryNext = (RamTableEntry*)hostRamEntryNext;</span>
+<span class="lineNum">     298 </span>                :<span class="lineCov">       8262 :                                 headerNext = myRev32(ramEntryNext-&gt;header);</span>
+<span class="lineNum">     299 </span>                :<span class="lineCov">       8262 :                                 instrNext = myRev32(ramEntryNext-&gt;instr);</span>
+<span class="lineNum">     300 </span>                :<span class="lineCov">       4400 :         iCount++;</span>
 <span class="lineNum">     301 </span>                :            :                         }
 <span class="lineNum">     302 </span>                :            :     }
-<span class="lineNum">     303 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (bReplaceEntry==0)  {</span>
+<span class="lineNum">     303 </span>        [<span class="branchCov" title="Branch 0 was taken 208 times"> + </span><span class="branchCov" title="Branch 1 was taken 273 times"> + </span>]:<span class="lineCov">        481 :                 if (bReplaceEntry==0)  {</span>
 <span class="lineNum">     304 </span>                :            :                         // Examine the last entry.
-<span class="lineNum">     305 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (headerNext &amp; RAM_HEADER_END_MASK_C)  {</span>
+<span class="lineNum">     305 </span>        [<span class="branchCov" title="Branch 0 was taken 208 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        208 :                 if (headerNext &amp; RAM_HEADER_END_MASK_C)  {</span>
 <span class="lineNum">     306 </span>                :            :                         // Now we know for sure that our new Ram entry will also be the last, either as a 
 <span class="lineNum">     307 </span>                :            :                                 // replace or append. So put the end bit into the new entry.
-<span class="lineNum">     308 </span>                :<span class="lineNoCov">          0 :                                 bEntryEnd = 1;</span>
-<span class="lineNum">     309 </span>                :<span class="lineNoCov">          0 :                           ramEntryThis.header = ( ((uint32_t)bEntryEnd)  &lt;&lt; RAM_HEADER_END_START_C    &amp; RAM_HEADER_END_MASK_C )    |</span>
+<span class="lineNum">     308 </span>                :<span class="lineCov">        208 :                                 bEntryEnd = 1;</span>
+<span class="lineNum">     309 </span>                :<span class="lineCov">        208 :                           ramEntryThis.header = ( ((uint32_t)bEntryEnd)  &lt;&lt; RAM_HEADER_END_START_C    &amp; RAM_HEADER_END_MASK_C )    |</span>
 <span class="lineNum">     310 </span>                :            :                                                                                                                                 ramEntryThis.header;
 <span class="lineNum">     311 </span>                :            :                                 // Determine if to replace or append.
-<span class="lineNum">     312 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                                 if (ramEntryThis.header==headerNext &amp;&amp; ramEntryThis.instr==instrNext)  {</span>
+<span class="lineNum">     312 </span>[<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 208 times"> + </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineCov">        208 :                                 if (ramEntryThis.header==headerNext &amp;&amp; ramEntryThis.instr==instrNext)  {</span>
 <span class="lineNum">     313 </span>                :            :                                         // Its a replacement. And it would be legal to replace the very last Ram in a completely full table.
 <span class="lineNum">     314 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (iCount&lt;=SLW_MAX_CPUREGS_OPS)  {</span>
 <span class="lineNum">     315 </span>                :            :                                                 bReplaceEntry = 1;
@@ -394,10 +394,10 @@
 <span class="lineNum">     322 </span>                :            :                                 }
 <span class="lineNum">     323 </span>                :            :                                 else  {
 <span class="lineNum">     324 </span>                :            :                                         // Its an append. Make sure there's room for one more Ram entry.
-<span class="lineNum">     325 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (iCount&lt;SLW_MAX_CPUREGS_OPS)  {</span>
+<span class="lineNum">     325 </span>        [<span class="branchCov" title="Branch 0 was taken 208 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        208 :                         if (iCount&lt;SLW_MAX_CPUREGS_OPS)  {</span>
 <span class="lineNum">     326 </span>                :            :                                                 // Zero out the end bit in last entrys header (which will now be 2nd last).
-<span class="lineNum">     327 </span>                :<span class="lineNoCov">          0 :                           ramEntryNext-&gt;header = ramEntryNext-&gt;header &amp; myRev32(~RAM_HEADER_END_MASK_C);</span>
-<span class="lineNum">     328 </span>                :<span class="lineNoCov">          0 :                                     hostRamEntryThis = (void*)((uint8_t*)hostRamEntryNext + XIPSIZE_RAM_ENTRY);</span>
+<span class="lineNum">     327 </span>                :<span class="lineCov">        416 :                           ramEntryNext-&gt;header = ramEntryNext-&gt;header &amp; myRev32(~RAM_HEADER_END_MASK_C);</span>
+<span class="lineNum">     328 </span>                :<span class="lineCov">        208 :                                     hostRamEntryThis = (void*)((uint8_t*)hostRamEntryNext + XIPSIZE_RAM_ENTRY);</span>
 <span class="lineNum">     329 </span>                :            :                         }
 <span class="lineNum">     330 </span>                :            :                         else  {
 <span class="lineNum">     331 </span>                :<span class="lineNoCov">          0 :                         MY_ERR(&quot;RAM table is full. Max %i entries allowed.\n&quot;,SLW_MAX_CPUREGS_OPS);</span>
@@ -424,9 +424,9 @@
 <span class="lineNum">     352 </span>                :            :   // -------------------------------------------------------------------------
 <span class="lineNum">     353 </span>                :            :   // Insert the new RAM entry into the table in BE format.
 <span class="lineNum">     354 </span>                :            :   //
-<span class="lineNum">     355 </span>                :<span class="lineNoCov">          0 :   ramEntryNext = (RamTableEntry*)hostRamEntryThis;</span>
+<span class="lineNum">     355 </span>                :<span class="lineCov">        481 :   ramEntryNext = (RamTableEntry*)hostRamEntryThis;</span>
 <span class="lineNum">     356 </span>                :            :   // ...some redundant checking
-<span class="lineNum">     357 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :   if (bNewTable)  {</span>
+<span class="lineNum">     357 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 481 times"> + </span>]:<span class="lineCov">        481 :   if (bNewTable)  {</span>
 <span class="lineNum">     358 </span>                :            :     // For any new table, the insertion location should be clean. We check for this here.
 <span class="lineNum">     359 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :     if (myRev32(ramEntryNext-&gt;header)!=0)  {</span>
 <span class="lineNum">     360 </span>                :<span class="lineNoCov">          0 :       MY_ERR(&quot;WARNING : Table entry location should be empty for a new table. Check code and image. Dumping data:\n&quot;);</span>
@@ -437,11 +437,11 @@
 <span class="lineNum">     365 </span>                :            :     }
 <span class="lineNum">     366 </span>                :            :   }
 <span class="lineNum">     367 </span>                :            :         // ..insert the new Ram entry.
-<span class="lineNum">     368 </span>                :<span class="lineNoCov">          0 :   ramEntryNext-&gt;header = myRev32(ramEntryThis.header);</span>
-<span class="lineNum">     369 </span>                :<span class="lineNoCov">          0 :   ramEntryNext-&gt;instr  = myRev32(ramEntryThis.instr);</span>
-<span class="lineNum">     370 </span>                :<span class="lineNoCov">          0 :   ramEntryNext-&gt;data   = myRev64(ramEntryThis.data);</span>
+<span class="lineNum">     368 </span>                :<span class="lineCov">        960 :   ramEntryNext-&gt;header = myRev32(ramEntryThis.header);</span>
+<span class="lineNum">     369 </span>                :<span class="lineCov">        960 :   ramEntryNext-&gt;instr  = myRev32(ramEntryThis.instr);</span>
+<span class="lineNum">     370 </span>                :<span class="lineCov">        960 :   ramEntryNext-&gt;data   = myRev64(ramEntryThis.data);</span>
 <span class="lineNum">     371 </span>                :            : 
-<span class="lineNum">     372 </span>                :<span class="lineNoCov">          0 :   return rc;</span>
+<span class="lineNum">     372 </span>                :<span class="lineCov">        480 :   return rc;</span>
 <span class="lineNum">     373 </span>                :            : }
 <span class="lineNum">     374 </span>                :            : 
 <span class="lineNum">     375 </span>                :            : 

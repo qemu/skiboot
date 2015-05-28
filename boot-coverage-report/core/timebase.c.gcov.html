@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">39</td>
             <td class="headerCovTableEntry">52</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryMed">75.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">8</td>
             <td class="headerCovTableEntry">10</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryMed">80.0 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">10</td>
             <td class="headerCovTableEntry">14</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">71.4 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -90,75 +90,75 @@
 <span class="lineNum">      19 </span>                :            : #include &lt;opal.h&gt;
 <a name="20"><span class="lineNum">      20 </span>                :            : #include &lt;cpu.h&gt;</a>
 <span class="lineNum">      21 </span>                :            : 
-<span class="lineNum">      22 </span>                :<span class="lineNoCov">          0 : static void time_wait_poll(unsigned long duration)</span>
+<span class="lineNum">      22 </span>                :<span class="lineCov">     259725 : static void time_wait_poll(unsigned long duration)</span>
 <span class="lineNum">      23 </span>                :            : {
-<span class="lineNum">      24 </span>                :<span class="lineNoCov">          0 :         unsigned long remaining = duration;</span>
-<span class="lineNum">      25 </span>                :<span class="lineNoCov">          0 :         unsigned long end = mftb() + duration;</span>
-<span class="lineNum">      26 </span>                :<span class="lineNoCov">          0 :         unsigned long period = msecs_to_tb(5);</span>
+<span class="lineNum">      24 </span>                :<span class="lineCov">     259725 :         unsigned long remaining = duration;</span>
+<span class="lineNum">      25 </span>                :<span class="lineCov">     259725 :         unsigned long end = mftb() + duration;</span>
+<span class="lineNum">      26 </span>                :<span class="lineCov">     259725 :         unsigned long period = msecs_to_tb(5);</span>
 <span class="lineNum">      27 </span>                :            : 
-<span class="lineNum">      28 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while (tb_compare(mftb(), end) != TB_AAFTERB) {</span>
+<span class="lineNum">      28 </span>        [<span class="branchCov" title="Branch 1 was taken 264487 times"> + </span><span class="branchCov" title="Branch 2 was taken 259725 times"> + </span>]:<span class="lineCov">     783937 :         while (tb_compare(mftb(), end) != TB_AAFTERB) {</span>
 <span class="lineNum">      29 </span>                :            :                 /* Call pollers periodically but not continually to avoid
 <span class="lineNum">      30 </span>                :            :                  * bouncing cachelines due to lock contention. */
-<span class="lineNum">      31 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (remaining &gt;= period) {</span>
-<span class="lineNum">      32 </span>                :<span class="lineNoCov">          0 :                         opal_run_pollers();</span>
-<span class="lineNum">      33 </span>                :<span class="lineNoCov">          0 :                         time_wait_nopoll(period);</span>
-<span class="lineNum">      34 </span>                :<span class="lineNoCov">          0 :                         remaining -= period;</span>
+<span class="lineNum">      31 </span>        [<span class="branchCov" title="Branch 0 was taken 2695 times"> + </span><span class="branchCov" title="Branch 1 was taken 261792 times"> + </span>]:<span class="lineCov">     264487 :                 if (remaining &gt;= period) {</span>
+<span class="lineNum">      32 </span>                :<span class="lineCov">       2695 :                         opal_run_pollers();</span>
+<span class="lineNum">      33 </span>                :<span class="lineCov">       2695 :                         time_wait_nopoll(period);</span>
+<span class="lineNum">      34 </span>                :<span class="lineCov">       2695 :                         remaining -= period;</span>
 <span class="lineNum">      35 </span>                :            :                 }
 <span class="lineNum">      36 </span>                :            : 
-<span class="lineNum">      37 </span>                :<span class="lineNoCov">          0 :                 cpu_relax();</span>
+<span class="lineNum">      37 </span>                :<span class="lineCov">     264487 :                 cpu_relax();</span>
 <span class="lineNum">      38 </span>                :            :         }
-<a name="39"><span class="lineNum">      39 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<a name="39"><span class="lineNum">      39 </span>                :<span class="lineCov">     259725 : }</span></a>
 <span class="lineNum">      40 </span>                :            : 
-<span class="lineNum">      41 </span>                :<span class="lineNoCov">          0 : void time_wait(unsigned long duration)</span>
+<span class="lineNum">      41 </span>                :<span class="lineCov">     259763 : void time_wait(unsigned long duration)</span>
 <span class="lineNum">      42 </span>                :            : {
-<span class="lineNum">      43 </span>                :<span class="lineNoCov">          0 :         struct cpu_thread *c = this_cpu();</span>
+<span class="lineNum">      43 </span>                :<span class="lineCov">     259763 :         struct cpu_thread *c = this_cpu();</span>
 <span class="lineNum">      44 </span>                :            : 
-<span class="lineNum">      45 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (this_cpu()-&gt;lock_depth) {</span>
+<span class="lineNum">      45 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 259763 times"> + </span>]:<span class="lineCov">     259763 :         if (this_cpu()-&gt;lock_depth) {</span>
 <span class="lineNum">      46 </span>                :<span class="lineNoCov">          0 :                 time_wait_nopoll(duration);</span>
 <span class="lineNum">      47 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">      48 </span>                :            :         }
 <span class="lineNum">      49 </span>                :            : 
-<span class="lineNum">      50 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (c != boot_cpu)</span>
-<span class="lineNum">      51 </span>                :<span class="lineNoCov">          0 :                 time_wait_nopoll(duration);</span>
+<span class="lineNum">      50 </span>        [<span class="branchCov" title="Branch 0 was taken 38 times"> + </span><span class="branchCov" title="Branch 1 was taken 259725 times"> + </span>]:<span class="lineCov">     259763 :         if (c != boot_cpu)</span>
+<span class="lineNum">      51 </span>                :<span class="lineCov">         38 :                 time_wait_nopoll(duration);</span>
 <span class="lineNum">      52 </span>                :            :         else
-<span class="lineNum">      53 </span>                :<span class="lineNoCov">          0 :                 time_wait_poll(duration);</span>
+<span class="lineNum">      53 </span>                :<span class="lineCov">     259725 :                 time_wait_poll(duration);</span>
 <a name="54"><span class="lineNum">      54 </span>                :            : }</a>
 <span class="lineNum">      55 </span>                :            : 
-<span class="lineNum">      56 </span>                :<span class="lineNoCov">          0 : void time_wait_nopoll(unsigned long duration)</span>
+<span class="lineNum">      56 </span>                :<span class="lineCov">      10146 : void time_wait_nopoll(unsigned long duration)</span>
 <span class="lineNum">      57 </span>                :            : {
-<span class="lineNum">      58 </span>                :<span class="lineNoCov">          0 :         unsigned long end = mftb() + duration;</span>
+<span class="lineNum">      58 </span>                :<span class="lineCov">      10146 :         unsigned long end = mftb() + duration;</span>
 <span class="lineNum">      59 </span>                :            : 
-<span class="lineNum">      60 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while(tb_compare(mftb(), end) != TB_AAFTERB)</span>
-<span class="lineNum">      61 </span>                :<span class="lineNoCov">          0 :                 cpu_relax();</span>
-<a name="62"><span class="lineNum">      62 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      60 </span>        [<span class="branchCov" title="Branch 1 was taken 1776445 times"> + </span><span class="branchCov" title="Branch 2 was taken 10146 times"> + </span>]:<span class="lineCov">    1802194 :         while(tb_compare(mftb(), end) != TB_AAFTERB)</span>
+<span class="lineNum">      61 </span>                :<span class="lineCov">    1776445 :                 cpu_relax();</span>
+<a name="62"><span class="lineNum">      62 </span>                :<span class="lineCov">      10146 : }</span></a>
 <span class="lineNum">      63 </span>                :            : 
-<span class="lineNum">      64 </span>                :<span class="lineNoCov">          0 : void time_wait_ms(unsigned long ms)</span>
+<span class="lineNum">      64 </span>                :<span class="lineCov">        181 : void time_wait_ms(unsigned long ms)</span>
 <span class="lineNum">      65 </span>                :            : {
-<span class="lineNum">      66 </span>                :<span class="lineNoCov">          0 :         time_wait(msecs_to_tb(ms));</span>
-<a name="67"><span class="lineNum">      67 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      66 </span>                :<span class="lineCov">        181 :         time_wait(msecs_to_tb(ms));</span>
+<a name="67"><span class="lineNum">      67 </span>                :<span class="lineCov">        181 : }</span></a>
 <span class="lineNum">      68 </span>                :            : 
-<span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 : void time_wait_ms_nopoll(unsigned long ms)</span>
+<span class="lineNum">      69 </span>                :<span class="lineCov">        211 : void time_wait_ms_nopoll(unsigned long ms)</span>
 <span class="lineNum">      70 </span>                :            : {
-<span class="lineNum">      71 </span>                :<span class="lineNoCov">          0 :         time_wait_nopoll(msecs_to_tb(ms));</span>
-<a name="72"><span class="lineNum">      72 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      71 </span>                :<span class="lineCov">        211 :         time_wait_nopoll(msecs_to_tb(ms));</span>
+<a name="72"><span class="lineNum">      72 </span>                :<span class="lineCov">        211 : }</span></a>
 <span class="lineNum">      73 </span>                :            : 
-<span class="lineNum">      74 </span>                :<span class="lineNoCov">          0 : void time_wait_us(unsigned long us)</span>
+<span class="lineNum">      74 </span>                :<span class="lineCov">          8 : void time_wait_us(unsigned long us)</span>
 <span class="lineNum">      75 </span>                :            : {
-<span class="lineNum">      76 </span>                :<span class="lineNoCov">          0 :         time_wait(usecs_to_tb(us));</span>
-<a name="77"><span class="lineNum">      77 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<span class="lineNum">      76 </span>                :<span class="lineCov">          8 :         time_wait(usecs_to_tb(us));</span>
+<a name="77"><span class="lineNum">      77 </span>                :<span class="lineCov">          8 : }</span></a>
 <span class="lineNum">      78 </span>                :            : 
 <span class="lineNum">      79 </span>                :<span class="lineNoCov">          0 : void time_wait_us_nopoll(unsigned long us)</span>
 <span class="lineNum">      80 </span>                :            : {
 <span class="lineNum">      81 </span>                :<span class="lineNoCov">          0 :         time_wait_nopoll(usecs_to_tb(us));</span>
 <a name="82"><span class="lineNum">      82 </span>                :<span class="lineNoCov">          0 : }</span></a>
 <span class="lineNum">      83 </span>                :            : 
-<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 : unsigned long timespec_to_tb(const struct timespec *ts)</span>
+<span class="lineNum">      84 </span>                :<span class="lineCov">         72 : unsigned long timespec_to_tb(const struct timespec *ts)</span>
 <span class="lineNum">      85 </span>                :            : {
 <span class="lineNum">      86 </span>                :            :         unsigned long ns;
 <span class="lineNum">      87 </span>                :            : 
 <span class="lineNum">      88 </span>                :            :         /* First convert to ns */
-<span class="lineNum">      89 </span>                :<span class="lineNoCov">          0 :         ns = ts-&gt;tv_sec * 1000000000ul;</span>
-<span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :         ns += ts-&gt;tv_nsec;</span>
+<span class="lineNum">      89 </span>                :<span class="lineCov">         72 :         ns = ts-&gt;tv_sec * 1000000000ul;</span>
+<span class="lineNum">      90 </span>                :<span class="lineCov">         72 :         ns += ts-&gt;tv_nsec;</span>
 <span class="lineNum">      91 </span>                :            : 
 <span class="lineNum">      92 </span>                :            :         /*
 <span class="lineNum">      93 </span>                :            :          * This is a very rough approximation, it works provided
@@ -169,7 +169,7 @@
 <span class="lineNum">      98 </span>                :            :          * at the expense of capacity or do 128 bit math which
 <span class="lineNum">      99 </span>                :            :          * I'm not eager to do :-)
 <span class="lineNum">     100 </span>                :            :          */
-<span class="lineNum">     101 </span>                :<span class="lineNoCov">          0 :         return (ns * (tb_hz &gt;&gt; 24)) / (1000000000ul &gt;&gt; 24);</span>
+<span class="lineNum">     101 </span>                :<span class="lineCov">         72 :         return (ns * (tb_hz &gt;&gt; 24)) / (1000000000ul &gt;&gt; 24);</span>
 <a name="102"><span class="lineNum">     102 </span>                :            : }</a>
 <span class="lineNum">     103 </span>                :            : 
 <span class="lineNum">     104 </span>                :<span class="lineNoCov">          0 : int nanosleep(const struct timespec *req, struct timespec *rem)</span>
@@ -183,15 +183,15 @@
 <span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
 <a name="113"><span class="lineNum">     113 </span>                :            : }</a>
 <span class="lineNum">     114 </span>                :            : 
-<span class="lineNum">     115 </span>                :<span class="lineNoCov">          0 : int nanosleep_nopoll(const struct timespec *req, struct timespec *rem)</span>
+<span class="lineNum">     115 </span>                :<span class="lineCov">         72 : int nanosleep_nopoll(const struct timespec *req, struct timespec *rem)</span>
 <span class="lineNum">     116 </span>                :            : {
-<span class="lineNum">     117 </span>                :<span class="lineNoCov">          0 :         time_wait_nopoll(timespec_to_tb(req));</span>
+<span class="lineNum">     117 </span>                :<span class="lineCov">         72 :         time_wait_nopoll(timespec_to_tb(req));</span>
 <span class="lineNum">     118 </span>                :            : 
-<span class="lineNum">     119 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rem) {</span>
+<span class="lineNum">     119 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 72 times"> + </span>]:<span class="lineCov">         72 :         if (rem) {</span>
 <span class="lineNum">     120 </span>                :<span class="lineNoCov">          0 :                 rem-&gt;tv_sec = 0;</span>
 <span class="lineNum">     121 </span>                :<span class="lineNoCov">          0 :                 rem-&gt;tv_nsec = 0;</span>
 <span class="lineNum">     122 </span>                :            :         }
-<span class="lineNum">     123 </span>                :<span class="lineNoCov">          0 :         return 0;</span>
+<span class="lineNum">     123 </span>                :<span class="lineCov">         72 :         return 0;</span>
 <span class="lineNum">     124 </span>                :            : }
 </pre>
       </td>

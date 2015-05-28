@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">12</td>
             <td class="headerCovTableEntry">48</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">25.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">2</td>
             <td class="headerCovTableEntry">5</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">40.0 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">3</td>
             <td class="headerCovTableEntry">20</td>
-            <td class="headerCovTableEntryLo">0.0 %</td>
+            <td class="headerCovTableEntryLo">15.0 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -120,22 +120,22 @@
 <span class="lineNum">      49 </span>                :            :         return 0;
 <a name="50"><span class="lineNum">      50 </span>                :            : }</a>
 <span class="lineNum">      51 </span>                :            : 
-<span class="lineNum">      52 </span>                :<span class="lineNoCov">          0 : static int gx_p7p_configure_psi_buid(uint32_t chip, uint32_t buid)</span>
+<span class="lineNum">      52 </span>                :<span class="lineCov">          2 : static int gx_p7p_configure_psi_buid(uint32_t chip, uint32_t buid)</span>
 <span class="lineNum">      53 </span>                :            : {
 <span class="lineNum">      54 </span>                :            :         uint64_t mode4;
 <span class="lineNum">      55 </span>                :            :         int rc;
 <span class="lineNum">      56 </span>                :            : 
-<span class="lineNum">      57 </span>                :<span class="lineNoCov">          0 :         rc = xscom_read(chip, GX_P7P_MODE4_REG, &amp;mode4);</span>
-<span class="lineNum">      58 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">      57 </span>                :<span class="lineCov">          2 :         rc = xscom_read(chip, GX_P7P_MODE4_REG, &amp;mode4);</span>
+<span class="lineNum">      58 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (rc) {</span>
 <span class="lineNum">      59 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;GX: XSCOM error %d reading GX MODE1 REG\n&quot;, rc);</span>
 <span class="lineNum">      60 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
 <span class="lineNum">      61 </span>                :            :         }
 <span class="lineNum">      62 </span>                :            : 
-<span class="lineNum">      63 </span>                :<span class="lineNoCov">          0 :         mode4 = SETFIELD(GX_P7P_MODE4_PSI_BUID, mode4, buid);</span>
-<span class="lineNum">      64 </span>                :<span class="lineNoCov">          0 :         mode4 &amp;= ~GX_P7P_MODE4_PSI_BUID_DISABLE;</span>
+<span class="lineNum">      63 </span>                :<span class="lineCov">          2 :         mode4 = SETFIELD(GX_P7P_MODE4_PSI_BUID, mode4, buid);</span>
+<span class="lineNum">      64 </span>                :<span class="lineCov">          2 :         mode4 &amp;= ~GX_P7P_MODE4_PSI_BUID_DISABLE;</span>
 <span class="lineNum">      65 </span>                :            : 
-<span class="lineNum">      66 </span>                :<span class="lineNoCov">          0 :         rc = xscom_write(chip, GX_P7P_MODE4_REG, mode4);</span>
-<span class="lineNum">      67 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">      66 </span>                :<span class="lineCov">          2 :         rc = xscom_write(chip, GX_P7P_MODE4_REG, mode4);</span>
+<span class="lineNum">      67 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (rc) {</span>
 <span class="lineNum">      68 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;GX: XSCOM error %d writing GX MODE1 REG\n&quot;, rc);</span>
 <span class="lineNum">      69 </span>                :<span class="lineNoCov">          0 :                 return rc;</span>
 <span class="lineNum">      70 </span>                :            :         }
@@ -149,18 +149,18 @@
 <span class="lineNum">      78 </span>                :            :  * @chip: Chip number (0..31)
 <a name="79"><span class="lineNum">      79 </span>                :            :  * @buid: 9-bit BUID value</a>
 <span class="lineNum">      80 </span>                :            :  */
-<span class="lineNum">      81 </span>                :<span class="lineNoCov">          0 : int gx_configure_psi_buid(uint32_t chip, uint32_t buid)</span>
+<span class="lineNum">      81 </span>                :<span class="lineCov">          2 : int gx_configure_psi_buid(uint32_t chip, uint32_t buid)</span>
 <span class="lineNum">      82 </span>                :            : {
-<span class="lineNum">      83 </span>                :<span class="lineNoCov">          0 :         uint32_t pvr = mfspr(SPR_PVR);</span>
+<span class="lineNum">      83 </span>                :<span class="lineCov">          2 :         uint32_t pvr = mfspr(SPR_PVR);</span>
 <span class="lineNum">      84 </span>                :            : 
-<span class="lineNum">      85 </span>                :<span class="lineNoCov">          0 :         printf(&quot;GX: PSI BUID for PVR %x (type %x) chip %d BUID 0x%x\n&quot;,</span>
+<span class="lineNum">      85 </span>                :<span class="lineCov">          2 :         printf(&quot;GX: PSI BUID for PVR %x (type %x) chip %d BUID 0x%x\n&quot;,</span>
 <span class="lineNum">      86 </span>                :            :                pvr, PVR_TYPE(pvr), chip, buid);
 <span class="lineNum">      87 </span>                :            :                
-<span class="lineNum">      88 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch(PVR_TYPE(pvr)) {</span>
+<span class="lineNum">      88 </span>     [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         switch(PVR_TYPE(pvr)) {</span>
 <span class="lineNum">      89 </span>                :            :         case PVR_TYPE_P7:
 <span class="lineNum">      90 </span>                :<span class="lineNoCov">          0 :                 return gx_p7_configure_psi_buid(chip, buid);</span>
 <span class="lineNum">      91 </span>                :            :         case PVR_TYPE_P7P:
-<span class="lineNum">      92 </span>                :<span class="lineNoCov">          0 :                 return gx_p7p_configure_psi_buid(chip, buid);</span>
+<span class="lineNum">      92 </span>                :<span class="lineCov">          2 :                 return gx_p7p_configure_psi_buid(chip, buid);</span>
 <span class="lineNum">      93 </span>                :            :         }
 <span class="lineNum">      94 </span>                :            :         return -1;
 <span class="lineNum">      95 </span>                :            : }

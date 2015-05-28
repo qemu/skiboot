@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntry">34</td>
             <td class="headerCovTableEntry">42</td>
-            <td class="headerCovTableEntryLo">7.1 %</td>
+            <td class="headerCovTableEntryMed">81.0 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntry">3</td>
-            <td class="headerCovTableEntryLo">33.3 %</td>
+            <td class="headerCovTableEntry">3</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">15</td>
             <td class="headerCovTableEntry">28</td>
-            <td class="headerCovTableEntryLo">7.1 %</td>
+            <td class="headerCovTableEntryLo">53.6 %</td>
           </tr>
           <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -96,36 +96,36 @@
 <span class="lineNum">      25 </span>                :            : #define PBA_BAR0        0x2013f00
 <a name="26"><span class="lineNum">      26 </span>                :            : #define PBA_BARMASK0    0x2013f04</a>
 <span class="lineNum">      27 </span>                :            : 
-<span class="lineNum">      28 </span>                :<span class="lineNoCov">          0 : static bool read_pba_bar(struct proc_chip *chip, unsigned int bar_no,</span>
+<span class="lineNum">      28 </span>                :<span class="lineCov">         24 : static bool read_pba_bar(struct proc_chip *chip, unsigned int bar_no,</span>
 <span class="lineNum">      29 </span>                :            :                          uint64_t *base, uint64_t *size)
 <span class="lineNum">      30 </span>                :            : {
 <span class="lineNum">      31 </span>                :            :         uint64_t bar, mask;
 <span class="lineNum">      32 </span>                :            :         int rc;
 <span class="lineNum">      33 </span>                :            : 
-<span class="lineNum">      34 </span>                :<span class="lineNoCov">          0 :         rc = xscom_read(chip-&gt;id, PBA_BAR0 + bar_no, &amp;bar);</span>
-<span class="lineNum">      35 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">      34 </span>                :<span class="lineCov">         12 :         rc = xscom_read(chip-&gt;id, PBA_BAR0 + bar_no, &amp;bar);</span>
+<span class="lineNum">      35 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         12 :         if (rc) {</span>
 <span class="lineNum">      36 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;SLW: Error %d reading PBA BAR%d on chip %d\n&quot;,</span>
 <span class="lineNum">      37 </span>                :            :                         rc, bar_no, chip-&gt;id);
 <span class="lineNum">      38 </span>                :            :                 return false;
 <span class="lineNum">      39 </span>                :            :         }
-<span class="lineNum">      40 </span>                :<span class="lineNoCov">          0 :         rc = xscom_read(chip-&gt;id, PBA_BARMASK0 + bar_no, &amp;mask);</span>
-<span class="lineNum">      41 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rc) {</span>
+<span class="lineNum">      40 </span>                :<span class="lineCov">         12 :         rc = xscom_read(chip-&gt;id, PBA_BARMASK0 + bar_no, &amp;mask);</span>
+<span class="lineNum">      41 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         12 :         if (rc) {</span>
 <span class="lineNum">      42 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;SLW: Error %d reading PBA BAR MASK%d on chip %d\n&quot;,</span>
 <span class="lineNum">      43 </span>                :            :                         rc, bar_no, chip-&gt;id);
 <span class="lineNum">      44 </span>                :            :                 return false;
 <span class="lineNum">      45 </span>                :            :         }
-<span class="lineNum">      46 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;  PBA BAR%d : 0x%016llx\n&quot;, bar_no, bar);</span>
-<span class="lineNum">      47 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;  PBA MASK%d: 0x%016llx\n&quot;, bar_no, mask);</span>
+<span class="lineNum">      46 </span>                :<span class="lineCov">         12 :         prlog(PR_DEBUG, &quot;  PBA BAR%d : 0x%016llx\n&quot;, bar_no, bar);</span>
+<span class="lineNum">      47 </span>                :<span class="lineCov">         12 :         prlog(PR_DEBUG, &quot;  PBA MASK%d: 0x%016llx\n&quot;, bar_no, mask);</span>
 <span class="lineNum">      48 </span>                :            : 
-<span class="lineNum">      49 </span>                :<span class="lineNoCov">          0 :         *base = bar &amp; 0x0ffffffffffffffful;</span>
-<span class="lineNum">      50 </span>                :<span class="lineNoCov">          0 :         *size = (mask | 0xfffff) + 1;</span>
+<span class="lineNum">      49 </span>                :<span class="lineCov">         12 :         *base = bar &amp; 0x0ffffffffffffffful;</span>
+<span class="lineNum">      50 </span>                :<span class="lineCov">         12 :         *size = (mask | 0xfffff) + 1;</span>
 <span class="lineNum">      51 </span>                :            : 
-<span class="lineNum">      52 </span>                :<span class="lineNoCov">          0 :         return (*base) != 0;</span>
+<span class="lineNum">      52 </span>                :<span class="lineCov">         12 :         return (*base) != 0;</span>
 <a name="53"><span class="lineNum">      53 </span>                :            : }</a>
 <span class="lineNum">      54 </span>                :            : 
-<span class="lineNum">      55 </span>                :<span class="lineNoCov">          0 : static void homer_init_chip(struct proc_chip *chip)</span>
+<span class="lineNum">      55 </span>                :<span class="lineCov">          4 : static void homer_init_chip(struct proc_chip *chip)</span>
 <span class="lineNum">      56 </span>                :            : {
-<span class="lineNum">      57 </span>                :<span class="lineNoCov">          0 :         uint64_t hbase = 0, hsize = 0;</span>
+<span class="lineNum">      57 </span>                :<span class="lineCov">          4 :         uint64_t hbase = 0, hsize = 0;</span>
 <span class="lineNum">      58 </span>                :            :         uint64_t sbase, ssize, obase, osize;
 <span class="lineNum">      59 </span>                :            : 
 <span class="lineNum">      60 </span>                :            :         /*
@@ -140,7 +140,7 @@
 <span class="lineNum">      69 </span>                :            :          * on earlier HBs, BAR0 isn't set so we need BAR 2 instead in that
 <span class="lineNum">      70 </span>                :            :          * case to cover SLW (OCC not running).
 <span class="lineNum">      71 </span>                :            :          */
-<span class="lineNum">      72 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (read_pba_bar(chip, 0, &amp;hbase, &amp;hsize)) {</span>
+<span class="lineNum">      72 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 4 times"> + </span>]:<span class="lineCov">          4 :         if (read_pba_bar(chip, 0, &amp;hbase, &amp;hsize)) {</span>
 <span class="lineNum">      73 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_DEBUG, &quot;  HOMER Image at 0x%llx size %lldMB\n&quot;,</span>
 <span class="lineNum">      74 </span>                :            :                       hbase, hsize / 0x100000);
 <span class="lineNum">      75 </span>                :<span class="lineNoCov">          0 :                 mem_reserve(&quot;ibm,homer-image&quot;, hbase, hsize);</span>
@@ -153,38 +153,38 @@
 <span class="lineNum">      82 </span>                :            :          * We always read the SLW BAR since we need to grab info about the
 <span class="lineNum">      83 </span>                :            :          * SLW image in the struct proc_chip for use by the slw.c code
 <span class="lineNum">      84 </span>                :            :          */
-<span class="lineNum">      85 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (read_pba_bar(chip, 2, &amp;sbase, &amp;ssize)) {</span>
-<span class="lineNum">      86 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_DEBUG, &quot;  SLW Image at 0x%llx size %lldMB\n&quot;,</span>
+<span class="lineNum">      85 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :         if (read_pba_bar(chip, 2, &amp;sbase, &amp;ssize)) {</span>
+<span class="lineNum">      86 </span>                :<span class="lineCov">          4 :                 prlog(PR_DEBUG, &quot;  SLW Image at 0x%llx size %lldMB\n&quot;,</span>
 <span class="lineNum">      87 </span>                :            :                       sbase, ssize / 0x100000);
 <span class="lineNum">      88 </span>                :            : 
 <span class="lineNum">      89 </span>                :            :                 /*
 <span class="lineNum">      90 </span>                :            :                  * Only reserve it if we have no homer image or if it
 <span class="lineNum">      91 </span>                :            :                  * doesn't fit in it (only check the base).
 <span class="lineNum">      92 </span>                :            :                  */
-<span class="lineNum">      93 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (sbase &lt; hbase || sbase &gt; (hbase + hsize) ||</span>
-<span class="lineNum">         </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]
+<span class="lineNum">      93 </span>[<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span>][<span class="branchNoExec" title="Branch 4 was not executed"> # </span><span class="branchNoExec" title="Branch 5 was not executed"> # </span>]:<span class="lineCov">          4 :                 if (sbase &lt; hbase || sbase &gt; (hbase + hsize) ||</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]
 <span class="lineNum">      94 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         (hbase == 0 &amp;&amp; sbase &gt; 0))</span>
-<span class="lineNum">      95 </span>                :<span class="lineNoCov">          0 :                         mem_reserve(&quot;ibm,slw-image&quot;, sbase, ssize);</span>
+<span class="lineNum">      95 </span>                :<span class="lineCov">          4 :                         mem_reserve(&quot;ibm,slw-image&quot;, sbase, ssize);</span>
 <span class="lineNum">      96 </span>                :            : 
-<span class="lineNum">      97 </span>                :<span class="lineNoCov">          0 :                 chip-&gt;slw_base = sbase;</span>
-<span class="lineNum">      98 </span>                :<span class="lineNoCov">          0 :                 chip-&gt;slw_bar_size = ssize;</span>
-<span class="lineNum">      99 </span>                :<span class="lineNoCov">          0 :                 chip-&gt;slw_image_size = ssize; /* will be adjusted later */</span>
+<span class="lineNum">      97 </span>                :<span class="lineCov">          4 :                 chip-&gt;slw_base = sbase;</span>
+<span class="lineNum">      98 </span>                :<span class="lineCov">          4 :                 chip-&gt;slw_bar_size = ssize;</span>
+<span class="lineNum">      99 </span>                :<span class="lineCov">          4 :                 chip-&gt;slw_image_size = ssize; /* will be adjusted later */</span>
 <span class="lineNum">     100 </span>                :            :         }
 <span class="lineNum">     101 </span>                :            : 
-<span class="lineNum">     102 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (read_pba_bar(chip, 3, &amp;obase, &amp;osize)) {</span>
-<span class="lineNum">     103 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_DEBUG, &quot;  OCC Common Area at 0x%llx size %lldMB\n&quot;,</span>
+<span class="lineNum">     102 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span>]:<span class="lineCov">          4 :         if (read_pba_bar(chip, 3, &amp;obase, &amp;osize)) {</span>
+<span class="lineNum">     103 </span>                :<span class="lineCov">          1 :                 prlog(PR_DEBUG, &quot;  OCC Common Area at 0x%llx size %lldMB\n&quot;,</span>
 <span class="lineNum">     104 </span>                :            :                       obase, osize / 0x100000);
-<span class="lineNum">     105 </span>                :<span class="lineNoCov">          0 :                 chip-&gt;occ_common_base = obase;</span>
-<span class="lineNum">     106 </span>                :<span class="lineNoCov">          0 :                 chip-&gt;occ_common_size = osize;</span>
+<span class="lineNum">     105 </span>                :<span class="lineCov">          1 :                 chip-&gt;occ_common_base = obase;</span>
+<span class="lineNum">     106 </span>                :<span class="lineCov">          1 :                 chip-&gt;occ_common_size = osize;</span>
 <span class="lineNum">     107 </span>                :            :         }
-<a name="108"><span class="lineNum">     108 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<a name="108"><span class="lineNum">     108 </span>                :<span class="lineCov">          4 : }</span></a>
 <span class="lineNum">     109 </span>                :            : 
-<span class="lineNum">     110 </span>                :<span class="lineCov">          6 : void homer_init(void)</span>
+<span class="lineNum">     110 </span>                :<span class="lineCov">          8 : void homer_init(void)</span>
 <span class="lineNum">     111 </span>                :            : {
 <span class="lineNum">     112 </span>                :            :         struct proc_chip *chip;
 <span class="lineNum">     113 </span>                :            : 
-<span class="lineNum">     114 </span>[<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (proc_gen != proc_gen_p8 || chip_quirk(QUIRK_NO_PBA))</span>
-<span class="lineNum">     115 </span>                :<span class="lineCov">          6 :                 return;</span>
+<span class="lineNum">     114 </span>[<span class="branchCov" title="Branch 0 was taken 7 times"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span>]:<span class="lineCov">          8 :         if (proc_gen != proc_gen_p8 || chip_quirk(QUIRK_NO_PBA))</span>
+<span class="lineNum">     115 </span>                :<span class="lineCov">          8 :                 return;</span>
 <span class="lineNum">     116 </span>                :            : 
 <span class="lineNum">     117 </span>                :            :         /*
 <span class="lineNum">     118 </span>                :            :          * XXX This is temporary, on P8 we look for any configured
@@ -192,9 +192,9 @@
 <span class="lineNum">     120 </span>                :            :          * done via HostBoot using the device-tree &quot;reserved-ranges&quot;
 <span class="lineNum">     121 </span>                :            :          * or we'll load the SLW &amp; OCC images ourselves using Host Services.
 <span class="lineNum">     122 </span>                :            :          */
-<span class="lineNum">     123 </span>        [<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for_each_chip(chip) {</span>
-<span class="lineNum">     124 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_DEBUG, &quot;HOMER: Init chip %d\n&quot;, chip-&gt;id);</span>
-<span class="lineNum">     125 </span>                :<span class="lineNoCov">          0 :                 homer_init_chip(chip);</span>
+<span class="lineNum">     123 </span>        [<span class="branchCov" title="Branch 2 was taken 4 times"> + </span><span class="branchCov" title="Branch 3 was taken 1 time"> + </span>]:<span class="lineCov">          5 :         for_each_chip(chip) {</span>
+<span class="lineNum">     124 </span>                :<span class="lineCov">          4 :                 prlog(PR_DEBUG, &quot;HOMER: Init chip %d\n&quot;, chip-&gt;id);</span>
+<span class="lineNum">     125 </span>                :<span class="lineCov">          4 :                 homer_init_chip(chip);</span>
 <span class="lineNum">     126 </span>                :            :         }
 <span class="lineNum">     127 </span>                :            : 
 <span class="lineNum">     128 </span>                :            :         /*
@@ -202,14 +202,14 @@
 <span class="lineNum">     130 </span>                :            :          * skip host services.
 <span class="lineNum">     131 </span>                :            :          */
 <span class="lineNum">     132 </span>                :            : 
-<span class="lineNum">     133 </span>                :<span class="lineNoCov">          0 :         chip = next_chip(NULL);</span>
-<span class="lineNum">     134 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (chip-&gt;homer_base &amp;&amp; chip-&gt;occ_common_base) {</span>
+<span class="lineNum">     133 </span>                :<span class="lineCov">          1 :         chip = next_chip(NULL);</span>
+<span class="lineNum">     134 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :         if (chip-&gt;homer_base &amp;&amp; chip-&gt;occ_common_base) {</span>
 <span class="lineNum">     135 </span>                :            :                 /* Reserve OCC comman area from BAR */
 <span class="lineNum">     136 </span>                :<span class="lineNoCov">          0 :                 mem_reserve(&quot;ibm,occ-common-area&quot;, chip-&gt;occ_common_base,</span>
 <span class="lineNum">     137 </span>                :            :                                                 chip-&gt;occ_common_size);
 <span class="lineNum">     138 </span>                :            :         } else {
 <span class="lineNum">     139 </span>                :            :                 /* Allocate memory for HOMER and OCC common area */
-<span class="lineNum">     140 </span>                :<span class="lineNoCov">          0 :                 host_services_occ_base_setup();</span>
+<span class="lineNum">     140 </span>                :<span class="lineCov">          1 :                 host_services_occ_base_setup();</span>
 <span class="lineNum">     141 </span>                :            :         }
 <span class="lineNum">     142 </span>                :            : }
 <span class="lineNum">     143 </span>                :            : 

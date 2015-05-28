@@ -31,27 +31,27 @@
             <td class="headerValue">skiboot-boot.info</td>
             <td></td>
             <td class="headerItem">Lines:</td>
-            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">274</td>
             <td class="headerCovTableEntry">462</td>
-            <td class="headerCovTableEntryLo">0.9 %</td>
+            <td class="headerCovTableEntryLo">59.3 %</td>
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-27</td>
+            <td class="headerValue">2015-05-28</td>
             <td></td>
             <td class="headerItem">Functions:</td>
-            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">15</td>
             <td class="headerCovTableEntry">23</td>
-            <td class="headerCovTableEntryLo">4.3 %</td>
+            <td class="headerCovTableEntryLo">65.2 %</td>
           </tr>
           <tr>
             <td></td>
             <td></td>
             <td></td>
             <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">114</td>
             <td class="headerCovTableEntry">248</td>
-            <td class="headerCovTableEntryLo">0.4 %</td>
+            <td class="headerCovTableEntryLo">46.0 %</td>
           </tr>
           <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -200,71 +200,71 @@
 <span class="lineNum">     129 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;FSPCON: Closed consoles due to FSP reset/reload\n&quot;);</span>
 <a name="130"><span class="lineNum">     130 </span>                :<span class="lineNoCov">          0 : }</span></a>
 <span class="lineNum">     131 </span>                :            : 
-<span class="lineNum">     132 </span>                :<span class="lineNoCov">          0 : static void fsp_pokemsg_reclaim(struct fsp_msg *msg)</span>
+<span class="lineNum">     132 </span>                :<span class="lineCov">        159 : static void fsp_pokemsg_reclaim(struct fsp_msg *msg)</span>
 <span class="lineNum">     133 </span>                :            : {
-<span class="lineNum">     134 </span>                :<span class="lineNoCov">          0 :         struct fsp_serial *fs = msg-&gt;user_data;</span>
+<span class="lineNum">     134 </span>                :<span class="lineCov">        159 :         struct fsp_serial *fs = msg-&gt;user_data;</span>
 <span class="lineNum">     135 </span>                :            : 
 <span class="lineNum">     136 </span>                :            :         /*
 <span class="lineNum">     137 </span>                :            :          * The poke_msg might have been &quot;detached&quot; from the console
 <span class="lineNum">     138 </span>                :            :          * in vserial_close, so we need to check whether it's current
 <span class="lineNum">     139 </span>                :            :          * before touching the state, otherwise, just free it
 <span class="lineNum">     140 </span>                :            :          */
-<span class="lineNum">     141 </span>                :<span class="lineNoCov">          0 :         lock(&amp;fsp_con_lock);</span>
-<span class="lineNum">     142 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fs-&gt;open &amp;&amp; fs-&gt;poke_msg == msg) {</span>
-<span class="lineNum">     143 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (fs-&gt;out_poke) {</span>
-<span class="lineNum">     144 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (fsp_queue_msg(fs-&gt;poke_msg, fsp_pokemsg_reclaim)) {</span>
+<span class="lineNum">     141 </span>                :<span class="lineCov">        159 :         lock(&amp;fsp_con_lock);</span>
+<span class="lineNum">     142 </span>[<span class="branchCov" title="Branch 2 was taken 159 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 0 was taken 159 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        159 :         if (fs-&gt;open &amp;&amp; fs-&gt;poke_msg == msg) {</span>
+<span class="lineNum">     143 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 153 times"> + </span>]:<span class="lineCov">        159 :                 if (fs-&gt;out_poke) {</span>
+<span class="lineNum">     144 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                         if (fsp_queue_msg(fs-&gt;poke_msg, fsp_pokemsg_reclaim)) {</span>
 <span class="lineNum">     145 </span>                :<span class="lineNoCov">          0 :                                 prerror(&quot;FSPCON: failed to queue poke msg\n&quot;);</span>
 <span class="lineNum">     146 </span>                :<span class="lineNoCov">          0 :                                 fsp_freemsg(msg);</span>
 <span class="lineNum">     147 </span>                :            :                         } else {
-<span class="lineNum">     148 </span>                :<span class="lineNoCov">          0 :                                 fs-&gt;out_poke = false;</span>
+<span class="lineNum">     148 </span>                :<span class="lineCov">          6 :                                 fs-&gt;out_poke = false;</span>
 <span class="lineNum">     149 </span>                :            :                         }
 <span class="lineNum">     150 </span>                :            :                 } else
-<span class="lineNum">     151 </span>                :<span class="lineNoCov">          0 :                         fs-&gt;poke_msg-&gt;state = fsp_msg_unused;</span>
+<span class="lineNum">     151 </span>                :<span class="lineCov">        153 :                         fs-&gt;poke_msg-&gt;state = fsp_msg_unused;</span>
 <span class="lineNum">     152 </span>                :            :         } else
 <span class="lineNum">     153 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(msg);</span>
-<span class="lineNum">     154 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;fsp_con_lock);</span>
-<span class="lineNum">     155 </span>                :<span class="lineNoCov">          0 : }</span>
+<span class="lineNum">     154 </span>                :<span class="lineCov">        159 :         unlock(&amp;fsp_con_lock);</span>
+<span class="lineNum">     155 </span>                :<span class="lineCov">        159 : }</span>
 <a name="156"><span class="lineNum">     156 </span>                :            : </a>
 <span class="lineNum">     157 </span>                :            : /* Called with the fsp_con_lock held */
-<span class="lineNum">     158 </span>                :<span class="lineNoCov">          0 : static size_t fsp_write_vserial(struct fsp_serial *fs, const char *buf,</span>
+<span class="lineNum">     158 </span>                :<span class="lineCov">      22490 : static size_t fsp_write_vserial(struct fsp_serial *fs, const char *buf,</span>
 <span class="lineNum">     159 </span>                :            :                                 size_t len)
 <span class="lineNum">     160 </span>                :            : {
-<span class="lineNum">     161 </span>                :<span class="lineNoCov">          0 :         struct fsp_serbuf_hdr *sb = fs-&gt;out_buf;</span>
-<span class="lineNum">     162 </span>                :<span class="lineNoCov">          0 :         u16 old_nin = sb-&gt;next_in;</span>
+<span class="lineNum">     161 </span>                :<span class="lineCov">      22490 :         struct fsp_serbuf_hdr *sb = fs-&gt;out_buf;</span>
+<span class="lineNum">     162 </span>                :<span class="lineCov">      22490 :         u16 old_nin = sb-&gt;next_in;</span>
 <span class="lineNum">     163 </span>                :            :         u16 space, chunk;
 <span class="lineNum">     164 </span>                :            : 
-<span class="lineNum">     165 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fs-&gt;open)</span>
+<span class="lineNum">     165 </span>        [<span class="branchCov" title="Branch 0 was taken 22490 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">      22490 :         if (!fs-&gt;open)</span>
 <span class="lineNum">     166 </span>                :            :                 return 0;
 <span class="lineNum">     167 </span>                :            : 
-<span class="lineNum">     168 </span>                :<span class="lineNoCov">          0 :         space = (sb-&gt;next_out + SER_BUF_DATA_SIZE - old_nin - 1)</span>
-<span class="lineNum">     169 </span>                :<span class="lineNoCov">          0 :                 % SER_BUF_DATA_SIZE;</span>
-<span class="lineNum">     170 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (space &lt; len)</span>
+<span class="lineNum">     168 </span>                :<span class="lineCov">      44980 :         space = (sb-&gt;next_out + SER_BUF_DATA_SIZE - old_nin - 1)</span>
+<span class="lineNum">     169 </span>                :<span class="lineCov">      22490 :                 % SER_BUF_DATA_SIZE;</span>
+<span class="lineNum">     170 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 22490 times"> + </span>]:<span class="lineCov">      22490 :         if (space &lt; len)</span>
 <span class="lineNum">     171 </span>                :<span class="lineNoCov">          0 :                 len = space;</span>
-<span class="lineNum">     172 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!len)</span>
+<span class="lineNum">     172 </span>        [<span class="branchCov" title="Branch 0 was taken 22490 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">      22490 :         if (!len)</span>
 <span class="lineNum">     173 </span>                :            :                 return 0;
 <span class="lineNum">     174 </span>                :            : 
-<span class="lineNum">     175 </span>                :<span class="lineNoCov">          0 :         chunk = SER_BUF_DATA_SIZE - old_nin;</span>
-<span class="lineNum">     176 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (chunk &gt; len)</span>
-<span class="lineNum">     177 </span>                :<span class="lineNoCov">          0 :                 chunk = len;</span>
-<span class="lineNum">     178 </span>                :<span class="lineNoCov">          0 :         memcpy(&amp;sb-&gt;data[old_nin], buf, chunk);</span>
-<span class="lineNum">     179 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (chunk &lt; len)</span>
+<span class="lineNum">     175 </span>                :<span class="lineCov">      22490 :         chunk = SER_BUF_DATA_SIZE - old_nin;</span>
+<span class="lineNum">     176 </span>        [<span class="branchCov" title="Branch 0 was taken 22490 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">      22490 :         if (chunk &gt; len)</span>
+<span class="lineNum">     177 </span>                :<span class="lineCov">      22490 :                 chunk = len;</span>
+<span class="lineNum">     178 </span>                :<span class="lineCov">      22490 :         memcpy(&amp;sb-&gt;data[old_nin], buf, chunk);</span>
+<span class="lineNum">     179 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 22490 times"> + </span>]:<span class="lineCov">      22490 :         if (chunk &lt; len)</span>
 <span class="lineNum">     180 </span>                :<span class="lineNoCov">          0 :                 memcpy(&amp;sb-&gt;data[0], buf + chunk, len - chunk);</span>
 <span class="lineNum">     181 </span>                :            :         lwsync();
-<span class="lineNum">     182 </span>                :<span class="lineNoCov">          0 :         sb-&gt;next_in = (old_nin + len) % SER_BUF_DATA_SIZE;</span>
+<span class="lineNum">     182 </span>                :<span class="lineCov">      22490 :         sb-&gt;next_in = (old_nin + len) % SER_BUF_DATA_SIZE;</span>
 <span class="lineNum">     183 </span>                :            :         sync();
 <span class="lineNum">     184 </span>                :            : 
-<span class="lineNum">     185 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (sb-&gt;next_out == old_nin &amp;&amp; fs-&gt;poke_msg) {</span>
-<span class="lineNum">     186 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (fs-&gt;poke_msg-&gt;state == fsp_msg_unused) {</span>
-<span class="lineNum">     187 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         if (fsp_queue_msg(fs-&gt;poke_msg, fsp_pokemsg_reclaim))</span>
+<span class="lineNum">     185 </span>[<span class="branchCov" title="Branch 2 was taken 159 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 0 was taken 159 times"> + </span><span class="branchCov" title="Branch 1 was taken 22331 times"> + </span>]:<span class="lineCov">      22490 :         if (sb-&gt;next_out == old_nin &amp;&amp; fs-&gt;poke_msg) {</span>
+<span class="lineNum">     186 </span>        [<span class="branchCov" title="Branch 0 was taken 153 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">        159 :                 if (fs-&gt;poke_msg-&gt;state == fsp_msg_unused) {</span>
+<span class="lineNum">     187 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 153 times"> + </span>]:<span class="lineCov">        153 :                         if (fsp_queue_msg(fs-&gt;poke_msg, fsp_pokemsg_reclaim))</span>
 <span class="lineNum">     188 </span>                :<span class="lineNoCov">          0 :                                 prerror(&quot;FSPCON: poke msg queuing failed\n&quot;);</span>
 <span class="lineNum">     189 </span>                :            :                 } else
-<span class="lineNum">     190 </span>                :<span class="lineNoCov">          0 :                         fs-&gt;out_poke = true;</span>
+<span class="lineNum">     190 </span>                :<span class="lineCov">          6 :                         fs-&gt;out_poke = true;</span>
 <span class="lineNum">     191 </span>                :            :         }
 <span class="lineNum">     192 </span>                :            : #ifndef DISABLE_CON_PENDING_EVT
 <span class="lineNum">     193 </span>                :            :         opal_update_pending_evt(OPAL_EVENT_CONSOLE_OUTPUT,
 <span class="lineNum">     194 </span>                :            :                                 OPAL_EVENT_CONSOLE_OUTPUT);
 <span class="lineNum">     195 </span>                :            : #endif
-<span class="lineNum">     196 </span>                :<span class="lineNoCov">          0 :         return len;</span>
+<span class="lineNum">     196 </span>                :<span class="lineCov">      22490 :         return len;</span>
 <span class="lineNum">     197 </span>                :            : }
 <span class="lineNum">     198 </span>                :            : 
 <span class="lineNum">     199 </span>                :            : #ifdef DVS_CONSOLE
@@ -297,26 +297,26 @@
 <span class="lineNum">     226 </span>                :            : };
 <a name="227"><span class="lineNum">     227 </span>                :            : #endif /* DVS_CONSOLE */</a>
 <span class="lineNum">     228 </span>                :            : 
-<span class="lineNum">     229 </span>                :<span class="lineNoCov">          0 : static void fsp_open_vserial(struct fsp_msg *msg)</span>
+<span class="lineNum">     229 </span>                :<span class="lineCov">          4 : static void fsp_open_vserial(struct fsp_msg *msg)</span>
 <span class="lineNum">     230 </span>                :            : {
 <span class="lineNum">     231 </span>                :            :         struct fsp_msg *resp;
 <span class="lineNum">     232 </span>                :            : 
-<span class="lineNum">     233 </span>                :<span class="lineNoCov">          0 :         u16 part_id = msg-&gt;data.words[0] &amp; 0xffff;</span>
-<span class="lineNum">     234 </span>                :<span class="lineNoCov">          0 :         u16 sess_id = msg-&gt;data.words[1] &amp; 0xffff;</span>
-<span class="lineNum">     235 </span>                :<span class="lineNoCov">          0 :         u8 hmc_sess = msg-&gt;data.bytes[0];    </span>
-<span class="lineNum">     236 </span>                :<span class="lineNoCov">          0 :         u8 hmc_indx = msg-&gt;data.bytes[1];</span>
-<span class="lineNum">     237 </span>                :<span class="lineNoCov">          0 :         u8 authority = msg-&gt;data.bytes[4];</span>
+<span class="lineNum">     233 </span>                :<span class="lineCov">          4 :         u16 part_id = msg-&gt;data.words[0] &amp; 0xffff;</span>
+<span class="lineNum">     234 </span>                :<span class="lineCov">          4 :         u16 sess_id = msg-&gt;data.words[1] &amp; 0xffff;</span>
+<span class="lineNum">     235 </span>                :<span class="lineCov">          4 :         u8 hmc_sess = msg-&gt;data.bytes[0];    </span>
+<span class="lineNum">     236 </span>                :<span class="lineCov">          4 :         u8 hmc_indx = msg-&gt;data.bytes[1];</span>
+<span class="lineNum">     237 </span>                :<span class="lineCov">          4 :         u8 authority = msg-&gt;data.bytes[4];</span>
 <span class="lineNum">     238 </span>                :            :         u32 tce_in, tce_out;
 <span class="lineNum">     239 </span>                :            :         struct fsp_serial *fs;
 <span class="lineNum">     240 </span>                :            : 
-<span class="lineNum">     241 </span>                :<span class="lineNoCov">          0 :         prlog(PR_INFO, &quot;FSPCON: Got VSerial Open\n&quot;);</span>
-<span class="lineNum">     242 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;  part_id   = 0x%04x\n&quot;, part_id);</span>
-<span class="lineNum">     243 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;  sess_id   = 0x%04x\n&quot;, sess_id);</span>
-<span class="lineNum">     244 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;  hmc_sess  = 0x%02x\n&quot;, hmc_sess);</span>
-<span class="lineNum">     245 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;  hmc_indx  = 0x%02x\n&quot;, hmc_indx);</span>
-<span class="lineNum">     246 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;  authority = 0x%02x\n&quot;, authority);</span>
+<span class="lineNum">     241 </span>                :<span class="lineCov">          4 :         prlog(PR_INFO, &quot;FSPCON: Got VSerial Open\n&quot;);</span>
+<span class="lineNum">     242 </span>                :<span class="lineCov">          4 :         prlog(PR_DEBUG, &quot;  part_id   = 0x%04x\n&quot;, part_id);</span>
+<span class="lineNum">     243 </span>                :<span class="lineCov">          4 :         prlog(PR_DEBUG, &quot;  sess_id   = 0x%04x\n&quot;, sess_id);</span>
+<span class="lineNum">     244 </span>                :<span class="lineCov">          4 :         prlog(PR_DEBUG, &quot;  hmc_sess  = 0x%02x\n&quot;, hmc_sess);</span>
+<span class="lineNum">     245 </span>                :<span class="lineCov">          4 :         prlog(PR_DEBUG, &quot;  hmc_indx  = 0x%02x\n&quot;, hmc_indx);</span>
+<span class="lineNum">     246 </span>                :<span class="lineCov">          4 :         prlog(PR_DEBUG, &quot;  authority = 0x%02x\n&quot;, authority);</span>
 <span class="lineNum">     247 </span>                :            : 
-<span class="lineNum">     248 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (sess_id &gt;= MAX_SERIAL || !fsp_serials[sess_id].available) {</span>
+<span class="lineNum">     248 </span>[<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :         if (sess_id &gt;= MAX_SERIAL || !fsp_serials[sess_id].available) {</span>
 <span class="lineNum">     249 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_WARNING, &quot;FSPCON: 0x%04x  NOT AVAILABLE!\n&quot;, sess_id);</span>
 <span class="lineNum">     250 </span>                :<span class="lineNoCov">          0 :                 resp = fsp_mkmsg(FSP_RSP_OPEN_VSERIAL | 0x2f, 0);</span>
 <span class="lineNum">     251 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!resp) {</span>
@@ -330,7 +330,7 @@
 <span class="lineNum">     259 </span>                :            :                 return;
 <span class="lineNum">     260 </span>                :            :         }
 <span class="lineNum">     261 </span>                :            : 
-<span class="lineNum">     262 </span>                :<span class="lineNoCov">          0 :         fs = &amp;fsp_serials[sess_id];</span>
+<span class="lineNum">     262 </span>                :<span class="lineCov">          4 :         fs = &amp;fsp_serials[sess_id];</span>
 <span class="lineNum">     263 </span>                :            : 
 <span class="lineNum">     264 </span>                :            :         /* Hack ! On blades, the console opened via the mm has partition 1
 <span class="lineNum">     265 </span>                :            :          * while the debug DVS generally has partition 0 (though you can
@@ -339,60 +339,60 @@
 <span class="lineNum">     268 </span>                :            :          * thus if it's a raw console, gets an open with partID 1, we
 <span class="lineNum">     269 </span>                :            :          * set a flag that ignores the close of partid 0
 <span class="lineNum">     270 </span>                :            :          */
-<span class="lineNum">     271 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fs-&gt;rsrc_id == 0xffff) {</span>
-<span class="lineNum">     272 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (part_id == 0)</span>
+<span class="lineNum">     271 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          4 :         if (fs-&gt;rsrc_id == 0xffff) {</span>
+<span class="lineNum">     272 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 if (part_id == 0)</span>
 <span class="lineNum">     273 </span>                :<span class="lineNoCov">          0 :                         fs-&gt;has_part0 = true;</span>
-<span class="lineNum">     274 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (part_id == 1)</span>
-<span class="lineNum">     275 </span>                :<span class="lineNoCov">          0 :                         fs-&gt;has_part1 = true;</span>
+<span class="lineNum">     274 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :                 if (part_id == 1)</span>
+<span class="lineNum">     275 </span>                :<span class="lineCov">          2 :                         fs-&gt;has_part1 = true;</span>
 <span class="lineNum">     276 </span>                :            :         }
 <span class="lineNum">     277 </span>                :            : 
-<span class="lineNum">     278 </span>                :<span class="lineNoCov">          0 :         tce_in = PSI_DMA_SER0_BASE + PSI_DMA_SER0_SIZE * sess_id;</span>
-<span class="lineNum">     279 </span>                :<span class="lineNoCov">          0 :         tce_out = tce_in + SER_BUFFER_SIZE/2;</span>
+<span class="lineNum">     278 </span>                :<span class="lineCov">          4 :         tce_in = PSI_DMA_SER0_BASE + PSI_DMA_SER0_SIZE * sess_id;</span>
+<span class="lineNum">     279 </span>                :<span class="lineCov">          4 :         tce_out = tce_in + SER_BUFFER_SIZE/2;</span>
 <span class="lineNum">     280 </span>                :            : 
-<span class="lineNum">     281 </span>                :<span class="lineNoCov">          0 :         lock(&amp;fsp_con_lock);</span>
-<span class="lineNum">     282 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fs-&gt;open) {</span>
+<span class="lineNum">     281 </span>                :<span class="lineCov">          4 :         lock(&amp;fsp_con_lock);</span>
+<span class="lineNum">     282 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :         if (fs-&gt;open) {</span>
 <span class="lineNum">     283 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_DEBUG, &quot;  already open, skipping init !\n&quot;);</span>
 <span class="lineNum">     284 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;fsp_con_lock);</span>
 <span class="lineNum">     285 </span>                :<span class="lineNoCov">          0 :                 goto already_open;</span>
 <span class="lineNum">     286 </span>                :            :         }
 <span class="lineNum">     287 </span>                :            : 
-<span class="lineNum">     288 </span>                :<span class="lineNoCov">          0 :         fs-&gt;open = true;</span>
+<span class="lineNum">     288 </span>                :<span class="lineCov">          4 :         fs-&gt;open = true;</span>
 <span class="lineNum">     289 </span>                :            : 
-<span class="lineNum">     290 </span>                :<span class="lineNoCov">          0 :         fs-&gt;poke_msg = fsp_mkmsg(FSP_CMD_VSERIAL_OUT, 2,</span>
+<span class="lineNum">     290 </span>                :<span class="lineCov">          4 :         fs-&gt;poke_msg = fsp_mkmsg(FSP_CMD_VSERIAL_OUT, 2,</span>
 <span class="lineNum">     291 </span>                :            :                                  msg-&gt;data.words[0],
-<span class="lineNum">     292 </span>                :<span class="lineNoCov">          0 :                                  msg-&gt;data.words[1] &amp; 0xffff);</span>
-<span class="lineNum">     293 </span>                :<span class="lineNoCov">          0 :         fs-&gt;poke_msg-&gt;user_data = fs;</span>
+<span class="lineNum">     292 </span>                :<span class="lineCov">          4 :                                  msg-&gt;data.words[1] &amp; 0xffff);</span>
+<span class="lineNum">     293 </span>                :<span class="lineCov">          4 :         fs-&gt;poke_msg-&gt;user_data = fs;</span>
 <span class="lineNum">     294 </span>                :            : 
-<span class="lineNum">     295 </span>                :<span class="lineNoCov">          0 :         fs-&gt;in_buf-&gt;partition_id = fs-&gt;out_buf-&gt;partition_id = part_id;</span>
-<span class="lineNum">     296 </span>                :<span class="lineNoCov">          0 :         fs-&gt;in_buf-&gt;session_id     = fs-&gt;out_buf-&gt;session_id   = sess_id;</span>
-<span class="lineNum">     297 </span>                :<span class="lineNoCov">          0 :         fs-&gt;in_buf-&gt;hmc_id       = fs-&gt;out_buf-&gt;hmc_id       = hmc_indx;</span>
-<span class="lineNum">     298 </span>                :<span class="lineNoCov">          0 :         fs-&gt;in_buf-&gt;data_offset  = fs-&gt;out_buf-&gt;data_offset  =</span>
+<span class="lineNum">     295 </span>                :<span class="lineCov">          4 :         fs-&gt;in_buf-&gt;partition_id = fs-&gt;out_buf-&gt;partition_id = part_id;</span>
+<span class="lineNum">     296 </span>                :<span class="lineCov">          4 :         fs-&gt;in_buf-&gt;session_id     = fs-&gt;out_buf-&gt;session_id   = sess_id;</span>
+<span class="lineNum">     297 </span>                :<span class="lineCov">          4 :         fs-&gt;in_buf-&gt;hmc_id       = fs-&gt;out_buf-&gt;hmc_id       = hmc_indx;</span>
+<span class="lineNum">     298 </span>                :<span class="lineCov">          4 :         fs-&gt;in_buf-&gt;data_offset  = fs-&gt;out_buf-&gt;data_offset  =</span>
 <span class="lineNum">     299 </span>                :            :                 sizeof(struct fsp_serbuf_hdr);
-<span class="lineNum">     300 </span>                :<span class="lineNoCov">          0 :         fs-&gt;in_buf-&gt;last_valid   = fs-&gt;out_buf-&gt;last_valid   =</span>
+<span class="lineNum">     300 </span>                :<span class="lineCov">          4 :         fs-&gt;in_buf-&gt;last_valid   = fs-&gt;out_buf-&gt;last_valid   =</span>
 <span class="lineNum">     301 </span>                :            :                 SER_BUF_DATA_SIZE - 1;
-<span class="lineNum">     302 </span>                :<span class="lineNoCov">          0 :         fs-&gt;in_buf-&gt;ovf_count    = fs-&gt;out_buf-&gt;ovf_count    = 0;</span>
-<span class="lineNum">     303 </span>                :<span class="lineNoCov">          0 :         fs-&gt;in_buf-&gt;next_in      = fs-&gt;out_buf-&gt;next_in      = 0;</span>
-<span class="lineNum">     304 </span>                :<span class="lineNoCov">          0 :         fs-&gt;in_buf-&gt;flags        = fs-&gt;out_buf-&gt;flags        = 0;</span>
-<span class="lineNum">     305 </span>                :<span class="lineNoCov">          0 :         fs-&gt;in_buf-&gt;reserved     = fs-&gt;out_buf-&gt;reserved     = 0;</span>
-<span class="lineNum">     306 </span>                :<span class="lineNoCov">          0 :         fs-&gt;in_buf-&gt;next_out     = fs-&gt;out_buf-&gt;next_out     = 0;</span>
-<span class="lineNum">     307 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;fsp_con_lock);</span>
+<span class="lineNum">     302 </span>                :<span class="lineCov">          4 :         fs-&gt;in_buf-&gt;ovf_count    = fs-&gt;out_buf-&gt;ovf_count    = 0;</span>
+<span class="lineNum">     303 </span>                :<span class="lineCov">          4 :         fs-&gt;in_buf-&gt;next_in      = fs-&gt;out_buf-&gt;next_in      = 0;</span>
+<span class="lineNum">     304 </span>                :<span class="lineCov">          4 :         fs-&gt;in_buf-&gt;flags        = fs-&gt;out_buf-&gt;flags        = 0;</span>
+<span class="lineNum">     305 </span>                :<span class="lineCov">          4 :         fs-&gt;in_buf-&gt;reserved     = fs-&gt;out_buf-&gt;reserved     = 0;</span>
+<span class="lineNum">     306 </span>                :<span class="lineCov">          4 :         fs-&gt;in_buf-&gt;next_out     = fs-&gt;out_buf-&gt;next_out     = 0;</span>
+<span class="lineNum">     307 </span>                :<span class="lineCov">          4 :         unlock(&amp;fsp_con_lock);</span>
 <span class="lineNum">     308 </span>                :            : 
 <span class="lineNum">     309 </span>                :            :  already_open:
-<span class="lineNum">     310 </span>                :<span class="lineNoCov">          0 :         resp = fsp_mkmsg(FSP_RSP_OPEN_VSERIAL, 6, msg-&gt;data.words[0],</span>
-<span class="lineNum">     311 </span>                :<span class="lineNoCov">          0 :                         msg-&gt;data.words[1] &amp; 0xffff, 0, tce_in, 0, tce_out);</span>
-<span class="lineNum">     312 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!resp) {</span>
+<span class="lineNum">     310 </span>                :<span class="lineCov">          4 :         resp = fsp_mkmsg(FSP_RSP_OPEN_VSERIAL, 6, msg-&gt;data.words[0],</span>
+<span class="lineNum">     311 </span>                :<span class="lineCov">          4 :                         msg-&gt;data.words[1] &amp; 0xffff, 0, tce_in, 0, tce_out);</span>
+<span class="lineNum">     312 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :         if (!resp) {</span>
 <span class="lineNum">     313 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FSPCON: Failed to allocate open msg response\n&quot;);</span>
 <span class="lineNum">     314 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">     315 </span>                :            :         }
-<span class="lineNum">     316 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_queue_msg(resp, fsp_freemsg)) {</span>
+<span class="lineNum">     316 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 4 times"> + </span>]:<span class="lineCov">          4 :         if (fsp_queue_msg(resp, fsp_freemsg)) {</span>
 <span class="lineNum">     317 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(resp);</span>
 <span class="lineNum">     318 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FSPCON: Failed to queue open msg response\n&quot;);</span>
 <span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">     320 </span>                :            :         }
 <span class="lineNum">     321 </span>                :            : 
 <span class="lineNum">     322 </span>                :            : #ifdef DVS_CONSOLE
-<span class="lineNum">     323 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;  log_port  = %d\n&quot;, fs-&gt;log_port);</span>
-<span class="lineNum">     324 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fs-&gt;log_port) {</span>
+<span class="lineNum">     323 </span>                :<span class="lineCov">          4 :         prlog(PR_DEBUG, &quot;  log_port  = %d\n&quot;, fs-&gt;log_port);</span>
+<span class="lineNum">     324 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :         if (fs-&gt;log_port) {</span>
 <span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 :                 fsp_con_port = sess_id;</span>
 <span class="lineNum">     326 </span>                :            :                 sync();
 <span class="lineNum">     327 </span>                :            :                 /*
@@ -410,104 +410,104 @@
 <span class="lineNum">     339 </span>                :            : #endif
 <a name="340"><span class="lineNum">     340 </span>                :            : }</a>
 <span class="lineNum">     341 </span>                :            : 
-<span class="lineNum">     342 </span>                :<span class="lineNoCov">          0 : static void fsp_close_vserial(struct fsp_msg *msg)</span>
+<span class="lineNum">     342 </span>                :<span class="lineCov">          6 : static void fsp_close_vserial(struct fsp_msg *msg)</span>
 <span class="lineNum">     343 </span>                :            : {
-<span class="lineNum">     344 </span>                :<span class="lineNoCov">          0 :         u16 part_id = msg-&gt;data.words[0] &amp; 0xffff;</span>
-<span class="lineNum">     345 </span>                :<span class="lineNoCov">          0 :         u16 sess_id = msg-&gt;data.words[1] &amp; 0xffff;</span>
-<span class="lineNum">     346 </span>                :<span class="lineNoCov">          0 :         u8 hmc_sess = msg-&gt;data.bytes[0];    </span>
-<span class="lineNum">     347 </span>                :<span class="lineNoCov">          0 :         u8 hmc_indx = msg-&gt;data.bytes[1];</span>
-<span class="lineNum">     348 </span>                :<span class="lineNoCov">          0 :         u8 authority = msg-&gt;data.bytes[4];</span>
+<span class="lineNum">     344 </span>                :<span class="lineCov">          6 :         u16 part_id = msg-&gt;data.words[0] &amp; 0xffff;</span>
+<span class="lineNum">     345 </span>                :<span class="lineCov">          6 :         u16 sess_id = msg-&gt;data.words[1] &amp; 0xffff;</span>
+<span class="lineNum">     346 </span>                :<span class="lineCov">          6 :         u8 hmc_sess = msg-&gt;data.bytes[0];    </span>
+<span class="lineNum">     347 </span>                :<span class="lineCov">          6 :         u8 hmc_indx = msg-&gt;data.bytes[1];</span>
+<span class="lineNum">     348 </span>                :<span class="lineCov">          6 :         u8 authority = msg-&gt;data.bytes[4];</span>
 <span class="lineNum">     349 </span>                :            :         struct fsp_serial *fs;
 <span class="lineNum">     350 </span>                :            :         struct fsp_msg *resp;
 <span class="lineNum">     351 </span>                :            : 
-<span class="lineNum">     352 </span>                :<span class="lineNoCov">          0 :         prlog(PR_INFO, &quot;FSPCON: Got VSerial Close\n&quot;);</span>
-<span class="lineNum">     353 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;  part_id   = 0x%04x\n&quot;, part_id);</span>
-<span class="lineNum">     354 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;  sess_id   = 0x%04x\n&quot;, sess_id);</span>
-<span class="lineNum">     355 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;  hmc_sess  = 0x%02x\n&quot;, hmc_sess);</span>
-<span class="lineNum">     356 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;  hmc_indx  = 0x%02x\n&quot;, hmc_indx);</span>
-<span class="lineNum">     357 </span>                :<span class="lineNoCov">          0 :         prlog(PR_DEBUG, &quot;  authority = 0x%02x\n&quot;, authority);</span>
+<span class="lineNum">     352 </span>                :<span class="lineCov">          6 :         prlog(PR_INFO, &quot;FSPCON: Got VSerial Close\n&quot;);</span>
+<span class="lineNum">     353 </span>                :<span class="lineCov">          6 :         prlog(PR_DEBUG, &quot;  part_id   = 0x%04x\n&quot;, part_id);</span>
+<span class="lineNum">     354 </span>                :<span class="lineCov">          6 :         prlog(PR_DEBUG, &quot;  sess_id   = 0x%04x\n&quot;, sess_id);</span>
+<span class="lineNum">     355 </span>                :<span class="lineCov">          6 :         prlog(PR_DEBUG, &quot;  hmc_sess  = 0x%02x\n&quot;, hmc_sess);</span>
+<span class="lineNum">     356 </span>                :<span class="lineCov">          6 :         prlog(PR_DEBUG, &quot;  hmc_indx  = 0x%02x\n&quot;, hmc_indx);</span>
+<span class="lineNum">     357 </span>                :<span class="lineCov">          6 :         prlog(PR_DEBUG, &quot;  authority = 0x%02x\n&quot;, authority);</span>
 <span class="lineNum">     358 </span>                :            : 
-<span class="lineNum">     359 </span>[<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>][<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (sess_id &gt;= MAX_SERIAL || !fsp_serials[sess_id].available) {</span>
+<span class="lineNum">     359 </span>[<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span>][<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (sess_id &gt;= MAX_SERIAL || !fsp_serials[sess_id].available) {</span>
 <span class="lineNum">     360 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_WARNING, &quot;FSPCON: 0x%04x  NOT AVAILABLE!\n&quot;, sess_id);</span>
 <span class="lineNum">     361 </span>                :<span class="lineNoCov">          0 :                 goto skip_close;</span>
 <span class="lineNum">     362 </span>                :            :         }
 <span class="lineNum">     363 </span>                :            : 
-<span class="lineNum">     364 </span>                :<span class="lineNoCov">          0 :         fs = &amp;fsp_serials[sess_id];</span>
+<span class="lineNum">     364 </span>                :<span class="lineCov">          6 :         fs = &amp;fsp_serials[sess_id];</span>
 <span class="lineNum">     365 </span>                :            : 
 <span class="lineNum">     366 </span>                :            :         /* See &quot;HACK&quot; comment in open */
-<span class="lineNum">     367 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fs-&gt;rsrc_id == 0xffff) {</span>
-<span class="lineNum">     368 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (part_id == 0)</span>
+<span class="lineNum">     367 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :         if (fs-&gt;rsrc_id == 0xffff) {</span>
+<span class="lineNum">     368 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                 if (part_id == 0)</span>
 <span class="lineNum">     369 </span>                :<span class="lineNoCov">          0 :                         fs-&gt;has_part0 = false;</span>
-<span class="lineNum">     370 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (part_id == 1)</span>
-<span class="lineNum">     371 </span>                :<span class="lineNoCov">          0 :                         fs-&gt;has_part1 = false;</span>
-<span class="lineNum">     372 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (fs-&gt;has_part0 || fs-&gt;has_part1) {</span>
+<span class="lineNum">     370 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :                 if (part_id == 1)</span>
+<span class="lineNum">     371 </span>                :<span class="lineCov">          6 :                         fs-&gt;has_part1 = false;</span>
+<span class="lineNum">     372 </span>[<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 6 times"> + </span>]:<span class="lineCov">          6 :                 if (fs-&gt;has_part0 || fs-&gt;has_part1) {</span>
 <span class="lineNum">     373 </span>                :<span class="lineNoCov">          0 :                         prlog(PR_DEBUG, &quot;  skipping close !\n&quot;);</span>
 <span class="lineNum">     374 </span>                :<span class="lineNoCov">          0 :                         goto skip_close;</span>
 <span class="lineNum">     375 </span>                :            :                 }
 <span class="lineNum">     376 </span>                :            :         }
 <span class="lineNum">     377 </span>                :            : 
 <span class="lineNum">     378 </span>                :            : #ifdef DVS_CONSOLE
-<span class="lineNum">     379 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fs-&gt;log_port) {</span>
+<span class="lineNum">     379 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (fs-&gt;log_port) {</span>
 <span class="lineNum">     380 </span>                :<span class="lineNoCov">          0 :                 fsp_con_port = -1;</span>
 <span class="lineNum">     381 </span>                :<span class="lineNoCov">          0 :                 set_console(NULL);</span>
 <span class="lineNum">     382 </span>                :            :         }
 <span class="lineNum">     383 </span>                :            : #endif
 <span class="lineNum">     384 </span>                :            :         
-<span class="lineNum">     385 </span>                :<span class="lineNoCov">          0 :         lock(&amp;fsp_con_lock);</span>
-<span class="lineNum">     386 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fs-&gt;open) {</span>
-<span class="lineNum">     387 </span>                :<span class="lineNoCov">          0 :                 fs-&gt;open = false;</span>
-<span class="lineNum">     388 </span>                :<span class="lineNoCov">          0 :                 fs-&gt;out_poke = false;</span>
-<span class="lineNum">     389 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (fs-&gt;poke_msg &amp;&amp; fs-&gt;poke_msg-&gt;state == fsp_msg_unused) {</span>
-<span class="lineNum">     390 </span>                :<span class="lineNoCov">          0 :                         fsp_freemsg(fs-&gt;poke_msg);</span>
-<span class="lineNum">     391 </span>                :<span class="lineNoCov">          0 :                         fs-&gt;poke_msg = NULL;</span>
+<span class="lineNum">     385 </span>                :<span class="lineCov">          6 :         lock(&amp;fsp_con_lock);</span>
+<span class="lineNum">     386 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          6 :         if (fs-&gt;open) {</span>
+<span class="lineNum">     387 </span>                :<span class="lineCov">          2 :                 fs-&gt;open = false;</span>
+<span class="lineNum">     388 </span>                :<span class="lineCov">          2 :                 fs-&gt;out_poke = false;</span>
+<span class="lineNum">     389 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          2 :                 if (fs-&gt;poke_msg &amp;&amp; fs-&gt;poke_msg-&gt;state == fsp_msg_unused) {</span>
+<span class="lineNum">     390 </span>                :<span class="lineCov">          2 :                         fsp_freemsg(fs-&gt;poke_msg);</span>
+<span class="lineNum">     391 </span>                :<span class="lineCov">          2 :                         fs-&gt;poke_msg = NULL;</span>
 <span class="lineNum">     392 </span>                :            :                 }
 <span class="lineNum">     393 </span>                :            :         }
-<span class="lineNum">     394 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;fsp_con_lock);</span>
+<span class="lineNum">     394 </span>                :<span class="lineCov">          6 :         unlock(&amp;fsp_con_lock);</span>
 <span class="lineNum">     395 </span>                :            :  skip_close:
-<span class="lineNum">     396 </span>                :<span class="lineNoCov">          0 :         resp = fsp_mkmsg(FSP_RSP_CLOSE_VSERIAL, 2, msg-&gt;data.words[0],</span>
-<span class="lineNum">     397 </span>                :<span class="lineNoCov">          0 :                         msg-&gt;data.words[1] &amp; 0xffff);</span>
-<span class="lineNum">     398 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!resp) {</span>
+<span class="lineNum">     396 </span>                :<span class="lineCov">          6 :         resp = fsp_mkmsg(FSP_RSP_CLOSE_VSERIAL, 2, msg-&gt;data.words[0],</span>
+<span class="lineNum">     397 </span>                :<span class="lineCov">          6 :                         msg-&gt;data.words[1] &amp; 0xffff);</span>
+<span class="lineNum">     398 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (!resp) {</span>
 <span class="lineNum">     399 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FSPCON: Failed to allocate close msg response\n&quot;);</span>
 <span class="lineNum">     400 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">     401 </span>                :            :         }
-<span class="lineNum">     402 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_queue_msg(resp, fsp_freemsg)) {</span>
+<span class="lineNum">     402 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (fsp_queue_msg(resp, fsp_freemsg)) {</span>
 <span class="lineNum">     403 </span>                :<span class="lineNoCov">          0 :                 fsp_freemsg(resp);</span>
 <span class="lineNum">     404 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FSPCON: Failed to queue close msg response\n&quot;);</span>
 <span class="lineNum">     405 </span>                :            :         }
 <a name="406"><span class="lineNum">     406 </span>                :            : }</a>
 <span class="lineNum">     407 </span>                :            : 
-<span class="lineNum">     408 </span>                :<span class="lineNoCov">          0 : static bool fsp_con_msg_hmc(u32 cmd_sub_mod, struct fsp_msg *msg)</span>
+<span class="lineNum">     408 </span>                :<span class="lineCov">         14 : static bool fsp_con_msg_hmc(u32 cmd_sub_mod, struct fsp_msg *msg)</span>
 <span class="lineNum">     409 </span>                :            : {
 <span class="lineNum">     410 </span>                :            :         struct fsp_msg *resp;
 <span class="lineNum">     411 </span>                :            : 
 <span class="lineNum">     412 </span>                :            :         /* Associate response */
-<span class="lineNum">     413 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((cmd_sub_mod &gt;&gt; 8) == 0xe08a) {</span>
-<span class="lineNum">     414 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_TRACE, &quot;FSPCON: Got associate response, status&quot;</span>
+<span class="lineNum">     413 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         14 :         if ((cmd_sub_mod &gt;&gt; 8) == 0xe08a) {</span>
+<span class="lineNum">     414 </span>                :<span class="lineCov">          2 :                 prlog(PR_TRACE, &quot;FSPCON: Got associate response, status&quot;</span>
 <span class="lineNum">     415 </span>                :            :                       &quot; 0x%02x\n&quot;, cmd_sub_mod &amp; 0xff);
-<span class="lineNum">     416 </span>                :<span class="lineNoCov">          0 :                 return true;</span>
+<span class="lineNum">     416 </span>                :<span class="lineCov">          2 :                 return true;</span>
 <span class="lineNum">     417 </span>                :            :         }
-<span class="lineNum">     418 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if ((cmd_sub_mod &gt;&gt; 8) == 0xe08b) {</span>
+<span class="lineNum">     418 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         12 :         if ((cmd_sub_mod &gt;&gt; 8) == 0xe08b) {</span>
 <span class="lineNum">     419 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_TRACE, &quot;Got unassociate response, status 0x%02x\n&quot;,</span>
 <span class="lineNum">     420 </span>                :            :                       cmd_sub_mod &amp; 0xff);
 <span class="lineNum">     421 </span>                :<span class="lineNoCov">          0 :                 return true;</span>
 <span class="lineNum">     422 </span>                :            :         }
-<span class="lineNum">     423 </span>  [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         switch(cmd_sub_mod) {</span>
+<span class="lineNum">     423 </span>  [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         12 :         switch(cmd_sub_mod) {</span>
 <span class="lineNum">     424 </span>                :            :         case FSP_CMD_OPEN_VSERIAL:
-<span class="lineNum">     425 </span>                :<span class="lineNoCov">          0 :                 fsp_open_vserial(msg);</span>
-<span class="lineNum">     426 </span>                :<span class="lineNoCov">          0 :                 return true;</span>
+<span class="lineNum">     425 </span>                :<span class="lineCov">          4 :                 fsp_open_vserial(msg);</span>
+<span class="lineNum">     426 </span>                :<span class="lineCov">          4 :                 return true;</span>
 <span class="lineNum">     427 </span>                :            :         case FSP_CMD_CLOSE_VSERIAL:
-<span class="lineNum">     428 </span>                :<span class="lineNoCov">          0 :                 fsp_close_vserial(msg);</span>
-<span class="lineNum">     429 </span>                :<span class="lineNoCov">          0 :                 return true;</span>
+<span class="lineNum">     428 </span>                :<span class="lineCov">          6 :                 fsp_close_vserial(msg);</span>
+<span class="lineNum">     429 </span>                :<span class="lineCov">          6 :                 return true;</span>
 <span class="lineNum">     430 </span>                :            :         case FSP_CMD_HMC_INTF_QUERY:
-<span class="lineNum">     431 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_DEBUG, &quot;FSPCON: Got HMC interface query\n&quot;);</span>
-<span class="lineNum">     432 </span>                :<span class="lineNoCov">          0 :                 got_intf_query = true;</span>
-<span class="lineNum">     433 </span>                :<span class="lineNoCov">          0 :                 resp = fsp_mkmsg(FSP_RSP_HMC_INTF_QUERY, 1,</span>
-<span class="lineNum">     434 </span>                :<span class="lineNoCov">          0 :                                 msg-&gt;data.words[0] &amp; 0x00ffffff);</span>
-<span class="lineNum">     435 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!resp) {</span>
+<span class="lineNum">     431 </span>                :<span class="lineCov">          2 :                 prlog(PR_DEBUG, &quot;FSPCON: Got HMC interface query\n&quot;);</span>
+<span class="lineNum">     432 </span>                :<span class="lineCov">          2 :                 got_intf_query = true;</span>
+<span class="lineNum">     433 </span>                :<span class="lineCov">          2 :                 resp = fsp_mkmsg(FSP_RSP_HMC_INTF_QUERY, 1,</span>
+<span class="lineNum">     434 </span>                :<span class="lineCov">          2 :                                 msg-&gt;data.words[0] &amp; 0x00ffffff);</span>
+<span class="lineNum">     435 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 if (!resp) {</span>
 <span class="lineNum">     436 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;FSPCON: Failed to allocate hmc intf response\n&quot;);</span>
 <span class="lineNum">     437 </span>                :<span class="lineNoCov">          0 :                         return true;</span>
 <span class="lineNum">     438 </span>                :            :                 }
-<span class="lineNum">     439 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (fsp_queue_msg(resp, fsp_freemsg)) {</span>
+<span class="lineNum">     439 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :                 if (fsp_queue_msg(resp, fsp_freemsg)) {</span>
 <span class="lineNum">     440 </span>                :<span class="lineNoCov">          0 :                         fsp_freemsg(resp);</span>
 <span class="lineNum">     441 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;FSPCON: Failed to queue hmc intf response\n&quot;);</span>
 <span class="lineNum">     442 </span>                :            :                 }
@@ -516,14 +516,14 @@
 <span class="lineNum">     445 </span>                :            :         return false;
 <a name="446"><span class="lineNum">     446 </span>                :            : }</a>
 <span class="lineNum">     447 </span>                :            : 
-<span class="lineNum">     448 </span>                :<span class="lineNoCov">          0 : static bool fsp_con_msg_vt(u32 cmd_sub_mod, struct fsp_msg *msg)</span>
+<span class="lineNum">     448 </span>                :<span class="lineCov">          6 : static bool fsp_con_msg_vt(u32 cmd_sub_mod, struct fsp_msg *msg)</span>
 <span class="lineNum">     449 </span>                :            : {
-<span class="lineNum">     450 </span>                :<span class="lineNoCov">          0 :         u16 sess_id = msg-&gt;data.words[1] &amp; 0xffff;</span>
+<span class="lineNum">     450 </span>                :<span class="lineCov">          6 :         u16 sess_id = msg-&gt;data.words[1] &amp; 0xffff;</span>
 <span class="lineNum">     451 </span>                :            : 
-<span class="lineNum">     452 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (cmd_sub_mod == FSP_CMD_VSERIAL_IN &amp;&amp; sess_id &lt; MAX_SERIAL) {</span>
-<span class="lineNum">     453 </span>                :<span class="lineNoCov">          0 :                 struct fsp_serial *fs = &amp;fsp_serials[sess_id];</span>
+<span class="lineNum">     452 </span>[<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          6 :         if (cmd_sub_mod == FSP_CMD_VSERIAL_IN &amp;&amp; sess_id &lt; MAX_SERIAL) {</span>
+<span class="lineNum">     453 </span>                :<span class="lineCov">          6 :                 struct fsp_serial *fs = &amp;fsp_serials[sess_id];</span>
 <span class="lineNum">     454 </span>                :            : 
-<span class="lineNum">     455 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!fs-&gt;open)</span>
+<span class="lineNum">     455 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          6 :                 if (!fs-&gt;open)</span>
 <span class="lineNum">     456 </span>                :            :                         return true;
 <span class="lineNum">     457 </span>                :            : 
 <span class="lineNum">     458 </span>                :            :                 /* FSP is signaling some incoming data. We take the console
@@ -532,10 +532,10 @@
 <span class="lineNum">     461 </span>                :            :                  * one single lock that covers the console and the pending
 <span class="lineNum">     462 </span>                :            :                  * events.
 <span class="lineNum">     463 </span>                :            :                  */
-<span class="lineNum">     464 </span>                :<span class="lineNoCov">          0 :                 lock(&amp;fsp_con_lock);</span>
-<span class="lineNum">     465 </span>                :<span class="lineNoCov">          0 :                 opal_update_pending_evt(OPAL_EVENT_CONSOLE_INPUT,</span>
+<span class="lineNum">     464 </span>                :<span class="lineCov">          6 :                 lock(&amp;fsp_con_lock);</span>
+<span class="lineNum">     465 </span>                :<span class="lineCov">          6 :                 opal_update_pending_evt(OPAL_EVENT_CONSOLE_INPUT,</span>
 <span class="lineNum">     466 </span>                :            :                                         OPAL_EVENT_CONSOLE_INPUT);
-<span class="lineNum">     467 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;fsp_con_lock);</span>
+<span class="lineNum">     467 </span>                :<span class="lineCov">          6 :                 unlock(&amp;fsp_con_lock);</span>
 <span class="lineNum">     468 </span>                :            :         }
 <span class="lineNum">     469 </span>                :            :         return true;
 <a name="470"><span class="lineNum">     470 </span>                :            : }</a>
@@ -567,35 +567,35 @@
 <span class="lineNum">     496 </span>                :            :         .message = fsp_con_msg_rr,
 <a name="497"><span class="lineNum">     497 </span>                :            : };</a>
 <span class="lineNum">     498 </span>                :            : 
-<span class="lineNum">     499 </span>                :<span class="lineNoCov">          0 : static void fsp_serial_add(int index, u16 rsrc_id, const char *loc_code,</span>
+<span class="lineNum">     499 </span>                :<span class="lineCov">          7 : static void fsp_serial_add(int index, u16 rsrc_id, const char *loc_code,</span>
 <span class="lineNum">     500 </span>                :            :                            bool log_port)
 <span class="lineNum">     501 </span>                :            : {
 <span class="lineNum">     502 </span>                :            :         struct fsp_serial *ser;
 <span class="lineNum">     503 </span>                :            :         struct fsp_msg *msg;
 <span class="lineNum">     504 </span>                :            : 
-<span class="lineNum">     505 </span>                :<span class="lineNoCov">          0 :         lock(&amp;fsp_con_lock);</span>
-<span class="lineNum">     506 </span>                :<span class="lineNoCov">          0 :         ser = &amp;fsp_serials[index];</span>
+<span class="lineNum">     505 </span>                :<span class="lineCov">          7 :         lock(&amp;fsp_con_lock);</span>
+<span class="lineNum">     506 </span>                :<span class="lineCov">          7 :         ser = &amp;fsp_serials[index];</span>
 <span class="lineNum">     507 </span>                :            : 
-<span class="lineNum">     508 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (ser-&gt;available) {</span>
+<span class="lineNum">     508 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 7 times"> + </span>]:<span class="lineCov">          7 :         if (ser-&gt;available) {</span>
 <span class="lineNum">     509 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;fsp_con_lock);</span>
 <span class="lineNum">     510 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">     511 </span>                :            :         }
 <span class="lineNum">     512 </span>                :            : 
-<span class="lineNum">     513 </span>                :<span class="lineNoCov">          0 :         ser-&gt;rsrc_id = rsrc_id;</span>
-<span class="lineNum">     514 </span>                :<span class="lineNoCov">          0 :         strncpy(ser-&gt;loc_code, loc_code, LOC_CODE_SIZE);</span>
-<span class="lineNum">     515 </span>                :<span class="lineNoCov">          0 :         ser-&gt;available = true;</span>
-<span class="lineNum">     516 </span>                :<span class="lineNoCov">          0 :         ser-&gt;log_port = log_port;</span>
-<span class="lineNum">     517 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;fsp_con_lock);</span>
+<span class="lineNum">     513 </span>                :<span class="lineCov">          7 :         ser-&gt;rsrc_id = rsrc_id;</span>
+<span class="lineNum">     514 </span>                :<span class="lineCov">          7 :         strncpy(ser-&gt;loc_code, loc_code, LOC_CODE_SIZE);</span>
+<span class="lineNum">     515 </span>                :<span class="lineCov">          7 :         ser-&gt;available = true;</span>
+<span class="lineNum">     516 </span>                :<span class="lineCov">          7 :         ser-&gt;log_port = log_port;</span>
+<span class="lineNum">     517 </span>                :<span class="lineCov">          7 :         unlock(&amp;fsp_con_lock);</span>
 <span class="lineNum">     518 </span>                :            : 
 <span class="lineNum">     519 </span>                :            :         /* DVS doesn't have that */
-<span class="lineNum">     520 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (rsrc_id != 0xffff) {</span>
-<span class="lineNum">     521 </span>                :<span class="lineNoCov">          0 :                 msg = fsp_mkmsg(FSP_CMD_ASSOC_SERIAL, 2,</span>
-<span class="lineNum">     522 </span>                :<span class="lineNoCov">          0 :                                 (rsrc_id &lt;&lt; 16) | 1, index);</span>
-<span class="lineNum">     523 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (!msg) {</span>
+<span class="lineNum">     520 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          7 :         if (rsrc_id != 0xffff) {</span>
+<span class="lineNum">     521 </span>                :<span class="lineCov">          3 :                 msg = fsp_mkmsg(FSP_CMD_ASSOC_SERIAL, 2,</span>
+<span class="lineNum">     522 </span>                :<span class="lineCov">          3 :                                 (rsrc_id &lt;&lt; 16) | 1, index);</span>
+<span class="lineNum">     523 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          3 :                 if (!msg) {</span>
 <span class="lineNum">     524 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;FSPCON: Assoc serial alloc failed\n&quot;);</span>
 <span class="lineNum">     525 </span>                :<span class="lineNoCov">          0 :                         return;</span>
 <span class="lineNum">     526 </span>                :            :                 }
-<span class="lineNum">     527 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (fsp_queue_msg(msg, fsp_freemsg)) {</span>
+<span class="lineNum">     527 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 3 times"> + </span>]:<span class="lineCov">          3 :                 if (fsp_queue_msg(msg, fsp_freemsg)) {</span>
 <span class="lineNum">     528 </span>                :<span class="lineNoCov">          0 :                         fsp_freemsg(msg);</span>
 <span class="lineNum">     529 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;FSPCON: Assoc serial queue failed\n&quot;);</span>
 <span class="lineNum">     530 </span>                :<span class="lineNoCov">          0 :                         return;</span>
@@ -603,66 +603,66 @@
 <span class="lineNum">     532 </span>                :            :         }
 <a name="533"><span class="lineNum">     533 </span>                :            : }</a>
 <span class="lineNum">     534 </span>                :            : 
-<span class="lineNum">     535 </span>                :<span class="lineNoCov">          0 : void fsp_console_preinit(void)</span>
+<span class="lineNum">     535 </span>                :<span class="lineCov">          2 : void fsp_console_preinit(void)</span>
 <span class="lineNum">     536 </span>                :            : {
 <span class="lineNum">     537 </span>                :            :         int i;
 <span class="lineNum">     538 </span>                :            :         void *base;
 <span class="lineNum">     539 </span>                :            : 
-<span class="lineNum">     540 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fsp_present())</span>
-<span class="lineNum">     541 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     540 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!fsp_present())</span>
+<span class="lineNum">     541 </span>                :<span class="lineCov">          2 :                 return;</span>
 <span class="lineNum">     542 </span>                :            : 
-<span class="lineNum">     543 </span>                :<span class="lineNoCov">          0 :         ser_buffer = memalign(TCE_PSIZE, SER_BUFFER_SIZE * MAX_SERIAL);</span>
+<span class="lineNum">     543 </span>                :<span class="lineCov">          2 :         ser_buffer = memalign(TCE_PSIZE, SER_BUFFER_SIZE * MAX_SERIAL);</span>
 <span class="lineNum">     544 </span>                :            : 
 <span class="lineNum">     545 </span>                :            :         /* Initialize out data structure pointers &amp; TCE maps */
-<span class="lineNum">     546 </span>                :<span class="lineNoCov">          0 :         base = ser_buffer;</span>
-<span class="lineNum">     547 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; MAX_SERIAL; i++) {</span>
-<span class="lineNum">     548 </span>                :<span class="lineNoCov">          0 :                 struct fsp_serial *ser = &amp;fsp_serials[i];</span>
+<span class="lineNum">     546 </span>                :<span class="lineCov">          2 :         base = ser_buffer;</span>
+<span class="lineNum">     547 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">         10 :         for (i = 0; i &lt; MAX_SERIAL; i++) {</span>
+<span class="lineNum">     548 </span>                :<span class="lineCov">          8 :                 struct fsp_serial *ser = &amp;fsp_serials[i];</span>
 <span class="lineNum">     549 </span>                :            : 
-<span class="lineNum">     550 </span>                :<span class="lineNoCov">          0 :                 ser-&gt;in_buf = base;</span>
-<span class="lineNum">     551 </span>                :<span class="lineNoCov">          0 :                 ser-&gt;out_buf = base + SER_BUFFER_SIZE/2;</span>
-<span class="lineNum">     552 </span>                :<span class="lineNoCov">          0 :                 base += SER_BUFFER_SIZE;</span>
+<span class="lineNum">     550 </span>                :<span class="lineCov">          8 :                 ser-&gt;in_buf = base;</span>
+<span class="lineNum">     551 </span>                :<span class="lineCov">          8 :                 ser-&gt;out_buf = base + SER_BUFFER_SIZE/2;</span>
+<span class="lineNum">     552 </span>                :<span class="lineCov">          8 :                 base += SER_BUFFER_SIZE;</span>
 <span class="lineNum">     553 </span>                :            :         }
-<span class="lineNum">     554 </span>                :<span class="lineNoCov">          0 :         fsp_tce_map(PSI_DMA_SER0_BASE, ser_buffer,</span>
+<span class="lineNum">     554 </span>                :<span class="lineCov">          2 :         fsp_tce_map(PSI_DMA_SER0_BASE, ser_buffer,</span>
 <span class="lineNum">     555 </span>                :            :                     4 * PSI_DMA_SER0_SIZE);
 <span class="lineNum">     556 </span>                :            : 
 <span class="lineNum">     557 </span>                :            :         /* Register for class E0 and E1 */
-<span class="lineNum">     558 </span>                :<span class="lineNoCov">          0 :         fsp_register_client(&amp;fsp_con_client_hmc, FSP_MCLASS_HMC_INTFMSG);</span>
-<span class="lineNum">     559 </span>                :<span class="lineNoCov">          0 :         fsp_register_client(&amp;fsp_con_client_vt, FSP_MCLASS_HMC_VT);</span>
-<span class="lineNum">     560 </span>                :<span class="lineNoCov">          0 :         fsp_register_client(&amp;fsp_con_client_rr, FSP_MCLASS_RR_EVENT);</span>
+<span class="lineNum">     558 </span>                :<span class="lineCov">          2 :         fsp_register_client(&amp;fsp_con_client_hmc, FSP_MCLASS_HMC_INTFMSG);</span>
+<span class="lineNum">     559 </span>                :<span class="lineCov">          2 :         fsp_register_client(&amp;fsp_con_client_vt, FSP_MCLASS_HMC_VT);</span>
+<span class="lineNum">     560 </span>                :<span class="lineCov">          2 :         fsp_register_client(&amp;fsp_con_client_rr, FSP_MCLASS_RR_EVENT);</span>
 <span class="lineNum">     561 </span>                :            : 
 <span class="lineNum">     562 </span>                :            :         /* Add DVS ports. We currently have session 0 and 3, 0 is for
 <span class="lineNum">     563 </span>                :            :          * OS use. 3 is our debug port. We need to add those before
 <span class="lineNum">     564 </span>                :            :          * we complete the OPL or we'll potentially miss the
 <span class="lineNum">     565 </span>                :            :          * console setup on Firebird blades.
 <span class="lineNum">     566 </span>                :            :          */
-<span class="lineNum">     567 </span>                :<span class="lineNoCov">          0 :         fsp_serial_add(0, 0xffff, &quot;DVS_OS&quot;, false);</span>
-<span class="lineNum">     568 </span>                :<span class="lineNoCov">          0 :         op_display(OP_LOG, OP_MOD_FSPCON, 0x0001);</span>
-<span class="lineNum">     569 </span>                :<span class="lineNoCov">          0 :         fsp_serial_add(3, 0xffff, &quot;DVS_FW&quot;, true);</span>
-<span class="lineNum">     570 </span>                :<span class="lineNoCov">          0 :         op_display(OP_LOG, OP_MOD_FSPCON, 0x0002);</span>
+<span class="lineNum">     567 </span>                :<span class="lineCov">          2 :         fsp_serial_add(0, 0xffff, &quot;DVS_OS&quot;, false);</span>
+<span class="lineNum">     568 </span>                :<span class="lineCov">          2 :         op_display(OP_LOG, OP_MOD_FSPCON, 0x0001);</span>
+<span class="lineNum">     569 </span>                :<span class="lineCov">          2 :         fsp_serial_add(3, 0xffff, &quot;DVS_FW&quot;, true);</span>
+<span class="lineNum">     570 </span>                :<span class="lineCov">          2 :         op_display(OP_LOG, OP_MOD_FSPCON, 0x0002);</span>
 <span class="lineNum">     571 </span>                :            : 
 <a name="572"><span class="lineNum">     572 </span>                :            : }</a>
 <span class="lineNum">     573 </span>                :            : 
-<span class="lineNum">     574 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_console_write(int64_t term_number, int64_t *length,</span>
+<span class="lineNum">     574 </span>                :<span class="lineCov">      22490 : static int64_t fsp_console_write(int64_t term_number, int64_t *length,</span>
 <span class="lineNum">     575 </span>                :            :                                  const uint8_t *buffer)
 <span class="lineNum">     576 </span>                :            : {
 <span class="lineNum">     577 </span>                :            :         struct fsp_serial *fs;
 <span class="lineNum">     578 </span>                :            :         size_t written, requested;
 <span class="lineNum">     579 </span>                :            : 
-<span class="lineNum">     580 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (term_number &lt; 0 || term_number &gt;= MAX_SERIAL)</span>
+<span class="lineNum">     580 </span>        [<span class="branchCov" title="Branch 0 was taken 22490 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">      22490 :         if (term_number &lt; 0 || term_number &gt;= MAX_SERIAL)</span>
 <span class="lineNum">     581 </span>                :            :                 return OPAL_PARAMETER;
-<span class="lineNum">     582 </span>                :<span class="lineNoCov">          0 :         fs = &amp;fsp_serials[term_number];</span>
-<span class="lineNum">     583 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fs-&gt;available || fs-&gt;log_port)</span>
+<span class="lineNum">     582 </span>                :<span class="lineCov">      22490 :         fs = &amp;fsp_serials[term_number];</span>
+<span class="lineNum">     583 </span>[<span class="branchCov" title="Branch 0 was taken 22490 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 22490 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">      22490 :         if (!fs-&gt;available || fs-&gt;log_port)</span>
 <span class="lineNum">     584 </span>                :            :                 return OPAL_PARAMETER;
-<span class="lineNum">     585 </span>                :<span class="lineNoCov">          0 :         lock(&amp;fsp_con_lock);</span>
-<span class="lineNum">     586 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fs-&gt;open) {</span>
+<span class="lineNum">     585 </span>                :<span class="lineCov">      22490 :         lock(&amp;fsp_con_lock);</span>
+<span class="lineNum">     586 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 22490 times"> + </span>]:<span class="lineCov">      22490 :         if (!fs-&gt;open) {</span>
 <span class="lineNum">     587 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;fsp_con_lock);</span>
 <span class="lineNum">     588 </span>                :<span class="lineNoCov">          0 :                 return OPAL_CLOSED;</span>
 <span class="lineNum">     589 </span>                :            :         }
 <span class="lineNum">     590 </span>                :            :         /* Clamp to a reasonable size */
-<span class="lineNum">     591 </span>                :<span class="lineNoCov">          0 :         requested = *length;</span>
-<span class="lineNum">     592 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (requested &gt; 0x1000)</span>
+<span class="lineNum">     591 </span>                :<span class="lineCov">      22490 :         requested = *length;</span>
+<span class="lineNum">     592 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 22490 times"> + </span>]:<span class="lineCov">      22490 :         if (requested &gt; 0x1000)</span>
 <span class="lineNum">     593 </span>                :<span class="lineNoCov">          0 :                 requested = 0x1000;</span>
-<span class="lineNum">     594 </span>                :<span class="lineNoCov">          0 :         written = fsp_write_vserial(fs, buffer, requested);</span>
+<span class="lineNum">     594 </span>                :<span class="lineCov">      22490 :         written = fsp_write_vserial(fs, buffer, requested);</span>
 <span class="lineNum">     595 </span>                :            : 
 <span class="lineNum">     596 </span>                :            : #ifdef OPAL_DEBUG_CONSOLE_IO
 <span class="lineNum">     597 </span>                :            :         prlog(PR_TRACE, &quot;OPAL: console write req=%ld written=%ld&quot;
@@ -675,72 +675,72 @@
 <span class="lineNum">     604 </span>                :            :               buffer[6], buffer[6], buffer[7], buffer[7]);
 <span class="lineNum">     605 </span>                :            : #endif /* OPAL_DEBUG_CONSOLE_IO */
 <span class="lineNum">     606 </span>                :            : 
-<span class="lineNum">     607 </span>                :<span class="lineNoCov">          0 :         *length = written;</span>
-<span class="lineNum">     608 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;fsp_con_lock);</span>
+<span class="lineNum">     607 </span>                :<span class="lineCov">      22490 :         *length = written;</span>
+<span class="lineNum">     608 </span>                :<span class="lineCov">      22490 :         unlock(&amp;fsp_con_lock);</span>
 <span class="lineNum">     609 </span>                :            : 
-<span class="lineNum">     610 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         return written ? OPAL_SUCCESS : OPAL_BUSY_EVENT;</span>
+<span class="lineNum">     610 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 22490 times"> + </span>]:<span class="lineCov">      22490 :         return written ? OPAL_SUCCESS : OPAL_BUSY_EVENT;</span>
 <a name="611"><span class="lineNum">     611 </span>                :            : }</a>
 <span class="lineNum">     612 </span>                :            : 
-<span class="lineNum">     613 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_console_write_buffer_space(int64_t term_number,</span>
+<span class="lineNum">     613 </span>                :<span class="lineCov">      37189 : static int64_t fsp_console_write_buffer_space(int64_t term_number,</span>
 <span class="lineNum">     614 </span>                :            :                                               int64_t *length)
 <span class="lineNum">     615 </span>                :            : {
 <span class="lineNum">     616 </span>                :            :         struct fsp_serial *fs;
 <span class="lineNum">     617 </span>                :            :         struct fsp_serbuf_hdr *sb;
 <span class="lineNum">     618 </span>                :            : 
-<span class="lineNum">     619 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (term_number &lt; 0 || term_number &gt;= MAX_SERIAL)</span>
+<span class="lineNum">     619 </span>        [<span class="branchCov" title="Branch 0 was taken 37189 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">      37189 :         if (term_number &lt; 0 || term_number &gt;= MAX_SERIAL)</span>
 <span class="lineNum">     620 </span>                :            :                 return OPAL_PARAMETER;
-<span class="lineNum">     621 </span>                :<span class="lineNoCov">          0 :         fs = &amp;fsp_serials[term_number];</span>
-<span class="lineNum">     622 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fs-&gt;available || fs-&gt;log_port)</span>
+<span class="lineNum">     621 </span>                :<span class="lineCov">      37189 :         fs = &amp;fsp_serials[term_number];</span>
+<span class="lineNum">     622 </span>[<span class="branchCov" title="Branch 0 was taken 37189 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 37189 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">      37189 :         if (!fs-&gt;available || fs-&gt;log_port)</span>
 <span class="lineNum">     623 </span>                :            :                 return OPAL_PARAMETER;
-<span class="lineNum">     624 </span>                :<span class="lineNoCov">          0 :         lock(&amp;fsp_con_lock);</span>
-<span class="lineNum">     625 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fs-&gt;open) {</span>
-<span class="lineNum">     626 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;fsp_con_lock);</span>
-<span class="lineNum">     627 </span>                :<span class="lineNoCov">          0 :                 return OPAL_CLOSED;</span>
+<span class="lineNum">     624 </span>                :<span class="lineCov">      37189 :         lock(&amp;fsp_con_lock);</span>
+<span class="lineNum">     625 </span>        [<span class="branchCov" title="Branch 0 was taken 14699 times"> + </span><span class="branchCov" title="Branch 1 was taken 22490 times"> + </span>]:<span class="lineCov">      37189 :         if (!fs-&gt;open) {</span>
+<span class="lineNum">     626 </span>                :<span class="lineCov">      14699 :                 unlock(&amp;fsp_con_lock);</span>
+<span class="lineNum">     627 </span>                :<span class="lineCov">      14699 :                 return OPAL_CLOSED;</span>
 <span class="lineNum">     628 </span>                :            :         }
-<span class="lineNum">     629 </span>                :<span class="lineNoCov">          0 :         sb = fs-&gt;out_buf;</span>
-<span class="lineNum">     630 </span>                :<span class="lineNoCov">          0 :         *length = (sb-&gt;next_out + SER_BUF_DATA_SIZE - sb-&gt;next_in - 1)</span>
-<span class="lineNum">     631 </span>                :<span class="lineNoCov">          0 :                 % SER_BUF_DATA_SIZE;</span>
-<span class="lineNum">     632 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;fsp_con_lock);</span>
+<span class="lineNum">     629 </span>                :<span class="lineCov">      22490 :         sb = fs-&gt;out_buf;</span>
+<span class="lineNum">     630 </span>                :<span class="lineCov">      44980 :         *length = (sb-&gt;next_out + SER_BUF_DATA_SIZE - sb-&gt;next_in - 1)</span>
+<span class="lineNum">     631 </span>                :<span class="lineCov">      22490 :                 % SER_BUF_DATA_SIZE;</span>
+<span class="lineNum">     632 </span>                :<span class="lineCov">      22490 :         unlock(&amp;fsp_con_lock);</span>
 <span class="lineNum">     633 </span>                :            : 
-<span class="lineNum">     634 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<span class="lineNum">     634 </span>                :<span class="lineCov">      22490 :         return OPAL_SUCCESS;</span>
 <a name="635"><span class="lineNum">     635 </span>                :            : }</a>
 <span class="lineNum">     636 </span>                :            : 
-<span class="lineNum">     637 </span>                :<span class="lineNoCov">          0 : static int64_t fsp_console_read(int64_t term_number, int64_t *length,</span>
+<span class="lineNum">     637 </span>                :<span class="lineCov">        721 : static int64_t fsp_console_read(int64_t term_number, int64_t *length,</span>
 <span class="lineNum">     638 </span>                :            :                                 uint8_t *buffer __unused)
 <span class="lineNum">     639 </span>                :            : {
 <span class="lineNum">     640 </span>                :            :         struct fsp_serial *fs;
 <span class="lineNum">     641 </span>                :            :         struct fsp_serbuf_hdr *sb;
-<span class="lineNum">     642 </span>                :<span class="lineNoCov">          0 :         bool pending = false;</span>
-<span class="lineNum">     643 </span>                :<span class="lineNoCov">          0 :         uint32_t old_nin, n, i, chunk, req = *length;</span>
+<span class="lineNum">     642 </span>                :<span class="lineCov">        721 :         bool pending = false;</span>
+<span class="lineNum">     643 </span>                :<span class="lineCov">        721 :         uint32_t old_nin, n, i, chunk, req = *length;</span>
 <span class="lineNum">     644 </span>                :            : 
-<span class="lineNum">     645 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (term_number &lt; 0 || term_number &gt;= MAX_SERIAL)</span>
+<span class="lineNum">     645 </span>        [<span class="branchCov" title="Branch 0 was taken 721 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        721 :         if (term_number &lt; 0 || term_number &gt;= MAX_SERIAL)</span>
 <span class="lineNum">     646 </span>                :            :                 return OPAL_PARAMETER;
-<span class="lineNum">     647 </span>                :<span class="lineNoCov">          0 :         fs = &amp;fsp_serials[term_number];</span>
-<span class="lineNum">     648 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fs-&gt;available || fs-&gt;log_port)</span>
+<span class="lineNum">     647 </span>                :<span class="lineCov">        721 :         fs = &amp;fsp_serials[term_number];</span>
+<span class="lineNum">     648 </span>[<span class="branchCov" title="Branch 0 was taken 721 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 721 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        721 :         if (!fs-&gt;available || fs-&gt;log_port)</span>
 <span class="lineNum">     649 </span>                :            :                 return OPAL_PARAMETER;
-<span class="lineNum">     650 </span>                :<span class="lineNoCov">          0 :         lock(&amp;fsp_con_lock);</span>
-<span class="lineNum">     651 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fs-&gt;open) {</span>
-<span class="lineNum">     652 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;fsp_con_lock);</span>
-<span class="lineNum">     653 </span>                :<span class="lineNoCov">          0 :                 return OPAL_CLOSED;</span>
+<span class="lineNum">     650 </span>                :<span class="lineCov">        721 :         lock(&amp;fsp_con_lock);</span>
+<span class="lineNum">     651 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 719 times"> + </span>]:<span class="lineCov">        721 :         if (!fs-&gt;open) {</span>
+<span class="lineNum">     652 </span>                :<span class="lineCov">          2 :                 unlock(&amp;fsp_con_lock);</span>
+<span class="lineNum">     653 </span>                :<span class="lineCov">          2 :                 return OPAL_CLOSED;</span>
 <span class="lineNum">     654 </span>                :            :         }
-<span class="lineNum">     655 </span>                :<span class="lineNoCov">          0 :         sb = fs-&gt;in_buf;</span>
-<span class="lineNum">     656 </span>                :<span class="lineNoCov">          0 :         old_nin = sb-&gt;next_in;</span>
+<span class="lineNum">     655 </span>                :<span class="lineCov">        719 :         sb = fs-&gt;in_buf;</span>
+<span class="lineNum">     656 </span>                :<span class="lineCov">        719 :         old_nin = sb-&gt;next_in;</span>
 <span class="lineNum">     657 </span>                :            :         lwsync();
-<span class="lineNum">     658 </span>                :<span class="lineNoCov">          0 :         n = (old_nin + SER_BUF_DATA_SIZE - sb-&gt;next_out)</span>
-<span class="lineNum">     659 </span>                :<span class="lineNoCov">          0 :                 % SER_BUF_DATA_SIZE;</span>
-<span class="lineNum">     660 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (n &gt; req) {</span>
+<span class="lineNum">     658 </span>                :<span class="lineCov">       1438 :         n = (old_nin + SER_BUF_DATA_SIZE - sb-&gt;next_out)</span>
+<span class="lineNum">     659 </span>                :<span class="lineCov">        719 :                 % SER_BUF_DATA_SIZE;</span>
+<span class="lineNum">     660 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 719 times"> + </span>]:<span class="lineCov">        719 :         if (n &gt; req) {</span>
 <span class="lineNum">     661 </span>                :<span class="lineNoCov">          0 :                 pending = true;</span>
 <span class="lineNum">     662 </span>                :<span class="lineNoCov">          0 :                 n = req;</span>
 <span class="lineNum">     663 </span>                :            :         }
-<span class="lineNum">     664 </span>                :<span class="lineNoCov">          0 :         *length = n;</span>
+<span class="lineNum">     664 </span>                :<span class="lineCov">        719 :         *length = n;</span>
 <span class="lineNum">     665 </span>                :            : 
-<span class="lineNum">     666 </span>                :<span class="lineNoCov">          0 :         chunk = SER_BUF_DATA_SIZE - sb-&gt;next_out;</span>
-<span class="lineNum">     667 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (chunk &gt; n)</span>
-<span class="lineNum">     668 </span>                :<span class="lineNoCov">          0 :                 chunk = n;</span>
-<span class="lineNum">     669 </span>                :<span class="lineNoCov">          0 :         memcpy(buffer, &amp;sb-&gt;data[sb-&gt;next_out], chunk);</span>
-<span class="lineNum">     670 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (chunk &lt; n)</span>
+<span class="lineNum">     666 </span>                :<span class="lineCov">        719 :         chunk = SER_BUF_DATA_SIZE - sb-&gt;next_out;</span>
+<span class="lineNum">     667 </span>        [<span class="branchCov" title="Branch 0 was taken 719 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">        719 :         if (chunk &gt; n)</span>
+<span class="lineNum">     668 </span>                :<span class="lineCov">        719 :                 chunk = n;</span>
+<span class="lineNum">     669 </span>                :<span class="lineCov">        719 :         memcpy(buffer, &amp;sb-&gt;data[sb-&gt;next_out], chunk);</span>
+<span class="lineNum">     670 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 719 times"> + </span>]:<span class="lineCov">        719 :         if (chunk &lt; n)</span>
 <span class="lineNum">     671 </span>                :<span class="lineNoCov">          0 :                 memcpy(buffer + chunk, &amp;sb-&gt;data[0], n - chunk);</span>
-<span class="lineNum">     672 </span>                :<span class="lineNoCov">          0 :         sb-&gt;next_out = (sb-&gt;next_out + n) % SER_BUF_DATA_SIZE;</span>
+<span class="lineNum">     672 </span>                :<span class="lineCov">        719 :         sb-&gt;next_out = (sb-&gt;next_out + n) % SER_BUF_DATA_SIZE;</span>
 <span class="lineNum">     673 </span>                :            : 
 <span class="lineNum">     674 </span>                :            : #ifdef OPAL_DEBUG_CONSOLE_IO
 <span class="lineNum">     675 </span>                :            :         prlog(PR_TRACE, &quot;OPAL: console read req=%d read=%d ni=%d no=%d\n&quot;,
@@ -751,24 +751,24 @@
 <span class="lineNum">     680 </span>                :            : #endif /* OPAL_DEBUG_CONSOLE_IO */
 <span class="lineNum">     681 </span>                :            : 
 <span class="lineNum">     682 </span>                :            :         /* Might clear the input pending flag */
-<span class="lineNum">     683 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; MAX_SERIAL &amp;&amp; !pending; i++) {</span>
-<span class="lineNum">     684 </span>                :<span class="lineNoCov">          0 :                 struct fsp_serial *fs = &amp;fsp_serials[i];</span>
-<span class="lineNum">     685 </span>                :<span class="lineNoCov">          0 :                 struct fsp_serbuf_hdr *sb = fs-&gt;in_buf;</span>
+<span class="lineNum">     683 </span>[<span class="branchCov" title="Branch 0 was taken 2163 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 1450 times"> + </span><span class="branchCov" title="Branch 3 was taken 713 times"> + </span>]:<span class="lineCov">       2169 :         for (i = 0; i &lt; MAX_SERIAL &amp;&amp; !pending; i++) {</span>
+<span class="lineNum">     684 </span>                :<span class="lineCov">       1450 :                 struct fsp_serial *fs = &amp;fsp_serials[i];</span>
+<span class="lineNum">     685 </span>                :<span class="lineCov">       1450 :                 struct fsp_serbuf_hdr *sb = fs-&gt;in_buf;</span>
 <span class="lineNum">     686 </span>                :            : 
-<span class="lineNum">     687 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (fs-&gt;log_port || !fs-&gt;open)</span>
-<span class="lineNum">     688 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
-<span class="lineNum">     689 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (sb-&gt;next_out != sb-&gt;next_in)</span>
-<span class="lineNum">     690 </span>                :<span class="lineNoCov">          0 :                         pending = true;</span>
+<span class="lineNum">     687 </span>[<span class="branchCov" title="Branch 0 was taken 1444 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 7 times"> + </span><span class="branchCov" title="Branch 3 was taken 1437 times"> + </span>]:<span class="lineCov">       1450 :                 if (fs-&gt;log_port || !fs-&gt;open)</span>
+<span class="lineNum">     688 </span>                :<span class="lineCov">         13 :                         continue;</span>
+<span class="lineNum">     689 </span>        [<span class="branchCov" title="Branch 0 was taken 713 times"> + </span><span class="branchCov" title="Branch 1 was taken 724 times"> + </span>]:<span class="lineCov">       1437 :                 if (sb-&gt;next_out != sb-&gt;next_in)</span>
+<span class="lineNum">     690 </span>                :<span class="lineCov">        713 :                         pending = true;</span>
 <span class="lineNum">     691 </span>                :            :         }
-<span class="lineNum">     692 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!pending)</span>
-<span class="lineNum">     693 </span>                :<span class="lineNoCov">          0 :                 opal_update_pending_evt(OPAL_EVENT_CONSOLE_INPUT, 0);</span>
+<span class="lineNum">     692 </span>        [<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 713 times"> + </span>]:<span class="lineCov">        719 :         if (!pending)</span>
+<span class="lineNum">     693 </span>                :<span class="lineCov">          6 :                 opal_update_pending_evt(OPAL_EVENT_CONSOLE_INPUT, 0);</span>
 <span class="lineNum">     694 </span>                :            : 
-<span class="lineNum">     695 </span>                :<span class="lineNoCov">          0 :         unlock(&amp;fsp_con_lock);</span>
+<span class="lineNum">     695 </span>                :<span class="lineCov">        719 :         unlock(&amp;fsp_con_lock);</span>
 <span class="lineNum">     696 </span>                :            : 
-<span class="lineNum">     697 </span>                :<span class="lineNoCov">          0 :         return OPAL_SUCCESS;</span>
+<span class="lineNum">     697 </span>                :<span class="lineCov">        719 :         return OPAL_SUCCESS;</span>
 <a name="698"><span class="lineNum">     698 </span>                :            : }</a>
 <span class="lineNum">     699 </span>                :            : 
-<span class="lineNum">     700 </span>                :<span class="lineNoCov">          0 : void fsp_console_poll(void *data __unused)</span>
+<span class="lineNum">     700 </span>                :<span class="lineCov">      60480 : void fsp_console_poll(void *data __unused)</span>
 <span class="lineNum">     701 </span>                :            : {
 <span class="lineNum">     702 </span>                :            : #ifdef OPAL_DEBUG_CONSOLE_POLL
 <span class="lineNum">     703 </span>                :            :         static int debug;
@@ -781,8 +781,8 @@
 <span class="lineNum">     710 </span>                :            :          * beging called from printf() deep into an existing lock nest
 <span class="lineNum">     711 </span>                :            :          * stack.
 <span class="lineNum">     712 </span>                :            :          */
-<span class="lineNum">     713 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_con_full ||</span>
-<span class="lineNum">     714 </span>                :<span class="lineNoCov">          0 :             (opal_pending_events &amp; OPAL_EVENT_CONSOLE_OUTPUT)) {</span>
+<span class="lineNum">     713 </span>[<span class="branchCov" title="Branch 0 was taken 60480 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 60480 times"> + </span>]:<span class="lineCov">      60480 :         if (fsp_con_full ||</span>
+<span class="lineNum">     714 </span>                :<span class="lineCov">      60480 :             (opal_pending_events &amp; OPAL_EVENT_CONSOLE_OUTPUT)) {</span>
 <span class="lineNum">     715 </span>                :            :                 unsigned int i;
 <span class="lineNum">     716 </span>                :<span class="lineNoCov">          0 :                 bool pending = false;</span>
 <span class="lineNum">     717 </span>                :            : 
@@ -821,49 +821,49 @@
 <span class="lineNum">     750 </span>                :            :                 }
 <span class="lineNum">     751 </span>                :<span class="lineNoCov">          0 :                 unlock(&amp;fsp_con_lock);</span>
 <span class="lineNum">     752 </span>                :            :         }
-<a name="753"><span class="lineNum">     753 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<a name="753"><span class="lineNum">     753 </span>                :<span class="lineCov">      60480 : }</span></a>
 <span class="lineNum">     754 </span>                :            : 
-<span class="lineNum">     755 </span>                :<span class="lineNoCov">          0 : void fsp_console_init(void)</span>
+<span class="lineNum">     755 </span>                :<span class="lineCov">          2 : void fsp_console_init(void)</span>
 <span class="lineNum">     756 </span>                :            : {
 <span class="lineNum">     757 </span>                :            :         struct dt_node *serials, *ser;
 <span class="lineNum">     758 </span>                :            :         int i;
 <span class="lineNum">     759 </span>                :            : 
-<span class="lineNum">     760 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!fsp_present())</span>
+<span class="lineNum">     760 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          2 :         if (!fsp_present())</span>
 <span class="lineNum">     761 </span>                :            :                 return;
 <span class="lineNum">     762 </span>                :            : 
-<span class="lineNum">     763 </span>                :<span class="lineNoCov">          0 :         opal_register(OPAL_CONSOLE_READ, fsp_console_read, 3);</span>
-<span class="lineNum">     764 </span>                :<span class="lineNoCov">          0 :         opal_register(OPAL_CONSOLE_WRITE_BUFFER_SPACE,</span>
+<span class="lineNum">     763 </span>                :<span class="lineCov">          2 :         opal_register(OPAL_CONSOLE_READ, fsp_console_read, 3);</span>
+<span class="lineNum">     764 </span>                :<span class="lineCov">          2 :         opal_register(OPAL_CONSOLE_WRITE_BUFFER_SPACE,</span>
 <span class="lineNum">     765 </span>                :            :                       fsp_console_write_buffer_space, 2);
-<span class="lineNum">     766 </span>                :<span class="lineNoCov">          0 :         opal_register(OPAL_CONSOLE_WRITE, fsp_console_write, 3);</span>
+<span class="lineNum">     766 </span>                :<span class="lineCov">          2 :         opal_register(OPAL_CONSOLE_WRITE, fsp_console_write, 3);</span>
 <span class="lineNum">     767 </span>                :            : 
 <span class="lineNum">     768 </span>                :            :         /* Wait until we got the intf query before moving on */
-<span class="lineNum">     769 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         while (!got_intf_query)</span>
+<span class="lineNum">     769 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         while (!got_intf_query)</span>
 <span class="lineNum">     770 </span>                :<span class="lineNoCov">          0 :                 opal_run_pollers();</span>
 <span class="lineNum">     771 </span>                :            : 
-<span class="lineNum">     772 </span>                :<span class="lineNoCov">          0 :         op_display(OP_LOG, OP_MOD_FSPCON, 0x0000);</span>
+<span class="lineNum">     772 </span>                :<span class="lineCov">          2 :         op_display(OP_LOG, OP_MOD_FSPCON, 0x0000);</span>
 <span class="lineNum">     773 </span>                :            : 
 <span class="lineNum">     774 </span>                :            :         /* Register poller */
-<span class="lineNum">     775 </span>                :<span class="lineNoCov">          0 :         opal_add_poller(fsp_console_poll, NULL);</span>
+<span class="lineNum">     775 </span>                :<span class="lineCov">          2 :         opal_add_poller(fsp_console_poll, NULL);</span>
 <span class="lineNum">     776 </span>                :            : 
 <span class="lineNum">     777 </span>                :            :         /* Parse serial port data */
-<span class="lineNum">     778 </span>                :<span class="lineNoCov">          0 :         serials = dt_find_by_path(dt_root, &quot;ipl-params/fsp-serial&quot;);</span>
-<span class="lineNum">     779 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (!serials) {</span>
+<span class="lineNum">     778 </span>                :<span class="lineCov">          2 :         serials = dt_find_by_path(dt_root, &quot;ipl-params/fsp-serial&quot;);</span>
+<span class="lineNum">     779 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!serials) {</span>
 <span class="lineNum">     780 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;FSPCON: No FSP serial ports in device-tree\n&quot;);</span>
 <span class="lineNum">     781 </span>                :<span class="lineNoCov">          0 :                 return;</span>
 <span class="lineNum">     782 </span>                :            :         }
 <span class="lineNum">     783 </span>                :            : 
-<span class="lineNum">     784 </span>                :<span class="lineNoCov">          0 :         i = 1;</span>
-<span class="lineNum">     785 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         dt_for_each_child(serials, ser) {</span>
-<span class="lineNum">     786 </span>                :<span class="lineNoCov">          0 :                 u32 rsrc_id = dt_prop_get_u32(ser, &quot;reg&quot;);</span>
-<span class="lineNum">     787 </span>                :<span class="lineNoCov">          0 :                 const void *lc = dt_prop_get(ser, &quot;ibm,loc-code&quot;);</span>
+<span class="lineNum">     784 </span>                :<span class="lineCov">          2 :         i = 1;</span>
+<span class="lineNum">     785 </span>        [<span class="branchCov" title="Branch 0 was taken 3 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          5 :         dt_for_each_child(serials, ser) {</span>
+<span class="lineNum">     786 </span>                :<span class="lineCov">          3 :                 u32 rsrc_id = dt_prop_get_u32(ser, &quot;reg&quot;);</span>
+<span class="lineNum">     787 </span>                :<span class="lineCov">          3 :                 const void *lc = dt_prop_get(ser, &quot;ibm,loc-code&quot;);</span>
 <span class="lineNum">     788 </span>                :            : 
-<span class="lineNum">     789 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_NOTICE, &quot;FSPCON: Serial %d rsrc: %04x loc: %s\n&quot;,</span>
+<span class="lineNum">     789 </span>                :<span class="lineCov">          3 :                 prlog(PR_NOTICE, &quot;FSPCON: Serial %d rsrc: %04x loc: %s\n&quot;,</span>
 <span class="lineNum">     790 </span>                :            :                       i, rsrc_id, (const char *)lc);
-<span class="lineNum">     791 </span>                :<span class="lineNoCov">          0 :                 fsp_serial_add(i++, rsrc_id, lc, false);</span>
-<span class="lineNum">     792 </span>                :<span class="lineNoCov">          0 :                 op_display(OP_LOG, OP_MOD_FSPCON, 0x0010 + i);</span>
+<span class="lineNum">     791 </span>                :<span class="lineCov">          3 :                 fsp_serial_add(i++, rsrc_id, lc, false);</span>
+<span class="lineNum">     792 </span>                :<span class="lineCov">          3 :                 op_display(OP_LOG, OP_MOD_FSPCON, 0x0010 + i);</span>
 <span class="lineNum">     793 </span>                :            :         }
 <span class="lineNum">     794 </span>                :            : 
-<span class="lineNum">     795 </span>                :<span class="lineNoCov">          0 :         op_display(OP_LOG, OP_MOD_FSPCON, 0x0005);</span>
+<span class="lineNum">     795 </span>                :<span class="lineCov">          2 :         op_display(OP_LOG, OP_MOD_FSPCON, 0x0005);</span>
 <a name="796"><span class="lineNum">     796 </span>                :            : }</a>
 <span class="lineNum">     797 </span>                :            : 
 <span class="lineNum">     798 </span>                :<span class="lineNoCov">          0 : static void flush_all_input(void)</span>
@@ -960,56 +960,56 @@
 <span class="lineNum">     889 </span>                :            : 
 <a name="890"><span class="lineNum">     890 </span>                :            : }</a>
 <span class="lineNum">     891 </span>                :            : 
-<span class="lineNum">     892 </span>                :<span class="lineNoCov">          0 : void fsp_console_add_nodes(void)</span>
+<span class="lineNum">     892 </span>                :<span class="lineCov">          2 : void fsp_console_add_nodes(void)</span>
 <span class="lineNum">     893 </span>                :            : {
 <span class="lineNum">     894 </span>                :            :         unsigned int i;
 <span class="lineNum">     895 </span>                :            :         struct dt_node *consoles;
 <span class="lineNum">     896 </span>                :            : 
-<span class="lineNum">     897 </span>                :<span class="lineNoCov">          0 :         consoles = dt_new(opal_node, &quot;consoles&quot;);</span>
-<span class="lineNum">     898 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(consoles, &quot;#address-cells&quot;, 1);</span>
-<span class="lineNum">     899 </span>                :<span class="lineNoCov">          0 :         dt_add_property_cells(consoles, &quot;#size-cells&quot;, 0);</span>
-<span class="lineNum">     900 </span>        [<span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :         for (i = 0; i &lt; MAX_SERIAL; i++) {</span>
-<span class="lineNum">     901 </span>                :<span class="lineNoCov">          0 :                 struct fsp_serial *fs = &amp;fsp_serials[i];</span>
+<span class="lineNum">     897 </span>                :<span class="lineCov">          2 :         consoles = dt_new(opal_node, &quot;consoles&quot;);</span>
+<span class="lineNum">     898 </span>                :<span class="lineCov">          2 :         dt_add_property_cells(consoles, &quot;#address-cells&quot;, 1);</span>
+<span class="lineNum">     899 </span>                :<span class="lineCov">          2 :         dt_add_property_cells(consoles, &quot;#size-cells&quot;, 0);</span>
+<span class="lineNum">     900 </span>        [<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">         10 :         for (i = 0; i &lt; MAX_SERIAL; i++) {</span>
+<span class="lineNum">     901 </span>                :<span class="lineCov">          8 :                 struct fsp_serial *fs = &amp;fsp_serials[i];</span>
 <span class="lineNum">     902 </span>                :            :                 struct dt_node *fs_node;
 <span class="lineNum">     903 </span>                :            :                 char name[32];
 <span class="lineNum">     904 </span>                :            : 
-<span class="lineNum">     905 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (fs-&gt;log_port || !fs-&gt;available)</span>
-<span class="lineNum">     906 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     905 </span>[<span class="branchCov" title="Branch 0 was taken 6 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 1 time"> + </span><span class="branchCov" title="Branch 3 was taken 5 times"> + </span>]:<span class="lineCov">          8 :                 if (fs-&gt;log_port || !fs-&gt;available)</span>
+<span class="lineNum">     906 </span>                :<span class="lineCov">          3 :                         continue;</span>
 <span class="lineNum">     907 </span>                :            : 
-<span class="lineNum">     908 </span>                :<span class="lineNoCov">          0 :                 snprintf(name, sizeof(name), &quot;serial@%d&quot;, i);</span>
-<span class="lineNum">     909 </span>                :<span class="lineNoCov">          0 :                 fs_node = dt_new(consoles, name);</span>
-<span class="lineNum">     910 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (fs-&gt;rsrc_id == 0xffff)</span>
-<span class="lineNum">     911 </span>                :<span class="lineNoCov">          0 :                         dt_add_property_string(fs_node, &quot;compatible&quot;,</span>
+<span class="lineNum">     908 </span>                :<span class="lineCov">          5 :                 snprintf(name, sizeof(name), &quot;serial@%d&quot;, i);</span>
+<span class="lineNum">     909 </span>                :<span class="lineCov">          5 :                 fs_node = dt_new(consoles, name);</span>
+<span class="lineNum">     910 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 3 times"> + </span>]:<span class="lineCov">          5 :                 if (fs-&gt;rsrc_id == 0xffff)</span>
+<span class="lineNum">     911 </span>                :<span class="lineCov">          2 :                         dt_add_property_string(fs_node, &quot;compatible&quot;,</span>
 <span class="lineNum">     912 </span>                :            :                                                &quot;ibm,opal-console-raw&quot;);
 <span class="lineNum">     913 </span>                :            :                 else
-<span class="lineNum">     914 </span>                :<span class="lineNoCov">          0 :                         dt_add_property_string(fs_node, &quot;compatible&quot;,</span>
+<span class="lineNum">     914 </span>                :<span class="lineCov">          3 :                         dt_add_property_string(fs_node, &quot;compatible&quot;,</span>
 <span class="lineNum">     915 </span>                :            :                                                &quot;ibm,opal-console-hvsi&quot;);
-<span class="lineNum">     916 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_cells(fs_node,</span>
+<span class="lineNum">     916 </span>                :<span class="lineCov">          5 :                 dt_add_property_cells(fs_node,</span>
 <span class="lineNum">     917 </span>                :            :                                      &quot;#write-buffer-size&quot;, SER_BUF_DATA_SIZE);
-<span class="lineNum">     918 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_cells(fs_node, &quot;reg&quot;, i);</span>
-<span class="lineNum">     919 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_string(fs_node, &quot;device_type&quot;, &quot;serial&quot;);</span>
+<span class="lineNum">     918 </span>                :<span class="lineCov">          5 :                 dt_add_property_cells(fs_node, &quot;reg&quot;, i);</span>
+<span class="lineNum">     919 </span>                :<span class="lineCov">          5 :                 dt_add_property_string(fs_node, &quot;device_type&quot;, &quot;serial&quot;);</span>
 <span class="lineNum">     920 </span>                :            :         }
-<a name="921"><span class="lineNum">     921 </span>                :<span class="lineNoCov">          0 : }</span></a>
+<a name="921"><span class="lineNum">     921 </span>                :<span class="lineCov">          2 : }</span></a>
 <span class="lineNum">     922 </span>                :            : 
-<span class="lineNum">     923 </span>                :<span class="lineCov">          6 : void fsp_console_select_stdout(void)</span>
+<span class="lineNum">     923 </span>                :<span class="lineCov">          8 : void fsp_console_select_stdout(void)</span>
 <span class="lineNum">     924 </span>                :            : {
-<span class="lineNum">     925 </span>                :<span class="lineCov">          6 :         bool use_serial = false;</span>
+<span class="lineNum">     925 </span>                :<span class="lineCov">          8 :         bool use_serial = false;</span>
 <span class="lineNum">     926 </span>                :            : 
-<span class="lineNum">     927 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          6 :         if (!fsp_present())</span>
-<span class="lineNum">     928 </span>                :<span class="lineCov">          6 :                 return;</span>
+<span class="lineNum">     927 </span>        [<span class="branchCov" title="Branch 1 was taken 2 times"> + </span><span class="branchCov" title="Branch 2 was taken 6 times"> + </span>]:<span class="lineCov">          8 :         if (!fsp_present())</span>
+<span class="lineNum">     928 </span>                :<span class="lineCov">          8 :                 return;</span>
 <span class="lineNum">     929 </span>                :            : 
 <span class="lineNum">     930 </span>                :            :         /* On P8, we have a sysparam ! yay ! */
-<span class="lineNum">     931 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (proc_gen &gt;= proc_gen_p8) {</span>
+<span class="lineNum">     931 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if (proc_gen &gt;= proc_gen_p8) {</span>
 <span class="lineNum">     932 </span>                :            :                 int rc;
 <span class="lineNum">     933 </span>                :            :                 u8 param;
 <span class="lineNum">     934 </span>                :            : 
-<span class="lineNum">     935 </span>                :<span class="lineNoCov">          0 :                 rc = fsp_get_sys_param(SYS_PARAM_CONSOLE_SELECT,</span>
+<span class="lineNum">     935 </span>                :<span class="lineCov">          1 :                 rc = fsp_get_sys_param(SYS_PARAM_CONSOLE_SELECT,</span>
 <span class="lineNum">     936 </span>                :            :                                        &amp;param, 1, NULL, NULL);
-<span class="lineNum">     937 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (rc != 1)</span>
+<span class="lineNum">     937 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                 if (rc != 1)</span>
 <span class="lineNum">     938 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;FSPCON: Failed to get console&quot;</span>
 <span class="lineNum">     939 </span>                :            :                                 &quot; sysparam rc %d\n&quot;, rc);
 <span class="lineNum">     940 </span>                :            :                 else {
-<span class="lineNum">     941 </span>     [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span><span class="branchNoExec" title="Branch 2 was not executed"> # </span>]:<span class="lineNoCov">          0 :                         switch(param) {</span>
+<span class="lineNum">     941 </span>     [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 1 time"> + </span>]:<span class="lineCov">          1 :                         switch(param) {</span>
 <span class="lineNum">     942 </span>                :            :                         case 0:
 <span class="lineNum">     943 </span>                :            :                                 use_serial = false;
 <span class="lineNum">     944 </span>                :            :                                 break;
@@ -1017,23 +1017,23 @@
 <span class="lineNum">     946 </span>                :<span class="lineNoCov">          0 :                                 use_serial = true;</span>
 <span class="lineNum">     947 </span>                :<span class="lineNoCov">          0 :                                 break;</span>
 <span class="lineNum">     948 </span>                :            :                         default:
-<span class="lineNum">     949 </span>                :<span class="lineNoCov">          0 :                                 prerror(&quot;FSPCON: Unknown console&quot;</span>
+<span class="lineNum">     949 </span>                :<span class="lineCov">          1 :                                 prerror(&quot;FSPCON: Unknown console&quot;</span>
 <span class="lineNum">     950 </span>                :            :                                         &quot; sysparam %d\n&quot;, param);
 <span class="lineNum">     951 </span>                :            :                         }
 <span class="lineNum">     952 </span>                :            :                 }
 <span class="lineNum">     953 </span>                :            :         } else {
 <span class="lineNum">     954 </span>                :            :                 struct dt_node *iplp;
-<span class="lineNum">     955 </span>                :<span class="lineNoCov">          0 :                 u32 ipl_mode = 0;</span>
+<span class="lineNum">     955 </span>                :<span class="lineCov">          1 :                 u32 ipl_mode = 0;</span>
 <span class="lineNum">     956 </span>                :            : 
 <span class="lineNum">     957 </span>                :            :                 /*
 <span class="lineNum">     958 </span>                :            :                  * We hijack the &quot;os-ipl-mode&quot; setting in iplparams to select
 <span class="lineNum">     959 </span>                :            :                  * out output console. This is the &quot;i5/OS partition mode boot&quot;
 <span class="lineNum">     960 </span>                :            :                  * setting in ASMI converted to an integer: 0=A, 1=B.
 <span class="lineNum">     961 </span>                :            :                  */
-<span class="lineNum">     962 </span>                :<span class="lineNoCov">          0 :                 iplp = dt_find_by_path(dt_root, &quot;ipl-params/ipl-params&quot;);</span>
-<span class="lineNum">     963 </span>        [<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>]:<span class="lineNoCov">          0 :                 if (iplp) {</span>
-<span class="lineNum">     964 </span>                :<span class="lineNoCov">          0 :                         ipl_mode = dt_prop_get_u32_def(iplp, &quot;os-ipl-mode&quot;, 0);</span>
-<span class="lineNum">     965 </span>                :<span class="lineNoCov">          0 :                         use_serial = ipl_mode &gt; 0;</span>
+<span class="lineNum">     962 </span>                :<span class="lineCov">          1 :                 iplp = dt_find_by_path(dt_root, &quot;ipl-params/ipl-params&quot;);</span>
+<span class="lineNum">     963 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          1 :                 if (iplp) {</span>
+<span class="lineNum">     964 </span>                :<span class="lineCov">          1 :                         ipl_mode = dt_prop_get_u32_def(iplp, &quot;os-ipl-mode&quot;, 0);</span>
+<span class="lineNum">     965 </span>                :<span class="lineCov">          1 :                         use_serial = ipl_mode &gt; 0;</span>
 <span class="lineNum">     966 </span>                :            : 
 <span class="lineNum">     967 </span>                :            :                         /*
 <span class="lineNum">     968 </span>                :            :                          * Now, if ipl_mode is &gt; 0, we use serial port A else
@@ -1041,14 +1041,14 @@
 <span class="lineNum">     970 </span>                :            :                          */
 <span class="lineNum">     971 </span>                :            :                 }
 <span class="lineNum">     972 </span>                :            :         }
-<span class="lineNum">     973 </span>[<span class="branchNoExec" title="Branch 0 was not executed"> # </span><span class="branchNoExec" title="Branch 1 was not executed"> # </span>][<span class="branchNoExec" title="Branch 2 was not executed"> # </span><span class="branchNoExec" title="Branch 3 was not executed"> # </span>]:<span class="lineNoCov">          0 :         if (fsp_serials[1].open &amp;&amp; use_serial) {</span>
+<span class="lineNum">     973 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (fsp_serials[1].open &amp;&amp; use_serial) {</span>
 <span class="lineNum">     974 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_string(dt_chosen, &quot;linux,stdout-path&quot;,</span>
 <span class="lineNum">     975 </span>                :            :                                        &quot;/ibm,opal/consoles/serial@1&quot;);
 <span class="lineNum">     976 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_NOTICE, &quot;FSPCON: default console set to serial A\n&quot;);</span>
 <span class="lineNum">     977 </span>                :            :         } else {
-<span class="lineNum">     978 </span>                :<span class="lineNoCov">          0 :                 dt_add_property_string(dt_chosen, &quot;linux,stdout-path&quot;,</span>
+<span class="lineNum">     978 </span>                :<span class="lineCov">          2 :                 dt_add_property_string(dt_chosen, &quot;linux,stdout-path&quot;,</span>
 <span class="lineNum">     979 </span>                :            :                                        &quot;/ibm,opal/consoles/serial@0&quot;);
-<span class="lineNum">     980 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_NOTICE, &quot;FSPCON: default console set to SOL/DVS\n&quot;);</span>
+<span class="lineNum">     980 </span>                :<span class="lineCov">          2 :                 prlog(PR_NOTICE, &quot;FSPCON: default console set to SOL/DVS\n&quot;);</span>
 <span class="lineNum">     981 </span>                :            :         }
 <span class="lineNum">     982 </span>                :            : }
 <span class="lineNum">     983 </span>                :            : 
