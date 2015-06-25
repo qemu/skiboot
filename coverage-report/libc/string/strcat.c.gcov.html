@@ -19,7 +19,7 @@
         <table cellpadding=1 border=0 width="100%">
           <tr>
             <td width="10%" class="headerItem">Current view:</td>
-            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">libc/string</a> - strcat.c<span style="font-size: 80%;"> (source / <a href="strcat.c.func.html">functions</a>)</span></td>
+            <td width="35%" class="headerValue"><a href="../../index.html">top level</a> - <a href="index.html">libc/string</a> - strcat.c<span style="font-size: 80%;"> (source / <a href="strcat.c.func-sort-c.html">functions</a>)</span></td>
             <td width="5%"></td>
             <td width="15%"></td>
             <td width="10%" class="headerCovTableHead">Hit</td>
@@ -37,21 +37,12 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-05-25</td>
+            <td class="headerValue">2015-06-25 12:15:05</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">0</td>
             <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntryLo">0.0 %</td>
-          </tr>
-          <tr>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td class="headerItem">Branches:</td>
-            <td class="headerCovTableEntry">0</td>
-            <td class="headerCovTableEntry">0</td>
-            <td class="headerCovTableEntryHi">-</td>
           </tr>
           <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -67,32 +58,32 @@
     </tr>
     <tr>
       <td>
-<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="sourceHeading">          Line data    Source code</pre>
 <pre class="source">
-<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
-<span class="lineNum">       2 </span>                :            :  * Copyright (c) 2004, 2008 IBM Corporation
-<span class="lineNum">       3 </span>                :            :  * All rights reserved.
-<span class="lineNum">       4 </span>                :            :  * This program and the accompanying materials
-<span class="lineNum">       5 </span>                :            :  * are made available under the terms of the BSD License
-<span class="lineNum">       6 </span>                :            :  * which accompanies this distribution, and is available at
-<span class="lineNum">       7 </span>                :            :  * http://www.opensource.org/licenses/bsd-license.php
-<span class="lineNum">       8 </span>                :            :  *
-<span class="lineNum">       9 </span>                :            :  * Contributors:
-<span class="lineNum">      10 </span>                :            :  *     IBM Corporation - initial implementation
-<span class="lineNum">      11 </span>                :            :  *****************************************************************************/
-<span class="lineNum">      12 </span>                :            : 
-<span class="lineNum">      13 </span>                :            : #include &lt;string.h&gt;
-<a name="14"><span class="lineNum">      14 </span>                :            : </a>
-<span class="lineNum">      15 </span>                :            : char *
-<span class="lineNum">      16 </span>                :<span class="lineNoCov">          0 : strcat(char *dst, const char *src)</span>
-<span class="lineNum">      17 </span>                :            : {
-<span class="lineNum">      18 </span>                :            :         int p;
-<span class="lineNum">      19 </span>                :            : 
-<span class="lineNum">      20 </span>                :<span class="lineNoCov">          0 :         p = strlen(dst);</span>
-<span class="lineNum">      21 </span>                :<span class="lineNoCov">          0 :         strcpy(&amp;dst[p], src);</span>
-<span class="lineNum">      22 </span>                :            : 
-<span class="lineNum">      23 </span>                :<span class="lineNoCov">          0 :         return dst;</span>
-<span class="lineNum">      24 </span>                :            : }
+<a name="1"><span class="lineNum">       1 </span>            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>            :  * Copyright (c) 2004, 2008 IBM Corporation
+<span class="lineNum">       3 </span>            :  * All rights reserved.
+<span class="lineNum">       4 </span>            :  * This program and the accompanying materials
+<span class="lineNum">       5 </span>            :  * are made available under the terms of the BSD License
+<span class="lineNum">       6 </span>            :  * which accompanies this distribution, and is available at
+<span class="lineNum">       7 </span>            :  * http://www.opensource.org/licenses/bsd-license.php
+<span class="lineNum">       8 </span>            :  *
+<span class="lineNum">       9 </span>            :  * Contributors:
+<span class="lineNum">      10 </span>            :  *     IBM Corporation - initial implementation
+<span class="lineNum">      11 </span>            :  *****************************************************************************/
+<span class="lineNum">      12 </span>            : 
+<span class="lineNum">      13 </span>            : #include &lt;string.h&gt;
+<a name="14"><span class="lineNum">      14 </span>            : </a>
+<span class="lineNum">      15 </span>            : char *
+<span class="lineNum">      16 </span><span class="lineNoCov">          0 : strcat(char *dst, const char *src)</span>
+<span class="lineNum">      17 </span>            : {
+<span class="lineNum">      18 </span>            :         int p;
+<span class="lineNum">      19 </span>            : 
+<span class="lineNum">      20 </span><span class="lineNoCov">          0 :         p = strlen(dst);</span>
+<span class="lineNum">      21 </span><span class="lineNoCov">          0 :         strcpy(&amp;dst[p], src);</span>
+<span class="lineNum">      22 </span>            : 
+<span class="lineNum">      23 </span><span class="lineNoCov">          0 :         return dst;</span>
+<span class="lineNum">      24 </span>            : }
 </pre>
       </td>
     </tr>
@@ -101,7 +92,7 @@
 
   <table width="100%" border=0 cellspacing=0 cellpadding=0>
     <tr><td class="ruler"><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
-    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.9</a></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.11</a></td></tr>
   </table>
   <br>
 
