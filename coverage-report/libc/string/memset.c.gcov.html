@@ -37,11 +37,20 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-06-25 12:15:05</td>
+            <td class="headerValue">2015-06-26 15:34:55</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">6</td>
+            <td class="headerCovTableEntry">6</td>
             <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
@@ -58,55 +67,55 @@
     </tr>
     <tr>
       <td>
-<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
 <pre class="source">
-<a name="1"><span class="lineNum">       1 </span>            : /******************************************************************************</a>
-<span class="lineNum">       2 </span>            :  * Copyright (c) 2004, 2008 IBM Corporation
-<span class="lineNum">       3 </span>            :  * All rights reserved.
-<span class="lineNum">       4 </span>            :  * This program and the accompanying materials
-<span class="lineNum">       5 </span>            :  * are made available under the terms of the BSD License
-<span class="lineNum">       6 </span>            :  * which accompanies this distribution, and is available at
-<span class="lineNum">       7 </span>            :  * http://www.opensource.org/licenses/bsd-license.php
-<span class="lineNum">       8 </span>            :  *
-<span class="lineNum">       9 </span>            :  * Contributors:
-<span class="lineNum">      10 </span>            :  *     IBM Corporation - initial implementation
-<span class="lineNum">      11 </span>            :  *****************************************************************************/
-<span class="lineNum">      12 </span>            : 
-<span class="lineNum">      13 </span>            : #include &quot;string.h&quot;
-<span class="lineNum">      14 </span>            : 
-<span class="lineNum">      15 </span>            : #define CACHE_LINE_SIZE 128
-<a name="16"><span class="lineNum">      16 </span>            : </a>
-<span class="lineNum">      17 </span>            : void *
-<span class="lineNum">      18 </span><span class="lineCov">         20 : memset(void *dest, int c, size_t size)</span>
-<span class="lineNum">      19 </span>            : {
-<span class="lineNum">      20 </span><span class="lineCov">         20 :         unsigned char *d = (unsigned char *)dest;</span>
-<span class="lineNum">      21 </span>            : 
-<span class="lineNum">      22 </span>            : #if defined(__powerpc__) || defined(__powerpc64__)
-<span class="lineNum">      23 </span>            :         if (size &gt; CACHE_LINE_SIZE &amp;&amp; c==0) {
-<span class="lineNum">      24 </span>            :                 while ((unsigned long long)d % CACHE_LINE_SIZE) {
-<span class="lineNum">      25 </span>            :                         *d++ = (unsigned char)c;
-<span class="lineNum">      26 </span>            :                         size--;
-<span class="lineNum">      27 </span>            :                 }
-<span class="lineNum">      28 </span>            :                 while (size &gt;= CACHE_LINE_SIZE) {
-<span class="lineNum">      29 </span>            :                         asm volatile (&quot;dcbz 0,%0\n&quot; : : &quot;r&quot;(d) : &quot;memory&quot;);
-<span class="lineNum">      30 </span>            :                         d+= CACHE_LINE_SIZE;
-<span class="lineNum">      31 </span>            :                         size-= CACHE_LINE_SIZE;
-<span class="lineNum">      32 </span>            :                 }
-<span class="lineNum">      33 </span>            :         }
-<span class="lineNum">      34 </span>            : #endif
-<span class="lineNum">      35 </span>            : 
-<span class="lineNum">      36 </span><span class="lineCov">        835 :         while (size &gt;= 8 &amp;&amp; c == 0) {</span>
-<span class="lineNum">      37 </span><span class="lineCov">        795 :                 *((unsigned long long*)d) = 0ULL;</span>
-<span class="lineNum">      38 </span><span class="lineCov">        795 :                 d+=8;</span>
-<span class="lineNum">      39 </span><span class="lineCov">        795 :                 size-=8;</span>
-<span class="lineNum">      40 </span>            :         }
-<span class="lineNum">      41 </span>            : 
-<span class="lineNum">      42 </span><span class="lineCov">        575 :         while (size-- &gt; 0) {</span>
-<span class="lineNum">      43 </span><span class="lineCov">        535 :                 *d++ = (unsigned char)c;</span>
-<span class="lineNum">      44 </span>            :         }
-<span class="lineNum">      45 </span>            : 
-<span class="lineNum">      46 </span><span class="lineCov">         20 :         return dest;</span>
-<span class="lineNum">      47 </span>            : }
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) 2004, 2008 IBM Corporation
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * This program and the accompanying materials
+<span class="lineNum">       5 </span>                :            :  * are made available under the terms of the BSD License
+<span class="lineNum">       6 </span>                :            :  * which accompanies this distribution, and is available at
+<span class="lineNum">       7 </span>                :            :  * http://www.opensource.org/licenses/bsd-license.php
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Contributors:
+<span class="lineNum">      10 </span>                :            :  *     IBM Corporation - initial implementation
+<span class="lineNum">      11 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      12 </span>                :            : 
+<span class="lineNum">      13 </span>                :            : #include &quot;string.h&quot;
+<span class="lineNum">      14 </span>                :            : 
+<span class="lineNum">      15 </span>                :            : #define CACHE_LINE_SIZE 128
+<a name="16"><span class="lineNum">      16 </span>                :            : </a>
+<span class="lineNum">      17 </span>                :            : void *
+<span class="lineNum">      18 </span>                :<span class="lineCov">         40 : memset(void *dest, int c, size_t size)</span>
+<span class="lineNum">      19 </span>                :            : {
+<span class="lineNum">      20 </span>                :<span class="lineCov">         40 :         unsigned char *d = (unsigned char *)dest;</span>
+<span class="lineNum">      21 </span>                :            : 
+<span class="lineNum">      22 </span>                :            : #if defined(__powerpc__) || defined(__powerpc64__)
+<span class="lineNum">      23 </span>                :            :         if (size &gt; CACHE_LINE_SIZE &amp;&amp; c==0) {
+<span class="lineNum">      24 </span>                :            :                 while ((unsigned long long)d % CACHE_LINE_SIZE) {
+<span class="lineNum">      25 </span>                :            :                         *d++ = (unsigned char)c;
+<span class="lineNum">      26 </span>                :            :                         size--;
+<span class="lineNum">      27 </span>                :            :                 }
+<span class="lineNum">      28 </span>                :            :                 while (size &gt;= CACHE_LINE_SIZE) {
+<span class="lineNum">      29 </span>                :            :                         asm volatile (&quot;dcbz 0,%0\n&quot; : : &quot;r&quot;(d) : &quot;memory&quot;);
+<span class="lineNum">      30 </span>                :            :                         d+= CACHE_LINE_SIZE;
+<span class="lineNum">      31 </span>                :            :                         size-= CACHE_LINE_SIZE;
+<span class="lineNum">      32 </span>                :            :                 }
+<span class="lineNum">      33 </span>                :            :         }
+<span class="lineNum">      34 </span>                :            : #endif
+<span class="lineNum">      35 </span>                :            : 
+<span class="lineNum">      36 </span>[<span class="branchCov" title="Branch 0 was taken 1600 times"> + </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 1590 times"> + </span><span class="branchCov" title="Branch 3 was taken 10 times"> + </span>]:<span class="lineCov">       1630 :         while (size &gt;= 8 &amp;&amp; c == 0) {</span>
+<span class="lineNum">      37 </span>                :<span class="lineCov">       1590 :                 *((unsigned long long*)d) = 0ULL;</span>
+<span class="lineNum">      38 </span>                :<span class="lineCov">       1590 :                 d+=8;</span>
+<span class="lineNum">      39 </span>                :<span class="lineCov">       1590 :                 size-=8;</span>
+<span class="lineNum">      40 </span>                :            :         }
+<span class="lineNum">      41 </span>                :            : 
+<span class="lineNum">      42 </span>        [<span class="branchCov" title="Branch 0 was taken 1070 times"> + </span><span class="branchCov" title="Branch 1 was taken 40 times"> + </span>]:<span class="lineCov">       1110 :         while (size-- &gt; 0) {</span>
+<span class="lineNum">      43 </span>                :<span class="lineCov">       1070 :                 *d++ = (unsigned char)c;</span>
+<span class="lineNum">      44 </span>                :            :         }
+<span class="lineNum">      45 </span>                :            : 
+<span class="lineNum">      46 </span>                :<span class="lineCov">         40 :         return dest;</span>
+<span class="lineNum">      47 </span>                :            : }
 </pre>
       </td>
     </tr>

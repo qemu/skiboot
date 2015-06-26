@@ -37,11 +37,20 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-06-25 12:15:05</td>
+            <td class="headerValue">2015-06-26 15:34:55</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
             <td class="headerCovTableEntryHi">100.0 %</td>
           </tr>
           <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
@@ -58,35 +67,35 @@
     </tr>
     <tr>
       <td>
-<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
 <pre class="source">
-<a name="1"><span class="lineNum">       1 </span>            : /******************************************************************************</a>
-<span class="lineNum">       2 </span>            :  * Copyright (c) 2004, 2008 IBM Corporation
-<span class="lineNum">       3 </span>            :  * All rights reserved.
-<span class="lineNum">       4 </span>            :  * This program and the accompanying materials
-<span class="lineNum">       5 </span>            :  * are made available under the terms of the BSD License
-<span class="lineNum">       6 </span>            :  * which accompanies this distribution, and is available at
-<span class="lineNum">       7 </span>            :  * http://www.opensource.org/licenses/bsd-license.php
-<span class="lineNum">       8 </span>            :  *
-<span class="lineNum">       9 </span>            :  * Contributors:
-<span class="lineNum">      10 </span>            :  *     IBM Corporation - initial implementation
-<span class="lineNum">      11 </span>            :  *****************************************************************************/
-<span class="lineNum">      12 </span>            : 
-<span class="lineNum">      13 </span>            : #include &lt;string.h&gt;
-<a name="14"><span class="lineNum">      14 </span>            : </a>
-<span class="lineNum">      15 </span>            : size_t
-<span class="lineNum">      16 </span><span class="lineCov">         55 : strlen(const char *s)</span>
-<span class="lineNum">      17 </span>            : {
-<span class="lineNum">      18 </span><span class="lineCov">         55 :         int len = 0;</span>
-<span class="lineNum">      19 </span>            : 
-<span class="lineNum">      20 </span><span class="lineCov">       1170 :         while (*s != 0) {</span>
-<span class="lineNum">      21 </span><span class="lineCov">       1060 :                 len += 1;</span>
-<span class="lineNum">      22 </span><span class="lineCov">       1060 :                 s += 1;</span>
-<span class="lineNum">      23 </span>            :         }
-<span class="lineNum">      24 </span>            : 
-<span class="lineNum">      25 </span><span class="lineCov">         55 :         return len;</span>
-<span class="lineNum">      26 </span>            : }
-<span class="lineNum">      27 </span>            : 
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) 2004, 2008 IBM Corporation
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * This program and the accompanying materials
+<span class="lineNum">       5 </span>                :            :  * are made available under the terms of the BSD License
+<span class="lineNum">       6 </span>                :            :  * which accompanies this distribution, and is available at
+<span class="lineNum">       7 </span>                :            :  * http://www.opensource.org/licenses/bsd-license.php
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Contributors:
+<span class="lineNum">      10 </span>                :            :  *     IBM Corporation - initial implementation
+<span class="lineNum">      11 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      12 </span>                :            : 
+<span class="lineNum">      13 </span>                :            : #include &lt;string.h&gt;
+<a name="14"><span class="lineNum">      14 </span>                :            : </a>
+<span class="lineNum">      15 </span>                :            : size_t
+<span class="lineNum">      16 </span>                :<span class="lineCov">        110 : strlen(const char *s)</span>
+<span class="lineNum">      17 </span>                :            : {
+<span class="lineNum">      18 </span>                :<span class="lineCov">        110 :         int len = 0;</span>
+<span class="lineNum">      19 </span>                :            : 
+<span class="lineNum">      20 </span>        [<span class="branchCov" title="Branch 0 was taken 2120 times"> + </span><span class="branchCov" title="Branch 1 was taken 110 times"> + </span>]:<span class="lineCov">       2230 :         while (*s != 0) {</span>
+<span class="lineNum">      21 </span>                :<span class="lineCov">       2120 :                 len += 1;</span>
+<span class="lineNum">      22 </span>                :<span class="lineCov">       2120 :                 s += 1;</span>
+<span class="lineNum">      23 </span>                :            :         }
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :<span class="lineCov">        110 :         return len;</span>
+<span class="lineNum">      26 </span>                :            : }
+<span class="lineNum">      27 </span>                :            : 
 </pre>
       </td>
     </tr>

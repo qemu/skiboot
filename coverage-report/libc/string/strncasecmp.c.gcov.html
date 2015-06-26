@@ -37,12 +37,21 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-06-25 12:15:05</td>
+            <td class="headerValue">2015-06-26 15:34:55</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntry">1</td>
             <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">8</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryMed">80.0 %</td>
           </tr>
           <tr><td><img src="../../glass.png" width=3 height=3 alt=""></td></tr>
         </table>
@@ -58,40 +67,41 @@
     </tr>
     <tr>
       <td>
-<pre class="sourceHeading">          Line data    Source code</pre>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
 <pre class="source">
-<a name="1"><span class="lineNum">       1 </span>            : /******************************************************************************</a>
-<span class="lineNum">       2 </span>            :  * Copyright (c) 2004, 2008 IBM Corporation
-<span class="lineNum">       3 </span>            :  * All rights reserved.
-<span class="lineNum">       4 </span>            :  * This program and the accompanying materials
-<span class="lineNum">       5 </span>            :  * are made available under the terms of the BSD License
-<span class="lineNum">       6 </span>            :  * which accompanies this distribution, and is available at
-<span class="lineNum">       7 </span>            :  * http://www.opensource.org/licenses/bsd-license.php
-<span class="lineNum">       8 </span>            :  *
-<span class="lineNum">       9 </span>            :  * Contributors:
-<span class="lineNum">      10 </span>            :  *     IBM Corporation - initial implementation
-<span class="lineNum">      11 </span>            :  *****************************************************************************/
-<span class="lineNum">      12 </span>            : 
-<span class="lineNum">      13 </span>            : #include &lt;string.h&gt;
-<span class="lineNum">      14 </span>            : #include &lt;ctype.h&gt;
-<span class="lineNum">      15 </span>            : 
-<a name="16"><span class="lineNum">      16 </span>            : </a>
-<span class="lineNum">      17 </span>            : int
-<span class="lineNum">      18 </span><span class="lineCov">         40 : strncasecmp(const char *s1, const char *s2, size_t n)</span>
-<span class="lineNum">      19 </span>            : {
-<span class="lineNum">      20 </span><span class="lineCov">         40 :         if (n &lt; 1)</span>
-<span class="lineNum">      21 </span><span class="lineCov">          5 :                 return 0;</span>
-<span class="lineNum">      22 </span>            : 
-<span class="lineNum">      23 </span><span class="lineCov">        255 :         while (*s1 != 0 &amp;&amp; *s2 != 0 &amp;&amp; --n &gt; 0) {</span>
-<span class="lineNum">      24 </span><span class="lineCov">        195 :                 if (toupper(*s1) != toupper(*s2))</span>
-<span class="lineNum">      25 </span><span class="lineCov">         10 :                         break;</span>
-<span class="lineNum">      26 </span><span class="lineCov">        185 :                 ++s1;</span>
-<span class="lineNum">      27 </span><span class="lineCov">        185 :                 ++s2;</span>
-<span class="lineNum">      28 </span>            :         }
-<span class="lineNum">      29 </span>            : 
-<span class="lineNum">      30 </span><span class="lineCov">         35 :         return toupper(*s1) - toupper(*s2);</span>
-<span class="lineNum">      31 </span>            : }
-<span class="lineNum">      32 </span>            : 
+<a name="1"><span class="lineNum">       1 </span>                :            : /******************************************************************************</a>
+<span class="lineNum">       2 </span>                :            :  * Copyright (c) 2004, 2008 IBM Corporation
+<span class="lineNum">       3 </span>                :            :  * All rights reserved.
+<span class="lineNum">       4 </span>                :            :  * This program and the accompanying materials
+<span class="lineNum">       5 </span>                :            :  * are made available under the terms of the BSD License
+<span class="lineNum">       6 </span>                :            :  * which accompanies this distribution, and is available at
+<span class="lineNum">       7 </span>                :            :  * http://www.opensource.org/licenses/bsd-license.php
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Contributors:
+<span class="lineNum">      10 </span>                :            :  *     IBM Corporation - initial implementation
+<span class="lineNum">      11 </span>                :            :  *****************************************************************************/
+<span class="lineNum">      12 </span>                :            : 
+<span class="lineNum">      13 </span>                :            : #include &lt;string.h&gt;
+<span class="lineNum">      14 </span>                :            : #include &lt;ctype.h&gt;
+<span class="lineNum">      15 </span>                :            : 
+<a name="16"><span class="lineNum">      16 </span>                :            : </a>
+<span class="lineNum">      17 </span>                :            : int
+<span class="lineNum">      18 </span>                :<span class="lineCov">         80 : strncasecmp(const char *s1, const char *s2, size_t n)</span>
+<span class="lineNum">      19 </span>                :            : {
+<span class="lineNum">      20 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchCov" title="Branch 1 was taken 70 times"> + </span>]:<span class="lineCov">         80 :         if (n &lt; 1)</span>
+<span class="lineNum">      21 </span>                :<span class="lineCov">         10 :                 return 0;</span>
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>[<span class="branchCov" title="Branch 0 was taken 440 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 440 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        440 :         while (*s1 != 0 &amp;&amp; *s2 != 0 &amp;&amp; --n &gt; 0) {</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken 390 times"> + </span><span class="branchCov" title="Branch 5 was taken 50 times"> + </span>]
+<span class="lineNum">      24 </span>        [<span class="branchCov" title="Branch 2 was taken 20 times"> + </span><span class="branchCov" title="Branch 3 was taken 370 times"> + </span>]:<span class="lineCov">        390 :                 if (toupper(*s1) != toupper(*s2))</span>
+<span class="lineNum">      25 </span>                :<span class="lineCov">         20 :                         break;</span>
+<span class="lineNum">      26 </span>                :<span class="lineCov">        370 :                 ++s1;</span>
+<span class="lineNum">      27 </span>                :<span class="lineCov">        370 :                 ++s2;</span>
+<span class="lineNum">      28 </span>                :            :         }
+<span class="lineNum">      29 </span>                :            : 
+<span class="lineNum">      30 </span>                :<span class="lineCov">         70 :         return toupper(*s1) - toupper(*s2);</span>
+<span class="lineNum">      31 </span>                :            : }
+<span class="lineNum">      32 </span>                :            : 
 </pre>
       </td>
     </tr>
