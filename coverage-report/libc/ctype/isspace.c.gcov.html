@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-06-26 15:34:55</td>
+            <td class="headerValue">2015-09-16 09:52:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -84,19 +84,19 @@
 <span class="lineNum">      13 </span>                :            : #include &lt;compiler.h&gt;
 <a name="14"><span class="lineNum">      14 </span>                :            : #include &lt;ctype.h&gt;</a>
 <span class="lineNum">      15 </span>                :            : 
-<span class="lineNum">      16 </span>                :<span class="lineCov">       2700 : int __attrconst isspace(int ch)</span>
+<span class="lineNum">      16 </span>                :<span class="lineCov">       1350 : int __attrconst isspace(int ch)</span>
 <span class="lineNum">      17 </span>                :            : {
-<span class="lineNum">      18 </span>        [<span class="branchCov" title="Branch 0 was taken 90 times"> + </span><span class="branchCov" title="Branch 1 was taken 2610 times"> + </span>]:<span class="lineCov">       2700 :         switch (ch) {</span>
+<span class="lineNum">      18 </span>        [<span class="branchCov" title="Branch 0 was taken 45 times"> + </span><span class="branchCov" title="Branch 1 was taken 1305 times"> + </span>]:<span class="lineCov">       1350 :         switch (ch) {</span>
 <span class="lineNum">      19 </span>                :            :          case ' ':
 <span class="lineNum">      20 </span>                :            :          case '\f':
 <span class="lineNum">      21 </span>                :            :          case '\n':
 <span class="lineNum">      22 </span>                :            :          case '\r':
 <span class="lineNum">      23 </span>                :            :          case '\t':
 <span class="lineNum">      24 </span>                :            :          case '\v':
-<span class="lineNum">      25 </span>                :<span class="lineCov">         90 :                 return 1;</span>
+<span class="lineNum">      25 </span>                :<span class="lineCov">         45 :                 return 1;</span>
 <span class="lineNum">      26 </span>                :            :         
 <span class="lineNum">      27 </span>                :            :          default:
-<span class="lineNum">      28 </span>                :<span class="lineCov">       2610 :                 return 0;</span>
+<span class="lineNum">      28 </span>                :<span class="lineCov">       1305 :                 return 0;</span>
 <span class="lineNum">      29 </span>                :            :         }
 <span class="lineNum">      30 </span>                :            : }
 </pre>

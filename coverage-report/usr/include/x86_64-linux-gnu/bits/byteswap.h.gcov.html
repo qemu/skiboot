@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-06-26 15:34:55</td>
+            <td class="headerValue">2015-09-16 09:52:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -177,9 +177,9 @@
 <span class="lineNum">     106 </span>                :            : 
 <a name="107"><span class="lineNum">     107 </span>                :            : # if __GNUC_PREREQ (4, 3)</a>
 <span class="lineNum">     108 </span>                :            : static __inline __uint64_t
-<span class="lineNum">     109 </span>                :<span class="lineCov">      15202 : __bswap_64 (__uint64_t __bsx)</span>
+<span class="lineNum">     109 </span>                :<span class="lineCov">       7601 : __bswap_64 (__uint64_t __bsx)</span>
 <span class="lineNum">     110 </span>                :            : {
-<span class="lineNum">     111 </span>                :<span class="lineCov">      15202 :   return __builtin_bswap64 (__bsx);</span>
+<span class="lineNum">     111 </span>                :<span class="lineCov">       7601 :   return __builtin_bswap64 (__bsx);</span>
 <span class="lineNum">     112 </span>                :            : }
 <span class="lineNum">     113 </span>                :            : # elif __WORDSIZE == 64
 <span class="lineNum">     114 </span>                :            : #  define __bswap_64(x) \

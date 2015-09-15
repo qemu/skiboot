@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-06-26 15:34:55</td>
+            <td class="headerValue">2015-09-16 09:52:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -84,18 +84,18 @@
 <span class="lineNum">      13 </span>                :            : #include &lt;string.h&gt;
 <a name="14"><span class="lineNum">      14 </span>                :            : </a>
 <span class="lineNum">      15 </span>                :            : char *
-<span class="lineNum">      16 </span>                :<span class="lineCov">         40 : strchr(const char *s, int c)</span>
+<span class="lineNum">      16 </span>                :<span class="lineCov">         20 : strchr(const char *s, int c)</span>
 <span class="lineNum">      17 </span>                :            : {
-<span class="lineNum">      18 </span>                :<span class="lineCov">         40 :         char cb = c;</span>
+<span class="lineNum">      18 </span>                :<span class="lineCov">         20 :         char cb = c;</span>
 <span class="lineNum">      19 </span>                :            : 
-<span class="lineNum">      20 </span>        [<span class="branchCov" title="Branch 0 was taken 270 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">        280 :         while (*s != 0) {</span>
-<span class="lineNum">      21 </span>        [<span class="branchCov" title="Branch 0 was taken 30 times"> + </span><span class="branchCov" title="Branch 1 was taken 240 times"> + </span>]:<span class="lineCov">        270 :                 if (*s == cb) {</span>
-<span class="lineNum">      22 </span>                :<span class="lineCov">         30 :                         return (char *)s;</span>
+<span class="lineNum">      20 </span>        [<span class="branchCov" title="Branch 0 was taken 135 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">        140 :         while (*s != 0) {</span>
+<span class="lineNum">      21 </span>        [<span class="branchCov" title="Branch 0 was taken 15 times"> + </span><span class="branchCov" title="Branch 1 was taken 120 times"> + </span>]:<span class="lineCov">        135 :                 if (*s == cb) {</span>
+<span class="lineNum">      22 </span>                :<span class="lineCov">         15 :                         return (char *)s;</span>
 <span class="lineNum">      23 </span>                :            :                 }
-<span class="lineNum">      24 </span>                :<span class="lineCov">        240 :                 s += 1;</span>
+<span class="lineNum">      24 </span>                :<span class="lineCov">        120 :                 s += 1;</span>
 <span class="lineNum">      25 </span>                :            :         }
 <span class="lineNum">      26 </span>                :            : 
-<span class="lineNum">      27 </span>                :<span class="lineCov">         10 :         return NULL;</span>
+<span class="lineNum">      27 </span>                :<span class="lineCov">          5 :         return NULL;</span>
 <span class="lineNum">      28 </span>                :            : }
 </pre>
       </td>

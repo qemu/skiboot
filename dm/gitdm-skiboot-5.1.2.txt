@@ -1,0 +1,63 @@
+Processed 67 csets from 11 developers
+1 employers found
+A total of 2258 lines added, 784 removed (delta 1474)
+
+Developers with the most changesets
+Stewart Smith               24 (35.8%)
+Cyril Bur                   18 (26.9%)
+Vasant Hegde                 8 (11.9%)
+Neelesh Gupta                5 (7.5%)
+Benjamin Herrenschmidt       5 (7.5%)
+Daniel Axtens                2 (3.0%)
+Samuel Mendoza-Jonas         1 (1.5%)
+Vaidyanathan Srinivasan      1 (1.5%)
+Vipin K Parashar             1 (1.5%)
+Ian Munsie                   1 (1.5%)
+Michael Neuling              1 (1.5%)
+
+Developers with the most changed lines
+Cyril Bur                  969 (42.5%)
+Neelesh Gupta              433 (19.0%)
+Benjamin Herrenschmidt     304 (13.3%)
+Vasant Hegde               236 (10.3%)
+Stewart Smith              163 (7.1%)
+Vaidyanathan Srinivasan    135 (5.9%)
+Vipin K Parashar             8 (0.4%)
+Ian Munsie                   8 (0.4%)
+Daniel Axtens                2 (0.1%)
+Michael Neuling              2 (0.1%)
+Samuel Mendoza-Jonas         1 (0.0%)
+
+Developers with the most lines removed
+Daniel Axtens                2 (0.3%)
+Michael Neuling              1 (0.1%)
+
+Developers with the most signoffs (total 44)
+Stewart Smith               43 (97.7%)
+Neelesh Gupta                1 (2.3%)
+
+Developers with the most reviews (total 8)
+Patrick Williams             5 (62.5%)
+Samuel Mendoza-Jonas         3 (37.5%)
+
+Developers with the most test credits (total 0)
+
+Developers who gave the most tested-by credits (total 0)
+
+Developers with the most report credits (total 1)
+Benjamin Herrenschmidt       1 (100.0%)
+
+Developers who gave the most report credits (total 1)
+Samuel Mendoza-Jonas         1 (100.0%)
+
+Top changeset contributors by employer
+IBM                         67 (100.0%)
+
+Top lines changed by employer
+IBM                       2281 (100.0%)
+
+Employers with the most signoffs (total 44)
+IBM                         44 (100.0%)
+
+Employers with the most hackers (total 11)
+IBM                         11 (100.0%)

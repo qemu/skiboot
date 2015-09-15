@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-06-26 15:34:55</td>
+            <td class="headerValue">2015-09-16 09:52:43</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">0</td>
@@ -91,7 +91,7 @@
 <span class="lineNum">      20 </span>                :            : {
 <span class="lineNum">      21 </span>                :<span class="lineNoCov">          0 :         _rand = _rand * 25364735 + 34563;</span>
 <span class="lineNum">      22 </span>                :            : 
-<span class="lineNum">      23 </span>                :<span class="lineNoCov">          0 :         return ((unsigned int) (_rand &lt;&lt; 16) &amp; RAND_MAX);</span>
+<span class="lineNum">      23 </span>                :<span class="lineNoCov">          0 :         return ((unsigned int) (_rand &gt;&gt; 16) &amp; RAND_MAX);</span>
 <span class="lineNum">      24 </span>                :            : }
 </pre>
       </td>
