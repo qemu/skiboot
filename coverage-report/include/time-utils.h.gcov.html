@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-09-16 09:52:43</td>
+            <td class="headerValue">2015-10-08 09:04:08</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">3</td>
@@ -93,20 +93,20 @@
 <span class="lineNum">      22 </span>                :            : 
 <a name="23"><span class="lineNum">      23 </span>                :            : /* BCD conversion utilities. MSB is byte 3, LSB is byte 0 */</a>
 <span class="lineNum">      24 </span>                :            : 
-<span class="lineNum">      25 </span>                :<span class="lineCov">          7 : static inline unsigned int bcd_byte(uint32_t bcd, int byteno)</span>
+<span class="lineNum">      25 </span>                :<span class="lineCov">        182 : static inline unsigned int bcd_byte(uint32_t bcd, int byteno)</span>
 <span class="lineNum">      26 </span>                :            : {
-<span class="lineNum">      27 </span>                :<span class="lineCov">          7 :         bcd &gt;&gt;= byteno * 8;</span>
-<span class="lineNum">      28 </span>                :<span class="lineCov">          7 :         return (bcd &gt;&gt; 4 &amp; 0xf) * 10 + (bcd &amp; 0xf);</span>
+<span class="lineNum">      27 </span>                :<span class="lineCov">        182 :         bcd &gt;&gt;= byteno * 8;</span>
+<span class="lineNum">      28 </span>                :<span class="lineCov">        182 :         return (bcd &gt;&gt; 4 &amp; 0xf) * 10 + (bcd &amp; 0xf);</span>
 <a name="29"><span class="lineNum">      29 </span>                :            : }</a>
 <span class="lineNum">      30 </span>                :            : 
-<span class="lineNum">      31 </span>                :<span class="lineCov">          7 : static inline uint32_t int_to_bcd2(unsigned int x)</span>
+<span class="lineNum">      31 </span>                :<span class="lineCov">        182 : static inline uint32_t int_to_bcd2(unsigned int x)</span>
 <span class="lineNum">      32 </span>                :            : {
-<span class="lineNum">      33 </span>                :<span class="lineCov">          7 :         return (((x / 10) &lt;&lt; 4) &amp; 0xf0) | (x % 10);</span>
+<span class="lineNum">      33 </span>                :<span class="lineCov">        182 :         return (((x / 10) &lt;&lt; 4) &amp; 0xf0) | (x % 10);</span>
 <a name="34"><span class="lineNum">      34 </span>                :            : }</a>
 <span class="lineNum">      35 </span>                :            : 
-<span class="lineNum">      36 </span>                :<span class="lineCov">          1 : static inline uint32_t int_to_bcd4(unsigned int x)</span>
+<span class="lineNum">      36 </span>                :<span class="lineCov">         26 : static inline uint32_t int_to_bcd4(unsigned int x)</span>
 <span class="lineNum">      37 </span>                :            : {
-<span class="lineNum">      38 </span>                :<span class="lineCov">          1 :         return int_to_bcd2(x / 100) &lt;&lt; 8 | int_to_bcd2(x % 100);</span>
+<span class="lineNum">      38 </span>                :<span class="lineCov">         26 :         return int_to_bcd2(x / 100) &lt;&lt; 8 | int_to_bcd2(x % 100);</span>
 <span class="lineNum">      39 </span>                :            : }
 <span class="lineNum">      40 </span>                :            : 
 <span class="lineNum">      41 </span>                :            : void tm_to_datetime(struct tm *tm, uint32_t *y_m_d, uint64_t *h_m_s_m);

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-09-16 09:52:43</td>
+            <td class="headerValue">2015-10-08 09:04:08</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">12</td>
@@ -77,252 +77,252 @@
 <span class="lineNum">       6 </span>                :            : #include &lt;rtc.h&gt;
 <a name="7"><span class="lineNum">       7 </span>                :            : </a>
 <span class="lineNum">       8 </span>                :            : /* Create MTMS section for sapphire log */
-<span class="lineNum">       9 </span>                :<span class="lineCov">          2 : static void create_mtms_section(struct errorlog *elog_data,</span>
+<span class="lineNum">       9 </span>                :<span class="lineCov">         24 : static void create_mtms_section(struct errorlog *elog_data,</span>
 <span class="lineNum">      10 </span>                :            :                                         char *pel_buffer, int *pel_offset)
 <span class="lineNum">      11 </span>                :            : {
-<span class="lineNum">      12 </span>                :<span class="lineCov">          2 :         struct opal_mtms_section *mtms = (struct opal_mtms_section *)</span>
-<span class="lineNum">      13 </span>                :<span class="lineCov">          2 :                                 (pel_buffer + *pel_offset);</span>
+<span class="lineNum">      12 </span>                :<span class="lineCov">         24 :         struct opal_mtms_section *mtms = (struct opal_mtms_section *)</span>
+<span class="lineNum">      13 </span>                :<span class="lineCov">         24 :                                 (pel_buffer + *pel_offset);</span>
 <span class="lineNum">      14 </span>                :            : 
-<span class="lineNum">      15 </span>                :<span class="lineCov">          2 :         mtms-&gt;v6header.id = ELOG_SID_MACHINE_TYPE;</span>
-<span class="lineNum">      16 </span>                :<span class="lineCov">          2 :         mtms-&gt;v6header.length = MTMS_SECTION_SIZE;</span>
-<span class="lineNum">      17 </span>                :<span class="lineCov">          2 :         mtms-&gt;v6header.version = OPAL_EXT_HRD_VER;</span>
-<span class="lineNum">      18 </span>                :<span class="lineCov">          2 :         mtms-&gt;v6header.subtype = 0;</span>
-<span class="lineNum">      19 </span>                :<span class="lineCov">          2 :         mtms-&gt;v6header.component_id = elog_data-&gt;component_id;</span>
+<span class="lineNum">      15 </span>                :<span class="lineCov">         24 :         mtms-&gt;v6header.id = ELOG_SID_MACHINE_TYPE;</span>
+<span class="lineNum">      16 </span>                :<span class="lineCov">         24 :         mtms-&gt;v6header.length = MTMS_SECTION_SIZE;</span>
+<span class="lineNum">      17 </span>                :<span class="lineCov">         24 :         mtms-&gt;v6header.version = OPAL_EXT_HRD_VER;</span>
+<span class="lineNum">      18 </span>                :<span class="lineCov">         24 :         mtms-&gt;v6header.subtype = 0;</span>
+<span class="lineNum">      19 </span>                :<span class="lineCov">         24 :         mtms-&gt;v6header.component_id = elog_data-&gt;component_id;</span>
 <span class="lineNum">      20 </span>                :            : 
-<span class="lineNum">      21 </span>                :<span class="lineCov">          2 :         memset(mtms-&gt;model, 0x00, sizeof(mtms-&gt;model));</span>
-<span class="lineNum">      22 </span>                :<span class="lineCov">          2 :         memcpy(mtms-&gt;model, dt_prop_get(dt_root, &quot;model&quot;), OPAL_SYS_MODEL_LEN);</span>
-<span class="lineNum">      23 </span>                :<span class="lineCov">          2 :         memset(mtms-&gt;serial_no, 0x00, sizeof(mtms-&gt;serial_no));</span>
+<span class="lineNum">      21 </span>                :<span class="lineCov">         24 :         memset(mtms-&gt;model, 0x00, sizeof(mtms-&gt;model));</span>
+<span class="lineNum">      22 </span>                :<span class="lineCov">         24 :         memcpy(mtms-&gt;model, dt_prop_get(dt_root, &quot;model&quot;), OPAL_SYS_MODEL_LEN);</span>
+<span class="lineNum">      23 </span>                :<span class="lineCov">         24 :         memset(mtms-&gt;serial_no, 0x00, sizeof(mtms-&gt;serial_no));</span>
 <span class="lineNum">      24 </span>                :            : 
-<span class="lineNum">      25 </span>                :<span class="lineCov">          2 :         memcpy(mtms-&gt;serial_no, dt_prop_get(dt_root, &quot;system-id&quot;),</span>
+<span class="lineNum">      25 </span>                :<span class="lineCov">         24 :         memcpy(mtms-&gt;serial_no, dt_prop_get(dt_root, &quot;system-id&quot;),</span>
 <span class="lineNum">      26 </span>                :            :                                                  OPAL_SYS_SERIAL_LEN);
-<span class="lineNum">      27 </span>                :<span class="lineCov">          2 :         *pel_offset += MTMS_SECTION_SIZE;</span>
-<span class="lineNum">      28 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">      27 </span>                :<span class="lineCov">         24 :         *pel_offset += MTMS_SECTION_SIZE;</span>
+<span class="lineNum">      28 </span>                :<span class="lineCov">         24 : }</span>
 <a name="29"><span class="lineNum">      29 </span>                :            : </a>
 <span class="lineNum">      30 </span>                :            : /* Create extended header section */
-<span class="lineNum">      31 </span>                :<span class="lineCov">          2 : static void create_extended_header_section(struct errorlog *elog_data,</span>
+<span class="lineNum">      31 </span>                :<span class="lineCov">         24 : static void create_extended_header_section(struct errorlog *elog_data,</span>
 <span class="lineNum">      32 </span>                :            :                                         char *pel_buffer, int *pel_offset)
 <span class="lineNum">      33 </span>                :            : {
-<span class="lineNum">      34 </span>                :<span class="lineCov">          2 :         const char  *opalmodel = NULL;</span>
+<span class="lineNum">      34 </span>                :<span class="lineCov">         24 :         const char  *opalmodel = NULL;</span>
 <span class="lineNum">      35 </span>                :            :         uint64_t extd_time;
 <span class="lineNum">      36 </span>                :            : 
-<span class="lineNum">      37 </span>                :<span class="lineCov">          2 :         struct opal_extended_header_section *extdhdr =</span>
-<span class="lineNum">      38 </span>                :<span class="lineCov">          2 :                         (struct opal_extended_header_section *)</span>
-<span class="lineNum">      39 </span>                :<span class="lineCov">          2 :                                         (pel_buffer + *pel_offset);</span>
+<span class="lineNum">      37 </span>                :<span class="lineCov">         24 :         struct opal_extended_header_section *extdhdr =</span>
+<span class="lineNum">      38 </span>                :<span class="lineCov">         24 :                         (struct opal_extended_header_section *)</span>
+<span class="lineNum">      39 </span>                :<span class="lineCov">         24 :                                         (pel_buffer + *pel_offset);</span>
 <span class="lineNum">      40 </span>                :            : 
-<span class="lineNum">      41 </span>                :<span class="lineCov">          2 :         extdhdr-&gt;v6header.id = ELOG_SID_EXTENDED_HEADER;</span>
-<span class="lineNum">      42 </span>                :<span class="lineCov">          2 :         extdhdr-&gt;v6header.length = EXTENDED_HEADER_SECTION_SIZE;</span>
-<span class="lineNum">      43 </span>                :<span class="lineCov">          2 :         extdhdr-&gt;v6header.version = OPAL_EXT_HRD_VER;</span>
-<span class="lineNum">      44 </span>                :<span class="lineCov">          2 :         extdhdr-&gt;v6header.subtype = 0;</span>
-<span class="lineNum">      45 </span>                :<span class="lineCov">          2 :         extdhdr-&gt;v6header.component_id = elog_data-&gt;component_id;</span>
+<span class="lineNum">      41 </span>                :<span class="lineCov">         24 :         extdhdr-&gt;v6header.id = ELOG_SID_EXTENDED_HEADER;</span>
+<span class="lineNum">      42 </span>                :<span class="lineCov">         24 :         extdhdr-&gt;v6header.length = EXTENDED_HEADER_SECTION_SIZE;</span>
+<span class="lineNum">      43 </span>                :<span class="lineCov">         24 :         extdhdr-&gt;v6header.version = OPAL_EXT_HRD_VER;</span>
+<span class="lineNum">      44 </span>                :<span class="lineCov">         24 :         extdhdr-&gt;v6header.subtype = 0;</span>
+<span class="lineNum">      45 </span>                :<span class="lineCov">         24 :         extdhdr-&gt;v6header.component_id = elog_data-&gt;component_id;</span>
 <span class="lineNum">      46 </span>                :            : 
-<span class="lineNum">      47 </span>                :<span class="lineCov">          2 :         memset(extdhdr-&gt;model, 0x00, sizeof(extdhdr-&gt;model));</span>
-<span class="lineNum">      48 </span>                :<span class="lineCov">          2 :         opalmodel = dt_prop_get(dt_root, &quot;model&quot;);</span>
-<span class="lineNum">      49 </span>                :<span class="lineCov">          2 :         memcpy(extdhdr-&gt;model, opalmodel, OPAL_SYS_MODEL_LEN);</span>
+<span class="lineNum">      47 </span>                :<span class="lineCov">         24 :         memset(extdhdr-&gt;model, 0x00, sizeof(extdhdr-&gt;model));</span>
+<span class="lineNum">      48 </span>                :<span class="lineCov">         24 :         opalmodel = dt_prop_get(dt_root, &quot;model&quot;);</span>
+<span class="lineNum">      49 </span>                :<span class="lineCov">         24 :         memcpy(extdhdr-&gt;model, opalmodel, OPAL_SYS_MODEL_LEN);</span>
 <span class="lineNum">      50 </span>                :            : 
-<span class="lineNum">      51 </span>                :<span class="lineCov">          2 :         memset(extdhdr-&gt;serial_no, 0x00, sizeof(extdhdr-&gt;serial_no));</span>
-<span class="lineNum">      52 </span>                :<span class="lineCov">          2 :         memcpy(extdhdr-&gt;serial_no, dt_prop_get(dt_root, &quot;system-id&quot;),</span>
+<span class="lineNum">      51 </span>                :<span class="lineCov">         24 :         memset(extdhdr-&gt;serial_no, 0x00, sizeof(extdhdr-&gt;serial_no));</span>
+<span class="lineNum">      52 </span>                :<span class="lineCov">         24 :         memcpy(extdhdr-&gt;serial_no, dt_prop_get(dt_root, &quot;system-id&quot;),</span>
 <span class="lineNum">      53 </span>                :            :                                                         OPAL_SYS_SERIAL_LEN);
 <span class="lineNum">      54 </span>                :            : 
-<span class="lineNum">      55 </span>                :<span class="lineCov">          2 :         memset(extdhdr-&gt;opal_release_version, 0x00,</span>
+<span class="lineNum">      55 </span>                :<span class="lineCov">         24 :         memset(extdhdr-&gt;opal_release_version, 0x00,</span>
 <span class="lineNum">      56 </span>                :            :                                 sizeof(extdhdr-&gt;opal_release_version));
-<span class="lineNum">      57 </span>                :<span class="lineCov">          2 :         memset(extdhdr-&gt;opal_subsys_version, 0x00,</span>
+<span class="lineNum">      57 </span>                :<span class="lineCov">         24 :         memset(extdhdr-&gt;opal_subsys_version, 0x00,</span>
 <span class="lineNum">      58 </span>                :            :                                 sizeof(extdhdr-&gt;opal_subsys_version));
 <span class="lineNum">      59 </span>                :            : 
-<span class="lineNum">      60 </span>                :<span class="lineCov">          2 :         rtc_cache_get_datetime(&amp;extdhdr-&gt;extended_header_date, &amp;extd_time);</span>
-<span class="lineNum">      61 </span>                :<span class="lineCov">          2 :         extdhdr-&gt;extended_header_time = extd_time &gt;&gt; 32;</span>
-<span class="lineNum">      62 </span>                :<span class="lineCov">          2 :         extdhdr-&gt;opal_symid_len = 0;</span>
+<span class="lineNum">      60 </span>                :<span class="lineCov">         24 :         rtc_cache_get_datetime(&amp;extdhdr-&gt;extended_header_date, &amp;extd_time);</span>
+<span class="lineNum">      61 </span>                :<span class="lineCov">         24 :         extdhdr-&gt;extended_header_time = extd_time &gt;&gt; 32;</span>
+<span class="lineNum">      62 </span>                :<span class="lineCov">         24 :         extdhdr-&gt;opal_symid_len = 0;</span>
 <span class="lineNum">      63 </span>                :            : 
-<span class="lineNum">      64 </span>                :<span class="lineCov">          2 :         *pel_offset += EXTENDED_HEADER_SECTION_SIZE;</span>
-<span class="lineNum">      65 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">      64 </span>                :<span class="lineCov">         24 :         *pel_offset += EXTENDED_HEADER_SECTION_SIZE;</span>
+<span class="lineNum">      65 </span>                :<span class="lineCov">         24 : }</span>
 <a name="66"><span class="lineNum">      66 </span>                :            : </a>
 <span class="lineNum">      67 </span>                :            : /* set src type */
-<span class="lineNum">      68 </span>                :<span class="lineCov">          2 : static void settype(struct opal_src_section *src, uint8_t src_type)</span>
+<span class="lineNum">      68 </span>                :<span class="lineCov">         24 : static void settype(struct opal_src_section *src, uint8_t src_type)</span>
 <span class="lineNum">      69 </span>                :            : {
 <span class="lineNum">      70 </span>                :            :         char type[4];
-<span class="lineNum">      71 </span>                :<span class="lineCov">          2 :         snprintf(type, sizeof(type), &quot;%02X&quot;, src_type);</span>
-<span class="lineNum">      72 </span>                :<span class="lineCov">          2 :         memcpy(src-&gt;srcstring, type, 2);</span>
-<span class="lineNum">      73 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">      71 </span>                :<span class="lineCov">         24 :         snprintf(type, sizeof(type), &quot;%02X&quot;, src_type);</span>
+<span class="lineNum">      72 </span>                :<span class="lineCov">         24 :         memcpy(src-&gt;srcstring, type, 2);</span>
+<span class="lineNum">      73 </span>                :<span class="lineCov">         24 : }</span>
 <a name="74"><span class="lineNum">      74 </span>                :            : </a>
 <span class="lineNum">      75 </span>                :            : /* set SRC subsystem type */
-<span class="lineNum">      76 </span>                :<span class="lineCov">          2 : static void setsubsys(struct opal_src_section *src, uint8_t src_subsys)</span>
+<span class="lineNum">      76 </span>                :<span class="lineCov">         24 : static void setsubsys(struct opal_src_section *src, uint8_t src_subsys)</span>
 <span class="lineNum">      77 </span>                :            : {
 <span class="lineNum">      78 </span>                :            :         char subsys[4];
-<span class="lineNum">      79 </span>                :<span class="lineCov">          2 :         snprintf(subsys, sizeof(subsys), &quot;%02X&quot;, src_subsys);</span>
-<span class="lineNum">      80 </span>                :<span class="lineCov">          2 :         memcpy(src-&gt;srcstring+2, subsys, 2);</span>
-<span class="lineNum">      81 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">      79 </span>                :<span class="lineCov">         24 :         snprintf(subsys, sizeof(subsys), &quot;%02X&quot;, src_subsys);</span>
+<span class="lineNum">      80 </span>                :<span class="lineCov">         24 :         memcpy(src-&gt;srcstring+2, subsys, 2);</span>
+<span class="lineNum">      81 </span>                :<span class="lineCov">         24 : }</span>
 <a name="82"><span class="lineNum">      82 </span>                :            : </a>
 <span class="lineNum">      83 </span>                :            : /* Ser reason code of SRC */
-<span class="lineNum">      84 </span>                :<span class="lineCov">          2 : static void setrefcode(struct opal_src_section *src, uint16_t src_refcode)</span>
+<span class="lineNum">      84 </span>                :<span class="lineCov">         24 : static void setrefcode(struct opal_src_section *src, uint16_t src_refcode)</span>
 <span class="lineNum">      85 </span>                :            : {
 <span class="lineNum">      86 </span>                :            :         char refcode[8];
-<span class="lineNum">      87 </span>                :<span class="lineCov">          2 :         snprintf(refcode, sizeof(refcode), &quot;%04X&quot;, src_refcode);</span>
-<span class="lineNum">      88 </span>                :<span class="lineCov">          2 :         memcpy(src-&gt;srcstring+4, refcode, 4);</span>
-<span class="lineNum">      89 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">      87 </span>                :<span class="lineCov">         24 :         snprintf(refcode, sizeof(refcode), &quot;%04X&quot;, src_refcode);</span>
+<span class="lineNum">      88 </span>                :<span class="lineCov">         24 :         memcpy(src-&gt;srcstring+4, refcode, 4);</span>
+<span class="lineNum">      89 </span>                :<span class="lineCov">         24 : }</span>
 <a name="90"><span class="lineNum">      90 </span>                :            : </a>
 <span class="lineNum">      91 </span>                :            : /* Create SRC section of OPAL log */
-<span class="lineNum">      92 </span>                :<span class="lineCov">          2 : static void create_src_section(struct errorlog *elog_data,</span>
+<span class="lineNum">      92 </span>                :<span class="lineCov">         24 : static void create_src_section(struct errorlog *elog_data,</span>
 <span class="lineNum">      93 </span>                :            :                                         char *pel_buffer, int *pel_offset)
 <span class="lineNum">      94 </span>                :            : {
-<span class="lineNum">      95 </span>                :<span class="lineCov">          2 :         struct opal_src_section *src = (struct opal_src_section *)</span>
-<span class="lineNum">      96 </span>                :<span class="lineCov">          2 :                                                 (pel_buffer + *pel_offset);</span>
+<span class="lineNum">      95 </span>                :<span class="lineCov">         24 :         struct opal_src_section *src = (struct opal_src_section *)</span>
+<span class="lineNum">      96 </span>                :<span class="lineCov">         24 :                                                 (pel_buffer + *pel_offset);</span>
 <span class="lineNum">      97 </span>                :            : 
-<span class="lineNum">      98 </span>                :<span class="lineCov">          2 :         src-&gt;v6header.id = ELOG_SID_PRIMARY_SRC;</span>
-<span class="lineNum">      99 </span>                :<span class="lineCov">          2 :         src-&gt;v6header.length = SRC_SECTION_SIZE;</span>
-<span class="lineNum">     100 </span>                :<span class="lineCov">          2 :         src-&gt;v6header.version = OPAL_ELOG_VERSION;</span>
-<span class="lineNum">     101 </span>                :<span class="lineCov">          2 :         src-&gt;v6header.subtype = OPAL_ELOG_SST;</span>
-<span class="lineNum">     102 </span>                :<span class="lineCov">          2 :         src-&gt;v6header.component_id = elog_data-&gt;component_id;</span>
+<span class="lineNum">      98 </span>                :<span class="lineCov">         24 :         src-&gt;v6header.id = ELOG_SID_PRIMARY_SRC;</span>
+<span class="lineNum">      99 </span>                :<span class="lineCov">         24 :         src-&gt;v6header.length = SRC_SECTION_SIZE;</span>
+<span class="lineNum">     100 </span>                :<span class="lineCov">         24 :         src-&gt;v6header.version = OPAL_ELOG_VERSION;</span>
+<span class="lineNum">     101 </span>                :<span class="lineCov">         24 :         src-&gt;v6header.subtype = OPAL_ELOG_SST;</span>
+<span class="lineNum">     102 </span>                :<span class="lineCov">         24 :         src-&gt;v6header.component_id = elog_data-&gt;component_id;</span>
 <span class="lineNum">     103 </span>                :            : 
-<span class="lineNum">     104 </span>                :<span class="lineCov">          2 :         src-&gt;version = OPAL_SRC_SEC_VER;</span>
-<span class="lineNum">     105 </span>                :<span class="lineCov">          2 :         src-&gt;flags = 0;</span>
-<span class="lineNum">     106 </span>                :<span class="lineCov">          2 :         src-&gt;wordcount = OPAL_SRC_MAX_WORD_COUNT;</span>
-<span class="lineNum">     107 </span>                :<span class="lineCov">          2 :         src-&gt;srclength = SRC_LENGTH;</span>
-<span class="lineNum">     108 </span>                :<span class="lineCov">          2 :         settype(src, OPAL_SRC_TYPE_ERROR);</span>
-<span class="lineNum">     109 </span>                :<span class="lineCov">          2 :         setsubsys(src, OPAL_FAILING_SUBSYSTEM);</span>
-<span class="lineNum">     110 </span>                :<span class="lineCov">          2 :         setrefcode(src, elog_data-&gt;reason_code);</span>
-<span class="lineNum">     111 </span>                :<span class="lineCov">          2 :         memset(src-&gt;hexwords, 0 , (8 * 4));</span>
-<span class="lineNum">     112 </span>                :<span class="lineCov">          2 :         src-&gt;hexwords[0] = OPAL_SRC_FORMAT;</span>
-<span class="lineNum">     113 </span>                :<span class="lineCov">          2 :         src-&gt;hexwords[4] = elog_data-&gt;additional_info[0];</span>
-<span class="lineNum">     114 </span>                :<span class="lineCov">          2 :         src-&gt;hexwords[5] = elog_data-&gt;additional_info[1];</span>
-<span class="lineNum">     115 </span>                :<span class="lineCov">          2 :         src-&gt;hexwords[6] = elog_data-&gt;additional_info[2];</span>
-<span class="lineNum">     116 </span>                :<span class="lineCov">          2 :         src-&gt;hexwords[7] = elog_data-&gt;additional_info[3];</span>
-<span class="lineNum">     117 </span>                :<span class="lineCov">          2 :         *pel_offset += SRC_SECTION_SIZE;</span>
-<span class="lineNum">     118 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">     104 </span>                :<span class="lineCov">         24 :         src-&gt;version = OPAL_SRC_SEC_VER;</span>
+<span class="lineNum">     105 </span>                :<span class="lineCov">         24 :         src-&gt;flags = 0;</span>
+<span class="lineNum">     106 </span>                :<span class="lineCov">         24 :         src-&gt;wordcount = OPAL_SRC_MAX_WORD_COUNT;</span>
+<span class="lineNum">     107 </span>                :<span class="lineCov">         24 :         src-&gt;srclength = SRC_LENGTH;</span>
+<span class="lineNum">     108 </span>                :<span class="lineCov">         24 :         settype(src, OPAL_SRC_TYPE_ERROR);</span>
+<span class="lineNum">     109 </span>                :<span class="lineCov">         24 :         setsubsys(src, OPAL_FAILING_SUBSYSTEM);</span>
+<span class="lineNum">     110 </span>                :<span class="lineCov">         24 :         setrefcode(src, elog_data-&gt;reason_code);</span>
+<span class="lineNum">     111 </span>                :<span class="lineCov">         24 :         memset(src-&gt;hexwords, 0 , (8 * 4));</span>
+<span class="lineNum">     112 </span>                :<span class="lineCov">         24 :         src-&gt;hexwords[0] = OPAL_SRC_FORMAT;</span>
+<span class="lineNum">     113 </span>                :<span class="lineCov">         24 :         src-&gt;hexwords[4] = elog_data-&gt;additional_info[0];</span>
+<span class="lineNum">     114 </span>                :<span class="lineCov">         24 :         src-&gt;hexwords[5] = elog_data-&gt;additional_info[1];</span>
+<span class="lineNum">     115 </span>                :<span class="lineCov">         24 :         src-&gt;hexwords[6] = elog_data-&gt;additional_info[2];</span>
+<span class="lineNum">     116 </span>                :<span class="lineCov">         24 :         src-&gt;hexwords[7] = elog_data-&gt;additional_info[3];</span>
+<span class="lineNum">     117 </span>                :<span class="lineCov">         24 :         *pel_offset += SRC_SECTION_SIZE;</span>
+<span class="lineNum">     118 </span>                :<span class="lineCov">         24 : }</span>
 <a name="119"><span class="lineNum">     119 </span>                :            : </a>
 <span class="lineNum">     120 </span>                :            : /* Create user header section */
-<span class="lineNum">     121 </span>                :<span class="lineCov">          2 : static void create_user_header_section(struct errorlog *elog_data,</span>
+<span class="lineNum">     121 </span>                :<span class="lineCov">         24 : static void create_user_header_section(struct errorlog *elog_data,</span>
 <span class="lineNum">     122 </span>                :            :                                         char *pel_buffer, int *pel_offset)
 <span class="lineNum">     123 </span>                :            : {
-<span class="lineNum">     124 </span>                :<span class="lineCov">          2 :         struct opal_user_header_section *usrhdr =</span>
-<span class="lineNum">     125 </span>                :<span class="lineCov">          2 :                                 (struct opal_user_header_section *)</span>
-<span class="lineNum">     126 </span>                :<span class="lineCov">          2 :                                                 (pel_buffer + *pel_offset);</span>
+<span class="lineNum">     124 </span>                :<span class="lineCov">         24 :         struct opal_user_header_section *usrhdr =</span>
+<span class="lineNum">     125 </span>                :<span class="lineCov">         24 :                                 (struct opal_user_header_section *)</span>
+<span class="lineNum">     126 </span>                :<span class="lineCov">         24 :                                                 (pel_buffer + *pel_offset);</span>
 <span class="lineNum">     127 </span>                :            : 
-<span class="lineNum">     128 </span>                :<span class="lineCov">          2 :         usrhdr-&gt;v6header.id = ELOG_SID_USER_HEADER;</span>
-<span class="lineNum">     129 </span>                :<span class="lineCov">          2 :         usrhdr-&gt;v6header.length = USER_HEADER_SECTION_SIZE;</span>
-<span class="lineNum">     130 </span>                :<span class="lineCov">          2 :         usrhdr-&gt;v6header.version = OPAL_ELOG_VERSION;</span>
-<span class="lineNum">     131 </span>                :<span class="lineCov">          2 :         usrhdr-&gt;v6header.subtype = OPAL_ELOG_SST;</span>
-<span class="lineNum">     132 </span>                :<span class="lineCov">          2 :         usrhdr-&gt;v6header.component_id = elog_data-&gt;component_id;</span>
+<span class="lineNum">     128 </span>                :<span class="lineCov">         24 :         usrhdr-&gt;v6header.id = ELOG_SID_USER_HEADER;</span>
+<span class="lineNum">     129 </span>                :<span class="lineCov">         24 :         usrhdr-&gt;v6header.length = USER_HEADER_SECTION_SIZE;</span>
+<span class="lineNum">     130 </span>                :<span class="lineCov">         24 :         usrhdr-&gt;v6header.version = OPAL_ELOG_VERSION;</span>
+<span class="lineNum">     131 </span>                :<span class="lineCov">         24 :         usrhdr-&gt;v6header.subtype = OPAL_ELOG_SST;</span>
+<span class="lineNum">     132 </span>                :<span class="lineCov">         24 :         usrhdr-&gt;v6header.component_id = elog_data-&gt;component_id;</span>
 <span class="lineNum">     133 </span>                :            : 
-<span class="lineNum">     134 </span>                :<span class="lineCov">          2 :         usrhdr-&gt;subsystem_id = elog_data-&gt;subsystem_id;</span>
-<span class="lineNum">     135 </span>                :<span class="lineCov">          2 :         usrhdr-&gt;event_scope = 0;</span>
-<span class="lineNum">     136 </span>                :<span class="lineCov">          2 :         usrhdr-&gt;event_severity = elog_data-&gt;event_severity;</span>
-<span class="lineNum">     137 </span>                :<span class="lineCov">          2 :         usrhdr-&gt;event_type = elog_data-&gt;event_subtype;</span>
+<span class="lineNum">     134 </span>                :<span class="lineCov">         24 :         usrhdr-&gt;subsystem_id = elog_data-&gt;subsystem_id;</span>
+<span class="lineNum">     135 </span>                :<span class="lineCov">         24 :         usrhdr-&gt;event_scope = 0;</span>
+<span class="lineNum">     136 </span>                :<span class="lineCov">         24 :         usrhdr-&gt;event_severity = elog_data-&gt;event_severity;</span>
+<span class="lineNum">     137 </span>                :<span class="lineCov">         24 :         usrhdr-&gt;event_type = elog_data-&gt;event_subtype;</span>
 <span class="lineNum">     138 </span>                :            : 
-<span class="lineNum">     139 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (elog_data-&gt;elog_origin == ORG_SAPPHIRE)</span>
-<span class="lineNum">     140 </span>                :<span class="lineCov">          2 :                 usrhdr-&gt;action_flags = ERRL_ACTION_REPORT;</span>
+<span class="lineNum">     139 </span>        [<span class="branchCov" title="Branch 0 was taken 24 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         24 :         if (elog_data-&gt;elog_origin == ORG_SAPPHIRE)</span>
+<span class="lineNum">     140 </span>                :<span class="lineCov">         24 :                 usrhdr-&gt;action_flags = ERRL_ACTION_REPORT;</span>
 <span class="lineNum">     141 </span>                :            :         else
 <span class="lineNum">     142 </span>                :<span class="lineNoCov">          0 :                 usrhdr-&gt;action_flags = ERRL_ACTION_NONE;</span>
 <span class="lineNum">     143 </span>                :            : 
-<span class="lineNum">     144 </span>                :<span class="lineCov">          2 :         *pel_offset += USER_HEADER_SECTION_SIZE;</span>
-<span class="lineNum">     145 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">     144 </span>                :<span class="lineCov">         24 :         *pel_offset += USER_HEADER_SECTION_SIZE;</span>
+<span class="lineNum">     145 </span>                :<span class="lineCov">         24 : }</span>
 <a name="146"><span class="lineNum">     146 </span>                :            : </a>
 <span class="lineNum">     147 </span>                :            : /* Create private header section */
-<span class="lineNum">     148 </span>                :<span class="lineCov">          2 : static void create_private_header_section(struct errorlog *elog_data,</span>
+<span class="lineNum">     148 </span>                :<span class="lineCov">         24 : static void create_private_header_section(struct errorlog *elog_data,</span>
 <span class="lineNum">     149 </span>                :            :                                         char *pel_buffer, int *pel_offset)
 <span class="lineNum">     150 </span>                :            : {
 <span class="lineNum">     151 </span>                :            :         uint64_t ctime;
-<span class="lineNum">     152 </span>                :<span class="lineCov">          2 :         struct opal_private_header_section *privhdr =</span>
+<span class="lineNum">     152 </span>                :<span class="lineCov">         24 :         struct opal_private_header_section *privhdr =</span>
 <span class="lineNum">     153 </span>                :            :                                 (struct opal_private_header_section *)
 <span class="lineNum">     154 </span>                :            :                                                                 pel_buffer;
 <span class="lineNum">     155 </span>                :            : 
-<span class="lineNum">     156 </span>                :<span class="lineCov">          2 :         privhdr-&gt;v6header.id = ELOG_SID_PRIVATE_HEADER;</span>
-<span class="lineNum">     157 </span>                :<span class="lineCov">          2 :         privhdr-&gt;v6header.length = PRIVATE_HEADER_SECTION_SIZE;</span>
-<span class="lineNum">     158 </span>                :<span class="lineCov">          2 :         privhdr-&gt;v6header.version = OPAL_ELOG_VERSION;</span>
-<span class="lineNum">     159 </span>                :<span class="lineCov">          2 :         privhdr-&gt;v6header.subtype = OPAL_ELOG_SST;</span>
-<span class="lineNum">     160 </span>                :<span class="lineCov">          2 :         privhdr-&gt;v6header.component_id = elog_data-&gt;component_id;</span>
-<span class="lineNum">     161 </span>                :<span class="lineCov">          2 :         privhdr-&gt;plid = elog_data-&gt;plid;</span>
+<span class="lineNum">     156 </span>                :<span class="lineCov">         24 :         privhdr-&gt;v6header.id = ELOG_SID_PRIVATE_HEADER;</span>
+<span class="lineNum">     157 </span>                :<span class="lineCov">         24 :         privhdr-&gt;v6header.length = PRIVATE_HEADER_SECTION_SIZE;</span>
+<span class="lineNum">     158 </span>                :<span class="lineCov">         24 :         privhdr-&gt;v6header.version = OPAL_ELOG_VERSION;</span>
+<span class="lineNum">     159 </span>                :<span class="lineCov">         24 :         privhdr-&gt;v6header.subtype = OPAL_ELOG_SST;</span>
+<span class="lineNum">     160 </span>                :<span class="lineCov">         24 :         privhdr-&gt;v6header.component_id = elog_data-&gt;component_id;</span>
+<span class="lineNum">     161 </span>                :<span class="lineCov">         24 :         privhdr-&gt;plid = elog_data-&gt;plid;</span>
 <span class="lineNum">     162 </span>                :            : 
-<span class="lineNum">     163 </span>                :<span class="lineCov">          2 :         rtc_cache_get_datetime(&amp;privhdr-&gt;create_date, &amp;ctime);</span>
-<span class="lineNum">     164 </span>                :<span class="lineCov">          2 :         privhdr-&gt;create_time = ctime &gt;&gt; 32;</span>
-<span class="lineNum">     165 </span>                :<span class="lineCov">          2 :         privhdr-&gt;section_count = 5;</span>
+<span class="lineNum">     163 </span>                :<span class="lineCov">         24 :         rtc_cache_get_datetime(&amp;privhdr-&gt;create_date, &amp;ctime);</span>
+<span class="lineNum">     164 </span>                :<span class="lineCov">         24 :         privhdr-&gt;create_time = ctime &gt;&gt; 32;</span>
+<span class="lineNum">     165 </span>                :<span class="lineCov">         24 :         privhdr-&gt;section_count = 5;</span>
 <span class="lineNum">     166 </span>                :            : 
-<span class="lineNum">     167 </span>                :<span class="lineCov">          2 :         privhdr-&gt;creator_subid_hi = 0x00;</span>
-<span class="lineNum">     168 </span>                :<span class="lineCov">          2 :         privhdr-&gt;creator_subid_lo = 0x00;</span>
+<span class="lineNum">     167 </span>                :<span class="lineCov">         24 :         privhdr-&gt;creator_subid_hi = 0x00;</span>
+<span class="lineNum">     168 </span>                :<span class="lineCov">         24 :         privhdr-&gt;creator_subid_lo = 0x00;</span>
 <span class="lineNum">     169 </span>                :            : 
-<span class="lineNum">     170 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          2 :         if (elog_data-&gt;elog_origin == ORG_SAPPHIRE)</span>
-<span class="lineNum">     171 </span>                :<span class="lineCov">          2 :                 privhdr-&gt;creator_id = OPAL_CID_SAPPHIRE;</span>
+<span class="lineNum">     170 </span>        [<span class="branchCov" title="Branch 0 was taken 24 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">         24 :         if (elog_data-&gt;elog_origin == ORG_SAPPHIRE)</span>
+<span class="lineNum">     171 </span>                :<span class="lineCov">         24 :                 privhdr-&gt;creator_id = OPAL_CID_SAPPHIRE;</span>
 <span class="lineNum">     172 </span>                :            :         else
 <span class="lineNum">     173 </span>                :<span class="lineNoCov">          0 :                 privhdr-&gt;creator_id = OPAL_CID_POWERNV;</span>
 <span class="lineNum">     174 </span>                :            : 
-<span class="lineNum">     175 </span>                :<span class="lineCov">          2 :         privhdr-&gt;log_entry_id = elog_data-&gt;plid; /*entry id is updated by FSP*/</span>
+<span class="lineNum">     175 </span>                :<span class="lineCov">         24 :         privhdr-&gt;log_entry_id = elog_data-&gt;plid; /*entry id is updated by FSP*/</span>
 <span class="lineNum">     176 </span>                :            : 
-<span class="lineNum">     177 </span>                :<span class="lineCov">          2 :         *pel_offset += PRIVATE_HEADER_SECTION_SIZE;</span>
-<a name="178"><span class="lineNum">     178 </span>                :<span class="lineCov">          2 : }</span></a>
+<span class="lineNum">     177 </span>                :<span class="lineCov">         24 :         *pel_offset += PRIVATE_HEADER_SECTION_SIZE;</span>
+<a name="178"><span class="lineNum">     178 </span>                :<span class="lineCov">         24 : }</span></a>
 <span class="lineNum">     179 </span>                :            : 
-<span class="lineNum">     180 </span>                :<span class="lineCov">          1 : static void create_user_defined_section(struct errorlog *elog_data,</span>
+<span class="lineNum">     180 </span>                :<span class="lineCov">         12 : static void create_user_defined_section(struct errorlog *elog_data,</span>
 <span class="lineNum">     181 </span>                :            :                                         char *pel_buffer, int *pel_offset)
 <span class="lineNum">     182 </span>                :            : {
-<span class="lineNum">     183 </span>                :<span class="lineCov">          1 :         char *dump = (char *)pel_buffer + *pel_offset;</span>
-<span class="lineNum">     184 </span>                :<span class="lineCov">          1 :         char *opal_buf = (char *)elog_data-&gt;user_data_dump;</span>
+<span class="lineNum">     183 </span>                :<span class="lineCov">         12 :         char *dump = (char *)pel_buffer + *pel_offset;</span>
+<span class="lineNum">     184 </span>                :<span class="lineCov">         12 :         char *opal_buf = (char *)elog_data-&gt;user_data_dump;</span>
 <span class="lineNum">     185 </span>                :            :         struct opal_user_section *usrhdr;
 <span class="lineNum">     186 </span>                :            :         struct elog_user_data_section *opal_usr_data;
-<span class="lineNum">     187 </span>                :<span class="lineCov">          1 :         struct opal_private_header_section *privhdr =</span>
+<span class="lineNum">     187 </span>                :<span class="lineCov">         12 :         struct opal_private_header_section *privhdr =</span>
 <span class="lineNum">     188 </span>                :            :                          (struct opal_private_header_section *)pel_buffer;
 <span class="lineNum">     189 </span>                :            :         int i;
 <span class="lineNum">     190 </span>                :            : 
-<span class="lineNum">     191 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         for (i = 0; i &lt; elog_data-&gt;user_section_count; i++) {</span>
+<span class="lineNum">     191 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         24 :         for (i = 0; i &lt; elog_data-&gt;user_section_count; i++) {</span>
 <span class="lineNum">     192 </span>                :            : 
-<span class="lineNum">     193 </span>                :<span class="lineCov">          1 :                 usrhdr = (struct opal_user_section *)dump;</span>
-<span class="lineNum">     194 </span>                :<span class="lineCov">          1 :                 opal_usr_data = (struct elog_user_data_section *)opal_buf;</span>
+<span class="lineNum">     193 </span>                :<span class="lineCov">         12 :                 usrhdr = (struct opal_user_section *)dump;</span>
+<span class="lineNum">     194 </span>                :<span class="lineCov">         12 :                 opal_usr_data = (struct elog_user_data_section *)opal_buf;</span>
 <span class="lineNum">     195 </span>                :            : 
-<span class="lineNum">     196 </span>                :<span class="lineCov">          1 :                 usrhdr-&gt;v6header.id = ELOG_SID_USER_DEFINED;</span>
-<span class="lineNum">     197 </span>                :<span class="lineCov">          1 :                 usrhdr-&gt;v6header.version = OPAL_ELOG_VERSION;</span>
-<span class="lineNum">     198 </span>                :<span class="lineCov">          1 :                 usrhdr-&gt;v6header.length = sizeof(struct opal_v6_header) +</span>
-<span class="lineNum">     199 </span>                :<span class="lineCov">          1 :                                                         opal_usr_data-&gt;size;</span>
-<span class="lineNum">     200 </span>                :<span class="lineCov">          1 :                 usrhdr-&gt;v6header.subtype = OPAL_ELOG_SST;</span>
-<span class="lineNum">     201 </span>                :<span class="lineCov">          1 :                 usrhdr-&gt;v6header.component_id = elog_data-&gt;component_id;</span>
+<span class="lineNum">     196 </span>                :<span class="lineCov">         12 :                 usrhdr-&gt;v6header.id = ELOG_SID_USER_DEFINED;</span>
+<span class="lineNum">     197 </span>                :<span class="lineCov">         12 :                 usrhdr-&gt;v6header.version = OPAL_ELOG_VERSION;</span>
+<span class="lineNum">     198 </span>                :<span class="lineCov">         12 :                 usrhdr-&gt;v6header.length = sizeof(struct opal_v6_header) +</span>
+<span class="lineNum">     199 </span>                :<span class="lineCov">         12 :                                                         opal_usr_data-&gt;size;</span>
+<span class="lineNum">     200 </span>                :<span class="lineCov">         12 :                 usrhdr-&gt;v6header.subtype = OPAL_ELOG_SST;</span>
+<span class="lineNum">     201 </span>                :<span class="lineCov">         12 :                 usrhdr-&gt;v6header.component_id = elog_data-&gt;component_id;</span>
 <span class="lineNum">     202 </span>                :            : 
-<span class="lineNum">     203 </span>                :<span class="lineCov">          1 :                 memcpy(usrhdr-&gt;dump, opal_buf, opal_usr_data-&gt;size);</span>
-<span class="lineNum">     204 </span>                :<span class="lineCov">          1 :                 *pel_offset += usrhdr-&gt;v6header.length;</span>
-<span class="lineNum">     205 </span>                :<span class="lineCov">          1 :                 dump += usrhdr-&gt;v6header.length;</span>
-<span class="lineNum">     206 </span>                :<span class="lineCov">          1 :                 opal_buf += opal_usr_data-&gt;size;</span>
-<span class="lineNum">     207 </span>                :<span class="lineCov">          1 :                 privhdr-&gt;section_count++;</span>
+<span class="lineNum">     203 </span>                :<span class="lineCov">         12 :                 memcpy(usrhdr-&gt;dump, opal_buf, opal_usr_data-&gt;size);</span>
+<span class="lineNum">     204 </span>                :<span class="lineCov">         12 :                 *pel_offset += usrhdr-&gt;v6header.length;</span>
+<span class="lineNum">     205 </span>                :<span class="lineCov">         12 :                 dump += usrhdr-&gt;v6header.length;</span>
+<span class="lineNum">     206 </span>                :<span class="lineCov">         12 :                 opal_buf += opal_usr_data-&gt;size;</span>
+<span class="lineNum">     207 </span>                :<span class="lineCov">         12 :                 privhdr-&gt;section_count++;</span>
 <span class="lineNum">     208 </span>                :            :         }
-<a name="209"><span class="lineNum">     209 </span>                :<span class="lineCov">          1 : }</span></a>
+<a name="209"><span class="lineNum">     209 </span>                :<span class="lineCov">         12 : }</span></a>
 <span class="lineNum">     210 </span>                :            : 
-<span class="lineNum">     211 </span>                :<span class="lineCov">          6 : static size_t pel_user_section_size(struct errorlog *elog_data)</span>
+<span class="lineNum">     211 </span>                :<span class="lineCov">         72 : static size_t pel_user_section_size(struct errorlog *elog_data)</span>
 <span class="lineNum">     212 </span>                :            : {
 <span class="lineNum">     213 </span>                :            :         int i;
-<span class="lineNum">     214 </span>                :<span class="lineCov">          6 :         size_t total = 0;</span>
-<span class="lineNum">     215 </span>                :<span class="lineCov">          6 :         char *opal_buf = (char *)elog_data-&gt;user_data_dump;</span>
+<span class="lineNum">     214 </span>                :<span class="lineCov">         72 :         size_t total = 0;</span>
+<span class="lineNum">     215 </span>                :<span class="lineCov">         72 :         char *opal_buf = (char *)elog_data-&gt;user_data_dump;</span>
 <span class="lineNum">     216 </span>                :            :         struct elog_user_data_section *opal_usr_data;
 <span class="lineNum">     217 </span>                :            : 
-<span class="lineNum">     218 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 6 times"> + </span>]:<span class="lineCov">          8 :         for (i = 0; i &lt; elog_data-&gt;user_section_count; i++) {</span>
-<span class="lineNum">     219 </span>                :<span class="lineCov">          2 :                 opal_usr_data = (struct elog_user_data_section *)opal_buf;</span>
-<span class="lineNum">     220 </span>                :<span class="lineCov">          2 :                 total += sizeof(struct opal_v6_header) +</span>
-<span class="lineNum">     221 </span>                :<span class="lineCov">          2 :                         opal_usr_data-&gt;size;</span>
-<span class="lineNum">     222 </span>                :<span class="lineCov">          2 :                 opal_buf += opal_usr_data-&gt;size;</span>
+<span class="lineNum">     218 </span>        [<span class="branchCov" title="Branch 0 was taken 24 times"> + </span><span class="branchCov" title="Branch 1 was taken 72 times"> + </span>]:<span class="lineCov">         96 :         for (i = 0; i &lt; elog_data-&gt;user_section_count; i++) {</span>
+<span class="lineNum">     219 </span>                :<span class="lineCov">         24 :                 opal_usr_data = (struct elog_user_data_section *)opal_buf;</span>
+<span class="lineNum">     220 </span>                :<span class="lineCov">         24 :                 total += sizeof(struct opal_v6_header) +</span>
+<span class="lineNum">     221 </span>                :<span class="lineCov">         24 :                         opal_usr_data-&gt;size;</span>
+<span class="lineNum">     222 </span>                :<span class="lineCov">         24 :                 opal_buf += opal_usr_data-&gt;size;</span>
 <span class="lineNum">     223 </span>                :            :         }
 <span class="lineNum">     224 </span>                :            : 
-<span class="lineNum">     225 </span>                :<span class="lineCov">          6 :         return total;</span>
+<span class="lineNum">     225 </span>                :<span class="lineCov">         72 :         return total;</span>
 <a name="226"><span class="lineNum">     226 </span>                :            : }</a>
 <span class="lineNum">     227 </span>                :            : 
-<span class="lineNum">     228 </span>                :<span class="lineCov">          6 : size_t pel_size(struct errorlog *elog_data)</span>
+<span class="lineNum">     228 </span>                :<span class="lineCov">         72 : size_t pel_size(struct errorlog *elog_data)</span>
 <span class="lineNum">     229 </span>                :            : {
-<span class="lineNum">     230 </span>                :<span class="lineCov">          6 :         return PEL_MIN_SIZE + pel_user_section_size(elog_data);</span>
+<span class="lineNum">     230 </span>                :<span class="lineCov">         72 :         return PEL_MIN_SIZE + pel_user_section_size(elog_data);</span>
 <span class="lineNum">     231 </span>                :            : }
 <a name="232"><span class="lineNum">     232 </span>                :            : </a>
 <span class="lineNum">     233 </span>                :            : /* Converts an OPAL errorlog into a PEL formatted log */
-<span class="lineNum">     234 </span>                :<span class="lineCov">          3 : int create_pel_log(struct errorlog *elog_data, char *pel_buffer,</span>
+<span class="lineNum">     234 </span>                :<span class="lineCov">         36 : int create_pel_log(struct errorlog *elog_data, char *pel_buffer,</span>
 <span class="lineNum">     235 </span>                :            :                    size_t pel_buffer_size)
 <span class="lineNum">     236 </span>                :            : {
-<span class="lineNum">     237 </span>                :<span class="lineCov">          3 :         int pel_offset = 0;</span>
+<span class="lineNum">     237 </span>                :<span class="lineCov">         36 :         int pel_offset = 0;</span>
 <span class="lineNum">     238 </span>                :            : 
-<span class="lineNum">     239 </span>        [<span class="branchCov" title="Branch 1 was taken 1 time"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          3 :         if (pel_buffer_size &lt; pel_size(elog_data)) {</span>
-<span class="lineNum">     240 </span>                :<span class="lineCov">          1 :                 prerror(&quot;PEL buffer too small to create record\n&quot;);</span>
-<span class="lineNum">     241 </span>                :<span class="lineCov">          1 :                 return 0;</span>
+<span class="lineNum">     239 </span>        [<span class="branchCov" title="Branch 1 was taken 12 times"> + </span><span class="branchCov" title="Branch 2 was taken 24 times"> + </span>]:<span class="lineCov">         36 :         if (pel_buffer_size &lt; pel_size(elog_data)) {</span>
+<span class="lineNum">     240 </span>                :<span class="lineCov">         12 :                 prerror(&quot;PEL buffer too small to create record\n&quot;);</span>
+<span class="lineNum">     241 </span>                :<span class="lineCov">         12 :                 return 0;</span>
 <span class="lineNum">     242 </span>                :            :         }
 <span class="lineNum">     243 </span>                :            : 
-<span class="lineNum">     244 </span>                :<span class="lineCov">          2 :         memset(pel_buffer, 0, pel_buffer_size);</span>
+<span class="lineNum">     244 </span>                :<span class="lineCov">         24 :         memset(pel_buffer, 0, pel_buffer_size);</span>
 <span class="lineNum">     245 </span>                :            : 
-<span class="lineNum">     246 </span>                :<span class="lineCov">          2 :         create_private_header_section(elog_data, pel_buffer, &amp;pel_offset);</span>
-<span class="lineNum">     247 </span>                :<span class="lineCov">          2 :         create_user_header_section(elog_data, pel_buffer, &amp;pel_offset);</span>
-<span class="lineNum">     248 </span>                :<span class="lineCov">          2 :         create_src_section(elog_data, pel_buffer, &amp;pel_offset);</span>
-<span class="lineNum">     249 </span>                :<span class="lineCov">          2 :         create_extended_header_section(elog_data, pel_buffer, &amp;pel_offset);</span>
-<span class="lineNum">     250 </span>                :<span class="lineCov">          2 :         create_mtms_section(elog_data, pel_buffer, &amp;pel_offset);</span>
-<span class="lineNum">     251 </span>        [<span class="branchCov" title="Branch 0 was taken 1 time"> + </span><span class="branchCov" title="Branch 1 was taken 1 time"> + </span>]:<span class="lineCov">          2 :         if (elog_data-&gt;user_section_count)</span>
-<span class="lineNum">     252 </span>                :<span class="lineCov">          1 :                 create_user_defined_section(elog_data, pel_buffer, &amp;pel_offset);</span>
+<span class="lineNum">     246 </span>                :<span class="lineCov">         24 :         create_private_header_section(elog_data, pel_buffer, &amp;pel_offset);</span>
+<span class="lineNum">     247 </span>                :<span class="lineCov">         24 :         create_user_header_section(elog_data, pel_buffer, &amp;pel_offset);</span>
+<span class="lineNum">     248 </span>                :<span class="lineCov">         24 :         create_src_section(elog_data, pel_buffer, &amp;pel_offset);</span>
+<span class="lineNum">     249 </span>                :<span class="lineCov">         24 :         create_extended_header_section(elog_data, pel_buffer, &amp;pel_offset);</span>
+<span class="lineNum">     250 </span>                :<span class="lineCov">         24 :         create_mtms_section(elog_data, pel_buffer, &amp;pel_offset);</span>
+<span class="lineNum">     251 </span>        [<span class="branchCov" title="Branch 0 was taken 12 times"> + </span><span class="branchCov" title="Branch 1 was taken 12 times"> + </span>]:<span class="lineCov">         24 :         if (elog_data-&gt;user_section_count)</span>
+<span class="lineNum">     252 </span>                :<span class="lineCov">         12 :                 create_user_defined_section(elog_data, pel_buffer, &amp;pel_offset);</span>
 <span class="lineNum">     253 </span>                :            : 
-<span class="lineNum">     254 </span>                :<span class="lineCov">          3 :         return pel_offset;</span>
+<span class="lineNum">     254 </span>                :<span class="lineCov">         36 :         return pel_offset;</span>
 <span class="lineNum">     255 </span>                :            : }
 </pre>
       </td>
