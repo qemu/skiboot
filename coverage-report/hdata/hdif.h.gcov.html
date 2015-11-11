@@ -1,0 +1,226 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot.info - hdata/hdif.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">hdata</a> - hdif.h<span style="font-size: 80%;"> (source / <a href="hdif.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-11-11 16:28:11</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">4</td>
+            <td class="headerCovTableEntryLo">50.0 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #ifndef __HDIF_H
+<span class="lineNum">      18 </span>                :            : #define __HDIF_H
+<span class="lineNum">      19 </span>                :            : 
+<span class="lineNum">      20 </span>                :            : #include &lt;skiboot.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;types.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;ccan/endian/endian.h&gt;
+<span class="lineNum">      23 </span>                :            : 
+<span class="lineNum">      24 </span>                :            : struct HDIF_common_hdr {
+<span class="lineNum">      25 </span>                :            :         __be16  d1f0;           /* 0xd1f0 */
+<span class="lineNum">      26 </span>                :            :         char    id[6];          /* eye catcher string */
+<span class="lineNum">      27 </span>                :            :         __be16  instnum;        /* instance number */
+<span class="lineNum">      28 </span>                :            :         __be16  version;        /* version */
+<span class="lineNum">      29 </span>                :            :         __be32  total_len;      /* total structure length */
+<span class="lineNum">      30 </span>                :            :         __be32  hdr_len;        /* header length (currently 0x20) */
+<span class="lineNum">      31 </span>                :            :         __be32  idptr_off;      /* offset to idata pointers */
+<span class="lineNum">      32 </span>                :            :         __be16  idptr_count;    /* number of idata pointers */
+<span class="lineNum">      33 </span>                :            :         __be16  child_count;    /* number of child structures */
+<span class="lineNum">      34 </span>                :            :         __be32  child_off;      /* offset to child structures array */
+<span class="lineNum">      35 </span>                :            : } __packed __align(0x10);
+<span class="lineNum">      36 </span>                :            : 
+<span class="lineNum">      37 </span>                :            : struct HDIF_idata_ptr {
+<span class="lineNum">      38 </span>                :            :         __be32  offset;
+<span class="lineNum">      39 </span>                :            :         __be32  size;
+<span class="lineNum">      40 </span>                :            : } __packed __align(0x8);
+<span class="lineNum">      41 </span>                :            : 
+<span class="lineNum">      42 </span>                :            : struct HDIF_array_hdr {
+<span class="lineNum">      43 </span>                :            :         __be32  offset;
+<span class="lineNum">      44 </span>                :            :         __be32  ecnt;
+<span class="lineNum">      45 </span>                :            :         __be32  esize;
+<span class="lineNum">      46 </span>                :            :         __be32  eactsz;
+<span class="lineNum">      47 </span>                :            : } __packed __align(0x10);
+<span class="lineNum">      48 </span>                :            : 
+<span class="lineNum">      49 </span>                :            : struct HDIF_child_ptr {
+<span class="lineNum">      50 </span>                :            :         __be32  offset;
+<span class="lineNum">      51 </span>                :            :         __be32  size;
+<span class="lineNum">      52 </span>                :            :         __be32  count;
+<span class="lineNum">      53 </span>                :            : } __packed;
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            : #define HDIF_HDR_LEN            (sizeof(struct HDIF_common_hdr))
+<span class="lineNum">      56 </span>                :            : #define HDIF_ARRAY_OFFSET       (sizeof(struct HDIF_array_hdr))
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :            : #define HDIF_ID(_id)            .d1f0 = CPU_TO_BE16(0xd1f0), .id = _id
+<span class="lineNum">      59 </span>                :            : 
+<span class="lineNum">      60 </span>                :            : #define HDIF_SIMPLE_HDR(id, vers, type)                 \
+<span class="lineNum">      61 </span>                :            : {                                                       \
+<span class="lineNum">      62 </span>                :            :         HDIF_ID(id),                                    \
+<span class="lineNum">      63 </span>                :            :         .instnum        = CPU_TO_BE16(0),               \
+<span class="lineNum">      64 </span>                :            :         .version        = CPU_TO_BE16(vers),            \
+<span class="lineNum">      65 </span>                :            :         .total_len      = CPU_TO_BE32(sizeof(type)),    \
+<span class="lineNum">      66 </span>                :            :         .hdr_len        = CPU_TO_BE32(HDIF_HDR_LEN),    \
+<span class="lineNum">      67 </span>                :            :         .idptr_off      = CPU_TO_BE32(HDIF_HDR_LEN),    \
+<span class="lineNum">      68 </span>                :            :         .idptr_count    = CPU_TO_BE16(1),               \
+<span class="lineNum">      69 </span>                :            :         .child_count    = CPU_TO_BE16(0),               \
+<span class="lineNum">      70 </span>                :            :         .child_off      = CPU_TO_BE32(0),               \
+<span class="lineNum">      71 </span>                :            : }
+<span class="lineNum">      72 </span>                :            : 
+<span class="lineNum">      73 </span>                :            : #define HDIF_IDATA_PTR(_offset, _size)                  \
+<span class="lineNum">      74 </span>                :            : {                                                       \
+<span class="lineNum">      75 </span>                :            :         .offset = CPU_TO_BE32(_offset),                 \
+<span class="lineNum">      76 </span>                :            :         .size   = CPU_TO_BE32(_size),                   \
+<a name="77"><span class="lineNum">      77 </span>                :            : }</a>
+<span class="lineNum">      78 </span>                :            : 
+<span class="lineNum">      79 </span>                :<span class="lineCov">        644 : static inline bool HDIF_check(const void *hdif, const char id[])</span>
+<span class="lineNum">      80 </span>                :            : {
+<span class="lineNum">      81 </span>                :<span class="lineCov">        644 :         const struct HDIF_common_hdr *hdr = hdif;</span>
+<span class="lineNum">      82 </span>                :            : 
+<span class="lineNum">      83 </span>[<span class="branchCov" title="Branch 0 was taken 644 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 644 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">        644 :         return hdr-&gt;d1f0 == CPU_TO_BE16(0xd1f0) &amp;&amp;</span>
+<span class="lineNum">      84 </span>                :<span class="lineCov">        644 :                 memcmp(hdr-&gt;id, id, sizeof(hdr-&gt;id)) == 0;</span>
+<span class="lineNum">      85 </span>                :            : }
+<span class="lineNum">      86 </span>                :            : 
+<span class="lineNum">      87 </span>                :            : /* HDIF_get_idata - Get a pointer to internal data block
+<span class="lineNum">      88 </span>                :            :  *
+<span class="lineNum">      89 </span>                :            :  * @hdif  : HDIF structure pointer
+<span class="lineNum">      90 </span>                :            :  * @di    : Index of the idata pointer
+<span class="lineNum">      91 </span>                :            :  * @size  : Return the data size (or NULL if ignored)
+<span class="lineNum">      92 </span>                :            :  */
+<span class="lineNum">      93 </span>                :            : extern const void *HDIF_get_idata(const struct HDIF_common_hdr *hdif,
+<span class="lineNum">      94 </span>                :            :                                   unsigned int di,
+<span class="lineNum">      95 </span>                :            :                                   unsigned int *size);
+<span class="lineNum">      96 </span>                :            : 
+<span class="lineNum">      97 </span>                :            : /* HDIF_get_iarray - Get a pointer to an elemnt of an internal data array
+<span class="lineNum">      98 </span>                :            :  *
+<span class="lineNum">      99 </span>                :            :  * @hdif  : HDIF structure pointer
+<span class="lineNum">     100 </span>                :            :  * @di    : Index of the idata pointer
+<span class="lineNum">     101 </span>                :            :  * @ai    : Index in the resulting array
+<span class="lineNum">     102 </span>                :            :  * @size  : Return the entry actual size (or NULL if ignored)
+<span class="lineNum">     103 </span>                :            :  */
+<span class="lineNum">     104 </span>                :            : extern const void *HDIF_get_iarray_item(const struct HDIF_common_hdr *hdif,
+<span class="lineNum">     105 </span>                :            :                                         unsigned int di,
+<span class="lineNum">     106 </span>                :            :                                         unsigned int ai, unsigned int *size);
+<span class="lineNum">     107 </span>                :            : 
+<span class="lineNum">     108 </span>                :            : /* HDIF_get_iarray_size - Get the number of elements of an internal data array
+<span class="lineNum">     109 </span>                :            :  *
+<span class="lineNum">     110 </span>                :            :  * @hdif  : HDIF structure pointer
+<span class="lineNum">     111 </span>                :            :  * @di    : Index of the idata pointer
+<span class="lineNum">     112 </span>                :            :  *
+<span class="lineNum">     113 </span>                :            :  * A negative result means an error
+<span class="lineNum">     114 </span>                :            :  */
+<span class="lineNum">     115 </span>                :            : extern int HDIF_get_iarray_size(const struct HDIF_common_hdr *hdif,
+<span class="lineNum">     116 </span>                :            :                                 unsigned int di);
+<span class="lineNum">     117 </span>                :            : 
+<span class="lineNum">     118 </span>                :            : /* HDIF_child_arr - Get a child array from this HDIF.
+<span class="lineNum">     119 </span>                :            :  *
+<span class="lineNum">     120 </span>                :            :  * @hdif  : HDIF structure pointer
+<span class="lineNum">     121 </span>                :            :  * @idx   : the child to get
+<span class="lineNum">     122 </span>                :            :  *
+<span class="lineNum">     123 </span>                :            :  * NULL means an error (not that many children).
+<span class="lineNum">     124 </span>                :            :  */
+<span class="lineNum">     125 </span>                :            : extern struct HDIF_child_ptr *
+<span class="lineNum">     126 </span>                :            : HDIF_child_arr(const struct HDIF_common_hdr *hdif, unsigned int idx);
+<span class="lineNum">     127 </span>                :            : 
+<span class="lineNum">     128 </span>                :            : /* HDIF_child - Deref a child_ptr entry.
+<span class="lineNum">     129 </span>                :            :  *
+<span class="lineNum">     130 </span>                :            :  * @hdif  : HDIF structure pointer
+<span class="lineNum">     131 </span>                :            :  * @child : the child returned from HDIF_child_arr
+<span class="lineNum">     132 </span>                :            :  * @idx   : the index of the child to get (&lt; child-&gt;count).
+<span class="lineNum">     133 </span>                :            :  * @eyecatcher: the 6-char ID expected for this child.
+<span class="lineNum">     134 </span>                :            :  *
+<span class="lineNum">     135 </span>                :            :  * NULL means an error.
+<span class="lineNum">     136 </span>                :            :  */
+<span class="lineNum">     137 </span>                :            : extern struct HDIF_common_hdr *HDIF_child(const struct HDIF_common_hdr *hdif,
+<span class="lineNum">     138 </span>                :            :                                           const struct HDIF_child_ptr *child,
+<span class="lineNum">     139 </span>                :            :                                           unsigned int idx,
+<span class="lineNum">     140 </span>                :            :                                           const char *eyecatcher);
+<span class="lineNum">     141 </span>                :            : #endif /* __HDIF_H */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.11</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

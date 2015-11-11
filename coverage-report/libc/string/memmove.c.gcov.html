@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-10-08 09:04:08</td>
+            <td class="headerValue">2015-11-11 16:28:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -85,31 +85,31 @@
 <span class="lineNum">      14 </span>                :            : 
 <a name="15"><span class="lineNum">      15 </span>                :            : </a>
 <span class="lineNum">      16 </span>                :            : void *
-<span class="lineNum">      17 </span>                :<span class="lineCov">         15 : memmove(void *dest, const void *src, size_t n)</span>
+<span class="lineNum">      17 </span>                :<span class="lineCov">         30 : memmove(void *dest, const void *src, size_t n)</span>
 <span class="lineNum">      18 </span>                :            : {
 <span class="lineNum">      19 </span>                :            :         char *cdest;
 <span class="lineNum">      20 </span>                :            :         const char *csrc;
 <span class="lineNum">      21 </span>                :            :         int i;
 <span class="lineNum">      22 </span>                :            : 
 <span class="lineNum">      23 </span>                :            :         /* Do the buffers overlap in a bad way? */
-<span class="lineNum">      24 </span>[<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 5 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         20 :         if (src &lt; dest &amp;&amp; src + n &gt;= dest) {</span>
+<span class="lineNum">      24 </span>[<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchCov" title="Branch 1 was taken 20 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 10 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">         40 :         if (src &lt; dest &amp;&amp; src + n &gt;= dest) {</span>
 <span class="lineNum">      25 </span>                :            :                 /* Copy from end to start */
-<span class="lineNum">      26 </span>                :<span class="lineCov">          5 :                 cdest = dest + n - 1;</span>
-<span class="lineNum">      27 </span>                :<span class="lineCov">          5 :                 csrc = src + n - 1;</span>
-<span class="lineNum">      28 </span>        [<span class="branchCov" title="Branch 0 was taken 50 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">         55 :                 for (i = 0; i &lt; n; i++) {</span>
-<span class="lineNum">      29 </span>                :<span class="lineCov">         50 :                         *cdest-- = *csrc--;</span>
+<span class="lineNum">      26 </span>                :<span class="lineCov">         10 :                 cdest = dest + n - 1;</span>
+<span class="lineNum">      27 </span>                :<span class="lineCov">         10 :                 csrc = src + n - 1;</span>
+<span class="lineNum">      28 </span>        [<span class="branchCov" title="Branch 0 was taken 100 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">        110 :                 for (i = 0; i &lt; n; i++) {</span>
+<span class="lineNum">      29 </span>                :<span class="lineCov">        100 :                         *cdest-- = *csrc--;</span>
 <span class="lineNum">      30 </span>                :            :                 }
 <span class="lineNum">      31 </span>                :            :         }
 <span class="lineNum">      32 </span>                :            :         else {
 <span class="lineNum">      33 </span>                :            :                 /* Normal copy is possible */
-<span class="lineNum">      34 </span>                :<span class="lineCov">         10 :                 cdest = dest;</span>
-<span class="lineNum">      35 </span>                :<span class="lineCov">         10 :                 csrc = src;</span>
-<span class="lineNum">      36 </span>        [<span class="branchCov" title="Branch 0 was taken 95 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">        105 :                 for (i = 0; i &lt; n; i++) {</span>
-<span class="lineNum">      37 </span>                :<span class="lineCov">         95 :                         *cdest++ = *csrc++;</span>
+<span class="lineNum">      34 </span>                :<span class="lineCov">         20 :                 cdest = dest;</span>
+<span class="lineNum">      35 </span>                :<span class="lineCov">         20 :                 csrc = src;</span>
+<span class="lineNum">      36 </span>        [<span class="branchCov" title="Branch 0 was taken 190 times"> + </span><span class="branchCov" title="Branch 1 was taken 20 times"> + </span>]:<span class="lineCov">        210 :                 for (i = 0; i &lt; n; i++) {</span>
+<span class="lineNum">      37 </span>                :<span class="lineCov">        190 :                         *cdest++ = *csrc++;</span>
 <span class="lineNum">      38 </span>                :            :                 }
 <span class="lineNum">      39 </span>                :            :         }
 <span class="lineNum">      40 </span>                :            : 
-<span class="lineNum">      41 </span>                :<span class="lineCov">         15 :         return dest;</span>
+<span class="lineNum">      41 </span>                :<span class="lineCov">         30 :         return dest;</span>
 <span class="lineNum">      42 </span>                :            : }
 </pre>
       </td>

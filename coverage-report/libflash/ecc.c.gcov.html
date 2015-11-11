@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-10-08 09:04:08</td>
+            <td class="headerValue">2015-11-11 16:28:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">5</td>
@@ -185,15 +185,15 @@
 <span class="lineNum">     114 </span>                :            :  *  @data:      The 8 byte data to generate ECC for.
 <a name="115"><span class="lineNum">     115 </span>                :            :  *  @return:    The 1 byte ECC corresponding to the data.</a>
 <span class="lineNum">     116 </span>                :            :  */
-<span class="lineNum">     117 </span>                :<span class="lineCov">      16497 : static uint8_t eccgenerate(uint64_t data)</span>
+<span class="lineNum">     117 </span>                :<span class="lineCov">      32994 : static uint8_t eccgenerate(uint64_t data)</span>
 <span class="lineNum">     118 </span>                :            : {
 <span class="lineNum">     119 </span>                :            :         int i;
-<span class="lineNum">     120 </span>                :<span class="lineCov">      16497 :         uint8_t result = 0;</span>
+<span class="lineNum">     120 </span>                :<span class="lineCov">      32994 :         uint8_t result = 0;</span>
 <span class="lineNum">     121 </span>                :            : 
-<span class="lineNum">     122 </span>        [<span class="branchCov" title="Branch 0 was taken 131976 times"> + </span><span class="branchCov" title="Branch 1 was taken 16497 times"> + </span>]:<span class="lineCov">     148473 :         for (i = 0; i &lt; 8; i++)</span>
-<span class="lineNum">     123 </span>                :<span class="lineCov">     131976 :                 result |= __builtin_parityl(eccmatrix[i] &amp; data) &lt;&lt; i;</span>
+<span class="lineNum">     122 </span>        [<span class="branchCov" title="Branch 0 was taken 263952 times"> + </span><span class="branchCov" title="Branch 1 was taken 32994 times"> + </span>]:<span class="lineCov">     296946 :         for (i = 0; i &lt; 8; i++)</span>
+<span class="lineNum">     123 </span>                :<span class="lineCov">     263952 :                 result |= __builtin_parityl(eccmatrix[i] &amp; data) &lt;&lt; i;</span>
 <span class="lineNum">     124 </span>                :            : 
-<span class="lineNum">     125 </span>                :<span class="lineCov">      16497 :         return result;</span>
+<span class="lineNum">     125 </span>                :<span class="lineCov">      32994 :         return result;</span>
 <span class="lineNum">     126 </span>                :            : }
 <span class="lineNum">     127 </span>                :            : 
 <span class="lineNum">     128 </span>                :            : /**
@@ -208,18 +208,18 @@
 <span class="lineNum">     137 </span>                :            :  * @retval UE - Indicates the data is uncorrectable.
 <a name="138"><span class="lineNum">     138 </span>                :            :  * @retval all others - Indication of which bit is incorrect.</a>
 <span class="lineNum">     139 </span>                :            :  */
-<span class="lineNum">     140 </span>                :<span class="lineCov">        448 : static enum eccbitfields eccverify(uint64_t data, uint8_t ecc)</span>
+<span class="lineNum">     140 </span>                :<span class="lineCov">        896 : static enum eccbitfields eccverify(uint64_t data, uint8_t ecc)</span>
 <span class="lineNum">     141 </span>                :            : {
-<span class="lineNum">     142 </span>                :<span class="lineCov">        448 :         return syndromematrix[eccgenerate(data) ^ ecc];</span>
+<span class="lineNum">     142 </span>                :<span class="lineCov">        896 :         return syndromematrix[eccgenerate(data) ^ ecc];</span>
 <span class="lineNum">     143 </span>                :            : }
 <a name="144"><span class="lineNum">     144 </span>                :            : </a>
 <span class="lineNum">     145 </span>                :            : /* IBM bit ordering */
-<span class="lineNum">     146 </span>                :<span class="lineCov">        128 : static inline uint64_t eccflipbit(uint64_t data, uint8_t bit)</span>
+<span class="lineNum">     146 </span>                :<span class="lineCov">        256 : static inline uint64_t eccflipbit(uint64_t data, uint8_t bit)</span>
 <span class="lineNum">     147 </span>                :            : {
-<span class="lineNum">     148 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 128 times"> + </span>]:<span class="lineCov">        128 :         if (bit &gt; 63)</span>
+<span class="lineNum">     148 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 256 times"> + </span>]:<span class="lineCov">        256 :         if (bit &gt; 63)</span>
 <span class="lineNum">     149 </span>                :<span class="lineNoCov">          0 :                 return data;</span>
 <span class="lineNum">     150 </span>                :            : 
-<span class="lineNum">     151 </span>                :<span class="lineCov">        128 :         return data ^ (1ul &lt;&lt; (63 - bit));</span>
+<span class="lineNum">     151 </span>                :<span class="lineCov">        256 :         return data ^ (1ul &lt;&lt; (63 - bit));</span>
 <span class="lineNum">     152 </span>                :            : }
 <span class="lineNum">     153 </span>                :            : 
 <span class="lineNum">     154 </span>                :            : /**
@@ -236,41 +236,41 @@
 <span class="lineNum">     165 </span>                :            :  * @retval: 0 - success
 <a name="166"><span class="lineNum">     166 </span>                :            :  * @retfal: other - fail</a>
 <span class="lineNum">     167 </span>                :            :  */
-<span class="lineNum">     168 </span>                :<span class="lineCov">         67 : int memcpy_from_ecc(uint64_t *dst, struct ecc64 *src, uint32_t len)</span>
+<span class="lineNum">     168 </span>                :<span class="lineCov">        134 : int memcpy_from_ecc(uint64_t *dst, struct ecc64 *src, uint32_t len)</span>
 <span class="lineNum">     169 </span>                :            : {
 <span class="lineNum">     170 </span>                :            :         beint64_t data;
 <span class="lineNum">     171 </span>                :            :         uint8_t ecc;
 <span class="lineNum">     172 </span>                :            :         uint32_t i;
 <span class="lineNum">     173 </span>                :            :         uint8_t badbit;
 <span class="lineNum">     174 </span>                :            : 
-<span class="lineNum">     175 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 65 times"> + </span>]:<span class="lineCov">         67 :         if (len &amp; 0x7) {</span>
+<span class="lineNum">     175 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 130 times"> + </span>]:<span class="lineCov">        134 :         if (len &amp; 0x7) {</span>
 <span class="lineNum">     176 </span>                :            :                 /* TODO: we could probably handle this */
-<span class="lineNum">     177 </span>                :<span class="lineCov">          2 :                 FL_ERR(&quot;ECC data length must be 8 byte aligned length:%i\n&quot;,</span>
+<span class="lineNum">     177 </span>                :<span class="lineCov">          4 :                 FL_ERR(&quot;ECC data length must be 8 byte aligned length:%i\n&quot;,</span>
 <span class="lineNum">     178 </span>                :            :                         len);
-<span class="lineNum">     179 </span>                :<span class="lineCov">          2 :                 return -1;</span>
+<span class="lineNum">     179 </span>                :<span class="lineCov">          4 :                 return -1;</span>
 <span class="lineNum">     180 </span>                :            :         }
 <span class="lineNum">     181 </span>                :            : 
 <span class="lineNum">     182 </span>                :            :         /* Handle in chunks of 8 bytes, so adjust the length */
-<span class="lineNum">     183 </span>                :<span class="lineCov">         65 :         len &gt;&gt;= 3;</span>
+<span class="lineNum">     183 </span>                :<span class="lineCov">        130 :         len &gt;&gt;= 3;</span>
 <span class="lineNum">     184 </span>                :            : 
-<span class="lineNum">     185 </span>        [<span class="branchCov" title="Branch 0 was taken 384 times"> + </span><span class="branchCov" title="Branch 1 was taken 65 times"> + </span>]:<span class="lineCov">        449 :         for (i = 0; i &lt; len; i++) {</span>
-<span class="lineNum">     186 </span>                :<span class="lineCov">        384 :                 data = (src + i)-&gt;data;</span>
-<span class="lineNum">     187 </span>                :<span class="lineCov">        384 :                 ecc = (src + i)-&gt;ecc;</span>
+<span class="lineNum">     185 </span>        [<span class="branchCov" title="Branch 0 was taken 768 times"> + </span><span class="branchCov" title="Branch 1 was taken 130 times"> + </span>]:<span class="lineCov">        898 :         for (i = 0; i &lt; len; i++) {</span>
+<span class="lineNum">     186 </span>                :<span class="lineCov">        768 :                 data = (src + i)-&gt;data;</span>
+<span class="lineNum">     187 </span>                :<span class="lineCov">        768 :                 ecc = (src + i)-&gt;ecc;</span>
 <span class="lineNum">     188 </span>                :            : 
-<span class="lineNum">     189 </span>                :<span class="lineCov">        384 :                 badbit = eccverify(be64_to_cpu(data), ecc);</span>
-<span class="lineNum">     190 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 384 times"> + </span>]:<span class="lineCov">        384 :                 if (badbit == UE) {</span>
+<span class="lineNum">     189 </span>                :<span class="lineCov">        768 :                 badbit = eccverify(be64_to_cpu(data), ecc);</span>
+<span class="lineNum">     190 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 768 times"> + </span>]:<span class="lineCov">        768 :                 if (badbit == UE) {</span>
 <span class="lineNum">     191 </span>                :<span class="lineNoCov">          0 :                         FL_ERR(&quot;ECC: uncorrectable error: %016lx %02x\n&quot;,</span>
 <span class="lineNum">     192 </span>                :            :                                 (long unsigned int)be64_to_cpu(data), ecc);
 <span class="lineNum">     193 </span>                :<span class="lineNoCov">          0 :                         return badbit;</span>
 <span class="lineNum">     194 </span>                :            :                 }
-<span class="lineNum">     195 </span>                :<span class="lineCov">        384 :                 *dst = data;</span>
-<span class="lineNum">     196 </span>        [<span class="branchCov" title="Branch 0 was taken 128 times"> + </span><span class="branchCov" title="Branch 1 was taken 256 times"> + </span>]:<span class="lineCov">        384 :                 if (badbit &lt;= UE)</span>
-<span class="lineNum">     197 </span>                :<span class="lineCov">        128 :                         FL_INF(&quot;ECC: correctable error: %i\n&quot;, badbit);</span>
-<span class="lineNum">     198 </span>        [<span class="branchCov" title="Branch 0 was taken 128 times"> + </span><span class="branchCov" title="Branch 1 was taken 256 times"> + </span>]:<span class="lineCov">        384 :                 if (badbit &lt; 64)</span>
-<span class="lineNum">     199 </span>                :<span class="lineCov">        128 :                         *dst = (uint64_t)be64_to_cpu(eccflipbit(be64_to_cpu(data), badbit));</span>
-<span class="lineNum">     200 </span>                :<span class="lineCov">        384 :                 dst++;</span>
+<span class="lineNum">     195 </span>                :<span class="lineCov">        768 :                 *dst = data;</span>
+<span class="lineNum">     196 </span>        [<span class="branchCov" title="Branch 0 was taken 256 times"> + </span><span class="branchCov" title="Branch 1 was taken 512 times"> + </span>]:<span class="lineCov">        768 :                 if (badbit &lt;= UE)</span>
+<span class="lineNum">     197 </span>                :<span class="lineCov">        256 :                         FL_INF(&quot;ECC: correctable error: %i\n&quot;, badbit);</span>
+<span class="lineNum">     198 </span>        [<span class="branchCov" title="Branch 0 was taken 256 times"> + </span><span class="branchCov" title="Branch 1 was taken 512 times"> + </span>]:<span class="lineCov">        768 :                 if (badbit &lt; 64)</span>
+<span class="lineNum">     199 </span>                :<span class="lineCov">        256 :                         *dst = (uint64_t)be64_to_cpu(eccflipbit(be64_to_cpu(data), badbit));</span>
+<span class="lineNum">     200 </span>                :<span class="lineCov">        768 :                 dst++;</span>
 <span class="lineNum">     201 </span>                :            :         }
-<span class="lineNum">     202 </span>                :<span class="lineCov">         65 :         return 0;</span>
+<span class="lineNum">     202 </span>                :<span class="lineCov">        130 :         return 0;</span>
 <span class="lineNum">     203 </span>                :            : }
 <span class="lineNum">     204 </span>                :            : 
 <span class="lineNum">     205 </span>                :            : /**
@@ -287,29 +287,29 @@
 <span class="lineNum">     216 </span>                :            :  * @retval: 0 - success
 <a name="217"><span class="lineNum">     217 </span>                :            :  * @retfal: other - fail</a>
 <span class="lineNum">     218 </span>                :            :  */
-<span class="lineNum">     219 </span>                :<span class="lineCov">          4 : int memcpy_to_ecc(struct ecc64 *dst, const uint64_t *src, uint32_t len)</span>
+<span class="lineNum">     219 </span>                :<span class="lineCov">          8 : int memcpy_to_ecc(struct ecc64 *dst, const uint64_t *src, uint32_t len)</span>
 <span class="lineNum">     220 </span>                :            : {
 <span class="lineNum">     221 </span>                :            :         struct ecc64 ecc_word;
 <span class="lineNum">     222 </span>                :            :         uint32_t i;
 <span class="lineNum">     223 </span>                :            : 
-<span class="lineNum">     224 </span>        [<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          4 :         if (len &amp; 0x7) {</span>
+<span class="lineNum">     224 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          8 :         if (len &amp; 0x7) {</span>
 <span class="lineNum">     225 </span>                :            :                 /* TODO: we could probably handle this */
-<span class="lineNum">     226 </span>                :<span class="lineCov">          2 :                 FL_ERR(&quot;Data to add ECC bytes to must be 8 byte aligned length: %i\n&quot;,</span>
+<span class="lineNum">     226 </span>                :<span class="lineCov">          4 :                 FL_ERR(&quot;Data to add ECC bytes to must be 8 byte aligned length: %i\n&quot;,</span>
 <span class="lineNum">     227 </span>                :            :                                 len);
-<span class="lineNum">     228 </span>                :<span class="lineCov">          2 :                 return -1;</span>
+<span class="lineNum">     228 </span>                :<span class="lineCov">          4 :                 return -1;</span>
 <span class="lineNum">     229 </span>                :            :         }
 <span class="lineNum">     230 </span>                :            : 
 <span class="lineNum">     231 </span>                :            :         /* Handle in chunks of 8 bytes, so adjust the length */
-<span class="lineNum">     232 </span>                :<span class="lineCov">          2 :         len &gt;&gt;= 3;</span>
+<span class="lineNum">     232 </span>                :<span class="lineCov">          4 :         len &gt;&gt;= 3;</span>
 <span class="lineNum">     233 </span>                :            : 
-<span class="lineNum">     234 </span>        [<span class="branchCov" title="Branch 0 was taken 8512 times"> + </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">       8514 :         for (i = 0; i &lt; len; i++) {</span>
-<span class="lineNum">     235 </span>                :<span class="lineCov">       8512 :                 ecc_word.ecc = eccgenerate(be64_to_cpu(*(src + i)));</span>
-<span class="lineNum">     236 </span>                :<span class="lineCov">       8512 :                 ecc_word.data = *(src + i);</span>
+<span class="lineNum">     234 </span>        [<span class="branchCov" title="Branch 0 was taken 17024 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">      17028 :         for (i = 0; i &lt; len; i++) {</span>
+<span class="lineNum">     235 </span>                :<span class="lineCov">      17024 :                 ecc_word.ecc = eccgenerate(be64_to_cpu(*(src + i)));</span>
+<span class="lineNum">     236 </span>                :<span class="lineCov">      17024 :                 ecc_word.data = *(src + i);</span>
 <span class="lineNum">     237 </span>                :            : 
-<span class="lineNum">     238 </span>                :<span class="lineCov">       8512 :                 *(dst + i) = ecc_word;</span>
+<span class="lineNum">     238 </span>                :<span class="lineCov">      17024 :                 *(dst + i) = ecc_word;</span>
 <span class="lineNum">     239 </span>                :            :         }
 <span class="lineNum">     240 </span>                :            : 
-<span class="lineNum">     241 </span>                :<span class="lineCov">          4 :         return 0;</span>
+<span class="lineNum">     241 </span>                :<span class="lineCov">          8 :         return 0;</span>
 <span class="lineNum">     242 </span>                :            : }
 </pre>
       </td>

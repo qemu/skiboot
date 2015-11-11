@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-10-08 09:04:08</td>
+            <td class="headerValue">2015-11-11 16:28:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -85,18 +85,18 @@
 <span class="lineNum">      14 </span>                :            : 
 <a name="15"><span class="lineNum">      15 </span>                :            : </a>
 <span class="lineNum">      16 </span>                :            : void *
-<span class="lineNum">      17 </span>                :<span class="lineCov">         10 : memchr(const void *ptr, int c, size_t n)</span>
+<span class="lineNum">      17 </span>                :<span class="lineCov">         20 : memchr(const void *ptr, int c, size_t n)</span>
 <span class="lineNum">      18 </span>                :            : {
-<span class="lineNum">      19 </span>                :<span class="lineCov">         10 :         unsigned char ch = (unsigned char)c;</span>
-<span class="lineNum">      20 </span>                :<span class="lineCov">         10 :         const unsigned char *p = ptr;</span>
+<span class="lineNum">      19 </span>                :<span class="lineCov">         20 :         unsigned char ch = (unsigned char)c;</span>
+<span class="lineNum">      20 </span>                :<span class="lineCov">         20 :         const unsigned char *p = ptr;</span>
 <span class="lineNum">      21 </span>                :            : 
-<span class="lineNum">      22 </span>        [<span class="branchCov" title="Branch 0 was taken 85 times"> + </span><span class="branchCov" title="Branch 1 was taken 5 times"> + </span>]:<span class="lineCov">         90 :         while (n-- &gt; 0) {</span>
-<span class="lineNum">      23 </span>        [<span class="branchCov" title="Branch 0 was taken 5 times"> + </span><span class="branchCov" title="Branch 1 was taken 80 times"> + </span>]:<span class="lineCov">         85 :                 if (*p == ch)</span>
-<span class="lineNum">      24 </span>                :<span class="lineCov">          5 :                         return (void *)p;</span>
-<span class="lineNum">      25 </span>                :<span class="lineCov">         80 :                 p += 1;</span>
+<span class="lineNum">      22 </span>        [<span class="branchCov" title="Branch 0 was taken 170 times"> + </span><span class="branchCov" title="Branch 1 was taken 10 times"> + </span>]:<span class="lineCov">        180 :         while (n-- &gt; 0) {</span>
+<span class="lineNum">      23 </span>        [<span class="branchCov" title="Branch 0 was taken 10 times"> + </span><span class="branchCov" title="Branch 1 was taken 160 times"> + </span>]:<span class="lineCov">        170 :                 if (*p == ch)</span>
+<span class="lineNum">      24 </span>                :<span class="lineCov">         10 :                         return (void *)p;</span>
+<span class="lineNum">      25 </span>                :<span class="lineCov">        160 :                 p += 1;</span>
 <span class="lineNum">      26 </span>                :            :         }
 <span class="lineNum">      27 </span>                :            : 
-<span class="lineNum">      28 </span>                :<span class="lineCov">          5 :         return NULL;</span>
+<span class="lineNum">      28 </span>                :<span class="lineCov">         10 :         return NULL;</span>
 <span class="lineNum">      29 </span>                :            : }
 </pre>
       </td>

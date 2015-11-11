@@ -1,0 +1,528 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot.info - hdata/memory.c</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">hdata</a> - memory.c<span style="font-size: 80%;"> (source / <a href="memory.c.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">136</td>
+            <td class="headerCovTableEntry">184</td>
+            <td class="headerCovTableEntryLo">73.9 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-11-11 16:28:11</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntry">10</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">66</td>
+            <td class="headerCovTableEntry">114</td>
+            <td class="headerCovTableEntryLo">57.9 %</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #include &lt;cpu.h&gt;
+<span class="lineNum">      18 </span>                :            : #include &lt;device_tree.h&gt;
+<span class="lineNum">      19 </span>                :            : #include &lt;device.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;vpd.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;ccan/str/str.h&gt;
+<span class="lineNum">      22 </span>                :            : #include &lt;libfdt/libfdt.h&gt;
+<span class="lineNum">      23 </span>                :            : #include &lt;types.h&gt;
+<span class="lineNum">      24 </span>                :            : 
+<span class="lineNum">      25 </span>                :            : #include &quot;spira.h&quot;
+<span class="lineNum">      26 </span>                :            : #include &quot;hdata.h&quot;
+<span class="lineNum">      27 </span>                :            : 
+<span class="lineNum">      28 </span>                :            : struct HDIF_ram_area_id {
+<span class="lineNum">      29 </span>                :            :         __be16 id;
+<span class="lineNum">      30 </span>                :            : #define RAM_AREA_INSTALLED      0x8000
+<span class="lineNum">      31 </span>                :            : #define RAM_AREA_FUNCTIONAL     0x4000
+<span class="lineNum">      32 </span>                :            :         __be16 flags;
+<span class="lineNum">      33 </span>                :            : };
+<span class="lineNum">      34 </span>                :            : 
+<span class="lineNum">      35 </span>                :            : struct HDIF_ram_area_size {
+<span class="lineNum">      36 </span>                :            :         __be64 mb;
+<span class="lineNum">      37 </span>                :            : };
+<span class="lineNum">      38 </span>                :            : 
+<span class="lineNum">      39 </span>                :            : struct ram_area {
+<span class="lineNum">      40 </span>                :            :         const struct HDIF_ram_area_id *raid;
+<span class="lineNum">      41 </span>                :            :         const struct HDIF_ram_area_size *rasize;
+<span class="lineNum">      42 </span>                :            : };
+<span class="lineNum">      43 </span>                :            : 
+<span class="lineNum">      44 </span>                :            : struct HDIF_ms_area_address_range {
+<span class="lineNum">      45 </span>                :            :         __be64 start;
+<span class="lineNum">      46 </span>                :            :         __be64 end;
+<span class="lineNum">      47 </span>                :            :         __be32 chip;
+<span class="lineNum">      48 </span>                :            :         __be32 mirror_attr;
+<span class="lineNum">      49 </span>                :            :         __be64 mirror_start;
+<span class="lineNum">      50 </span>                :            : };
+<span class="lineNum">      51 </span>                :            : 
+<span class="lineNum">      52 </span>                :            : struct HDIF_ms_area_id {
+<span class="lineNum">      53 </span>                :            :         __be16 id;
+<span class="lineNum">      54 </span>                :            : #define MS_PTYPE_RISER_CARD     0x8000
+<span class="lineNum">      55 </span>                :            : #define MS_PTYPE_MEM_CARD       0x4000
+<span class="lineNum">      56 </span>                :            : #define MS_PTYPE_CEC_FRU        0x2000
+<span class="lineNum">      57 </span>                :            : #define MS_PTYPE_HYBRID_CARD    0x1000
+<span class="lineNum">      58 </span>                :            :         __be16 parent_type;
+<span class="lineNum">      59 </span>                :            : #define MS_AREA_INSTALLED       0x8000
+<span class="lineNum">      60 </span>                :            : #define MS_AREA_FUNCTIONAL      0x4000
+<span class="lineNum">      61 </span>                :            : #define MS_AREA_SHARED          0x2000
+<span class="lineNum">      62 </span>                :            :         __be16 flags;
+<span class="lineNum">      63 </span>                :            :         __be16 share_id;
+<a name="64"><span class="lineNum">      64 </span>                :            : };</a>
+<span class="lineNum">      65 </span>                :            : 
+<span class="lineNum">      66 </span>                :<span class="lineCov">          8 : static struct dt_node *find_shared(struct dt_node *root, u16 id, u64 start, u64 len)</span>
+<span class="lineNum">      67 </span>                :            : {
+<span class="lineNum">      68 </span>                :            :         struct dt_node *i;
+<span class="lineNum">      69 </span>                :            : 
+<span class="lineNum">      70 </span>        [<span class="branchCov" title="Branch 2 was taken 1032 times"> + </span><span class="branchCov" title="Branch 3 was taken 4 times"> + </span>]:<span class="lineCov">       1036 :         for (i = dt_first(root); i; i = dt_next(root, i)) {</span>
+<span class="lineNum">      71 </span>                :            :                 __be64 reg[2];
+<span class="lineNum">      72 </span>                :            :                 const struct dt_property *shared, *type, *region;
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :<span class="lineCov">       1032 :                 type = dt_find_property(i, &quot;device_type&quot;);</span>
+<span class="lineNum">      75 </span>[<span class="branchCov" title="Branch 0 was taken 648 times"> + </span><span class="branchCov" title="Branch 1 was taken 384 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 640 times"> + </span><span class="branchCov" title="Branch 3 was taken 8 times"> + </span>]:<span class="lineCov">       1032 :                 if (!type || strcmp(type-&gt;prop, &quot;memory&quot;) != 0)</span>
+<span class="lineNum">      76 </span>                :<span class="lineCov">       1028 :                         continue;</span>
+<span class="lineNum">      77 </span>                :            : 
+<span class="lineNum">      78 </span>                :<span class="lineCov">          8 :                 shared = dt_find_property(i, DT_PRIVATE &quot;share-id&quot;);</span>
+<span class="lineNum">      79 </span>[<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 3 was taken 4 times"> + </span><span class="branchCov" title="Branch 4 was taken 4 times"> + </span>]:<span class="lineCov">          8 :                 if (!shared || fdt32_to_cpu(*(u32 *)shared-&gt;prop) != id)</span>
+<span class="lineNum">      80 </span>                :<span class="lineCov">          4 :                         continue;</span>
+<span class="lineNum">      81 </span>                :            : 
+<span class="lineNum">      82 </span>                :<span class="lineCov">          4 :                 region = dt_find_property(i, &quot;reg&quot;);</span>
+<span class="lineNum">      83 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :                 if (!region)</span>
+<span class="lineNum">      84 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">      85 </span>                :<span class="lineCov">          4 :                 memcpy(reg, region-&gt;prop, sizeof(reg));</span>
+<span class="lineNum">      86 </span>[<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>][<span class="branchCov" title="Branch 4 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]:<span class="lineCov">          4 :                 if (be64_to_cpu(reg[0]) == start &amp;&amp; be64_to_cpu(reg[1]) == len)</span>
+<span class="lineNum">      87 </span>                :<span class="lineCov">          4 :                         break;</span>
+<span class="lineNum">      88 </span>                :            :         }
+<span class="lineNum">      89 </span>                :<span class="lineCov">          8 :         return i;</span>
+<a name="90"><span class="lineNum">      90 </span>                :            : }</a>
+<span class="lineNum">      91 </span>                :            : 
+<span class="lineNum">      92 </span>                :<span class="lineCov">          4 : static void append_chip_id(struct dt_node *mem, u32 id)</span>
+<span class="lineNum">      93 </span>                :            : {
+<span class="lineNum">      94 </span>                :            :         struct dt_property *prop;
+<span class="lineNum">      95 </span>                :            :         size_t len, i;
+<span class="lineNum">      96 </span>                :            :         be32 *p;
+<span class="lineNum">      97 </span>                :            : 
+<span class="lineNum">      98 </span>                :<span class="lineCov">          4 :         prop = __dt_find_property(mem, &quot;ibm,chip-id&quot;);</span>
+<span class="lineNum">      99 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          4 :         if (!prop)</span>
+<span class="lineNum">     100 </span>                :<span class="lineCov">          4 :                 return;</span>
+<span class="lineNum">     101 </span>                :<span class="lineCov">          4 :         len = prop-&gt;len &gt;&gt; 2;</span>
+<span class="lineNum">     102 </span>                :<span class="lineCov">          4 :         p = (be32*)prop-&gt;prop;</span>
+<span class="lineNum">     103 </span>                :            : 
+<span class="lineNum">     104 </span>                :            :         /* Check if it exists already */
+<span class="lineNum">     105 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          4 :         for (i = 0; i &lt; len; i++) {</span>
+<span class="lineNum">     106 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :                 if (be32_to_cpu(p[i]) == id)</span>
+<span class="lineNum">     107 </span>                :<span class="lineCov">          4 :                         return;</span>
+<span class="lineNum">     108 </span>                :            :         }
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>                :            :         /* Add it to the list */
+<span class="lineNum">     111 </span>                :<span class="lineNoCov">          0 :         dt_resize_property(&amp;prop, (len + 1) &lt;&lt; 2);</span>
+<span class="lineNum">     112 </span>                :<span class="lineNoCov">          0 :         p = (be32 *)prop-&gt;prop;</span>
+<span class="lineNum">     113 </span>                :<span class="lineNoCov">          0 :         p[len] = cpu_to_be32(id);</span>
+<a name="114"><span class="lineNum">     114 </span>                :            : }</a>
+<span class="lineNum">     115 </span>                :            : 
+<span class="lineNum">     116 </span>                :<span class="lineCov">          8 : static bool add_address_range(struct dt_node *root,</span>
+<span class="lineNum">     117 </span>                :            :                               const struct HDIF_ms_area_id *id,
+<span class="lineNum">     118 </span>                :            :                               const struct HDIF_ms_area_address_range *arange)
+<span class="lineNum">     119 </span>                :            : {
+<span class="lineNum">     120 </span>                :            :         struct dt_node *mem;
+<span class="lineNum">     121 </span>                :            :         u64 reg[2];
+<span class="lineNum">     122 </span>                :            :         char *name;
+<span class="lineNum">     123 </span>                :            :         u32 chip_id;
+<span class="lineNum">     124 </span>                :<span class="lineCov">          8 :         size_t namesz = sizeof(&quot;memory@&quot;) + STR_MAX_CHARS(reg[0]);</span>
+<span class="lineNum">     125 </span>                :            : 
+<span class="lineNum">     126 </span>                :<span class="lineCov">          8 :         name = (char*)malloc(namesz);</span>
+<span class="lineNum">     127 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :         assert(name);</span>
+<span class="lineNum">     128 </span>                :            : 
+<span class="lineNum">     129 </span>                :<span class="lineCov">          8 :         chip_id = pcid_to_chip_id(be32_to_cpu(arange-&gt;chip));</span>
+<span class="lineNum">     130 </span>                :            : 
+<span class="lineNum">     131 </span>                :<span class="lineCov">          8 :         prlog(PR_DEBUG, &quot;  Range: 0x%016llx..0x%016llx &quot;</span>
+<span class="lineNum">     132 </span>                :            :               &quot;on Chip 0x%x mattr: 0x%x\n&quot;,
+<span class="lineNum">     133 </span>                :            :               (long long)be64_to_cpu(arange-&gt;start),
+<span class="lineNum">     134 </span>                :            :               (long long)be64_to_cpu(arange-&gt;end),
+<span class="lineNum">     135 </span>                :            :               chip_id, arange-&gt;mirror_attr);
+<span class="lineNum">     136 </span>                :            : 
+<span class="lineNum">     137 </span>                :            :         /* reg contains start and length */
+<span class="lineNum">     138 </span>                :<span class="lineCov">          8 :         reg[0] = cleanup_addr(be64_to_cpu(arange-&gt;start));</span>
+<span class="lineNum">     139 </span>                :<span class="lineCov">          8 :         reg[1] = cleanup_addr(be64_to_cpu(arange-&gt;end)) - reg[0];</span>
+<span class="lineNum">     140 </span>                :            : 
+<span class="lineNum">     141 </span>        [<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          8 :         if (be16_to_cpu(id-&gt;flags) &amp; MS_AREA_SHARED) {</span>
+<span class="lineNum">     142 </span>                :            :                 /* Only enter shared nodes once. */ 
+<span class="lineNum">     143 </span>                :<span class="lineCov">          8 :                 mem = find_shared(root, be16_to_cpu(id-&gt;share_id),</span>
+<span class="lineNum">     144 </span>                :            :                                   reg[0], reg[1]);
+<span class="lineNum">     145 </span>        [<span class="branchCov" title="Branch 0 was taken 4 times"> + </span><span class="branchCov" title="Branch 1 was taken 4 times"> + </span>]:<span class="lineCov">          8 :                 if (mem) {</span>
+<span class="lineNum">     146 </span>                :<span class="lineCov">          4 :                         append_chip_id(mem, chip_id);</span>
+<span class="lineNum">     147 </span>                :<span class="lineCov">          4 :                         free(name);</span>
+<span class="lineNum">     148 </span>                :<span class="lineCov">          4 :                         return true;</span>
+<span class="lineNum">     149 </span>                :            :                 }
+<span class="lineNum">     150 </span>                :            :         }
+<span class="lineNum">     151 </span>                :<span class="lineCov">          4 :         snprintf(name, namesz, &quot;memory@%llx&quot;, (long long)reg[0]);</span>
+<span class="lineNum">     152 </span>                :            : 
+<span class="lineNum">     153 </span>                :<span class="lineCov">          4 :         mem = dt_new(root, name);</span>
+<span class="lineNum">     154 </span>                :<span class="lineCov">          4 :         dt_add_property_string(mem, &quot;device_type&quot;, &quot;memory&quot;);</span>
+<span class="lineNum">     155 </span>                :<span class="lineCov">          4 :         dt_add_property_cells(mem, &quot;ibm,chip-id&quot;, chip_id);</span>
+<span class="lineNum">     156 </span>                :<span class="lineCov">          4 :         dt_add_property_u64s(mem, &quot;reg&quot;, reg[0], reg[1]);</span>
+<span class="lineNum">     157 </span>        [<span class="branchCov" title="Branch 1 was taken 4 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span>]:<span class="lineCov">          4 :         if (be16_to_cpu(id-&gt;flags) &amp; MS_AREA_SHARED)</span>
+<span class="lineNum">     158 </span>                :<span class="lineCov">          4 :                 dt_add_property_cells(mem, DT_PRIVATE &quot;share-id&quot;,</span>
+<span class="lineNum">     159 </span>                :            :                                       be16_to_cpu(id-&gt;share_id));
+<span class="lineNum">     160 </span>                :            : 
+<span class="lineNum">     161 </span>                :<span class="lineCov">          4 :         free(name);</span>
+<span class="lineNum">     162 </span>                :            : 
+<span class="lineNum">     163 </span>                :<span class="lineCov">          8 :         return true;</span>
+<a name="164"><span class="lineNum">     164 </span>                :            : }</a>
+<span class="lineNum">     165 </span>                :            : 
+<span class="lineNum">     166 </span>                :<span class="lineCov">          8 : static u32 add_chip_id_to_ram_area(const struct HDIF_common_hdr *msarea,</span>
+<span class="lineNum">     167 </span>                :            :                                     struct dt_node *ram_area)
+<span class="lineNum">     168 </span>                :            : {
+<span class="lineNum">     169 </span>                :            :         const struct HDIF_array_hdr *arr;
+<span class="lineNum">     170 </span>                :            :         const struct HDIF_ms_area_address_range *arange;
+<span class="lineNum">     171 </span>                :            :         unsigned int size;
+<span class="lineNum">     172 </span>                :            :         u32 chip_id;
+<span class="lineNum">     173 </span>                :            : 
+<span class="lineNum">     174 </span>                :            :         /* Safe to assume pointers are valid here. */
+<span class="lineNum">     175 </span>                :<span class="lineCov">          8 :         arr = HDIF_get_idata(msarea, 4, &amp;size);</span>
+<span class="lineNum">     176 </span>                :<span class="lineCov">          8 :         arange = (void *)arr + be32_to_cpu(arr-&gt;offset);</span>
+<span class="lineNum">     177 </span>                :<span class="lineCov">          8 :         chip_id = pcid_to_chip_id(be32_to_cpu(arange-&gt;chip));</span>
+<span class="lineNum">     178 </span>                :<span class="lineCov">          8 :         dt_add_property_cells(ram_area, &quot;ibm,chip-id&quot;, chip_id);</span>
+<span class="lineNum">     179 </span>                :            : 
+<span class="lineNum">     180 </span>                :<span class="lineCov">          8 :         return chip_id;</span>
+<a name="181"><span class="lineNum">     181 </span>                :            : }</a>
+<span class="lineNum">     182 </span>                :            : 
+<span class="lineNum">     183 </span>                :<span class="lineCov">          8 : static void add_bus_freq_to_ram_area(struct dt_node *ram_node, u32 chip_id)</span>
+<span class="lineNum">     184 </span>                :            : {
+<span class="lineNum">     185 </span>                :            :         const struct sppcia_cpu_timebase *timebase;
+<span class="lineNum">     186 </span>                :<span class="lineCov">          8 :         bool got_pcia = false;</span>
+<span class="lineNum">     187 </span>                :            :         const void *pcia;
+<span class="lineNum">     188 </span>                :            :         u64 freq;
+<span class="lineNum">     189 </span>                :            :         u32 size;
+<span class="lineNum">     190 </span>                :            : 
+<span class="lineNum">     191 </span>                :<span class="lineCov">          8 :         pcia = get_hdif(&amp;spira.ntuples.pcia, SPPCIA_HDIF_SIG);</span>
+<span class="lineNum">     192 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :         if (!pcia) {</span>
+<span class="lineNum">     193 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_WARNING, &quot;HDAT: Failed to add memory bus frequency &quot;</span>
+<span class="lineNum">     194 </span>                :            :                       &quot;as PCIA does not exist\n&quot;);
+<span class="lineNum">     195 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     196 </span>                :            :         }
+<span class="lineNum">     197 </span>                :            : 
+<span class="lineNum">     198 </span>[<span class="branchCov" title="Branch 2 was taken 48 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>][<span class="branchCov" title="Branch 7 was taken 48 times"> + </span><span class="branchNoCov" title="Branch 8 was not taken"> - </span>]:<span class="lineCov">         48 :         for_each_pcia(pcia) {</span>
+<span class="lineNum">     199 </span>                :            :                 const struct sppcia_core_unique *id;
+<span class="lineNum">     200 </span>                :            : 
+<span class="lineNum">     201 </span>                :<span class="lineCov">         48 :                 id = HDIF_get_idata(pcia, SPPCIA_IDATA_CORE_UNIQUE, &amp;size);</span>
+<span class="lineNum">     202 </span>[<span class="branchCov" title="Branch 0 was taken 48 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 48 times"> + </span>]:<span class="lineCov">         48 :                 if (!id || size &lt; sizeof(*id)) {</span>
+<span class="lineNum">     203 </span>                :<span class="lineNoCov">          0 :                         prlog(PR_WARNING, &quot;HDAT: Bad id size %u @ %p\n&quot;, size, id);</span>
+<span class="lineNum">     204 </span>                :<span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     205 </span>                :            :                 }
+<span class="lineNum">     206 </span>                :            : 
+<span class="lineNum">     207 </span>        [<span class="branchCov" title="Branch 2 was taken 8 times"> + </span><span class="branchCov" title="Branch 3 was taken 40 times"> + </span>]:<span class="lineCov">         48 :                 if (chip_id == pcid_to_chip_id(be32_to_cpu(id-&gt;proc_chip_id))) {</span>
+<span class="lineNum">     208 </span>                :<span class="lineCov">          8 :                         got_pcia = true;</span>
+<span class="lineNum">     209 </span>                :<span class="lineCov">          8 :                         break;</span>
+<span class="lineNum">     210 </span>                :            :                 }
+<span class="lineNum">     211 </span>                :            :         }
+<span class="lineNum">     212 </span>                :            : 
+<span class="lineNum">     213 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :         if (got_pcia == false)</span>
+<span class="lineNum">     214 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     215 </span>                :            : 
+<span class="lineNum">     216 </span>                :<span class="lineCov">          8 :         timebase = HDIF_get_idata(pcia, SPPCIA_IDATA_TIMEBASE, &amp;size);</span>
+<span class="lineNum">     217 </span>[<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 8 times"> + </span>]:<span class="lineCov">          8 :         if (!timebase || size &lt; sizeof(*timebase)) {</span>
+<span class="lineNum">     218 </span>                :<span class="lineNoCov">          0 :                 prlog(PR_ERR, &quot;HDAT: Bad timebase size %u @ %p\n&quot;, size,</span>
+<span class="lineNum">     219 </span>                :            :                       timebase);
+<span class="lineNum">     220 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     221 </span>                :            :         }
+<span class="lineNum">     222 </span>                :            : 
+<span class="lineNum">     223 </span>                :<span class="lineCov">          8 :         freq = ((u64)be32_to_cpu(timebase-&gt;memory_bus_frequency)) *1000000ul;</span>
+<span class="lineNum">     224 </span>                :<span class="lineCov">          8 :         dt_add_property_cells(ram_node, &quot;ibm,memory-bus-frequency&quot;, hi32(freq),</span>
+<span class="lineNum">     225 </span>                :            :                               lo32(freq));
+<a name="226"><span class="lineNum">     226 </span>                :            : }</a>
+<span class="lineNum">     227 </span>                :            : 
+<span class="lineNum">     228 </span>                :<span class="lineCov">          8 : static void add_size_to_ram_area(struct dt_node *ram_node,</span>
+<span class="lineNum">     229 </span>                :            :                                  const struct HDIF_common_hdr *hdr,
+<span class="lineNum">     230 </span>                :            :                                  int indx_vpd)
+<span class="lineNum">     231 </span>                :            : {
+<span class="lineNum">     232 </span>                :            :         const void      *fruvpd;
+<span class="lineNum">     233 </span>                :            :         unsigned int    fruvpd_sz;
+<span class="lineNum">     234 </span>                :            :         const void      *kw;
+<span class="lineNum">     235 </span>                :            :         char            *str;
+<span class="lineNum">     236 </span>                :            :         uint8_t         kwsz;
+<span class="lineNum">     237 </span>                :            : 
+<span class="lineNum">     238 </span>                :<span class="lineCov">          8 :         fruvpd = HDIF_get_idata(hdr, indx_vpd, &amp;fruvpd_sz);</span>
+<span class="lineNum">     239 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :         if (!CHECK_SPPTR(fruvpd))</span>
+<span class="lineNum">     240 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     241 </span>                :            : 
+<span class="lineNum">     242 </span>                :            :         /* DIMM Size */
+<span class="lineNum">     243 </span>                :<span class="lineCov">          8 :         kw = vpd_find(fruvpd, fruvpd_sz, &quot;VINI&quot;, &quot;SZ&quot;, &amp;kwsz);</span>
+<span class="lineNum">     244 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :         if (!kw)</span>
+<span class="lineNum">     245 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     246 </span>                :            : 
+<span class="lineNum">     247 </span>                :<span class="lineCov">          8 :         str = zalloc(kwsz + 1);</span>
+<span class="lineNum">     248 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :         if (!str){</span>
+<span class="lineNum">     249 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;Allocation failed\n&quot;);</span>
+<span class="lineNum">     250 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     251 </span>                :            :         }
+<span class="lineNum">     252 </span>                :<span class="lineCov">          8 :         memcpy(str, kw, kwsz);</span>
+<span class="lineNum">     253 </span>                :<span class="lineCov">          8 :         dt_add_property_string(ram_node, &quot;size&quot;, str);</span>
+<span class="lineNum">     254 </span>                :<span class="lineCov">          8 :         free(str);</span>
+<a name="255"><span class="lineNum">     255 </span>                :            : }</a>
+<span class="lineNum">     256 </span>                :            : 
+<span class="lineNum">     257 </span>                :<span class="lineCov">          8 : static void vpd_add_ram_area(const struct HDIF_common_hdr *msarea)</span>
+<span class="lineNum">     258 </span>                :            : {
+<span class="lineNum">     259 </span>                :            :         unsigned int i;
+<span class="lineNum">     260 </span>                :            :         unsigned int ram_sz;
+<span class="lineNum">     261 </span>                :            :         const struct HDIF_common_hdr *ramarea;
+<span class="lineNum">     262 </span>                :            :         const struct HDIF_child_ptr *ramptr;
+<span class="lineNum">     263 </span>                :            :         const struct HDIF_ram_area_id *ram_id;
+<span class="lineNum">     264 </span>                :            :         struct dt_node *ram_node;
+<span class="lineNum">     265 </span>                :            :         u32 chip_id;
+<span class="lineNum">     266 </span>                :            : 
+<span class="lineNum">     267 </span>                :<span class="lineCov">          8 :         ramptr = HDIF_child_arr(msarea, 0);</span>
+<span class="lineNum">     268 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :         if (!CHECK_SPPTR(ramptr)) {</span>
+<span class="lineNum">     269 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;MS AREA: No RAM area at %p\n&quot;, msarea);</span>
+<span class="lineNum">     270 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     271 </span>                :            :         }
+<span class="lineNum">     272 </span>                :            : 
+<span class="lineNum">     273 </span>        [<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchCov" title="Branch 2 was taken 8 times"> + </span>]:<span class="lineCov">         16 :         for (i = 0; i &lt; be32_to_cpu(ramptr-&gt;count); i++) {</span>
+<span class="lineNum">     274 </span>                :<span class="lineCov">          8 :                 ramarea = HDIF_child(msarea, ramptr, i, &quot;RAM   &quot;);</span>
+<span class="lineNum">     275 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :                 if (!CHECK_SPPTR(ramarea))</span>
+<span class="lineNum">     276 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     277 </span>                :            : 
+<span class="lineNum">     278 </span>                :<span class="lineCov">          8 :                 ram_id = HDIF_get_idata(ramarea, 2, &amp;ram_sz);</span>
+<span class="lineNum">     279 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :                 if (!CHECK_SPPTR(ram_id))</span>
+<span class="lineNum">     280 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     281 </span>                :            : 
+<span class="lineNum">     282 </span>  [<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 4 was not taken"> - </span>]:<span class="lineCov">         16 :                 if ((be16_to_cpu(ram_id-&gt;flags) &amp; RAM_AREA_INSTALLED) &amp;&amp;</span>
+<span class="lineNum">     283 </span>                :<span class="lineCov">          8 :                     (be16_to_cpu(ram_id-&gt;flags) &amp; RAM_AREA_FUNCTIONAL)) {</span>
+<span class="lineNum">     284 </span>                :<span class="lineCov">          8 :                         ram_node = dt_add_vpd_node(ramarea, 0, 1);</span>
+<span class="lineNum">     285 </span>        [<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>]:<span class="lineCov">          8 :                         if (ram_node) {</span>
+<span class="lineNum">     286 </span>                :<span class="lineCov">          8 :                                 chip_id = add_chip_id_to_ram_area(msarea,</span>
+<span class="lineNum">     287 </span>                :            :                                                                   ram_node);
+<span class="lineNum">     288 </span>                :<span class="lineCov">          8 :                                 add_bus_freq_to_ram_area(ram_node, chip_id);</span>
+<span class="lineNum">     289 </span>                :<span class="lineCov">          8 :                                 add_size_to_ram_area(ram_node, ramarea, 1);</span>
+<span class="lineNum">     290 </span>                :            :                         }
+<span class="lineNum">     291 </span>                :            :                 }
+<span class="lineNum">     292 </span>                :            :         }
+<a name="293"><span class="lineNum">     293 </span>                :            : }</a>
+<span class="lineNum">     294 </span>                :            : 
+<span class="lineNum">     295 </span>                :<span class="lineCov">          2 : static void get_msareas(struct dt_node *root,</span>
+<span class="lineNum">     296 </span>                :            :                         const struct HDIF_common_hdr *ms_vpd)
+<span class="lineNum">     297 </span>                :            : {
+<span class="lineNum">     298 </span>                :            :         unsigned int i;
+<span class="lineNum">     299 </span>                :            :         const struct HDIF_child_ptr *msptr;
+<span class="lineNum">     300 </span>                :            : 
+<span class="lineNum">     301 </span>                :            :         /* First childptr refers to msareas. */
+<span class="lineNum">     302 </span>                :<span class="lineCov">          2 :         msptr = HDIF_child_arr(ms_vpd, MSVPD_CHILD_MS_AREAS);</span>
+<span class="lineNum">     303 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!CHECK_SPPTR(msptr)) {</span>
+<span class="lineNum">     304 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;MS VPD: no children at %p\n&quot;, ms_vpd);</span>
+<span class="lineNum">     305 </span>                :<span class="lineNoCov">          0 :                 return;</span>
+<span class="lineNum">     306 </span>                :            :         }
+<span class="lineNum">     307 </span>                :            : 
+<span class="lineNum">     308 </span>        [<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">         10 :         for (i = 0; i &lt; be32_to_cpu(msptr-&gt;count); i++) {</span>
+<span class="lineNum">     309 </span>                :            :                 const struct HDIF_common_hdr *msarea;
+<span class="lineNum">     310 </span>                :            :                 const struct HDIF_array_hdr *arr;
+<span class="lineNum">     311 </span>                :            :                 const struct HDIF_ms_area_address_range *arange;
+<span class="lineNum">     312 </span>                :            :                 const struct HDIF_ms_area_id *id;
+<span class="lineNum">     313 </span>                :            :                 const void *fruid;
+<span class="lineNum">     314 </span>                :            :                 unsigned int size, j;
+<span class="lineNum">     315 </span>                :            :                 u16 flags;
+<span class="lineNum">     316 </span>                :            : 
+<span class="lineNum">     317 </span>                :<span class="lineCov">          8 :                 msarea = HDIF_child(ms_vpd, msptr, i, &quot;MSAREA&quot;);</span>
+<span class="lineNum">     318 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :                 if (!CHECK_SPPTR(msarea))</span>
+<span class="lineNum">     319 </span>                :<span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     320 </span>                :            : 
+<span class="lineNum">     321 </span>                :<span class="lineCov">          8 :                 id = HDIF_get_idata(msarea, 2, &amp;size);</span>
+<span class="lineNum">     322 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :                 if (!CHECK_SPPTR(id))</span>
+<span class="lineNum">     323 </span>                :<span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     324 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :                 if (size &lt; sizeof(*id)) {</span>
+<span class="lineNum">     325 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;MS VPD: %p msarea #%i id size too small!\n&quot;,</span>
+<span class="lineNum">     326 </span>                :            :                                 ms_vpd, i);
+<span class="lineNum">     327 </span>                :<span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     328 </span>                :            :                 }
+<span class="lineNum">     329 </span>                :            : 
+<span class="lineNum">     330 </span>                :<span class="lineCov">          8 :                 flags = be16_to_cpu(id-&gt;flags);</span>
+<span class="lineNum">     331 </span>[<span class="branchCov" title="Branch 0 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchCov" title="Branch 2 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 3 was not taken"> - </span>]:<span class="lineCov">          8 :                 prlog(PR_DEBUG, &quot;MS VPD: %p, area %i: %s %s %s\n&quot;,</span>
+<span class="lineNum">         </span>        [<span class="branchCov" title="Branch 4 was taken 8 times"> + </span><span class="branchNoCov" title="Branch 5 was not taken"> - </span>]
+<span class="lineNum">     332 </span>                :            :                        ms_vpd, i,
+<span class="lineNum">     333 </span>                :            :                        flags &amp; MS_AREA_INSTALLED ?
+<span class="lineNum">     334 </span>                :            :                        &quot;installed&quot; : &quot;not installed&quot;,
+<span class="lineNum">     335 </span>                :            :                        flags &amp; MS_AREA_FUNCTIONAL ?
+<span class="lineNum">     336 </span>                :            :                        &quot;functional&quot; : &quot;not functional&quot;,
+<span class="lineNum">     337 </span>                :            :                        flags &amp; MS_AREA_SHARED ?
+<span class="lineNum">     338 </span>                :            :                        &quot;shared&quot; : &quot;not shared&quot;);
+<span class="lineNum">     339 </span>                :            : 
+<span class="lineNum">     340 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :                 if ((flags &amp; (MS_AREA_INSTALLED|MS_AREA_FUNCTIONAL))</span>
+<span class="lineNum">     341 </span>                :            :                     != (MS_AREA_INSTALLED|MS_AREA_FUNCTIONAL))
+<span class="lineNum">     342 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     343 </span>                :            : 
+<span class="lineNum">     344 </span>                :<span class="lineCov">          8 :                 arr = HDIF_get_idata(msarea, 4, &amp;size);</span>
+<span class="lineNum">     345 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :                 if (!CHECK_SPPTR(arr))</span>
+<span class="lineNum">     346 </span>                :<span class="lineNoCov">          0 :                         continue;</span>
+<span class="lineNum">     347 </span>                :            : 
+<span class="lineNum">     348 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :                 if (size &lt; sizeof(*arr)) {</span>
+<span class="lineNum">     349 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;MS VPD: %p msarea #%i arr size too small!\n&quot;,</span>
+<span class="lineNum">     350 </span>                :            :                                 ms_vpd, i);
+<span class="lineNum">     351 </span>                :<span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     352 </span>                :            :                 }
+<span class="lineNum">     353 </span>                :            : 
+<span class="lineNum">     354 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 8 times"> + </span>]:<span class="lineCov">          8 :                 if (be32_to_cpu(arr-&gt;eactsz) &lt; sizeof(*arange)) {</span>
+<span class="lineNum">     355 </span>                :<span class="lineNoCov">          0 :                         prerror(&quot;MS VPD: %p msarea #%i arange size too small!\n&quot;,</span>
+<span class="lineNum">     356 </span>                :            :                                 ms_vpd, i);
+<span class="lineNum">     357 </span>                :<span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     358 </span>                :            :                 }
+<span class="lineNum">     359 </span>                :            : 
+<span class="lineNum">     360 </span>                :<span class="lineCov">          8 :                 fruid = HDIF_get_idata(msarea, 0, &amp;size);</span>
+<span class="lineNum">     361 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 8 times"> + </span>]:<span class="lineCov">          8 :                 if (!CHECK_SPPTR(fruid))</span>
+<span class="lineNum">     362 </span>                :<span class="lineNoCov">          0 :                         return;</span>
+<span class="lineNum">     363 </span>                :            : 
+<span class="lineNum">     364 </span>                :            :                 /* Add Raiser card VPD */
+<span class="lineNum">     365 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 8 times"> + </span>]:<span class="lineCov">          8 :                 if (be16_to_cpu(id-&gt;parent_type) &amp; MS_PTYPE_RISER_CARD)</span>
+<span class="lineNum">     366 </span>                :<span class="lineNoCov">          0 :                         dt_add_vpd_node(msarea, 0, 1);</span>
+<span class="lineNum">     367 </span>                :            : 
+<span class="lineNum">     368 </span>                :            :                 /* Add RAM Area VPD */
+<span class="lineNum">     369 </span>                :<span class="lineCov">          8 :                 vpd_add_ram_area(msarea);</span>
+<span class="lineNum">     370 </span>                :            : 
+<span class="lineNum">     371 </span>                :            :                 /* This offset is from the arr, not the header! */
+<span class="lineNum">     372 </span>                :<span class="lineCov">          8 :                 arange = (void *)arr + be32_to_cpu(arr-&gt;offset);</span>
+<span class="lineNum">     373 </span>        [<span class="branchCov" title="Branch 1 was taken 8 times"> + </span><span class="branchCov" title="Branch 2 was taken 8 times"> + </span>]:<span class="lineCov">         16 :                 for (j = 0; j &lt; be32_to_cpu(arr-&gt;ecnt); j++) {</span>
+<span class="lineNum">     374 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 8 times"> + </span>]:<span class="lineCov">          8 :                         if (!add_address_range(root, id, arange))</span>
+<span class="lineNum">     375 </span>                :<span class="lineNoCov">          0 :                                 return;</span>
+<span class="lineNum">     376 </span>                :<span class="lineCov">          8 :                         arange = (void *)arange + be32_to_cpu(arr-&gt;esize);</span>
+<span class="lineNum">     377 </span>                :            :                 }
+<span class="lineNum">     378 </span>                :            :         }
+<a name="379"><span class="lineNum">     379 </span>                :            : }</a>
+<span class="lineNum">     380 </span>                :            : 
+<span class="lineNum">     381 </span>                :<span class="lineCov">          2 : static bool __memory_parse(struct dt_node *root)</span>
+<span class="lineNum">     382 </span>                :            : {
+<span class="lineNum">     383 </span>                :            :         struct HDIF_common_hdr *ms_vpd;
+<span class="lineNum">     384 </span>                :            :         const struct msvpd_ms_addr_config *msac;
+<span class="lineNum">     385 </span>                :            :         const struct msvpd_total_config_ms *tcms;
+<span class="lineNum">     386 </span>                :            :         unsigned int size;
+<span class="lineNum">     387 </span>                :            : 
+<span class="lineNum">     388 </span>                :<span class="lineCov">          2 :         ms_vpd = get_hdif(&amp;spira.ntuples.ms_vpd, MSVPD_HDIF_SIG);</span>
+<span class="lineNum">     389 </span>        [<span class="branchNoCov" title="Branch 0 was not taken"> - </span><span class="branchCov" title="Branch 1 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!ms_vpd) {</span>
+<span class="lineNum">     390 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;MS VPD: invalid\n&quot;);</span>
+<span class="lineNum">     391 </span>                :<span class="lineNoCov">          0 :                 op_display(OP_FATAL, OP_MOD_MEM, 0x0000);</span>
+<span class="lineNum">     392 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     393 </span>                :            :         }
+<span class="lineNum">     394 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (be32_to_cpu(spira.ntuples.ms_vpd.act_len) &lt; sizeof(*ms_vpd)) {</span>
+<span class="lineNum">     395 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;MS VPD: invalid size %u\n&quot;,</span>
+<span class="lineNum">     396 </span>                :            :                         be32_to_cpu(spira.ntuples.ms_vpd.act_len));
+<span class="lineNum">     397 </span>                :<span class="lineNoCov">          0 :                 op_display(OP_FATAL, OP_MOD_MEM, 0x0001);</span>
+<span class="lineNum">     398 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     399 </span>                :            :         }
+<span class="lineNum">     400 </span>                :            : 
+<span class="lineNum">     401 </span>                :<span class="lineCov">          2 :         prlog(PR_DEBUG, &quot;MS VPD: is at %p\n&quot;, ms_vpd);</span>
+<span class="lineNum">     402 </span>                :            : 
+<span class="lineNum">     403 </span>                :<span class="lineCov">          2 :         msac = HDIF_get_idata(ms_vpd, MSVPD_IDATA_MS_ADDR_CONFIG, &amp;size);</span>
+<span class="lineNum">     404 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!CHECK_SPPTR(msac) || size &lt; sizeof(*msac)) {</span>
+<span class="lineNum">     405 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;MS VPD: bad msac size %u @ %p\n&quot;, size, msac);</span>
+<span class="lineNum">     406 </span>                :<span class="lineNoCov">          0 :                 op_display(OP_FATAL, OP_MOD_MEM, 0x0002);</span>
+<span class="lineNum">     407 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     408 </span>                :            :         }
+<span class="lineNum">     409 </span>                :<span class="lineCov">          2 :         prlog(PR_DEBUG, &quot;MS VPD: MSAC is at %p\n&quot;, msac);</span>
+<span class="lineNum">     410 </span>                :            : 
+<span class="lineNum">     411 </span>                :<span class="lineCov">          2 :         dt_add_property_u64(dt_root, DT_PRIVATE &quot;maxmem&quot;,</span>
+<span class="lineNum">     412 </span>                :            :                             be64_to_cpu(msac-&gt;max_configured_ms_address));
+<span class="lineNum">     413 </span>                :            : 
+<span class="lineNum">     414 </span>                :<span class="lineCov">          2 :         tcms = HDIF_get_idata(ms_vpd, MSVPD_IDATA_TOTAL_CONFIG_MS, &amp;size);</span>
+<span class="lineNum">     415 </span>[<span class="branchCov" title="Branch 0 was taken 2 times"> + </span><span class="branchNoCov" title="Branch 1 was not taken"> - </span>][<span class="branchNoCov" title="Branch 2 was not taken"> - </span><span class="branchCov" title="Branch 3 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!CHECK_SPPTR(tcms) || size &lt; sizeof(*tcms)) {</span>
+<span class="lineNum">     416 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;MS VPD: Bad tcms size %u @ %p\n&quot;, size, tcms);</span>
+<span class="lineNum">     417 </span>                :<span class="lineNoCov">          0 :                 op_display(OP_FATAL, OP_MOD_MEM, 0x0003);</span>
+<span class="lineNum">     418 </span>                :<span class="lineNoCov">          0 :                 return false;</span>
+<span class="lineNum">     419 </span>                :            :         }
+<span class="lineNum">     420 </span>                :<span class="lineCov">          2 :         prlog(PR_DEBUG, &quot;MS VPD: TCMS is at %p\n&quot;, tcms);</span>
+<span class="lineNum">     421 </span>                :            : 
+<span class="lineNum">     422 </span>                :<span class="lineCov">          2 :         prlog(PR_DEBUG, &quot;MS VPD: Maximum configured address: 0x%llx\n&quot;,</span>
+<span class="lineNum">     423 </span>                :            :               (long long)be64_to_cpu(msac-&gt;max_configured_ms_address));
+<span class="lineNum">     424 </span>                :<span class="lineCov">          2 :         prlog(PR_DEBUG, &quot;MS VPD: Maximum possible address: 0x%llx\n&quot;,</span>
+<span class="lineNum">     425 </span>                :            :               (long long)be64_to_cpu(msac-&gt;max_possible_ms_address));
+<span class="lineNum">     426 </span>                :            : 
+<span class="lineNum">     427 </span>                :<span class="lineCov">          2 :         get_msareas(root, ms_vpd);</span>
+<span class="lineNum">     428 </span>                :            : 
+<span class="lineNum">     429 </span>                :<span class="lineCov">          2 :         prlog(PR_INFO, &quot;MS VPD: Total MB of RAM: 0x%llx\n&quot;,</span>
+<span class="lineNum">     430 </span>                :            :                (long long)be64_to_cpu(tcms-&gt;total_in_mb));
+<span class="lineNum">     431 </span>                :            : 
+<span class="lineNum">     432 </span>                :<span class="lineCov">          2 :         return true;</span>
+<a name="433"><span class="lineNum">     433 </span>                :            : }</a>
+<span class="lineNum">     434 </span>                :            : 
+<span class="lineNum">     435 </span>                :<span class="lineCov">          2 : void memory_parse(void)</span>
+<span class="lineNum">     436 </span>                :            : {
+<span class="lineNum">     437 </span>        [<span class="branchNoCov" title="Branch 1 was not taken"> - </span><span class="branchCov" title="Branch 2 was taken 2 times"> + </span>]:<span class="lineCov">          2 :         if (!__memory_parse(dt_root)) {</span>
+<span class="lineNum">     438 </span>                :<span class="lineNoCov">          0 :                 prerror(&quot;MS VPD: Failed memory init !\n&quot;);</span>
+<span class="lineNum">     439 </span>                :<span class="lineNoCov">          0 :                 abort();</span>
+<span class="lineNum">     440 </span>                :            :         }
+<span class="lineNum">     441 </span>                :<span class="lineCov">          2 : }</span>
+<span class="lineNum">     442 </span>                :            : 
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.11</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

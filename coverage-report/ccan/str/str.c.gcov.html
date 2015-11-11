@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-10-08 09:04:08</td>
+            <td class="headerValue">2015-11-11 16:28:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -72,15 +72,15 @@
 <a name="1"><span class="lineNum">       1 </span>                :            : /* CC0 (Public domain) - see LICENSE file for details */</a>
 <a name="2"><span class="lineNum">       2 </span>                :            : #include &lt;ccan/str/str.h&gt;</a>
 <span class="lineNum">       3 </span>                :            : 
-<span class="lineNum">       4 </span>                :<span class="lineCov">       1326 : size_t strcount(const char *haystack, const char *needle)</span>
+<span class="lineNum">       4 </span>                :<span class="lineCov">         78 : size_t strcount(const char *haystack, const char *needle)</span>
 <span class="lineNum">       5 </span>                :            : {
-<span class="lineNum">       6 </span>                :<span class="lineCov">       1326 :         size_t i = 0, nlen = strlen(needle);</span>
+<span class="lineNum">       6 </span>                :<span class="lineCov">         78 :         size_t i = 0, nlen = strlen(needle);</span>
 <span class="lineNum">       7 </span>                :            : 
-<span class="lineNum">       8 </span>        [<span class="branchCov" title="Branch 0 was taken 2448 times"> + </span><span class="branchCov" title="Branch 1 was taken 1326 times"> + </span>]:<span class="lineCov">       3774 :         while ((haystack = strstr(haystack, needle)) != NULL) {</span>
-<span class="lineNum">       9 </span>                :<span class="lineCov">       2448 :                 i++;</span>
-<span class="lineNum">      10 </span>                :<span class="lineCov">       2448 :                 haystack += nlen;</span>
+<span class="lineNum">       8 </span>        [<span class="branchCov" title="Branch 0 was taken 144 times"> + </span><span class="branchCov" title="Branch 1 was taken 78 times"> + </span>]:<span class="lineCov">        222 :         while ((haystack = strstr(haystack, needle)) != NULL) {</span>
+<span class="lineNum">       9 </span>                :<span class="lineCov">        144 :                 i++;</span>
+<span class="lineNum">      10 </span>                :<span class="lineCov">        144 :                 haystack += nlen;</span>
 <span class="lineNum">      11 </span>                :            :         }
-<span class="lineNum">      12 </span>                :<span class="lineCov">       1326 :         return i;</span>
+<span class="lineNum">      12 </span>                :<span class="lineCov">         78 :         return i;</span>
 <span class="lineNum">      13 </span>                :            : }
 </pre>
       </td>

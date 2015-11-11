@@ -1,0 +1,325 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html lang="en">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>LCOV - skiboot.info - include/device.h</title>
+  <link rel="stylesheet" type="text/css" href="../gcov.css">
+</head>
+
+<body>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="title">LCOV - code coverage report</td></tr>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+
+    <tr>
+      <td width="100%">
+        <table cellpadding=1 border=0 width="100%">
+          <tr>
+            <td width="10%" class="headerItem">Current view:</td>
+            <td width="35%" class="headerValue"><a href="../index.html">top level</a> - <a href="index.html">include</a> - device.h<span style="font-size: 80%;"> (source / <a href="device.h.func-sort-c.html">functions</a>)</span></td>
+            <td width="5%"></td>
+            <td width="15%"></td>
+            <td width="10%" class="headerCovTableHead">Hit</td>
+            <td width="10%" class="headerCovTableHead">Total</td>
+            <td width="15%" class="headerCovTableHead">Coverage</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Test:</td>
+            <td class="headerValue">skiboot.info</td>
+            <td></td>
+            <td class="headerItem">Lines:</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntry">2</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td class="headerItem">Date:</td>
+            <td class="headerValue">2015-11-11 16:28:11</td>
+            <td></td>
+            <td class="headerItem">Functions:</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntry">1</td>
+            <td class="headerCovTableEntryHi">100.0 %</td>
+          </tr>
+          <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td class="headerItem">Branches:</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntry">0</td>
+            <td class="headerCovTableEntryHi">-</td>
+          </tr>
+          <tr><td><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+        </table>
+      </td>
+    </tr>
+
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+  </table>
+
+  <table cellpadding=0 cellspacing=0 border=0>
+    <tr>
+      <td><br></td>
+    </tr>
+    <tr>
+      <td>
+<pre class="sourceHeading">           Branch data     Line data    Source code</pre>
+<pre class="source">
+<a name="1"><span class="lineNum">       1 </span>                :            : /* Copyright 2013-2014 IBM Corp.</a>
+<span class="lineNum">       2 </span>                :            :  *
+<span class="lineNum">       3 </span>                :            :  * Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);
+<span class="lineNum">       4 </span>                :            :  * you may not use this file except in compliance with the License.
+<span class="lineNum">       5 </span>                :            :  * You may obtain a copy of the License at
+<span class="lineNum">       6 </span>                :            :  *
+<span class="lineNum">       7 </span>                :            :  *      http://www.apache.org/licenses/LICENSE-2.0
+<span class="lineNum">       8 </span>                :            :  *
+<span class="lineNum">       9 </span>                :            :  * Unless required by applicable law or agreed to in writing, software
+<span class="lineNum">      10 </span>                :            :  * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+<span class="lineNum">      11 </span>                :            :  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+<span class="lineNum">      12 </span>                :            :  * implied.
+<span class="lineNum">      13 </span>                :            :  * See the License for the specific language governing permissions and
+<span class="lineNum">      14 </span>                :            :  * limitations under the License.
+<span class="lineNum">      15 </span>                :            :  */
+<span class="lineNum">      16 </span>                :            : 
+<span class="lineNum">      17 </span>                :            : #ifndef __DEVICE_H
+<span class="lineNum">      18 </span>                :            : #define __DEVICE_H
+<span class="lineNum">      19 </span>                :            : #include &lt;ccan/list/list.h&gt;
+<span class="lineNum">      20 </span>                :            : #include &lt;ccan/short_types/short_types.h&gt;
+<span class="lineNum">      21 </span>                :            : #include &lt;compiler.h&gt;
+<span class="lineNum">      22 </span>                :            : 
+<span class="lineNum">      23 </span>                :            : /* Any property or node with this prefix will not be passed to the kernel. */
+<span class="lineNum">      24 </span>                :            : #define DT_PRIVATE      &quot;skiboot,&quot;
+<span class="lineNum">      25 </span>                :            : 
+<span class="lineNum">      26 </span>                :            : /*
+<span class="lineNum">      27 </span>                :            :  * An in-memory representation of a node in the device tree.
+<span class="lineNum">      28 </span>                :            :  *
+<span class="lineNum">      29 </span>                :            :  * This is trivially flattened into an fdt.
+<span class="lineNum">      30 </span>                :            :  *
+<span class="lineNum">      31 </span>                :            :  * Note that the add_* routines will make a copy of the name if it's not
+<span class="lineNum">      32 </span>                :            :  * a read-only string (ie. usually a string literal).
+<span class="lineNum">      33 </span>                :            :  */
+<span class="lineNum">      34 </span>                :            : struct dt_property {
+<span class="lineNum">      35 </span>                :            :         struct list_node list;
+<span class="lineNum">      36 </span>                :            :         const char *name;
+<span class="lineNum">      37 </span>                :            :         size_t len;
+<span class="lineNum">      38 </span>                :            :         char prop[/* len */];
+<span class="lineNum">      39 </span>                :            : };
+<span class="lineNum">      40 </span>                :            : 
+<span class="lineNum">      41 </span>                :            : struct dt_node {
+<span class="lineNum">      42 </span>                :            :         const char *name;
+<span class="lineNum">      43 </span>                :            :         struct list_node list;
+<span class="lineNum">      44 </span>                :            :         struct list_head properties;
+<span class="lineNum">      45 </span>                :            :         struct list_head children;
+<span class="lineNum">      46 </span>                :            :         struct dt_node *parent;
+<span class="lineNum">      47 </span>                :            :         u32 phandle;
+<span class="lineNum">      48 </span>                :            : };
+<span class="lineNum">      49 </span>                :            : 
+<span class="lineNum">      50 </span>                :            : /* This is shared with device_tree.c .. make it static when
+<span class="lineNum">      51 </span>                :            :  * the latter is gone (hopefully soon)
+<span class="lineNum">      52 </span>                :            :  */
+<span class="lineNum">      53 </span>                :            : extern u32 last_phandle;
+<span class="lineNum">      54 </span>                :            : 
+<span class="lineNum">      55 </span>                :            : extern struct dt_node *dt_root;
+<span class="lineNum">      56 </span>                :            : extern struct dt_node *dt_chosen;
+<span class="lineNum">      57 </span>                :            : 
+<span class="lineNum">      58 </span>                :            : /* Create a root node: ie. a parentless one. */
+<span class="lineNum">      59 </span>                :            : struct dt_node *dt_new_root(const char *name);
+<span class="lineNum">      60 </span>                :            : 
+<span class="lineNum">      61 </span>                :            : /* Graft a root node into this tree. */
+<span class="lineNum">      62 </span>                :            : bool dt_attach_root(struct dt_node *parent, struct dt_node *root);
+<span class="lineNum">      63 </span>                :            : 
+<span class="lineNum">      64 </span>                :            : /* Add a child node. */
+<span class="lineNum">      65 </span>                :            : struct dt_node *dt_new(struct dt_node *parent, const char *name);
+<span class="lineNum">      66 </span>                :            : struct dt_node *dt_new_addr(struct dt_node *parent, const char *name,
+<span class="lineNum">      67 </span>                :            :                             uint64_t unit_addr);
+<span class="lineNum">      68 </span>                :            : struct dt_node *dt_new_2addr(struct dt_node *parent, const char *name,
+<span class="lineNum">      69 </span>                :            :                              uint64_t unit_addr0, uint64_t unit_addr1);
+<span class="lineNum">      70 </span>                :            : 
+<span class="lineNum">      71 </span>                :            : /* Copy node to new parent, including properties and subnodes */
+<span class="lineNum">      72 </span>                :            : struct dt_node *dt_copy(struct dt_node *node, struct dt_node *parent);
+<span class="lineNum">      73 </span>                :            : 
+<span class="lineNum">      74 </span>                :            : /* Add a property node, various forms. */
+<span class="lineNum">      75 </span>                :            : struct dt_property *dt_add_property(struct dt_node *node,
+<span class="lineNum">      76 </span>                :            :                                     const char *name,
+<span class="lineNum">      77 </span>                :            :                                     const void *val, size_t size);
+<span class="lineNum">      78 </span>                :            : struct dt_property *dt_add_property_string(struct dt_node *node,
+<span class="lineNum">      79 </span>                :            :                                            const char *name,
+<span class="lineNum">      80 </span>                :            :                                            const char *value);
+<span class="lineNum">      81 </span>                :            : struct dt_property *dt_add_property_nstr(struct dt_node *node,
+<span class="lineNum">      82 </span>                :            :                                          const char *name,
+<span class="lineNum">      83 </span>                :            :                                          const char *value, unsigned int vlen);
+<span class="lineNum">      84 </span>                :            : 
+<span class="lineNum">      85 </span>                :            : /* Given out enough GCC extensions, we will achieve enlightenment! */
+<span class="lineNum">      86 </span>                :            : #define dt_add_property_strings(node, name, ...)                        \
+<span class="lineNum">      87 </span>                :            :         __dt_add_property_strings((node), ((name)),                     \
+<span class="lineNum">      88 </span>                :            :                             sizeof((const char *[]) { __VA_ARGS__ })/sizeof(const char *), \
+<span class="lineNum">      89 </span>                :            :                             __VA_ARGS__)
+<span class="lineNum">      90 </span>                :            : 
+<span class="lineNum">      91 </span>                :            : struct dt_property *__dt_add_property_strings(struct dt_node *node,
+<span class="lineNum">      92 </span>                :            :                                               const char *name,
+<span class="lineNum">      93 </span>                :            :                                               int count, ...);
+<span class="lineNum">      94 </span>                :            : 
+<span class="lineNum">      95 </span>                :            : /* Given out enough GCC extensions, we will achieve enlightenment! */
+<span class="lineNum">      96 </span>                :            : #define dt_add_property_cells(node, name, ...)                          \
+<span class="lineNum">      97 </span>                :            :         __dt_add_property_cells((node), ((name)),                       \
+<span class="lineNum">      98 </span>                :            :                             sizeof((u32[]) { __VA_ARGS__ })/sizeof(u32), \
+<span class="lineNum">      99 </span>                :            :                             __VA_ARGS__)
+<span class="lineNum">     100 </span>                :            : 
+<span class="lineNum">     101 </span>                :            : struct dt_property *__dt_add_property_cells(struct dt_node *node,
+<span class="lineNum">     102 </span>                :            :                                             const char *name,
+<span class="lineNum">     103 </span>                :            :                                             int count, ...);
+<span class="lineNum">     104 </span>                :            : 
+<span class="lineNum">     105 </span>                :            : #define dt_add_property_u64s(node, name, ...)                           \
+<span class="lineNum">     106 </span>                :            :         __dt_add_property_u64s((node), ((name)),                        \
+<span class="lineNum">     107 </span>                :            :                                sizeof((u64[]) { __VA_ARGS__ })/sizeof(u64), \
+<span class="lineNum">     108 </span>                :            :                                __VA_ARGS__)
+<span class="lineNum">     109 </span>                :            : 
+<span class="lineNum">     110 </span>                :            : struct dt_property *__dt_add_property_u64s(struct dt_node *node,
+<span class="lineNum">     111 </span>                :            :                                            const char *name,
+<a name="112"><span class="lineNum">     112 </span>                :            :                                            int count, ...);</a>
+<span class="lineNum">     113 </span>                :            : 
+<span class="lineNum">     114 </span>                :<span class="lineCov">          2 : static inline struct dt_property *dt_add_property_u64(struct dt_node *node,</span>
+<span class="lineNum">     115 </span>                :            :                                                       const char *name, u64 val)
+<span class="lineNum">     116 </span>                :            : {
+<span class="lineNum">     117 </span>                :<span class="lineCov">          2 :         return dt_add_property_cells(node, name, (u32)(val &gt;&gt; 32), (u32)val);</span>
+<span class="lineNum">     118 </span>                :            : }
+<span class="lineNum">     119 </span>                :            : 
+<span class="lineNum">     120 </span>                :            : void dt_del_property(struct dt_node *node, struct dt_property *prop);
+<span class="lineNum">     121 </span>                :            : 
+<span class="lineNum">     122 </span>                :            : /* Warning: moves *prop! */
+<span class="lineNum">     123 </span>                :            : void dt_resize_property(struct dt_property **prop, size_t len);
+<span class="lineNum">     124 </span>                :            : 
+<span class="lineNum">     125 </span>                :            : u32 dt_property_get_cell(const struct dt_property *prop, u32 index);
+<span class="lineNum">     126 </span>                :            : 
+<span class="lineNum">     127 </span>                :            : /* First child of this node. */
+<span class="lineNum">     128 </span>                :            : struct dt_node *dt_first(const struct dt_node *root);
+<span class="lineNum">     129 </span>                :            : 
+<span class="lineNum">     130 </span>                :            : /* Return next node, or NULL. */
+<span class="lineNum">     131 </span>                :            : struct dt_node *dt_next(const struct dt_node *root, const struct dt_node *prev);
+<span class="lineNum">     132 </span>                :            : 
+<span class="lineNum">     133 </span>                :            : /* Iterate nodes */
+<span class="lineNum">     134 </span>                :            : #define dt_for_each_node(root, node) \
+<span class="lineNum">     135 </span>                :            :         for (node = dt_first(root); node; node = dt_next(root, node))
+<span class="lineNum">     136 </span>                :            : 
+<span class="lineNum">     137 </span>                :            : #define dt_for_each_child(parent, node) \
+<span class="lineNum">     138 </span>                :            :         list_for_each(&amp;parent-&gt;children, node, list)
+<span class="lineNum">     139 </span>                :            : 
+<span class="lineNum">     140 </span>                :            : /* Find a string in a string list */
+<span class="lineNum">     141 </span>                :            : bool dt_prop_find_string(const struct dt_property *p, const char *s);
+<span class="lineNum">     142 </span>                :            : 
+<span class="lineNum">     143 </span>                :            : /* Check a compatible property */
+<span class="lineNum">     144 </span>                :            : bool dt_node_is_compatible(const struct dt_node *node, const char *compat);
+<span class="lineNum">     145 </span>                :            : 
+<span class="lineNum">     146 </span>                :            : /* Find a node based on compatible property */
+<span class="lineNum">     147 </span>                :            : struct dt_node *dt_find_compatible_node(struct dt_node *root,
+<span class="lineNum">     148 </span>                :            :                                         struct dt_node *prev,
+<span class="lineNum">     149 </span>                :            :                                         const char *compat);
+<span class="lineNum">     150 </span>                :            : 
+<span class="lineNum">     151 </span>                :            : #define dt_for_each_compatible(root, node, compat)      \
+<span class="lineNum">     152 </span>                :            :         for (node = NULL;                               \
+<span class="lineNum">     153 </span>                :            :              (node = dt_find_compatible_node(root, node, compat)) != NULL;)
+<span class="lineNum">     154 </span>                :            : 
+<span class="lineNum">     155 </span>                :            : struct dt_node *dt_find_compatible_node_on_chip(struct dt_node *root,
+<span class="lineNum">     156 </span>                :            :                                                 struct dt_node *prev,
+<span class="lineNum">     157 </span>                :            :                                                 const char *compat,
+<span class="lineNum">     158 </span>                :            :                                                 uint32_t chip_id);
+<span class="lineNum">     159 </span>                :            : 
+<span class="lineNum">     160 </span>                :            : #define dt_for_each_compatible_on_chip(root, node, compat, chip_id)     \
+<span class="lineNum">     161 </span>                :            :         for (node = NULL;                               \
+<span class="lineNum">     162 </span>                :            :              (node = dt_find_compatible_node_on_chip(root, node,\
+<span class="lineNum">     163 </span>                :            :                                                      compat, chip_id)) != NULL;)
+<span class="lineNum">     164 </span>                :            : 
+<span class="lineNum">     165 </span>                :            : /* Build the full path for a node. Return a new block of memory, caller
+<span class="lineNum">     166 </span>                :            :  * shall free() it
+<span class="lineNum">     167 </span>                :            :  */
+<span class="lineNum">     168 </span>                :            : char *dt_get_path(const struct dt_node *node);
+<span class="lineNum">     169 </span>                :            : 
+<span class="lineNum">     170 </span>                :            : /* Find a node by path */
+<span class="lineNum">     171 </span>                :            : struct dt_node *dt_find_by_path(struct dt_node *root, const char *path);
+<span class="lineNum">     172 </span>                :            : 
+<span class="lineNum">     173 </span>                :            : /* Find a child node by name */
+<span class="lineNum">     174 </span>                :            : struct dt_node *dt_find_by_name(struct dt_node *root, const char *name);
+<span class="lineNum">     175 </span>                :            : 
+<span class="lineNum">     176 </span>                :            : /* Find a node by phandle */
+<span class="lineNum">     177 </span>                :            : struct dt_node *dt_find_by_phandle(struct dt_node *root, u32 phandle);
+<span class="lineNum">     178 </span>                :            : 
+<span class="lineNum">     179 </span>                :            : /* Find a property by name. */
+<span class="lineNum">     180 </span>                :            : const struct dt_property *dt_find_property(const struct dt_node *node,\
+<span class="lineNum">     181 </span>                :            :                                            const char *name);
+<span class="lineNum">     182 </span>                :            : const struct dt_property *dt_require_property(const struct dt_node *node,
+<span class="lineNum">     183 </span>                :            :                                               const char *name, int wanted_len);
+<span class="lineNum">     184 </span>                :            : 
+<span class="lineNum">     185 </span>                :            : /* non-const variant */
+<span class="lineNum">     186 </span>                :            : struct dt_property *__dt_find_property(struct dt_node *node, const char *name);
+<span class="lineNum">     187 </span>                :            : 
+<span class="lineNum">     188 </span>                :            : /* Find a property by name, check if it's the same as val. */
+<span class="lineNum">     189 </span>                :            : bool dt_has_node_property(const struct dt_node *node,
+<span class="lineNum">     190 </span>                :            :                           const char *name, const char *val);
+<span class="lineNum">     191 </span>                :            : 
+<span class="lineNum">     192 </span>                :            : /* Free a node (and any children). */
+<span class="lineNum">     193 </span>                :            : void dt_free(struct dt_node *node);
+<span class="lineNum">     194 </span>                :            : 
+<span class="lineNum">     195 </span>                :            : /* Parse an initial fdt */
+<span class="lineNum">     196 </span>                :            : void dt_expand(const void *fdt);
+<span class="lineNum">     197 </span>                :            : int dt_expand_node(struct dt_node *node, const void *fdt, int fdt_node) __warn_unused_result;
+<span class="lineNum">     198 </span>                :            : 
+<span class="lineNum">     199 </span>                :            : /* Simplified accessors */
+<span class="lineNum">     200 </span>                :            : u64 dt_prop_get_u64(const struct dt_node *node, const char *prop);
+<span class="lineNum">     201 </span>                :            : u64 dt_prop_get_u64_def(const struct dt_node *node, const char *prop, u64 def);
+<span class="lineNum">     202 </span>                :            : u32 dt_prop_get_u32(const struct dt_node *node, const char *prop);
+<span class="lineNum">     203 </span>                :            : u32 dt_prop_get_u32_def(const struct dt_node *node, const char *prop, u32 def);
+<span class="lineNum">     204 </span>                :            : const void *dt_prop_get(const struct dt_node *node, const char *prop);
+<span class="lineNum">     205 </span>                :            : const void *dt_prop_get_def(const struct dt_node *node, const char *prop,
+<span class="lineNum">     206 </span>                :            :                             void *def);
+<span class="lineNum">     207 </span>                :            : const void *dt_prop_get_def_size(const struct dt_node *node, const char *prop,
+<span class="lineNum">     208 </span>                :            :                                 void *def, size_t *len);
+<span class="lineNum">     209 </span>                :            : u32 dt_prop_get_cell(const struct dt_node *node, const char *prop, u32 cell);
+<span class="lineNum">     210 </span>                :            : u32 dt_prop_get_cell_def(const struct dt_node *node, const char *prop, u32 cell, u32 def);
+<span class="lineNum">     211 </span>                :            : 
+<span class="lineNum">     212 </span>                :            : /* Parsing helpers */
+<span class="lineNum">     213 </span>                :            : u32 dt_n_address_cells(const struct dt_node *node);
+<span class="lineNum">     214 </span>                :            : u32 dt_n_size_cells(const struct dt_node *node);
+<span class="lineNum">     215 </span>                :            : u64 dt_get_number(const void *pdata, unsigned int cells);
+<span class="lineNum">     216 </span>                :            : 
+<span class="lineNum">     217 </span>                :            : /* Find an ibm,chip-id property in this node; if not found, walk up the parent
+<span class="lineNum">     218 </span>                :            :  * nodes. Returns -1 if no chip-id property exists. */
+<span class="lineNum">     219 </span>                :            : u32 dt_get_chip_id(const struct dt_node *node);
+<span class="lineNum">     220 </span>                :            : 
+<span class="lineNum">     221 </span>                :            : /* Address accessors (&quot;reg&quot; properties parsing). No translation,
+<span class="lineNum">     222 </span>                :            :  * only support &quot;simple&quot; address forms (1 or 2 cells). Asserts
+<span class="lineNum">     223 </span>                :            :  * if address doesn't exist
+<span class="lineNum">     224 </span>                :            :  */
+<span class="lineNum">     225 </span>                :            : u64 dt_get_address(const struct dt_node *node, unsigned int index,
+<span class="lineNum">     226 </span>                :            :                    u64 *out_size);
+<span class="lineNum">     227 </span>                :            : 
+<span class="lineNum">     228 </span>                :            : /* Count &quot;reg&quot; property entries */
+<span class="lineNum">     229 </span>                :            : unsigned int dt_count_addresses(const struct dt_node *node);
+<span class="lineNum">     230 </span>                :            : 
+<span class="lineNum">     231 </span>                :            : /* Address translation
+<span class="lineNum">     232 </span>                :            :  *
+<span class="lineNum">     233 </span>                :            :  * WARNING: Current implementation is simplified and will not
+<span class="lineNum">     234 </span>                :            :  * handle complex address formats with address space indicators
+<span class="lineNum">     235 </span>                :            :  * nor will it handle &quot;ranges&quot; translations yet... (XX TODO)
+<span class="lineNum">     236 </span>                :            :  */
+<span class="lineNum">     237 </span>                :            : u64 dt_translate_address(const struct dt_node *node, unsigned int index,
+<span class="lineNum">     238 </span>                :            :                          u64 *out_size);
+<span class="lineNum">     239 </span>                :            : 
+<span class="lineNum">     240 </span>                :            : #endif /* __DEVICE_H */
+</pre>
+      </td>
+    </tr>
+  </table>
+  <br>
+
+  <table width="100%" border=0 cellspacing=0 cellpadding=0>
+    <tr><td class="ruler"><img src="../glass.png" width=3 height=3 alt=""></td></tr>
+    <tr><td class="versionInfo">Generated by: <a href="http://ltp.sourceforge.net/coverage/lcov.php" target="_parent">LCOV version 1.11</a></td></tr>
+  </table>
+  <br>
+
+</body>
+</html>

@@ -37,7 +37,7 @@
           </tr>
           <tr>
             <td class="headerItem">Date:</td>
-            <td class="headerValue">2015-10-08 09:04:08</td>
+            <td class="headerValue">2015-11-11 16:28:11</td>
             <td></td>
             <td class="headerItem">Functions:</td>
             <td class="headerCovTableEntry">1</td>
@@ -86,9 +86,9 @@
 <span class="lineNum">      15 </span>                :            : #define CACHE_LINE_SIZE 128
 <a name="16"><span class="lineNum">      16 </span>                :            : </a>
 <span class="lineNum">      17 </span>                :            : void *
-<span class="lineNum">      18 </span>                :<span class="lineCov">         20 : memset(void *dest, int c, size_t size)</span>
+<span class="lineNum">      18 </span>                :<span class="lineCov">         40 : memset(void *dest, int c, size_t size)</span>
 <span class="lineNum">      19 </span>                :            : {
-<span class="lineNum">      20 </span>                :<span class="lineCov">         20 :         unsigned char *d = (unsigned char *)dest;</span>
+<span class="lineNum">      20 </span>                :<span class="lineCov">         40 :         unsigned char *d = (unsigned char *)dest;</span>
 <span class="lineNum">      21 </span>                :            : 
 <span class="lineNum">      22 </span>                :            : #if defined(__powerpc__) || defined(__powerpc64__)
 <span class="lineNum">      23 </span>                :            :         if (size &gt; CACHE_LINE_SIZE &amp;&amp; c==0) {
@@ -104,17 +104,17 @@
 <span class="lineNum">      33 </span>                :            :         }
 <span class="lineNum">      34 </span>                :            : #endif
 <span class="lineNum">      35 </span>                :            : 
-<span class="lineNum">      36 </span>[<span class="branchCov" title="Branch 0 was taken 800 times"> + </span><span class="branchCov" title="Branch 1 was taken 15 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 795 times"> + </span><span class="branchCov" title="Branch 3 was taken 5 times"> + </span>]:<span class="lineCov">        815 :         while (size &gt;= 8 &amp;&amp; c == 0) {</span>
-<span class="lineNum">      37 </span>                :<span class="lineCov">        795 :                 *((unsigned long long*)d) = 0ULL;</span>
-<span class="lineNum">      38 </span>                :<span class="lineCov">        795 :                 d+=8;</span>
-<span class="lineNum">      39 </span>                :<span class="lineCov">        795 :                 size-=8;</span>
+<span class="lineNum">      36 </span>[<span class="branchCov" title="Branch 0 was taken 1600 times"> + </span><span class="branchCov" title="Branch 1 was taken 30 times"> + </span>][<span class="branchCov" title="Branch 2 was taken 1590 times"> + </span><span class="branchCov" title="Branch 3 was taken 10 times"> + </span>]:<span class="lineCov">       1630 :         while (size &gt;= 8 &amp;&amp; c == 0) {</span>
+<span class="lineNum">      37 </span>                :<span class="lineCov">       1590 :                 *((unsigned long long*)d) = 0ULL;</span>
+<span class="lineNum">      38 </span>                :<span class="lineCov">       1590 :                 d+=8;</span>
+<span class="lineNum">      39 </span>                :<span class="lineCov">       1590 :                 size-=8;</span>
 <span class="lineNum">      40 </span>                :            :         }
 <span class="lineNum">      41 </span>                :            : 
-<span class="lineNum">      42 </span>        [<span class="branchCov" title="Branch 0 was taken 535 times"> + </span><span class="branchCov" title="Branch 1 was taken 20 times"> + </span>]:<span class="lineCov">        555 :         while (size-- &gt; 0) {</span>
-<span class="lineNum">      43 </span>                :<span class="lineCov">        535 :                 *d++ = (unsigned char)c;</span>
+<span class="lineNum">      42 </span>        [<span class="branchCov" title="Branch 0 was taken 1070 times"> + </span><span class="branchCov" title="Branch 1 was taken 40 times"> + </span>]:<span class="lineCov">       1110 :         while (size-- &gt; 0) {</span>
+<span class="lineNum">      43 </span>                :<span class="lineCov">       1070 :                 *d++ = (unsigned char)c;</span>
 <span class="lineNum">      44 </span>                :            :         }
 <span class="lineNum">      45 </span>                :            : 
-<span class="lineNum">      46 </span>                :<span class="lineCov">         20 :         return dest;</span>
+<span class="lineNum">      46 </span>                :<span class="lineCov">         40 :         return dest;</span>
 <span class="lineNum">      47 </span>                :            : }
 </pre>
       </td>
