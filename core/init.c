@@ -456,6 +456,8 @@ void __noreturn load_and_boot_kernel(bool is_reboot)
 	/* Set kernel command line argument if specified */
 #ifdef KERNEL_COMMAND_LINE
 	dt_add_property_string(dt_chosen, "bootargs", KERNEL_COMMAND_LINE);
+#else
+	dt_add_property_string(dt_chosen, "bootargs", "quiet");
 #endif
 
 	op_display(OP_LOG, OP_MOD_INIT, 0x000B);
