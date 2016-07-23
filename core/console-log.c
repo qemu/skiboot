@@ -26,6 +26,7 @@
 #include "stdio.h"
 #include "console.h"
 #include "timebase.h"
+#include "cpu.h"
 
 static int vprlog(int log_level, const char *fmt, va_list ap)
 {
@@ -43,8 +44,13 @@ static int vprlog(int log_level, const char *fmt, va_list ap)
 	if (log_level > (debug_descriptor.console_log_levels >> 4))
 		return 0;
 
-	count = snprintf(buffer, sizeof(buffer), "[%lu,%d] ",
-			 mftb(), log_level);
+#ifdef DEBUG
+	count = snprintf(buffer, sizeof(buffer), "[%lu,%d,%02x] ",
+			 mftb(), log_level, this_cpu()->pir);
+#else
+	count = snprintf(buffer, sizeof(buffer), "[%lu,%d,%02x] ",
+			 mftb(), log_level, this_cpu()->pir);
+#endif
 	count+= vsnprintf(buffer+count, sizeof(buffer)-count, fmt, ap);
 
 	if (log_level > (debug_descriptor.console_log_levels & 0x0f))

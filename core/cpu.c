@@ -443,6 +443,9 @@ void __nomcount pre_init_boot_cpu(void)
 	struct cpu_thread *cpu = this_cpu();
 
 	memset(cpu, 0, sizeof(struct cpu_thread));
+
+	/* For early messages */
+	cpu->pir = mfspr(SPR_PIR);
 }
 
 void init_boot_cpu(void)
