@@ -35,12 +35,16 @@ static void time_wait_poll(unsigned long duration)
 
 	while (tb_compare(mftb(), end) != TB_AAFTERB) {
 		/* Call pollers periodically but not continually to avoid
-		 * bouncing cachelines due to lock contention. */
+		 * bouncing cachelines due to lock contention.
+		 *
+		 * This also allows us to nap for a bit
+		 */
 		if (remaining >= period) {
 			opal_run_pollers();
 			time_wait_nopoll(period);
 			remaining -= period;
-		}
+		} else
+			time_wait_nopoll(remaining);
 
 		cpu_relax();
 	}
