@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>reserved-memory device tree nodes &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="Device Tree" href="index.html" />
+    <link rel="next" title="VPD (Vital Product Data)" href="vpd.html" />
+    <link rel="prev" title="Nest (NX) Accelerator Coprocessor" href="nx.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="vpd.html" title="VPD (Vital Product Data)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="nx.html" title="Nest (NX) Accelerator Coprocessor"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Device Tree</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="reserved-memory-device-tree-nodes">
+<h1>reserved-memory device tree nodes<a class="headerlink" href="#reserved-memory-device-tree-nodes" title="Permalink to this headline">¶</a></h1>
+<p>OPAL exposes reserved memory through a top-level reserved-memory node,
+containing subnodes that represent each reserved memory region.</p>
+<p>This follows the Linux specification for the /reserved-memory node,
+described in the kernel source tree, in:</p>
+<blockquote>
+<div>Documentation/devicetree/bindings/reserved-memory/reserved-memory.txt</div></blockquote>
+<p>The top-level /reserved-memory node contains:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#size-cells = &lt;2&gt;</span>
+<span class="c1">#address-cells = &lt;2&gt;</span>
+</pre></div>
+</div>
+<p>Addresses and sizes are all 64-bits.</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">ranges</span></code></dt>
+<dd>the empty ranges node indicates no translation of physical
+addresses in the subnodes.</dd>
+</dl>
+<p>The sub-nodes under the /reserved-memory node contain:</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">reg</span> <span class="pre">=</span> <span class="pre">&lt;address</span> <span class="pre">size&gt;</span></code></dt>
+<dd>the address and size of the reserved memory region. The address
+and size values are two cells each, as signified by the top-level
+<code class="docutils literal"><span class="pre">#{address,size}-cells</span></code></dd>
+<dt><code class="docutils literal"><span class="pre">ibm,prd-label</span> <span class="pre">=</span> <span class="pre">&quot;string&quot;</span></code></dt>
+<dd>a string token for use by the prd system. Specific ranges may be
+used by prd - those will be referenced by this label.</dd>
+</dl>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nx.html"
+                        title="previous chapter">Nest (NX) Accelerator Coprocessor</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="vpd.html"
+                        title="next chapter">VPD (Vital Product Data)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/device-tree/reserved-memory.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="vpd.html" title="VPD (Vital Product Data)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="nx.html" title="Nest (NX) Accelerator Coprocessor"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Device Tree</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

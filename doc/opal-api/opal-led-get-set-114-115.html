@@ -1,0 +1,192 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Service Indicators (LEDS) &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="OPAL API Documentation" href="index.html" />
+    <link rel="next" title="OPAL_MESSAGE" href="opal-messages.html" />
+    <link rel="prev" title="OPAL_IPMI_SEND" href="opal-ipmi-send-recv-107-108.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="opal-messages.html" title="OPAL_MESSAGE"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="opal-ipmi-send-recv-107-108.html" title="OPAL_IPMI_SEND"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="service-indicators-leds">
+<h1>Service Indicators (LEDS)<a class="headerlink" href="#service-indicators-leds" title="Permalink to this headline">¶</a></h1>
+<p>The service indicator is one element of an overall hardware service strategy
+where end user simplicity is a high priority. The goal is system firmware or
+operating system code to isolate hardware failures to the failing FRU and
+automatically activate the fault indicator associated with the failing FRU.
+The end user then needs only to look for the FRU with the active fault
+indicator to know which part to replace.</p>
+<p>Different types of indicators handled by LED code:</p>
+<blockquote>
+<div><ul>
+<li><dl class="first docutils">
+<dt>System attention indicator (Check log indicator)</dt>
+<dd><p class="first last">Indicates there is a problem with the system that needs attention.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Identify</dt>
+<dd><p class="first last">Helps the user locate/identify a particular FRU or resource in the
+system.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Fault</dt>
+<dd><p class="first last">Indicates there is a problem with the FRU or resource at the
+location with which the indicator is associated.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+<div class="section" id="led-design">
+<h2>LED Design<a class="headerlink" href="#led-design" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div>When it comes to implementation we can classify LEDs into two
+categories:</div></blockquote>
+<ol class="arabic simple">
+<li>Hypervisor (OPAL) controlled LEDs (All identify &amp; fault indicators)
+During boot, we read/cache these LED details in OPAL (location code,
+state, etc). We use cached data to serve read request from FSP/Host.
+And we use SPCN passthrough MBOX command to update these LED state.</li>
+<li>Service processor (FSP) controlled LEDs (System Attention Indicator)
+During boot, we read/cache this LED info using MBOX command. Later
+anytime FSP updates this LED, it sends update system parameter
+notification MBOX command. We use that data to update cached data.
+LED update request is sent via set/reset attn MBOX command.</li>
+</ol>
+<dl class="docutils">
+<dt>LED update request:</dt>
+<dd>Both FSP and Host will send LED update requests. We have to serialize
+SPCN passthrough command. Hence we maintain local queue.</dd>
+</dl>
+<p>Note:</p>
+<blockquote>
+<div><ul class="simple">
+<li>For more information regarding service indicator refer to PAPR spec
+(Service Indicators chapter).</li>
+</ul>
+</div></blockquote>
+<p>There are two OPAL calls relating to LED operations.</p>
+</div>
+<div class="section" id="opal-leds-get-indicator">
+<h2>OPAL_LEDS_GET_INDICATOR<a class="headerlink" href="#opal-leds-get-indicator" title="Permalink to this headline">¶</a></h2>
+<p>Returns LED state for the given location code.</p>
+</div>
+<div class="section" id="opal-leds-set-indicator">
+<h2>OPAL_LEDS_SET_INDICATOR<a class="headerlink" href="#opal-leds-set-indicator" title="Permalink to this headline">¶</a></h2>
+<p>Sets LED state for the given location code.</p>
+<p>See hw/fsp/fsp-leds.c for more deatails.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Service Indicators (LEDS)</a><ul>
+<li><a class="reference internal" href="#led-design">LED Design</a></li>
+<li><a class="reference internal" href="#opal-leds-get-indicator">OPAL_LEDS_GET_INDICATOR</a></li>
+<li><a class="reference internal" href="#opal-leds-set-indicator">OPAL_LEDS_SET_INDICATOR</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="opal-ipmi-send-recv-107-108.html"
+                        title="previous chapter">OPAL_IPMI_SEND</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="opal-messages.html"
+                        title="next chapter">OPAL_MESSAGE</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/opal-api/opal-led-get-set-114-115.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="opal-messages.html" title="OPAL_MESSAGE"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="opal-ipmi-send-recv-107-108.html" title="OPAL_IPMI_SEND"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

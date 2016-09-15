@@ -1,0 +1,156 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>skiboot-5.3.1 &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="Release Notes" href="index.html" />
+    <link rel="next" title="skiboot-5.3.2" href="skiboot-5.3.2.html" />
+    <link rel="prev" title="skiboot-5.3.0-rc2" href="skiboot-5.3.0-rc2.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="skiboot-5.3.2.html" title="skiboot-5.3.2"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="skiboot-5.3.0-rc2.html" title="skiboot-5.3.0-rc2"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Release Notes</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="skiboot-5-3-1">
+<h1>skiboot-5.3.1<a class="headerlink" href="#skiboot-5-3-1" title="Permalink to this headline">¶</a></h1>
+<p>skiboot-5.3.1 was released on Wednesday August 10th, 2016.</p>
+<p>This is the 2nd stable release of skiboot 5.3, the new stable release of
+skiboot (first released with 5.3.0 on August 2nd, 2016).</p>
+<p>Skiboot 5.3.1 replaces skiboot-5.3.0 as the current stable version. It contains
+a few minor bug fixes.</p>
+<p>This release follows the Skiboot stable rules, see doc/stable-skiboot-rules.txt.</p>
+<p>Over skiboot-5.3.0, the following fixes are included:</p>
+<p>FSP systems:</p>
+<ul>
+<li><dl class="first docutils">
+<dt>FSP/ELOG: elog_enable flag should be false by default</dt>
+<dd><p class="first last">This issue is one of the corner case, which is related to recent change
+went upstream and only observed in the petitboot prompt, where we see
+only one error log instead of getting all error log in
+/sys/firmware/opal/elog.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>NVLink systems (i.e. Garrison):</p>
+<ul>
+<li><dl class="first docutils">
+<dt>npu: reword &#8220;error&#8221; to indicate it&#8217;s actually a warning</dt>
+<dd><p class="first last">Without this patch, you get spurious FirmWare Test Suite (FWTS) warnings
+about NVLink not working on machines that aren&#8217;t fully populated with
+GPUs.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>hmi: Clean up NPU FIR debug messages</dt>
+<dd><p class="first last">With the skiboot log set to debug, the FIR (and related registers) were
+logged all in the same message.  It was too much for one line, didn&#8217;t
+clarify if the numbers were in hex, and didn&#8217;t show leading zeroes.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<p>General:</p>
+<ul class="simple">
+<li>asm: Fix backtrace for unexpected exception</li>
+<li>correct the log level from PR_ERROR down to PR_INFO for some skiboot
+log messages.</li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="skiboot-5.3.0-rc2.html"
+                        title="previous chapter">skiboot-5.3.0-rc2</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="skiboot-5.3.2.html"
+                        title="next chapter">skiboot-5.3.2</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/release-notes/skiboot-5.3.1.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="skiboot-5.3.2.html" title="skiboot-5.3.2"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="skiboot-5.3.0-rc2.html" title="skiboot-5.3.0-rc2"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Release Notes</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

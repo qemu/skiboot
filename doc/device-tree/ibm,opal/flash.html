@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ibm,opal/flash device tree entries &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../../index.html" />
+    <link rel="up" title="ibm,opal" href="../ibm,opal.html" />
+    <link rel="next" title="Service Indicators (LEDS)" href="led.html" />
+    <link rel="prev" title="System Firmware" href="firmware.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="led.html" title="Service Indicators (LEDS)"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="firmware.html" title="System Firmware"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Device Tree</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../ibm,opal.html" accesskey="U">ibm,opal</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ibm-opal-flash-device-tree-entries">
+<h1>ibm,opal/flash device tree entries<a class="headerlink" href="#ibm-opal-flash-device-tree-entries" title="Permalink to this headline">¶</a></h1>
+<p>The flash&#64;&lt;n&gt; nodes under ibm,opal describe flash devices that can be
+accessed through the OPAL_FLASH_{READ,ERASE,WRITE} interface.</p>
+<p>These interfaces take an &#8216;id&#8217; parameter, which corresponds to the ibm,opal-id
+property of the node.</p>
+<p>The properties under a flash node are:</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">compatible</span> <span class="pre">=</span> <span class="pre">&quot;ibm,opal-flash&quot;</span></code></li>
+</ul>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">ibm,opal-id</span> <span class="pre">=</span> <span class="pre">&lt;id&gt;</span></code></dt>
+<dd>provides the index used for the OPAL_FLASH_XXX calls to reference this
+flash device</dd>
+<dt><code class="docutils literal"><span class="pre">reg</span> <span class="pre">=</span> <span class="pre">&lt;0</span> <span class="pre">size&gt;</span></code></dt>
+<dd>the offset and size of the flash device</dd>
+<dt><code class="docutils literal"><span class="pre">ibm,flash-block-size</span></code></dt>
+<dd>the read/write/erase block size for the flash interface. Calls
+to read/write/erase must be aligned to the block size.</dd>
+<dt><code class="docutils literal"><span class="pre">#address-cells</span> <span class="pre">=</span> <span class="pre">&lt;1&gt;</span></code>, <code class="docutils literal"><span class="pre">#size-cells</span> <span class="pre">=</span> <span class="pre">&lt;1&gt;</span></code></dt>
+<dd>flash devices are currently 32-bit addressable</dd>
+</dl>
+<p>If valid partitions are found on the flash device, then <code class="docutils literal"><span class="pre">partition&#64;&lt;offset&gt;</span></code>
+sub-nodes are added to the flash node. These match the Linux binding for
+flash partitions; the reg parameter contains the offset and size of the
+partition.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="firmware.html"
+                        title="previous chapter">System Firmware</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="led.html"
+                        title="next chapter">Service Indicators (LEDS)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/device-tree/ibm,opal/flash.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="led.html" title="Service Indicators (LEDS)"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="firmware.html" title="System Firmware"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Device Tree</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../ibm,opal.html" >ibm,opal</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

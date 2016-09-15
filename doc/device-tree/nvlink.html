@@ -1,0 +1,255 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Nvlink Device Tree Bindings &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="Device Tree" href="index.html" />
+    <link rel="next" title="Nest (NX) Accelerator Coprocessor" href="nx.html" />
+    <link rel="prev" title="ibm,opal/sensors/ device tree nodes" href="ibm,opal/sensors.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="nx.html" title="Nest (NX) Accelerator Coprocessor"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="ibm,opal/sensors.html" title="ibm,opal/sensors/ device tree nodes"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Device Tree</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="nvlink-device-tree-bindings">
+<h1>Nvlink Device Tree Bindings<a class="headerlink" href="#nvlink-device-tree-bindings" title="Permalink to this headline">¶</a></h1>
+<p>See doc/nvlink.txt for general Nvlink information.</p>
+<p>NPU bindings:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">xscom</span><span class="nd">@3fc0000000000</span> <span class="p">{</span>
+      <span class="n">npu</span><span class="nd">@8013c00</span> <span class="p">{</span>
+                      <span class="n">reg</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x8013c00</span> <span class="mh">0x2c</span><span class="o">&gt;</span><span class="p">;</span>
+                      <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;ibm,power8-npu&quot;</span><span class="p">;</span>
+                      <span class="n">ibm</span><span class="p">,</span><span class="n">npu</span><span class="o">-</span><span class="n">index</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x0</span><span class="o">&gt;</span><span class="p">;</span>
+                      <span class="n">ibm</span><span class="p">,</span><span class="n">npu</span><span class="o">-</span><span class="n">links</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x4</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="p">;</span> <span class="n">Number</span> <span class="n">of</span> <span class="n">links</span> <span class="n">wired</span> <span class="n">up</span> <span class="n">to</span> <span class="n">this</span> <span class="n">npu</span><span class="o">.</span>
+
+                      <span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002bc</span><span class="o">&gt;</span><span class="p">;</span>
+                      <span class="n">linux</span><span class="p">,</span><span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002bc</span><span class="o">&gt;</span><span class="p">;</span>
+
+                      <span class="n">link</span><span class="nd">@0</span> <span class="p">{</span>
+                              <span class="n">ibm</span><span class="p">,</span><span class="n">npu</span><span class="o">-</span><span class="n">pbcq</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1000000b</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="p">;</span> <span class="n">phandle</span> <span class="n">to</span> <span class="n">the</span> <span class="n">pbcq</span> <span class="n">which</span> <span class="n">connects</span> <span class="n">to</span> <span class="n">the</span> <span class="n">GPU</span><span class="o">.</span>
+
+                              <span class="n">ibm</span><span class="p">,</span><span class="n">npu</span><span class="o">-</span><span class="n">phy</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x80000000</span> <span class="mh">0x8010c3f</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="p">;</span> <span class="n">SCOM</span> <span class="n">address</span> <span class="n">of</span> <span class="n">the</span> <span class="n">IBM</span> <span class="n">PHY</span> <span class="n">controlling</span> <span class="n">this</span> <span class="n">link</span><span class="o">.</span>
+
+                              <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;ibm,npu-link&quot;</span><span class="p">;</span>
+                              <span class="n">ibm</span><span class="p">,</span><span class="n">npu</span><span class="o">-</span><span class="n">lane</span><span class="o">-</span><span class="n">mask</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0xff</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="p">;</span> <span class="n">Mask</span> <span class="n">specifying</span> <span class="n">which</span> <span class="n">IBM</span> <span class="n">PHY</span> <span class="n">lanes</span> <span class="n">are</span> <span class="n">used</span> <span class="k">for</span> <span class="n">this</span> <span class="n">link</span><span class="o">.</span>
+
+                              <span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002bd</span><span class="o">&gt;</span><span class="p">;</span>
+                              <span class="n">ibm</span><span class="p">,</span><span class="n">npu</span><span class="o">-</span><span class="n">link</span><span class="o">-</span><span class="n">index</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x0</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="p">;</span> <span class="n">Hardware</span> <span class="n">link</span> <span class="n">index</span><span class="o">.</span> <span class="n">Naples</span> <span class="n">systems</span> <span class="n">contain</span> <span class="n">links</span> <span class="n">at</span> <span class="n">index</span> <span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span> <span class="o">&amp;</span> <span class="mf">5.</span>
+<span class="p">;</span> <span class="n">Used</span> <span class="n">to</span> <span class="n">calculate</span> <span class="n">various</span> <span class="n">address</span> <span class="n">offsets</span><span class="o">.</span>
+
+                              <span class="n">linux</span><span class="p">,</span><span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002bd</span><span class="o">&gt;</span><span class="p">;</span>
+                      <span class="p">};</span>
+
+                      <span class="n">link</span><span class="nd">@1</span> <span class="p">{</span>
+                              <span class="n">ibm</span><span class="p">,</span><span class="n">npu</span><span class="o">-</span><span class="n">pbcq</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1000000b</span><span class="o">&gt;</span><span class="p">;</span>
+                              <span class="n">ibm</span><span class="p">,</span><span class="n">npu</span><span class="o">-</span><span class="n">phy</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x80000000</span> <span class="mh">0x8010c3f</span><span class="o">&gt;</span><span class="p">;</span>
+                              <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;ibm,npu-link&quot;</span><span class="p">;</span>
+                              <span class="n">ibm</span><span class="p">,</span><span class="n">npu</span><span class="o">-</span><span class="n">lane</span><span class="o">-</span><span class="n">mask</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0xff00</span><span class="o">&gt;</span><span class="p">;</span>
+                              <span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002be</span><span class="o">&gt;</span><span class="p">;</span>
+                              <span class="n">ibm</span><span class="p">,</span><span class="n">npu</span><span class="o">-</span><span class="n">link</span><span class="o">-</span><span class="n">index</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1</span><span class="o">&gt;</span><span class="p">;</span>
+                              <span class="n">linux</span><span class="p">,</span><span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002be</span><span class="o">&gt;</span><span class="p">;</span>
+                      <span class="p">};</span>
+
+                      <span class="n">link</span><span class="nd">@4</span> <span class="p">{</span>
+                              <span class="n">ibm</span><span class="p">,</span><span class="n">npu</span><span class="o">-</span><span class="n">pbcq</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1000000a</span><span class="o">&gt;</span><span class="p">;</span>
+                              <span class="n">ibm</span><span class="p">,</span><span class="n">npu</span><span class="o">-</span><span class="n">phy</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x80000000</span> <span class="mh">0x8010c7f</span><span class="o">&gt;</span><span class="p">;</span>
+                              <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;ibm,npu-link&quot;</span><span class="p">;</span>
+                              <span class="n">ibm</span><span class="p">,</span><span class="n">npu</span><span class="o">-</span><span class="n">lane</span><span class="o">-</span><span class="n">mask</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0xff00</span><span class="o">&gt;</span><span class="p">;</span>
+                              <span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002bf</span><span class="o">&gt;</span><span class="p">;</span>
+                              <span class="n">ibm</span><span class="p">,</span><span class="n">npu</span><span class="o">-</span><span class="n">link</span><span class="o">-</span><span class="n">index</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x4</span><span class="o">&gt;</span><span class="p">;</span>
+                              <span class="n">linux</span><span class="p">,</span><span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002bf</span><span class="o">&gt;</span><span class="p">;</span>
+                      <span class="p">};</span>
+
+                      <span class="n">link</span><span class="nd">@5</span> <span class="p">{</span>
+                              <span class="n">ibm</span><span class="p">,</span><span class="n">npu</span><span class="o">-</span><span class="n">pbcq</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1000000a</span><span class="o">&gt;</span><span class="p">;</span>
+                              <span class="n">ibm</span><span class="p">,</span><span class="n">npu</span><span class="o">-</span><span class="n">phy</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x80000000</span> <span class="mh">0x8010c7f</span><span class="o">&gt;</span><span class="p">;</span>
+                              <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;ibm,npu-link&quot;</span><span class="p">;</span>
+                              <span class="n">ibm</span><span class="p">,</span><span class="n">npu</span><span class="o">-</span><span class="n">lane</span><span class="o">-</span><span class="n">mask</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0xff</span><span class="o">&gt;</span><span class="p">;</span>
+                              <span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002c0</span><span class="o">&gt;</span><span class="p">;</span>
+                              <span class="n">ibm</span><span class="p">,</span><span class="n">npu</span><span class="o">-</span><span class="n">link</span><span class="o">-</span><span class="n">index</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x5</span><span class="o">&gt;</span><span class="p">;</span>
+                              <span class="n">linux</span><span class="p">,</span><span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002c0</span><span class="o">&gt;</span><span class="p">;</span>
+                      <span class="p">};</span>
+      <span class="p">};</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<div class="section" id="emulated-pci-device-bindings">
+<h2>Emulated PCI device bindings<a class="headerlink" href="#emulated-pci-device-bindings" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pciex</span><span class="nd">@3fff000400000</span> <span class="p">{</span>
+         <span class="n">ibm</span><span class="p">,</span><span class="n">npcq</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002bc</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="p">;</span> <span class="n">phandle</span> <span class="n">to</span> <span class="n">the</span> <span class="n">NPU</span> <span class="n">node</span><span class="o">.</span> <span class="n">Used</span> <span class="n">to</span> <span class="n">find</span> <span class="n">associated</span> <span class="n">PCI</span> <span class="n">GPU</span> <span class="n">devices</span><span class="o">.</span>
+
+         <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;ibm,power8-npu-pciex&quot;</span><span class="p">,</span> <span class="s2">&quot;ibm,ioda2-npu-phb&quot;</span><span class="p">;</span>
+
+         <span class="n">pci</span><span class="nd">@0</span> <span class="p">{</span>
+                 <span class="n">reg</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x0</span> <span class="mh">0x0</span> <span class="mh">0x0</span> <span class="mh">0x0</span> <span class="mh">0x0</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">revision</span><span class="o">-</span><span class="nb">id</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x0</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">interrupts</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">device</span><span class="o">-</span><span class="nb">id</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x4ea</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">ibm</span><span class="p">,</span><span class="n">pci</span><span class="o">-</span><span class="n">config</span><span class="o">-</span><span class="n">space</span><span class="o">-</span><span class="nb">type</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">vendor</span><span class="o">-</span><span class="nb">id</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1014</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">ibm</span><span class="p">,</span><span class="n">gpu</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002f7</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="p">;</span> <span class="n">phandle</span> <span class="n">pointing</span> <span class="n">the</span> <span class="n">associated</span> <span class="n">GPU</span> <span class="n">PCI</span> <span class="n">device</span> <span class="n">node</span>
+
+                 <span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002fc</span><span class="o">&gt;</span><span class="p">;</span>
+         <span class="p">};</span>
+
+         <span class="n">pci</span><span class="nd">@1</span> <span class="p">{</span>
+                 <span class="n">reg</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x800</span> <span class="mh">0x0</span> <span class="mh">0x0</span> <span class="mh">0x0</span> <span class="mh">0x0</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">revision</span><span class="o">-</span><span class="nb">id</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x0</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">interrupts</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">device</span><span class="o">-</span><span class="nb">id</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x4ea</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">ibm</span><span class="p">,</span><span class="n">pci</span><span class="o">-</span><span class="n">config</span><span class="o">-</span><span class="n">space</span><span class="o">-</span><span class="nb">type</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">vendor</span><span class="o">-</span><span class="nb">id</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1014</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">ibm</span><span class="p">,</span><span class="n">gpu</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002f5</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002fe</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">class</span><span class="o">-</span><span class="n">code</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x60400</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">linux</span><span class="p">,</span><span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002fe</span><span class="o">&gt;</span><span class="p">;</span>
+         <span class="p">};</span>
+
+         <span class="n">pci</span><span class="nd">@0</span><span class="p">,</span><span class="mi">1</span> <span class="p">{</span>
+                 <span class="n">reg</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100</span> <span class="mh">0x0</span> <span class="mh">0x0</span> <span class="mh">0x0</span> <span class="mh">0x0</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">revision</span><span class="o">-</span><span class="nb">id</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x0</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">interrupts</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x2</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">device</span><span class="o">-</span><span class="nb">id</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x4ea</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">ibm</span><span class="p">,</span><span class="n">pci</span><span class="o">-</span><span class="n">config</span><span class="o">-</span><span class="n">space</span><span class="o">-</span><span class="nb">type</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">vendor</span><span class="o">-</span><span class="nb">id</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1014</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">ibm</span><span class="p">,</span><span class="n">gpu</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002f7</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002fd</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">class</span><span class="o">-</span><span class="n">code</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x60400</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">linux</span><span class="p">,</span><span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002fd</span><span class="o">&gt;</span><span class="p">;</span>
+         <span class="p">};</span>
+
+         <span class="n">pci</span><span class="nd">@1</span><span class="p">,</span><span class="mi">1</span> <span class="p">{</span>
+                <span class="n">reg</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x900</span> <span class="mh">0x0</span> <span class="mh">0x0</span> <span class="mh">0x0</span> <span class="mh">0x0</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">revision</span><span class="o">-</span><span class="nb">id</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x0</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">interrupts</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x2</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">device</span><span class="o">-</span><span class="nb">id</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x4ea</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">ibm</span><span class="p">,</span><span class="n">pci</span><span class="o">-</span><span class="n">config</span><span class="o">-</span><span class="n">space</span><span class="o">-</span><span class="nb">type</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">vendor</span><span class="o">-</span><span class="nb">id</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1014</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">ibm</span><span class="p">,</span><span class="n">gpu</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002f5</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002ff</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">class</span><span class="o">-</span><span class="n">code</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x60400</span><span class="o">&gt;</span><span class="p">;</span>
+                 <span class="n">linux</span><span class="p">,</span><span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100002ff</span><span class="o">&gt;</span><span class="p">;</span>
+         <span class="p">};</span>
+ <span class="p">};</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Nvlink Device Tree Bindings</a><ul>
+<li><a class="reference internal" href="#emulated-pci-device-bindings">Emulated PCI device bindings</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="ibm,opal/sensors.html"
+                        title="previous chapter">ibm,opal/sensors/ device tree nodes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="nx.html"
+                        title="next chapter">Nest (NX) Accelerator Coprocessor</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/device-tree/nvlink.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="nx.html" title="Nest (NX) Accelerator Coprocessor"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="ibm,opal/sensors.html" title="ibm,opal/sensors/ device tree nodes"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Device Tree</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

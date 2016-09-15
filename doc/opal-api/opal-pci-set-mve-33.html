@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OPAL_PCI_SET_MVE &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="OPAL API Documentation" href="index.html" />
+    <link rel="next" title="OPAL_PCI_SET_MVE_ENABLE" href="opal-pci-set-mve-enable-34.html" />
+    <link rel="prev" title="OPAL_PCI_PHB_MMIO_ENABLE" href="opal-pci-phb-mmio-enable-27.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="opal-pci-set-mve-enable-34.html" title="OPAL_PCI_SET_MVE_ENABLE"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="opal-pci-phb-mmio-enable-27.html" title="OPAL_PCI_PHB_MMIO_ENABLE"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="opal-pci-set-mve">
+<h1>OPAL_PCI_SET_MVE<a class="headerlink" href="#opal-pci-set-mve" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_PCI_SET_MVE                     33</span>
+
+<span class="n">static</span> <span class="n">int64_t</span> <span class="n">opal_pci_set_mve</span><span class="p">(</span><span class="n">uint64_t</span> <span class="n">phb_id</span><span class="p">,</span> <span class="n">uint32_t</span> <span class="n">mve_number</span><span class="p">,</span>
+                             <span class="n">uint64_t</span> <span class="n">pe_number</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>WARNING:</strong> following documentation is from old sources, and is possibly
+not representative of OPALv3 as implemented by skiboot. This should be
+used as a starting point for full documentation.</p>
+<p>The host calls this function to bind a PE to an MSI Validation Table Entry
+(MVE) in the PHB. The MVE compares the MSI requester (RID) to a PE RID,
+including within the XIVE, to validate that the requester is authorized to
+signal an interrupt to the associated DMA address for a message value that
+selects a particular XIVE.</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">phb_id</span></code></dt>
+<dd>is the value from the PHB node ibm,opal-phbid property.</dd>
+<dt><code class="docutils literal"><span class="pre">mve_number</span></code></dt>
+<dd>is the index, from 0 to ibm,opal,ibm-num-msi-ports minus1</dd>
+<dt><code class="docutils literal"><span class="pre">pe_number</span></code></dt>
+<dd>is the index of a PE, from 0 to ibm,opal-num-pes minus 1.</dd>
+</dl>
+<p>This call maps an MVE to a PE and PE RID domain. OPAL uses the PELT to
+determine the PE domain. OPAL treats this call as a NOP for IODA2 PHBs
+and returns a status of OPAL_SUCCESS.</p>
+<p>Return value:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>if (!phb)
+        return OPAL_PARAMETER;
+if (!phb-&gt;ops-&gt;set_mve)
+        return OPAL_UNSUPPORTED;
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="opal-pci-phb-mmio-enable-27.html"
+                        title="previous chapter">OPAL_PCI_PHB_MMIO_ENABLE</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="opal-pci-set-mve-enable-34.html"
+                        title="next chapter">OPAL_PCI_SET_MVE_ENABLE</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/opal-api/opal-pci-set-mve-33.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="opal-pci-set-mve-enable-34.html" title="OPAL_PCI_SET_MVE_ENABLE"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="opal-pci-phb-mmio-enable-27.html" title="OPAL_PCI_PHB_MMIO_ENABLE"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

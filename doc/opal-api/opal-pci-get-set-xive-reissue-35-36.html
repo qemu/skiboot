@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OPAL_PCI_GET_XIVE_REISSUE and OPAL_PCI_SET_XIVE_REISSUE &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="OPAL API Documentation" href="index.html" />
+    <link rel="next" title="OPAL_PCI_MAP_PE_DMA_WINDOW" href="opal-pci-map-pe-dma-window-44.html" />
+    <link rel="prev" title="OPAL_PCI_GET_PRESENCE_STATE" href="opal-pci-get-presence-state-119.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="opal-pci-map-pe-dma-window-44.html" title="OPAL_PCI_MAP_PE_DMA_WINDOW"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="opal-pci-get-presence-state-119.html" title="OPAL_PCI_GET_PRESENCE_STATE"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="opal-pci-get-xive-reissue-and-opal-pci-set-xive-reissue">
+<h1>OPAL_PCI_GET_XIVE_REISSUE and OPAL_PCI_SET_XIVE_REISSUE<a class="headerlink" href="#opal-pci-get-xive-reissue-and-opal-pci-set-xive-reissue" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">static</span> <span class="n">int64_t</span> <span class="n">opal_pci_get_xive_reissue</span><span class="p">(</span><span class="n">uint64_t</span> <span class="n">phb_id</span> <span class="n">__unused</span><span class="p">,</span>
+                                      <span class="n">uint32_t</span> <span class="n">xive_number</span> <span class="n">__unused</span><span class="p">,</span>
+                                      <span class="n">uint8_t</span> <span class="o">*</span><span class="n">p_bit</span> <span class="n">__unused</span><span class="p">,</span>
+                                      <span class="n">uint8_t</span> <span class="o">*</span><span class="n">q_bit</span> <span class="n">__unused</span><span class="p">)</span>
+
+<span class="n">static</span> <span class="n">int64_t</span> <span class="n">opal_pci_set_xive_reissue</span><span class="p">(</span><span class="n">uint64_t</span> <span class="n">phb_id</span> <span class="n">__unused</span><span class="p">,</span>
+                                      <span class="n">uint32_t</span> <span class="n">xive_number</span> <span class="n">__unused</span><span class="p">,</span>
+                                      <span class="n">uint8_t</span> <span class="n">p_bit</span> <span class="n">__unused</span><span class="p">,</span>
+                                      <span class="n">uint8_t</span> <span class="n">q_bit</span> <span class="n">__unused</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Both of these calls are remnants from previous OPAL versions, calling either
+of them shall return <code class="docutils literal"><span class="pre">OPAL_UNSUPPORTED</span></code>.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="opal-pci-get-presence-state-119.html"
+                        title="previous chapter">OPAL_PCI_GET_PRESENCE_STATE</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="opal-pci-map-pe-dma-window-44.html"
+                        title="next chapter">OPAL_PCI_MAP_PE_DMA_WINDOW</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/opal-api/opal-pci-get-set-xive-reissue-35-36.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="opal-pci-map-pe-dma-window-44.html" title="OPAL_PCI_MAP_PE_DMA_WINDOW"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="opal-pci-get-presence-state-119.html" title="OPAL_PCI_GET_PRESENCE_STATE"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

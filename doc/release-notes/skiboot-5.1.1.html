@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>skiboot-5.1.1 &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="Release Notes" href="index.html" />
+    <link rel="next" title="skiboot-5.1.10" href="skiboot-5.1.10.html" />
+    <link rel="prev" title="skiboot-5.1.0-beta2" href="skiboot-5.1.0-beta2.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="skiboot-5.1.10.html" title="skiboot-5.1.10"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="skiboot-5.1.0-beta2.html" title="skiboot-5.1.0-beta2"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Release Notes</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="skiboot-5-1-1">
+<h1>skiboot-5.1.1<a class="headerlink" href="#skiboot-5-1-1" title="Permalink to this headline">¶</a></h1>
+<p>skiboot-5.1.1 was released on August 18th, 2015.</p>
+<p>skiboot-5.1.1 is the send stable release of 5.1, it follows skiboot-5.1.0.</p>
+<p>Skiboot 5.1.1 contains all fixes from skiboot-5.1.0 and is a minor bugfix
+release.</p>
+<div class="section" id="changes">
+<h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
+<p>Over skiboot-5.1.0, we have the following changes:</p>
+<ul>
+<li><p class="first">Fix detection of compiler options on ancient GCC (e.g. gcc 4.4, shipped with
+RHEL6)</p>
+</li>
+<li><p class="first">ensure the GNUC version defines for GCOV are coming from target CC rather
+than host CC for extract-gcov</p>
+</li>
+<li><p class="first">phb3: Continue CAPP setup even if PHB is already in CAPP mode
+This fixes a critical bug in CAPI support.</p>
+<p>CAPI requires that all faults are escalated into a fence, not a
+freeze. This is done by setting bits in a number of MMIO
+registers. phb3_set_capi_mode() calls phb3_init_capp_errors() to do
+this. However, if the PHB is already in CAPP mode - for example in the
+recovery case - phb3_set_capi_mode() will bail out early, and those
+registers will not be set.</p>
+<p>This is quite easy to verify. PCI config space access errors, for
+example, normally cause a freeze. On a CAPI-mode PHB, they should
+cause a fence. Say we have a CAPI card on PHB 0, and we inject a
+PCI config space error:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">echo</span> <span class="mh">0x8000000000000000</span> <span class="o">&gt;</span> <span class="o">/</span><span class="n">sys</span><span class="o">/</span><span class="n">kernel</span><span class="o">/</span><span class="n">debug</span><span class="o">/</span><span class="n">powerpc</span><span class="o">/</span><span class="n">PCI0000</span><span class="o">/</span><span class="n">err_injct_inboundA</span><span class="p">;</span>
+<span class="n">lspci</span><span class="p">;</span>
+</pre></div>
+</div>
+<p>The first time we inject this, the PHB will fence and recover, but
+won&#8217;t reset the registers. Therefore, the second time we inject it,
+we will incorrectly freeze, not fence.</p>
+<p>Worse, the recovery for the resultant EEH freeze event interacts
+poorly with the CAPP, triggering an EEH recovery of the PHB. The
+combination of the two attempted recoveries will get the PHB into
+an inoperable state.</p>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">skiboot-5.1.1</a><ul>
+<li><a class="reference internal" href="#changes">Changes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="skiboot-5.1.0-beta2.html"
+                        title="previous chapter">skiboot-5.1.0-beta2</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="skiboot-5.1.10.html"
+                        title="next chapter">skiboot-5.1.10</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/release-notes/skiboot-5.1.1.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="skiboot-5.1.10.html" title="skiboot-5.1.10"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="skiboot-5.1.0-beta2.html" title="skiboot-5.1.0-beta2"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Release Notes</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OPAL_GET_MSG &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="OPAL API Documentation" href="index.html" />
+    <link rel="next" title="OPAL_GET_MSI_32 and OPAL_GET_MSI_64" href="opal-get-msi-39-40.html" />
+    <link rel="prev" title="OPAL_GET_DEVICE_TREE" href="opal-get-device-tree-118.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="opal-get-msi-39-40.html" title="OPAL_GET_MSI_32 and OPAL_GET_MSI_64"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="opal-get-device-tree-118.html" title="OPAL_GET_DEVICE_TREE"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="opal-get-msg">
+<h1>OPAL_GET_MSG<a class="headerlink" href="#opal-get-msg" title="Permalink to this headline">¶</a></h1>
+<p>OPAL_GET_MSG will get the next pending OPAL Message (see
+opal-messages.txt).</p>
+<p>Parameters:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">buffer</span> <span class="n">to</span> <span class="n">copy</span> <span class="n">message</span> <span class="n">into</span>
+<span class="n">sizeof</span> <span class="n">buffer</span> <span class="n">to</span> <span class="n">copy</span> <span class="n">message</span> <span class="n">into</span>
+</pre></div>
+</div>
+<p>The maximum size of an opal message is specified in the device tree passed
+to the host OS:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ibm</span><span class="p">,</span><span class="n">opal</span> <span class="p">{</span>
+          <span class="n">opal</span><span class="o">-</span><span class="n">msg</span><span class="o">-</span><span class="n">size</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x48</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>It is ALWAYS at least 72 bytes. In the future, OPAL may have messages larger
+than 72 bytes. Naturally, a HOST OS will only be able to interpret these
+if it correctly uses opal-msg-size. Any OPAL message &gt; 72 bytes, a host OS
+may safely ignore.</p>
+<p>A host OS <em>SHOULD</em> always supply a buffer to OPAL_GET_MSG of either 72
+bytes or opal-msg-size. It MUST NOT supply a buffer of &lt; 72 bytes.</p>
+<div class="section" id="return-values">
+<h2>Return values<a class="headerlink" href="#return-values" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>OPAL_RESOURCE</dt>
+<dd>no available message.</dd>
+<dt>OPAL_PARAMETER</dt>
+<dd>buffer is NULL or size is &lt; 72 bytes.
+If buffer size &lt; 72 bytes, the message will NOT be discarded by OPAL.</dd>
+<dt>OPAL_PARTIAL</dt>
+<dd>If pending opal message is greater than supplied buffer.
+In this case the message is <em>DISCARDED</em> by OPAL.
+This is to keep compatibility with host Operating Systems
+with a hard coded opal-msg-size of 72 bytes.
+<strong>NOT CURRENTLY IMPLEMENTED</strong>. Specified so that host OS can
+prepare for the possible future with either a sensible
+error message or by gracefully ignoring such OPAL messages.</dd>
+<dt>OPAL_SUCCESS</dt>
+<dd>message successfully copied to buffer.</dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">OPAL_GET_MSG</a><ul>
+<li><a class="reference internal" href="#return-values">Return values</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="opal-get-device-tree-118.html"
+                        title="previous chapter">OPAL_GET_DEVICE_TREE</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="opal-get-msi-39-40.html"
+                        title="next chapter">OPAL_GET_MSI_32 and OPAL_GET_MSI_64</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/opal-api/opal-get-msg-85.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="opal-get-msi-39-40.html" title="OPAL_GET_MSI_32 and OPAL_GET_MSI_64"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="opal-get-device-tree-118.html" title="OPAL_GET_DEVICE_TREE"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

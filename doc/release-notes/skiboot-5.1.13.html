@@ -1,0 +1,177 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>skiboot-5.1.13 &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="Release Notes" href="index.html" />
+    <link rel="next" title="skiboot-5.1.14" href="skiboot-5.1.14.html" />
+    <link rel="prev" title="skiboot-5.1.12" href="skiboot-5.1.12.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="skiboot-5.1.14.html" title="skiboot-5.1.14"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="skiboot-5.1.12.html" title="skiboot-5.1.12"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Release Notes</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="skiboot-5-1-13">
+<h1>skiboot-5.1.13<a class="headerlink" href="#skiboot-5-1-13" title="Permalink to this headline">¶</a></h1>
+<p>skiboot-5.1.13 was released on Wed January 27th, 2016.</p>
+<p>skiboot-5.1.13 is the 14th stable release of 5.1, it follows skiboot-5.1.12
+(which was released December 4th, 2015). This release contains bug fixes.</p>
+<div class="section" id="general">
+<h2>General<a class="headerlink" href="#general" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">core/device.c: Sort nodes with <a class="reference external" href="mailto:name&#37;&#52;&#48;unit">name<span>&#64;</span>unit</a> names by unit</p>
+<ul class="simple">
+<li>This gives predictable device tree ordering to the payload
+(usually petitboot)</li>
+<li>This means that utilities such as &#8220;lspci&#8221; will always return the same
+ordering.</li>
+</ul>
+</li>
+<li><p class="first">Add OPAL_CONSOLE_FLUSH to the OPAL API
+uart consoles only flush output when polled.  The Linux kernel calls
+these pollers frequently, except when in a panic state.  As such, panic
+messages are not fully printed unless the system is configured to reboot
+after panic.</p>
+<p>This patch adds a new call to the OPAL API to flush the buffer.  If the
+system has a uart console (i.e. BMC machines), it will incrementally
+flush the buffer, returning if there is more to be flushed or not.  If
+the system has a different console, the function will have no effect.
+This will allow the Linux kernel to ensure that panic message have been
+fully printed out.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="capi">
+<h2>CAPI<a class="headerlink" href="#capi" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>hmi: Identify the phb upon CAPI malfunction alert
+Previously, any error on a CAPI adapter would assume PHB0.
+This could cause issues on Firestone machines.</li>
+</ul>
+</div>
+<div class="section" id="gard-utility">
+<h2>gard utility<a class="headerlink" href="#gard-utility" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">Fix displaying &#8216;cleared&#8217; gard records
+When a garded component is replaced hostboot detects this and updates the
+gard partition.</p>
+<p>Previously, there was ambiguity on if the gard record ID or the whole gard
+record needed to be erased. This fix makes gard and hostboot agree.</p>
+</li>
+</ul>
+</div>
+<div class="section" id="firestone-platform">
+<h2>firestone platform<a class="headerlink" href="#firestone-platform" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>fix spacing in slot name
+The other SlotN names have no space.</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">skiboot-5.1.13</a><ul>
+<li><a class="reference internal" href="#general">General</a></li>
+<li><a class="reference internal" href="#capi">CAPI</a></li>
+<li><a class="reference internal" href="#gard-utility">gard utility</a></li>
+<li><a class="reference internal" href="#firestone-platform">firestone platform</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="skiboot-5.1.12.html"
+                        title="previous chapter">skiboot-5.1.12</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="skiboot-5.1.14.html"
+                        title="next chapter">skiboot-5.1.14</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/release-notes/skiboot-5.1.13.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="skiboot-5.1.14.html" title="skiboot-5.1.14"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="skiboot-5.1.12.html" title="skiboot-5.1.12"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Release Notes</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

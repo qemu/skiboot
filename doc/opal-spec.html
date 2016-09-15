@@ -1,0 +1,341 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OPAL Specification &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="index.html" />
+    <link rel="next" title="SkiBoot Console Log" href="console-log.html" />
+    <link rel="prev" title="Skiboot overview" href="overview.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="console-log.html" title="SkiBoot Console Log"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="overview.html" title="Skiboot overview"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="opal-specification">
+<h1>OPAL Specification<a class="headerlink" href="#opal-specification" title="Permalink to this headline">¶</a></h1>
+<p><strong>DRAFT - VERSION 0.0.1 AT BEST.</strong></p>
+<p><strong>COMMENTS ARE WELCOME</strong> - and indeed, needed.</p>
+<p>If you are reading this, congratulations: you&#8217;re now reviewing it!</p>
+<p>This document aims to define what it means to be OPAL compliant.</p>
+<p>While skiboot is the reference implementation, this documentation should
+be complete enough that (given hardware documentation) create another
+implementation. It is not recommended that you do this though.</p>
+<div class="section" id="authors">
+<h2>Authors<a class="headerlink" href="#authors" title="Permalink to this headline">¶</a></h2>
+<p>Stewart Smith &lt;<a class="reference external" href="mailto:stewart&#37;&#52;&#48;linux&#46;vnet&#46;ibm&#46;com">stewart<span>&#64;</span>linux<span>&#46;</span>vnet<span>&#46;</span>ibm<span>&#46;</span>com</a>&gt; : OPAL Architect, IBM</p>
+</div>
+<div class="section" id="definitions">
+<h2>Definitions<a class="headerlink" href="#definitions" title="Permalink to this headline">¶</a></h2>
+<p>Host processor - the main POWER CPU (e.g. the POWER8 CPU)
+Host OS - the operating system running on the host processor.
+OPAL - OpenPOWER Abstraction Layer.</p>
+</div>
+<div class="section" id="what-is-opal">
+<h2>What is OPAL?<a class="headerlink" href="#what-is-opal" title="Permalink to this headline">¶</a></h2>
+<p>The OpenPower Abstraction Layer (OPAL) is boot and runtime firmware for
+POWER systems. There are several components to what makes up a firmware
+image for OpenPower machines.</p>
+<p>For example, there may be:</p>
+<ul class="simple">
+<li>BMC firmware<ul>
+<li>Firmware that runs purely on the BMC.</li>
+<li>On IBM systems that have an FSP rather than a BMC, there is FSP firmware</li>
+<li>While essential to having the machine function, this firmware is not
+part of the OPAL Specification.</li>
+</ul>
+</li>
+<li>HostBoot<ul>
+<li>HostBoot ( <a class="reference external" href="https://github.com/open-power/hostboot">https://github.com/open-power/hostboot</a> ) performs all
+processor, bus and memory initialization within IBM POWER based systems.</li>
+</ul>
+</li>
+<li>OCC Firmware<ul>
+<li>On Chip Controller ( Firmware for OCC - a PPC405 core inside the IBM
+POWER8 in charge of keeping the system thermally and power safe ).</li>
+</ul>
+</li>
+<li>SkiBoot<ul>
+<li>Boot and runtime services.</li>
+</ul>
+</li>
+<li>A linux kernel and initramfs incorporating petitboot<ul>
+<li>The bootloader. This is where a user chooses what OS to boot, and
+petitboot will use kexec to switch to the host Operating System
+(for example, PowerKVM).</li>
+</ul>
+</li>
+</ul>
+<p>While all of these components may be absolutely essential to power on,
+boot and operate a specific OpenPower POWER8 system, the majority of
+the code mentioned above can be thought of as implementation details
+and not something that should form part of an OPAL Specification.</p>
+<p>For an OPAL system, we assume that the hardware is functioning and any
+hardware management that is specific to a platform is performed by OPAL
+firmware transparently to the host OS.</p>
+<p>The OPAL Specification focus on the interface between firmware and the
+Operating System. It does not dictate that any specific pieces of firmware
+code be used, although re-inventing the wheel is strongly discouraged.</p>
+<p>The OPAL Specification explicitly allows for:</p>
+<ul class="simple">
+<li>A conforming implementation to not use any of the reference implementation
+code.</li>
+<li>A conforming implementation to use any 64bit POWER ISA conforming processor,
+and not be limited to the IBM POWER8.</li>
+<li>A conforming implementation to be a simulator, emulator or virtual environment</li>
+<li>A host OS other than Linux</li>
+</ul>
+<p>Explicitly not covered in this specification:</p>
+<ul class="simple">
+<li>A 32bit OPAL Specification
+There is no reason this couldn&#8217;t exist but the current specification is for
+64bit POWER systems only.</li>
+</ul>
+</div>
+<div class="section" id="boot-services">
+<h2>Boot Services<a class="headerlink" href="#boot-services" title="Permalink to this headline">¶</a></h2>
+<p>An OPAL compliant firmware implementation will load and execute a payload
+capable of booting a Host Operating System.</p>
+<p>The reference implementation loads a Linux kernel with an initramfs with
+a minimal userspace and the petitboot boot loader - collectively referred
+to as skiroot.</p>
+<p>The OPAL Specification explicitly allows variation in this payload.</p>
+<p>A requirement of the payload is that it MUST support loading and booting
+an uncompressed vmlinux Linux kernel.
+[<strong>TODO</strong>: expand on what this actually means]</p>
+<p>An OPAL system MUST pass a device tree to the host kernel.
+[<strong>TODO</strong>: expand the details, add device-tree section and spec]</p>
+<p>An OPAL system MUST provide the host kernel with enough information to
+know how to call OPAL runtime services.
+[<strong>TODO</strong>: expand on this. ]</p>
+<p>Explicitly not covered by the OPAL Specification:</p>
+<ul class="simple">
+<li>Kernel module ABI for skiroot kernel</li>
+<li>Userspace environment of skiroot</li>
+<li>That skiroot is Linux.</li>
+</ul>
+<p>Explicitly allowed:</p>
+<ul class="simple">
+<li>Replacing the payload with something of equal/similar functionality
+(whether replacing skiroot with an implementation of Zork would be compliant
+is left as an exercise for the reader)</li>
+</ul>
+</div>
+<div class="section" id="payload-environment">
+<h2>Payload Environment<a class="headerlink" href="#payload-environment" title="Permalink to this headline">¶</a></h2>
+<p>The payload is started with:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="83%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Register</th>
+<th class="head">Value</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>r3</td>
+<td>address of flattened device-tree (fdt)</td>
+</tr>
+<tr class="row-odd"><td>r8</td>
+<td>OPAL base</td>
+</tr>
+<tr class="row-even"><td>r9</td>
+<td>OPAL entry</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="runtime-services">
+<h2>Runtime Services<a class="headerlink" href="#runtime-services" title="Permalink to this headline">¶</a></h2>
+<p>An OPAL Specification compliant system provides runtime services to the host
+Operating System via a standard interface.</p>
+<dl class="docutils">
+<dt>An OPAL call is made by calling opal_entry with:</dt>
+<dd><ul class="first last simple">
+<li>r0: OPAL Token</li>
+<li>r2: OPAL Base</li>
+<li>r3..r10: Args (up to 8)</li>
+</ul>
+</dd>
+</dl>
+<p>The OPAL API is defined in skiboot/doc/opal-api/</p>
+<p>Not all OPAL APIs must be supported for a system to be compliant. When
+called with an unsupported token, a compliant firmware implementation
+MUST fail gracefully and not crash. Reporting a warning that an unsupported
+token was called is okay, as compliant host Operating Systems should use
+OPAL_CHECK_TOKEN to test for optional functionality.</p>
+<p>All parameters to OPAL calls are big endian. Little endian hosts MUST
+appropriately convert parameters before passing them to OPAL.</p>
+<p>Machine state across OPAL calls:</p>
+<ul class="simple">
+<li>r1 is preserved</li>
+<li>r12 is scratch</li>
+<li>r13 - 31 preserved</li>
+<li>64bit HV real mode</li>
+<li>big endian</li>
+<li>external interrupts disabled</li>
+</ul>
+</div>
+<div class="section" id="detecting-opal-support">
+<h2>Detecting OPAL Support<a class="headerlink" href="#detecting-opal-support" title="Permalink to this headline">¶</a></h2>
+<p>A Host OS may need to detect the presence of OPAL as it may support booting
+under other platforms. For example, a single Linux kernel can be built to boot
+under OPAL and under PowerVM or qemu pseries machine type.</p>
+<p>The root node of the device tree MUST have compatible = &#8220;ibm,powernv&#8221;.
+See doc/device-tree.rst for more details
+[TODO: make doc/device-tree.rst better]</p>
+<p>The presence of the &#8220;/ibm,opal&#8221; entry in the device tree signifies running
+under OPAL. Additionally, the &#8220;/ibm,opal&#8221; node MUST have a compatibile property
+listing &#8220;ibm,opal-v3&#8221;.</p>
+<p>The &#8220;/ibm,opal&#8221; node MUST have the following properties:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ibm</span><span class="p">,</span><span class="n">opal</span> <span class="p">{</span>
+         <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;ibm,opal-v3&quot;</span><span class="p">;</span>
+         <span class="n">opal</span><span class="o">-</span><span class="n">base</span><span class="o">-</span><span class="n">address</span> <span class="o">=</span> <span class="o">&lt;&gt;</span><span class="p">;</span>
+         <span class="n">opal</span><span class="o">-</span><span class="n">entry</span><span class="o">-</span><span class="n">address</span> <span class="o">=</span> <span class="o">&lt;&gt;</span><span class="p">;</span>
+         <span class="n">opal</span><span class="o">-</span><span class="n">runtime</span><span class="o">-</span><span class="n">size</span> <span class="o">=</span> <span class="o">&lt;&gt;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The compatible property MAY have other strings, such as a future &#8220;ibm,opal-v4&#8221;.
+These are reserved for future use.</p>
+<p>Some releases of the reference implementation (skiboot) have had compatible
+contain &#8220;ibm,opal-v2&#8221; as well as &#8220;ibm,opal-v3&#8221;. Host operating systems MUST
+NOT rely on &#8220;ibm,opal-v2&#8221;, this is a relic from early OPAL history.</p>
+<p>The &#8220;ibm,opal&#8221; node MUST have a child node named &#8220;firmware&#8221;. It MUST contain
+the following:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">firmware</span> <span class="p">{</span>
+        <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;ibm,opal-firmware&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>It MUST contain one of the following two properties: git-id, version.
+The git-id property is deprecated, and version SHOULD be used. These
+are informative and MUST NOT be used by the host OS to determine anything
+about the firmware environment.</p>
+<p>The version property is a textual representation of the OPAL version.
+For example, it may be &#8220;skiboot-4.1&#8221; or other versioning described
+in more detail in doc/versioning.rst</p>
+</div>
+<div class="section" id="opal-log">
+<h2>OPAL log<a class="headerlink" href="#opal-log" title="Permalink to this headline">¶</a></h2>
+<p>OPAL implementation SHOULD have an in memory log where informational and
+error messages are stored. If present it MUST be human readable and text based.
+There is a separate facility (Platform Error Logs) for machine readable errors.</p>
+<p>A conforming implementation MAY also output the log to a serial port or similar.
+An implementation MAY choose to only output certain log messages to a serial
+port.</p>
+<p>For example, the reference implementation (skiboot) by default filters log
+messages so that only higher priority log messages go over the serial port
+while more messages go to the in memory buffer.</p>
+<p>[TODO: add device-tree bits here]</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">OPAL Specification</a><ul>
+<li><a class="reference internal" href="#authors">Authors</a></li>
+<li><a class="reference internal" href="#definitions">Definitions</a></li>
+<li><a class="reference internal" href="#what-is-opal">What is OPAL?</a></li>
+<li><a class="reference internal" href="#boot-services">Boot Services</a></li>
+<li><a class="reference internal" href="#payload-environment">Payload Environment</a></li>
+<li><a class="reference internal" href="#runtime-services">Runtime Services</a></li>
+<li><a class="reference internal" href="#detecting-opal-support">Detecting OPAL Support</a></li>
+<li><a class="reference internal" href="#opal-log">OPAL log</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="overview.html"
+                        title="previous chapter">Skiboot overview</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="console-log.html"
+                        title="next chapter">SkiBoot Console Log</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/opal-spec.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="console-log.html" title="SkiBoot Console Log"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="overview.html" title="Skiboot overview"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

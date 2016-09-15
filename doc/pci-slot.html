@@ -1,0 +1,307 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PCI Slots &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="index.html" />
+    <link rel="next" title="XSCOM Bindings" href="xscom-node-bindings.html" />
+    <link rel="prev" title="PCI" href="pci.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="xscom-node-bindings.html" title="XSCOM Bindings"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pci.html" title="PCI"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pci-slots">
+<h1>PCI Slots<a class="headerlink" href="#pci-slots" title="Permalink to this headline">¶</a></h1>
+<p>The PCI slots are instantiated to represent their associated properties and
+operations. The slot properties are exported to OS through the device tree
+node of the corresponding parent PCI device. The slot operations are used
+to accomodate requests from OS regarding the indicated PCI slot:</p>
+<blockquote>
+<div><ul class="simple">
+<li>PCI slot reset</li>
+<li>PCI slot property retrival</li>
+</ul>
+</div></blockquote>
+<p>The PCI slots are expected to be created by individual platforms based on
+the given templates, which are classified to PHB slot or normal one currently.
+The PHB slot is instantiated based on PHB types like P7IOC and PHB3. However,
+the normal PCI slots are created based on general RC (Root Complex), PCIE switch
+ports, PCIE-to-PCIx bridge. Individual platform may create PCI slot, which doesn&#8217;t
+have existing template.</p>
+<p>The PCI slots are created at different stages according to their types. PHB slots
+are expected to be created once the PHB is register (struct platform::pci_setup_phb())
+because the PHB slot reset operations are required at early stage of PCI enumeration.
+The normal slots are populated after their parent PCI devices are instantiated at
+struct platform::pci_get_slot_info().</p>
+<p>The operation set supplied by the template might be overrided and reimplemented, or
+partially. It&#8217;s usually done according to the VPD figured out by individual platforms.</p>
+<div class="section" id="pci-slot-operations">
+<h2>PCI Slot Operations<a class="headerlink" href="#pci-slot-operations" title="Permalink to this headline">¶</a></h2>
+<p>The following operations are supported to one particular PCI slot. More details
+could be found from the definition of struct pci_slot_ops:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="28%" />
+<col width="72%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Operation</th>
+<th class="head">Definition</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>get_presence_state</td>
+<td>Check if any adapter connected to slot</td>
+</tr>
+<tr class="row-odd"><td>get_link_state</td>
+<td>Retrieve PCIE link status: up, down, link width</td>
+</tr>
+<tr class="row-even"><td>get_power_state</td>
+<td>Retrieve the power status: on, off</td>
+</tr>
+<tr class="row-odd"><td>get_attention_state</td>
+<td>Retrieve attention status: on, off, blinking</td>
+</tr>
+<tr class="row-even"><td>get_latch_state</td>
+<td>Retrieve latch status</td>
+</tr>
+<tr class="row-odd"><td>set_power_state</td>
+<td>Configure the power status: on, off</td>
+</tr>
+<tr class="row-even"><td>set_attention_state</td>
+<td>Configure attention status: on, off, blinking</td>
+</tr>
+<tr class="row-odd"><td>prepare_link_change</td>
+<td>Prepare PCIE link status change</td>
+</tr>
+<tr class="row-even"><td>poll_link</td>
+<td>Poll PCIE link until it&#8217;s up or down permanently</td>
+</tr>
+<tr class="row-odd"><td>creset</td>
+<td>Complete reset, only available to PHB slot</td>
+</tr>
+<tr class="row-even"><td>freset</td>
+<td>Fundamental reset</td>
+</tr>
+<tr class="row-odd"><td>pfreset</td>
+<td>Post fundamental reset</td>
+</tr>
+<tr class="row-even"><td>hreset</td>
+<td>Hot reset</td>
+</tr>
+<tr class="row-odd"><td>poll</td>
+<td>Interface for OPAL API to drive internal state machine</td>
+</tr>
+<tr class="row-even"><td>add_properties</td>
+<td>Additional PCI slot properties seen by platform</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="section" id="pci-slot-properties">
+<h1>PCI Slot Properties<a class="headerlink" href="#pci-slot-properties" title="Permalink to this headline">¶</a></h1>
+<p>The following PCI slot properties have been exported through PCI device tree
+node for a root port, a PCIE switch port, or a PCIE to PCIx bridge. If the
+individual platforms (e.g. Firenze and Apollo) have VPD for the PCI slot, they
+should extract the PCI slot properties from VPD and export them accordingly.</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="24%" />
+<col width="76%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Property</th>
+<th class="head">Definition</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>ibm,reset-by-firmware</td>
+<td>Boolean indicating whether the slot reset should be done in firmware</td>
+</tr>
+<tr class="row-odd"><td>ibm,slot-pluggable</td>
+<td>Boolean indicating whether the slot is pluggable</td>
+</tr>
+<tr class="row-even"><td>ibm,slot-power-ctl</td>
+<td>Boolean indicating whether the slot has power control</td>
+</tr>
+<tr class="row-odd"><td>ibm,slot-wired-lanes</td>
+<td>The number of hardware lanes that are wired</td>
+</tr>
+<tr class="row-even"><td>ibm,slot-pwr-led-ctl</td>
+<td>Presence of slot power led, and controlling entity</td>
+</tr>
+<tr class="row-odd"><td>ibm,slot-attn-led-ctl</td>
+<td>Presence of slot ATTN led, and controlling entity</td>
+</tr>
+</tbody>
+</table>
+<div class="section" id="pci-hotplug">
+<h2>PCI Hotplug<a class="headerlink" href="#pci-hotplug" title="Permalink to this headline">¶</a></h2>
+<p>The implementation of PCI slot hotplug heavily relies on its power state.
+Initially, the slot is powered off if there are no adapters behind it.
+Otherwise, the slot should be powered on.</p>
+<p>In hot add scenario, the adapter is physically inserted to PCI slot. Then
+the PCI slot is powered on by OPAL API opal_pci_set_power_state(). The
+power is supplied to the PCI slot, the adapter behind the PCI slot is
+probed and the device sub-tree (for hot added devices) is populated. A
+OPAL message is sent to OS on completion. The OS needs retrieve the device
+sub-tree through OPAL API opal_get_device_tree(), unflatten it and populate
+the device sub-tree. After that, the adapter behind the PCI slot should
+be probed and added to the system.</p>
+<p>On the other hand, the OS removes the adapter behind the PCI slot before
+calling opal_pci_set_power_state(). Skiboot cuts off the power supply to
+the PCI slot, removes the adapter behind the PCI slot and the corresponding
+device sub-tree. A OPAL message (OPAL_MSG_ASYNC_COMP) is sent to OS. The
+OS removes the device sub-tree for the adapter behind the PCI slot.</p>
+<p>The OPAL message used in PCI hotplug is comprised of 4 dwords in sequence:
+asychronous token from OS, PCI slot device node&#8217;s phandle, OPAL_PCI_SLOT_POWER_{ON,
+OFF}, OPAL_SUCCESS or errcode.</p>
+<p>The states OPAL_PCI_SLOT_OFFLINE and OPAL_PCI_SLOT_ONLINE are used for removing
+or adding devices behind the slot. The device nodes in the device tree are
+removed or added accordingly, without actually changing the slot&#8217;s power state.
+The API call will return OPAL_SUCCESS immediately and no further asynchronous
+message will be sent.</p>
+</div>
+<div class="section" id="pci-slot-on-apollo-and-firenze">
+<h2>PCI Slot on Apollo and Firenze<a class="headerlink" href="#pci-slot-on-apollo-and-firenze" title="Permalink to this headline">¶</a></h2>
+<p>On IBM&#8217;s Apollo and Firenze platform, the PCI VPD is fetched from dedicated LID,
+which is organized in so-called 1004, 1005, or 1006 format. 1006 mapping format
+isn&#8217;t supported currently. The PCI slot properties are figured out from the VPD.
+On the other hand, there might have external power management entity hooked to
+I2C buses for one PCI slot. The fundamental reset operation of the PCI slot should
+be implemented based on the external power management entity for that case.</p>
+<p>On Firenze platform, PERST pin is accessible through bit#10 of PCI config register
+(offset: 0x80) for those PCI slots behind some PLX switch downstream ports. For
+those PCI slots, PERST pin is utilized to implement fundamental reset if external
+power management entity doesn&#8217;t exist.</p>
+<p>For Apollo and Firenze platform, following PCI slot properties are exported through
+PCI device tree node except those generic properties (as above):</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="32%" />
+<col width="68%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Property</th>
+<th class="head">Definition</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>ibm,slot-location-code</td>
+<td>System location code string for the slot connector</td>
+</tr>
+<tr class="row-odd"><td>ibm,slot-label</td>
+<td>Slot label, part of &#8220;ibm,slot-location-code&#8221;</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">PCI Slots</a><ul>
+<li><a class="reference internal" href="#pci-slot-operations">PCI Slot Operations</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pci-slot-properties">PCI Slot Properties</a><ul>
+<li><a class="reference internal" href="#pci-hotplug">PCI Hotplug</a></li>
+<li><a class="reference internal" href="#pci-slot-on-apollo-and-firenze">PCI Slot on Apollo and Firenze</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pci.html"
+                        title="previous chapter">PCI</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="xscom-node-bindings.html"
+                        title="next chapter">XSCOM Bindings</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pci-slot.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="xscom-node-bindings.html" title="XSCOM Bindings"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pci.html" title="PCI"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OPAL &lt;–&gt; BMC interactions &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="index.html" />
+    <link rel="next" title="GCOV for skiboot" href="gcov.html" />
+    <link rel="prev" title="How to log errors on OPAL" href="error-logging.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="gcov.html" title="GCOV for skiboot"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="error-logging.html" title="How to log errors on OPAL"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="opal-bmc-interactions">
+<h1>OPAL &lt;&#8211;&gt; BMC interactions<a class="headerlink" href="#opal-bmc-interactions" title="Permalink to this headline">¶</a></h1>
+<p>This document provides information about some of the user-visible interactions
+that skiboot performs with the BMC.</p>
+<div class="section" id="ipmi-sensors">
+<h2>IPMI sensors<a class="headerlink" href="#ipmi-sensors" title="Permalink to this headline">¶</a></h2>
+<p>OPAL will interact with a few IPMI sensors during the boot process. These
+are:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Boot Count [type 0xc3: OEM reserved]</li>
+<li>FW Boot progress [type 0x0f: System Firmware Progress]</li>
+</ul>
+</div></blockquote>
+<p>Boot Count: assertion type. When OPAL reaches a late stage of boot, it sets the
+boot count sensor to 0x02. This is intended to allow the BMC detect a failed
+or aborted boot, for switching to a known-good firmware image.</p>
+<p>FW Boot Progress: assertion type. During boot, skiboot will update this sensor
+to one of the IPMI-defined progress codes. The codes use by skiboot are:</p>
+<blockquote>
+<div><ul>
+<li><dl class="first docutils">
+<dt>PCI Resource configuration (0x01)</dt>
+<dd><ul class="first last simple">
+<li>asserted as the PCI devices have been probed and resources allocated</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>Motherboard init (0x14)</dt>
+<dd><ul class="first last simple">
+<li>asserted as the platform-specific components have been initialised</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>OS boot (0x13)</dt>
+<dd><ul class="first last simple">
+<li>asserted after skiboot has loaded the PAYLOAD image, and is about to
+boot it.</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="chassis-control-messages">
+<h2>Chassis control messages<a class="headerlink" href="#chassis-control-messages" title="Permalink to this headline">¶</a></h2>
+<p>OPAL uses chassis control messages to instruct the BMC to remove power from
+the host. These messages are sent during graceful reboot and shutdown processes
+initiated by the host.</p>
+<p>For a BMC-initiated graceful power-down (or reboot), the BMC is expected to send
+an OEM-defined SEL message, using a SMS_ATN to trigger a BMC-to-host
+notification. This SEL has a type of 0xc0, and command of 0x04. The data0 field
+of the SEL indicates shutdown (0x0) or reboot (0x1).</p>
+</div>
+<div class="section" id="watchdog-support">
+<h2>Watchdog support<a class="headerlink" href="#watchdog-support" title="Permalink to this headline">¶</a></h2>
+<p>OPAL supports a BMC watchdog during the boot process. This will be disabled
+before entering the OS.</p>
+</div>
+<div class="section" id="real-time-clock">
+<h2>Real-time clock<a class="headerlink" href="#real-time-clock" title="Permalink to this headline">¶</a></h2>
+<p>On platforms where a real-time-clock is not available, skiboot may use the
+IPMI SEL Time as a real-time-clock device.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">OPAL &lt;&#8211;&gt; BMC interactions</a><ul>
+<li><a class="reference internal" href="#ipmi-sensors">IPMI sensors</a></li>
+<li><a class="reference internal" href="#chassis-control-messages">Chassis control messages</a></li>
+<li><a class="reference internal" href="#watchdog-support">Watchdog support</a></li>
+<li><a class="reference internal" href="#real-time-clock">Real-time clock</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="error-logging.html"
+                        title="previous chapter">How to log errors on OPAL</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="gcov.html"
+                        title="next chapter">GCOV for skiboot</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/bmc.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="gcov.html" title="GCOV for skiboot"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="error-logging.html" title="How to log errors on OPAL"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

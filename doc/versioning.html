@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Versioning Scheme of skiboot &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="index.html" />
+    <link rel="next" title="PCI" href="pci.html" />
+    <link rel="prev" title="Stable Skiboot tree/releases" href="stable-skiboot-rules.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="pci.html" title="PCI"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="stable-skiboot-rules.html" title="Stable Skiboot tree/releases"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="versioning-scheme-of-skiboot">
+<h1>Versioning Scheme of skiboot<a class="headerlink" href="#versioning-scheme-of-skiboot" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="history">
+<h2>History<a class="headerlink" href="#history" title="Permalink to this headline">¶</a></h2>
+<p>For roughly the first six months of public life, skiboot just presented a
+git SHA1 as a version &#8220;number&#8221;. This was &#8220;user visible&#8221; in two places:</p>
+<ol class="arabic simple">
+<li><code class="docutils literal"><span class="pre">/sys/firmware/opal/msglog</span></code>
+the familiar <code class="docutils literal"><span class="pre">SkiBoot</span> <span class="pre">71664fd-dirty</span> <span class="pre">starting...</span></code> message</li>
+<li>device tree:
+<code class="docutils literal"><span class="pre">/proc/device-tree/ibm,opal/firmware/git-id</span></code></li>
+</ol>
+<p>Builds were also referred to by date and by corresponding PowerKVM release.
+Clearly, this was unlikely to be good practice going forward.</p>
+<p>As of skiboot-4.0, this scheme has changed and we now present a version
+string instead. This better addresses the needs of everybody who is building
+OpenPower systems.</p>
+</div>
+<div class="section" id="current-practice">
+<h2>Current practice<a class="headerlink" href="#current-practice" title="Permalink to this headline">¶</a></h2>
+<p>The version string is constructed from a few places and is designed to
+be <em>highly</em> informative about what you&#8217;re running. For the most part,
+it should be automatically constructed by the skiboot build system. The
+only times you need to do something is if you are a) making an upstream
+skiboot release or b) building firmware to release for your platform(s).</p>
+<p>OPAL/skiboot has several consumers, for example:</p>
+<ul class="simple">
+<li>IBM shipping POWER8 systems with an FSP (FW810.XX and future)</li>
+<li>OpenPower</li>
+<li>OpenPower partners manufacturing OpenPower systems</li>
+<li>developers, test and support needing to understand what code a system
+is running</li>
+</ul>
+<p>and there are going to be several concurrent maintained releases in the wild,
+likely build by different teams of people at different companies.</p>
+<p>tl;dr; is you&#8217;re likely going to see version numbers like this (for the
+hypothetical platforms &#8216;ketchup&#8217; and &#8216;mustard&#8217;):</p>
+<ul class="simple">
+<li><code class="docutils literal"><span class="pre">skiboot-4.0-ketchup-0</span></code></li>
+<li><code class="docutils literal"><span class="pre">skiboot-4.0-ketchup-1</span></code></li>
+<li><code class="docutils literal"><span class="pre">skiboot-4.1-mustard-4</span></code></li>
+<li><code class="docutils literal"><span class="pre">skiboot-4.1-ketchup-0</span></code></li>
+</ul>
+<p>If you see <em>extra</em> things on the end of the version, then you&#8217;re running
+a custom build from a developer
+(e.g. <code class="docutils literal"><span class="pre">skiboot-4.0-1-g23f147e-stewart-dirty-f42fc40</span></code> means something to
+us - explained below).</p>
+<p>If you see less, for example <code class="docutils literal"><span class="pre">skiboot-4.0</span></code>, then you&#8217;re running a build
+directly out of the main git tree. Those producing OPAL builds for users
+must <em>not</em> ship like this, even if the tree is identical.</p>
+<p>Here are the components of the version string from master:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>skiboot-4.0-1-g23f147e-debug-occ-stewart-dirty-f42fc40
+^       ^^^ ^  ^^^^^^^ ^-------^    ^      ^   ^^^^^^^
+|        |  |     |        |        |      |      |
+|        |  |     |        |         \    /        - &#39;git diff|sha1sum&#39;
+|        |  |     |        |          \  /
+|        |  |     |        |            - built from a dirty tree of $USER
+|        |  |     |        |
+|        |  |     |         - $EXTRA_VERSION (optional)
+|        |  |     |
+|        |  |      - git SHA1 of commit built
+|        |  |
+|        |   - commits head of skiboot-4.0 tag
+|        |
+|         - skiboot version number ---\
+|                                      &gt;--  from  the &#39;skiboot-4.0&#39; git tag
+ - product name (always skiboot)   ---/
+</pre></div>
+</div>
+<p>When doing a release for a particular platform, you are expected to create
+and tag a branch from master. For the (hypothetical) ketchup platform which
+is going to do a release based on skiboot-4.0, you would create a tag
+&#8216;skiboot-4.0-ketchup-0&#8217; pointing to the same revision as the &#8216;skiboot-4.0&#8217; tag
+and then make any additional modifications to skiboot that were not in the 4.0
+release. So, you could ship a skiboot with the following version string:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">skiboot</span><span class="o">-</span><span class="mf">4.0</span><span class="o">-</span><span class="n">ketchup</span><span class="o">-</span><span class="mi">1</span>
+<span class="o">^</span>       <span class="o">^^^</span> <span class="o">^</span>       <span class="o">^</span>
+<span class="o">|</span>        <span class="o">|</span>  <span class="o">|</span>       <span class="o">|</span>
+<span class="o">|</span>        <span class="o">|</span>  <span class="o">|</span>        <span class="o">-</span> <span class="n">revision</span> <span class="k">for</span> <span class="n">this</span> <span class="n">platform</span>
+<span class="o">|</span>        <span class="o">|</span>  <span class="o">|</span>
+<span class="o">|</span>        <span class="o">|</span>  <span class="o">|</span>
+<span class="o">|</span>        <span class="o">|</span>   <span class="o">-</span> <span class="n">Platform</span> <span class="n">name</span><span class="o">/</span><span class="n">version</span>
+<span class="o">|</span>        <span class="o">|</span>
+<span class="o">|</span>         <span class="o">-</span> <span class="n">skiboot</span> <span class="n">version</span> <span class="n">number</span>
+<span class="o">|</span>
+ <span class="o">-</span> <span class="n">product</span> <span class="n">name</span> <span class="p">(</span><span class="n">always</span> <span class="n">skiboot</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This version string tells your users to expect what is in skiboot-4.0 plus
+some revisions for your platform.</p>
+</div>
+<div class="section" id="practical-considerations">
+<h2>Practical Considerations<a class="headerlink" href="#practical-considerations" title="Permalink to this headline">¶</a></h2>
+<p>You MUST correctly tag your git tree for sensible version numbers to be
+generated. Look at the (generated) version.c file to confirm you&#8217;re building
+the correct version number. You will need annotated tags (git tag -a).</p>
+<p>If your build infrastructure does <em>not</em> build skiboot from a git tree, you
+should specify SKIBOOT_VERSION as an environment variable (following this
+versioning scheme), otherwise the build will fail.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Versioning Scheme of skiboot</a><ul>
+<li><a class="reference internal" href="#history">History</a></li>
+<li><a class="reference internal" href="#current-practice">Current practice</a></li>
+<li><a class="reference internal" href="#practical-considerations">Practical Considerations</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="stable-skiboot-rules.html"
+                        title="previous chapter">Stable Skiboot tree/releases</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pci.html"
+                        title="next chapter">PCI</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/versioning.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="pci.html" title="PCI"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="stable-skiboot-rules.html" title="Stable Skiboot tree/releases"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

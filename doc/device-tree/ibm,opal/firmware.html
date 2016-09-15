@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>System Firmware &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../../index.html" />
+    <link rel="up" title="ibm,opal" href="../ibm,opal.html" />
+    <link rel="next" title="ibm,opal/flash device tree entries" href="flash.html" />
+    <link rel="prev" title="ibm,opal/diagnostics device tree entries" href="diagnostics.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="flash.html" title="ibm,opal/flash device tree entries"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="diagnostics.html" title="ibm,opal/diagnostics device tree entries"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Device Tree</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../ibm,opal.html" accesskey="U">ibm,opal</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="system-firmware">
+<h1>System Firmware<a class="headerlink" href="#system-firmware" title="Permalink to this headline">¶</a></h1>
+<p>The &#8216;firmware&#8217; node under &#8216;ibm,opal&#8217; lists system and OPAL firmware version.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">firmware</span> <span class="p">{</span>
+      <span class="n">symbol</span><span class="o">-</span><span class="nb">map</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x0</span> <span class="mh">0x300ac650</span> <span class="mh">0x0</span> <span class="mh">0x1b3f5</span><span class="o">&gt;</span><span class="p">;</span>
+      <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;ibm,opal-firmware&quot;</span><span class="p">;</span>
+      <span class="n">ml</span><span class="o">-</span><span class="n">version</span> <span class="o">=</span> <span class="p">[</span><span class="mi">4</span><span class="n">d</span> <span class="mi">4</span><span class="n">c</span> <span class="mi">20</span> <span class="mi">46</span> <span class="mi">57</span> <span class="mi">37</span> <span class="mi">37</span> <span class="mi">30</span> <span class="mi">2</span><span class="n">e</span> <span class="mi">32</span> <span class="mi">30</span> <span class="mi">20</span> <span class="mi">46</span> <span class="mi">57</span> <span class="mi">37</span> <span class="mi">37</span> <span class="mi">30</span> <span class="mi">2</span><span class="n">e</span> <span class="mi">32</span> <span class="mi">30</span> <span class="mi">20</span> <span class="mi">46</span> <span class="mi">57</span> <span class="mi">37</span> <span class="mi">37</span> <span class="mi">30</span> <span class="mi">2</span><span class="n">e</span> <span class="mi">32</span> <span class="mi">30</span><span class="p">];</span>
+      <span class="n">mi</span><span class="o">-</span><span class="n">version</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x4d49205a</span> <span class="mh">0x4c373730</span> <span class="mh">0x5f303735</span> <span class="mh">0x205a4c37</span> <span class="mh">0x37305f30</span> <span class="mh">0x3735205a</span> <span class="mh">0x4c373730</span> <span class="mh">0x5f303735</span><span class="o">&gt;</span><span class="p">;</span>
+      <span class="n">version</span> <span class="o">=</span> <span class="s2">&quot;skiboot-5.0-rc2&quot;</span><span class="p">;</span>
+      <span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x8e</span><span class="o">&gt;</span><span class="p">;</span>
+      <span class="n">linux</span><span class="p">,</span><span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x8e</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">compatible</span></code></dt>
+<dd>property describes OPAL compatibility.</dd>
+<dt><code class="docutils literal"><span class="pre">symbol-map</span></code></dt>
+<dd>property describes OPAL symbol start address and size.</dd>
+<dt><code class="docutils literal"><span class="pre">version</span></code></dt>
+<dd>property describes OPAL version. Replaces &#8216;git-id&#8217;, so may
+not be present. On POWER9 and above, it is always present.</dd>
+<dt><code class="docutils literal"><span class="pre">mi-version</span></code></dt>
+<dd>property describes Microcode Image. Only on IBM FSP systems.
+Will (likely) not be present on POWER9 systems.</dd>
+<dt><code class="docutils literal"><span class="pre">ml-version</span></code></dt>
+<dd>property describes Microcode Level. Only on IBM FSP systems.
+Will (likely) not be present on POWER9 systems.</dd>
+</dl>
+<div class="section" id="mi-ml-format">
+<h2>MI/ML format<a class="headerlink" href="#mi-ml-format" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">ML</span><span class="o">/</span><span class="n">MI</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">T</span> <span class="n">side</span> <span class="n">version</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">P</span> <span class="n">side</span> <span class="n">version</span><span class="o">&gt;</span> <span class="o">&lt;</span><span class="n">boot</span> <span class="n">side</span> <span class="n">version</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">System Firmware</a><ul>
+<li><a class="reference internal" href="#mi-ml-format">MI/ML format</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="diagnostics.html"
+                        title="previous chapter">ibm,opal/diagnostics device tree entries</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="flash.html"
+                        title="next chapter">ibm,opal/flash device tree entries</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../../_sources/device-tree/ibm,opal/firmware.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="flash.html" title="ibm,opal/flash device tree entries"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="diagnostics.html" title="ibm,opal/diagnostics device tree entries"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Device Tree</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../ibm,opal.html" >ibm,opal</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

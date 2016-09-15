@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OPAL API Documentation &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="next" title="OPAL_CEC_POWER_DOWN" href="opal-cec-power-down-5.html" />
+    <link rel="prev" title="VPD (Vital Product Data)" href="../device-tree/vpd.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="opal-cec-power-down-5.html" title="OPAL_CEC_POWER_DOWN"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../device-tree/vpd.html" title="VPD (Vital Product Data)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="opal-api-documentation">
+<h1>OPAL API Documentation<a class="headerlink" href="#opal-api-documentation" title="Permalink to this headline">¶</a></h1>
+<p>The OPAL API is the interface between an Operating System and OPAL.</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="opal-cec-power-down-5.html">OPAL_CEC_POWER_DOWN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-cec-reboot-6-116.html">OPAL_CEC_REBOOT and OPAL_CEC_REBOOT2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-check-token-80.html">OPAL_CHECK_TOKEN</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-code-update-76-77-78.html">Code Update on FSP based machine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-console-read-write-1-2.html">OPAL Console calls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-elog-71-72-73-74-75.html">OPAL_ELOG: Error logging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-flash-110-111-112.html">OPAL Flash calls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-get-device-tree-118.html">OPAL_GET_DEVICE_TREE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-get-msg-85.html">OPAL_GET_MSG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-get-msi-39-40.html">OPAL_GET_MSI_32 and OPAL_GET_MSI_64</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-get-xive-20.html">OPAL_GET_XIVE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-get-xive-source-38.html">OPAL_GET_XIVE_SOURCE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-handle-interrupt.html">OPAL_HANDLE_INTERRUPT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-int-eoi-124.html">OPAL_INT_EOI</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-int-get-xirr-122.html">OPAL_INT_GET_XIRR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-int-set-cppr-123.html">OPAL_INT_SET_CPPR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-int-set-mfrr-125.html">OPAL_INT_SET_MFRR</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-invalid-call--1.html">OPAL_INVALID_CALL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-ipmi-send-recv-107-108.html">OPAL_IPMI_SEND</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-ipmi-send-recv-107-108.html#opal-ipmi-recv">OPAL_IPMI_RECV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-led-get-set-114-115.html">Service Indicators (LEDS)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-messages.html">OPAL_MESSAGE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-nvram-read-write-7-8.html">OPAL_READ_NVRAM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-nvram-read-write-7-8.html#opal-write-nvram">OPAL_WRITE_NVRAM</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-pci-get-phb-diag-data2-64.html">OPAL_PCI_GET_PHB_DIAG_DATA2</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-pci-get-power-state-120.html">OPAL_PCI_GET_POWER_STATE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-pci-get-presence-state-119.html">OPAL_PCI_GET_PRESENCE_STATE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-pci-get-set-xive-reissue-35-36.html">OPAL_PCI_GET_XIVE_REISSUE and OPAL_PCI_SET_XIVE_REISSUE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-pci-map-pe-dma-window-44.html">OPAL_PCI_MAP_PE_DMA_WINDOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-pci-map-pe-dma-window-real-45.html">OPAL_PCI_MAP_PE_DMA_WINDOW_REAL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-pci-map-pe-mmio-window-29.html">OPAL_PCI_MAP_PE_MMIO_WINDOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-pci-phb-mmio-enable-27.html">OPAL_PCI_PHB_MMIO_ENABLE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-pci-set-mve-33.html">OPAL_PCI_SET_MVE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-pci-set-mve-enable-34.html">OPAL_PCI_SET_MVE_ENABLE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-pci-set-pe-31.html">OPAL_PCI_SET_PE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-pci-set-peltv-32.html">OPAL_PCI_SET_PELTV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-pci-set-phb-mem-window-28.html">OPAL_PCI_SET_PHB_MEM_WINDOW</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-pci-set-power-state-121.html">OPAL_PCI_SET_POWER_STATE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-pci-set-xive-pe-37.html">OPAL_PCI_SET_XIVE_PE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-pci-tce-kill-126.html">OPAL_PCI_TCE_KILL</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-poll-events.html">OPAL_POLL_EVENTS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-prd-msg-113.html">OPAL_PRD_MSG</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-read-write-tpo-103-104.html">OPAL_READ_TPO and OPAL_WRITE_TPO</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-register-dump-region-101.html">OPAL_REGISTER_DUMP_REGION</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-reinit-cpus-70.html">OPAL_REINIT_CPUS</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-return-cpu-69.html">OPAL_RETURN_CPU</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-rtc-read-3.html">OPAL_RTC_READ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-rtc-write-4.html">OPAL_RTC_WRITE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-sensor-read-88.html">OPAL_SENSOR_READ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-set-xive-19.html">OPAL_SET_XIVE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-sync-host-reboot-87.html">OPAL_SYNC_HOST_REBOOT</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-test-0.html">OPAL_TEST</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-unregister-dump-region-102.html">OPAL_UNREGISTER_DUMP_REGION</a></li>
+<li class="toctree-l1"><a class="reference internal" href="opal-xscom-read-write-65-66.html">OPAL_XSCOM_READ and OPAL_XSCOM_WRITE</a></li>
+<li class="toctree-l1"><a class="reference internal" href="power9-changes.html">POWER9 Changes to OPAL API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="return-codes.html">OPAL API Return Codes</a></li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../device-tree/vpd.html"
+                        title="previous chapter">VPD (Vital Product Data)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="opal-cec-power-down-5.html"
+                        title="next chapter">OPAL_CEC_POWER_DOWN</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/opal-api/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="opal-cec-power-down-5.html" title="OPAL_CEC_POWER_DOWN"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="../device-tree/vpd.html" title="VPD (Vital Product Data)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

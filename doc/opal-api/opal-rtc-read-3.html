@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OPAL_RTC_READ &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="OPAL API Documentation" href="index.html" />
+    <link rel="next" title="OPAL_RTC_WRITE" href="opal-rtc-write-4.html" />
+    <link rel="prev" title="OPAL_RETURN_CPU" href="opal-return-cpu-69.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="opal-rtc-write-4.html" title="OPAL_RTC_WRITE"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="opal-return-cpu-69.html" title="OPAL_RETURN_CPU"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="opal-rtc-read">
+<h1>OPAL_RTC_READ<a class="headerlink" href="#opal-rtc-read" title="Permalink to this headline">¶</a></h1>
+<p>Read the Real Time Clock.</p>
+<div class="section" id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">uint32_t*</span> <span class="pre">year_month_day</span></code></dt>
+<dd><p class="first">the year, month and day formatted as follows:</p>
+<ul class="last simple">
+<li>bits  0-15 is bcd formatted year (0100-9999)</li>
+<li>bits 16-23 is bcd formatted month (01-12)</li>
+<li>bits 24-31 is bcd formatted day (01-31)</li>
+</ul>
+</dd>
+<dt><code class="docutils literal"><span class="pre">uint64_t*</span> <span class="pre">hour_minute_second_millisecond</span></code></dt>
+<dd><p class="first">the hour, minute, second and millisecond formatted as follows:</p>
+<ul class="last simple">
+<li>bits  0-16 is reserved</li>
+<li>bits 17-24 is bcd formatted hour (00-23)</li>
+<li>bits 25-31 is bcd formatted minute (00-59)</li>
+<li>bits 32-39 is bcd formatted second (00-60)</li>
+<li>bits 40-63 is bcd formatted milliseconds (000000-999999)</li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="calling">
+<h2>Calling<a class="headerlink" href="#calling" title="Permalink to this headline">¶</a></h2>
+<p>Since RTC calls can be pretty slow, OPAL_RTC_READ is likely to first return
+OPAL_BUSY_EVENT, requiring the caller to wait until the OPAL_EVENT_RTC event
+has been signaled. Once the event has been signaled, a subsequent
+OPAL_RTC_READ call will retrieve the time. Since the OPAL_EVENT_RTC event is
+used for both reading and writing the RTC, callers must be able to handle
+the event being signaled for a concurrent in flight OPAL_RTC_WRITE rather
+than this read request.</p>
+<p>The following code is one way to correctly issue and then wait for a response:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nb">int</span> <span class="n">rc</span> <span class="o">=</span> <span class="n">OPAL_BUSY_EVENT</span><span class="p">;</span>
+<span class="k">while</span> <span class="p">(</span><span class="n">rc</span> <span class="o">==</span> <span class="n">OPAL_BUSY_EVENT</span><span class="p">)</span> <span class="p">{</span>
+      <span class="n">rc</span> <span class="o">=</span> <span class="n">opal_rtc_read</span><span class="p">(</span><span class="o">&amp;</span><span class="n">y_m_d</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">h_m_s_ms</span><span class="p">);</span>
+      <span class="k">if</span> <span class="p">(</span><span class="n">rc</span> <span class="o">==</span> <span class="n">OPAL_BUSY_EVENT</span><span class="p">)</span>
+         <span class="n">opal_poll_events</span><span class="p">(</span><span class="n">NULL</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Although as of writing all OPAL_RTC_READ backends are asynchronous, there is
+no requirement for them to be - it is valid for OPAL_RTC_READ to immediately
+return the retreived value rather than OPAL_BUSY_EVENT.</p>
+<p><strong>TODO</strong>: describe/document format of arguments.</p>
+</div>
+<div class="section" id="return-codes">
+<h2>Return codes<a class="headerlink" href="#return-codes" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>OPAL_SUCCESS</dt>
+<dd>parameters now contain the current time, or one read from cache.</dd>
+<dt>OPAL_HARDWARE</dt>
+<dd>error in retrieving the time. May be transient error,
+may be permanent.</dd>
+<dt>OPAL_PARAMETER</dt>
+<dd>year_month_day or hour_minute_second_millisecond parameters are NULL</dd>
+<dt>OPAL_INTERNAL_ERROR</dt>
+<dd>something went wrong, Possibly reported in error log.</dd>
+<dt>OPAL_BUSY_EVENT</dt>
+<dd>request is in flight</dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">OPAL_RTC_READ</a><ul>
+<li><a class="reference internal" href="#parameters">Parameters</a></li>
+<li><a class="reference internal" href="#calling">Calling</a></li>
+<li><a class="reference internal" href="#return-codes">Return codes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="opal-return-cpu-69.html"
+                        title="previous chapter">OPAL_RETURN_CPU</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="opal-rtc-write-4.html"
+                        title="next chapter">OPAL_RTC_WRITE</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/opal-api/opal-rtc-read-3.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="opal-rtc-write-4.html" title="OPAL_RTC_WRITE"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="opal-return-cpu-69.html" title="OPAL_RETURN_CPU"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,168 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>skiboot-5.3.0-rc2 &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="Release Notes" href="index.html" />
+    <link rel="next" title="skiboot-5.3.1" href="skiboot-5.3.1.html" />
+    <link rel="prev" title="skiboot-5.3.0-rc1" href="skiboot-5.3.0-rc1.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="skiboot-5.3.1.html" title="skiboot-5.3.1"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="skiboot-5.3.0-rc1.html" title="skiboot-5.3.0-rc1"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Release Notes</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="skiboot-5-3-0-rc2">
+<h1>skiboot-5.3.0-rc2<a class="headerlink" href="#skiboot-5-3-0-rc2" title="Permalink to this headline">¶</a></h1>
+<p>skiboot-5.3.0-rc2 was released on Thursday July 28th, 2016.</p>
+<p>The current plan is to release skiboot-5.3.0 August 1st 2016.</p>
+<p>Over skiboot-5.3.0-rc1, we have the following changes:</p>
+<div class="section" id="pflash">
+<h2>pflash<a class="headerlink" href="#pflash" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>pflash: Clean up makefiles and resolve build race</li>
+<li>pflash: use atexit for musl compatibility</li>
+</ul>
+</div>
+<div class="section" id="general">
+<h2>General<a class="headerlink" href="#general" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>core/flash: Fix passing pointer instead of value</li>
+</ul>
+</div>
+<div class="section" id="power9">
+<h2>POWER9<a class="headerlink" href="#power9" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><dl class="first docutils">
+<dt>mambo: Update Radix Tree Size as per ISA 3.0</dt>
+<dd><p class="first last">In Linux we recently changed to this encoding, so we no longer boot.
+The associated Linux commit is b23d9c5b9c83c05e013aa52460f12a8365062cf4</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="fsp-platforms">
+<h2>FSP Platforms<a class="headerlink" href="#fsp-platforms" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>platforms/ibm-fsp: Fix incorrect struct member access and comparison</li>
+<li>FSP/MDST: Fix TCE alignment issue
+In some corner cases (like source memory size = 4097) we may
+endup doing wrong mapping and corrupting part of SYSDUMP.</li>
+<li>hdat/vpd: Add chip-id property to processor chip node under vpd</li>
+</ul>
+</div>
+<div class="section" id="capi">
+<h2>CAPI<a class="headerlink" href="#capi" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>hw/phb3: Increase AIB TX command credit for DMA read in CAPP DMA mode</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">skiboot-5.3.0-rc2</a><ul>
+<li><a class="reference internal" href="#pflash">pflash</a></li>
+<li><a class="reference internal" href="#general">General</a></li>
+<li><a class="reference internal" href="#power9">POWER9</a></li>
+<li><a class="reference internal" href="#fsp-platforms">FSP Platforms</a></li>
+<li><a class="reference internal" href="#capi">CAPI</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="skiboot-5.3.0-rc1.html"
+                        title="previous chapter">skiboot-5.3.0-rc1</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="skiboot-5.3.1.html"
+                        title="next chapter">skiboot-5.3.1</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/release-notes/skiboot-5.3.0-rc2.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="skiboot-5.3.1.html" title="skiboot-5.3.1"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="skiboot-5.3.0-rc1.html" title="skiboot-5.3.0-rc1"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Release Notes</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

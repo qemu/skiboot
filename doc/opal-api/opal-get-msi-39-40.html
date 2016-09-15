@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OPAL_GET_MSI_32 and OPAL_GET_MSI_64 &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="OPAL API Documentation" href="index.html" />
+    <link rel="next" title="OPAL_GET_XIVE" href="opal-get-xive-20.html" />
+    <link rel="prev" title="OPAL_GET_MSG" href="opal-get-msg-85.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="opal-get-xive-20.html" title="OPAL_GET_XIVE"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="opal-get-msg-85.html" title="OPAL_GET_MSG"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="opal-get-msi-32-and-opal-get-msi-64">
+<h1>OPAL_GET_MSI_32 and OPAL_GET_MSI_64<a class="headerlink" href="#opal-get-msi-32-and-opal-get-msi-64" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_GET_MSI_32                              39</span>
+<span class="c1">#define OPAL_GET_MSI_64                              40</span>
+</pre></div>
+</div>
+<p><strong>WARNING:</strong> the following documentation is from old sources, and is possibly
+not representative of OPALv3 as implemented by skiboot. This should be
+used as a starting point for full documentation.</p>
+<p>OPAL PHBs encode MVE and XIVE specifiers in MSI DMA and message data values.
+The host calls these functions to determine the PHB MSI DMA address and message
+data to program into a PE PCIE function for a particular MVE and XIVE. The
+msi_address parameter returns the MSI DMA address and the msi_data parameter
+returns the MSI DMA message data value the PE uses to signal that interrupt.</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">phb_id</span></code></dt>
+<dd>The <code class="docutils literal"><span class="pre">phb_id</span></code> parameter is the value from the PHB node <code class="docutils literal"><span class="pre">ibm,opal-phbid</span></code>
+property.</dd>
+<dt><code class="docutils literal"><span class="pre">mve_number</span></code></dt>
+<dd>The <code class="docutils literal"><span class="pre">mve_number</span></code> is the index of an MVE used to authorize this PE to this
+MSI. For <code class="docutils literal"><span class="pre">ibm,opal-ioda2</span></code> PHBs, the MVE number argument is ignored.</dd>
+<dt><code class="docutils literal"><span class="pre">xive_number</span></code></dt>
+<dd>The <code class="docutils literal"><span class="pre">xive_number</span></code> is the index of an XIVE that corresponds to a particular
+DMA address and message data value this PE will signal as an MSI ro MSI-X.</dd>
+<dt><code class="docutils literal"><span class="pre">msi_range</span></code></dt>
+<dd>The msi_range parameter specifies the number of MSIs associated with the
+in put MVE and XIVE, primarily for MSI-conventional Multiple Message
+Enable &gt; 1 MSI. MSI requires consecutive MSIs per MSI address, and each
+MSI DMA address must be unique for any given consecutive power of 2 set
+of 32 message data values,. which in turn select particular PHB XIVEs.
+This value must be a power of 2 value in the range of 0 to 32. OPAL
+returns opal_parameter for values outside of this range.</dd>
+</dl>
+<p>For MSI conventional, the MSI address and message data returned apply to a
+power of 2 sequential set of XIVRs starting from the xive_number for the
+power of 2 msi_range input argument. The message data returned represents the
+power of 2 aligned starting message data value of the first interrupt number
+in that sequential range. Valid msi_range input values are from 1 to 32.
+Non-power of 2 values result in a return code of opal_PARAMETER .</p>
+<p>An msi_range value of 0 or 1 signifies that OPAL should return the message
+data and message address for exactly one MSI specified by the input XIVE
+number. For MSI conventional, the host should specify either a value of 0 or 1,
+for an MSI Capability MME value of 1 MSI. For MSI-X XIVRs, the host should
+specify a value of &#8216;1&#8217; for the msi_range argument and call this function for
+each MSI-X uniquely.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="opal-get-msg-85.html"
+                        title="previous chapter">OPAL_GET_MSG</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="opal-get-xive-20.html"
+                        title="next chapter">OPAL_GET_XIVE</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/opal-api/opal-get-msi-39-40.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="opal-get-xive-20.html" title="OPAL_GET_XIVE"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="opal-get-msg-85.html" title="OPAL_GET_MSG"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

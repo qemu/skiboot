@@ -1,0 +1,218 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OPAL_ELOG: Error logging &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="OPAL API Documentation" href="index.html" />
+    <link rel="next" title="OPAL Flash calls" href="opal-flash-110-111-112.html" />
+    <link rel="prev" title="OPAL Console calls" href="opal-console-read-write-1-2.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="opal-flash-110-111-112.html" title="OPAL Flash calls"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="opal-console-read-write-1-2.html" title="OPAL Console calls"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="opal-elog-error-logging">
+<h1>OPAL_ELOG: Error logging<a class="headerlink" href="#opal-elog-error-logging" title="Permalink to this headline">¶</a></h1>
+<p>OPAL provides an abstraction to platform specific methods of storing and
+retrieving error logs. Some service processors may be able to store information
+in the Platform Error Log (PEL) format. These may be generated at runtime
+by the service processor or OPAL in reaction to certain events. For example,
+an IPL failure could be recorded in an error log, as could the reason and
+details of an unexpected shut-down/reboot (e.g. hard thermal limits, check-stop).</p>
+<p>There are five OPAL calls from host to OPAL on error log:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_ELOG_READ         71</span>
+<span class="c1">#define OPAL_ELOG_WRITE        72</span>
+<span class="c1">#define OPAL_ELOG_ACK          73</span>
+<span class="c1">#define OPAL_ELOG_RESEND       74</span>
+<span class="c1">#define OPAL_ELOG_SIZE         75</span>
+</pre></div>
+</div>
+<p>Note: <code class="docutils literal"><span class="pre">OPAL_ELOG_WRITE</span></code> (72) Unused for now, can be used in future.</p>
+<p>Not all platforms support these calls, so it&#8217;s important for a host Operating
+System to use the OPAL_CHECK_TOKEN call first. If <code class="docutils literal"><span class="pre">OPAL_ELOG_READ</span></code>,
+<code class="docutils literal"><span class="pre">OPAL_ELOG_ACK</span></code>, <code class="docutils literal"><span class="pre">OPAL_ELOG_RESEND</span></code>, or <code class="docutils literal"><span class="pre">OPAL_ELOG_SIZE</span></code> is present,
+then the rest of that group is also present. The presence of <code class="docutils literal"><span class="pre">OPAL_ELOG_WRITE</span></code>
+must be checked separately.</p>
+<p><strong>TODO</strong>: we need a good explanation of the notification mechanism and in
+what order and <em>when</em> to call each of the OPAL APIs.</p>
+<div class="section" id="opal-elog-read">
+<h2>OPAL_ELOG_READ<a class="headerlink" href="#opal-elog-read" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">OPAL_ELOG_READ</span></code> call will copy the error log identified by <code class="docutils literal"><span class="pre">id</span></code> into
+the <code class="docutils literal"><span class="pre">buffer</span></code> of size <code class="docutils literal"><span class="pre">size</span></code>.</p>
+<p><code class="docutils literal"><span class="pre">OPAL_ELOG_READ</span></code> accepts 3 parameters:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">uint64_t</span> <span class="o">*</span><span class="n">elog_buffer</span>
+<span class="n">uint64_t</span> <span class="n">elog_size</span>
+<span class="n">uint64_t</span> <span class="n">elog_id</span>
+</pre></div>
+</div>
+<p>Returns:</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">OPAL_WRONG_STATE</span></code></dt>
+<dd>When there are no error logs to read, or <code class="docutils literal"><span class="pre">OPAL_ELOG</span></code> calls are done in the
+wrong order.</dd>
+<dt><code class="docutils literal"><span class="pre">OPAL_PARAMETER</span></code></dt>
+<dd>The <code class="docutils literal"><span class="pre">id</span></code> does not match the log id that is available.</dd>
+<dt><code class="docutils literal"><span class="pre">OPAL_SUCCESS</span></code></dt>
+<dd>Error log is copied to <code class="docutils literal"><span class="pre">buffer</span></code>.</dd>
+</dl>
+<p>Other generic OPAL error codes may also be returned and should be treated
+like <code class="docutils literal"><span class="pre">OPAL_INTERNAL_ERROR</span></code>.</p>
+</div>
+<div class="section" id="opal-elog-ack">
+<h2>OPAL_ELOG_ACK<a class="headerlink" href="#opal-elog-ack" title="Permalink to this headline">¶</a></h2>
+<p>Acknowledging (ACKing) an error log tells OPAL and the service processor that
+the host operating system has dealt with the error log successfully. This allows
+OPAL and the service processor to delete the error log from their
+memory/storage.</p>
+<p><code class="docutils literal"><span class="pre">OPAL_ELOG_ACK</span></code> accepts 1 parameter:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">uint64_t</span> <span class="n">ack_id</span>
+</pre></div>
+</div>
+<p>Returns:</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">OPAL_INTERNAL_ERROR</span></code></dt>
+<dd>OPAL failed to send acknowledgement to the error log creator.</dd>
+<dt><code class="docutils literal"><span class="pre">OPAL_SUCCESS</span></code></dt>
+<dd>Success!</dd>
+</dl>
+<p>Other generic OPAL error codes may also be returned, and should be treated
+like <code class="docutils literal"><span class="pre">OPAL_INTERNAL_ERROR</span></code>.</p>
+</div>
+<div class="section" id="opal-elog-resend">
+<h2>OPAL_ELOG_RESEND<a class="headerlink" href="#opal-elog-resend" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">OPAL_ELOG_RESEND</span></code> call will cause OPAL to resend notification to the
+host operating system of all outstanding error logs. This is commonly used
+(although doesn&#8217;t have to be) in a kexec scenario.</p>
+<p>The call registered with this token accepts no parameter and returns type is
+void.</p>
+</div>
+<div class="section" id="opal-elog-size">
+<h2>OPAL_ELOG_SIZE<a class="headerlink" href="#opal-elog-size" title="Permalink to this headline">¶</a></h2>
+<p>The <code class="docutils literal"><span class="pre">OPAL_ELOG_SIZE</span></code> call retrieves information about an error log.</p>
+<p>Here, <code class="docutils literal"><span class="pre">type</span></code> specifies error log format. Supported types are :</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mi">0</span> <span class="o">-&gt;</span> <span class="n">Platform</span> <span class="n">Error</span> <span class="n">Log</span>
+</pre></div>
+</div>
+<p><code class="docutils literal"><span class="pre">OPAL_ELOG_SIZE</span></code> accepts 3 parameters:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">uint64_t</span> <span class="o">*</span><span class="n">elog_id</span>
+<span class="n">uint64_t</span> <span class="o">*</span><span class="n">elog_size</span>
+<span class="n">uint64_t</span> <span class="o">*</span><span class="n">elog_type</span>
+</pre></div>
+</div>
+<p>Returns:</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">OPAL_WRONG_STATE</span></code></dt>
+<dd>There is no error log to fetch information about.</dd>
+<dt><code class="docutils literal"><span class="pre">OPAL_SUCCESS</span></code></dt>
+<dd>Success.</dd>
+</dl>
+<p>Other general OPAL errors may be returned.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">OPAL_ELOG: Error logging</a><ul>
+<li><a class="reference internal" href="#opal-elog-read">OPAL_ELOG_READ</a></li>
+<li><a class="reference internal" href="#opal-elog-ack">OPAL_ELOG_ACK</a></li>
+<li><a class="reference internal" href="#opal-elog-resend">OPAL_ELOG_RESEND</a></li>
+<li><a class="reference internal" href="#opal-elog-size">OPAL_ELOG_SIZE</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="opal-console-read-write-1-2.html"
+                        title="previous chapter">OPAL Console calls</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="opal-flash-110-111-112.html"
+                        title="next chapter">OPAL Flash calls</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/opal-api/opal-elog-71-72-73-74-75.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="opal-flash-110-111-112.html" title="OPAL Flash calls"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="opal-console-read-write-1-2.html" title="OPAL Console calls"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

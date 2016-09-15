@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>ibm,opal &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="Device Tree" href="index.html" />
+    <link rel="next" title="ibm,opal/diagnostics device tree entries" href="ibm,opal/diagnostics.html" />
+    <link rel="prev" title="Device Tree" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="ibm,opal/diagnostics.html" title="ibm,opal/diagnostics device tree entries"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Device Tree"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Device Tree</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="ibm-opal">
+<h1>ibm,opal<a class="headerlink" href="#ibm-opal" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="ibm,opal/diagnostics.html">ibm,opal/diagnostics device tree entries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ibm,opal/firmware.html">System Firmware</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ibm,opal/flash.html">ibm,opal/flash device tree entries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ibm,opal/led.html">Service Indicators (LEDS)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ibm,opal/oppanel.html">Operator Panel (oppanel)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ibm,opal/power-mgt.html">ibm,opal/power-mgt device tree entries</a></li>
+<li class="toctree-l1"><a class="reference internal" href="ibm,opal/sensors.html">ibm,opal/sensors/ device tree nodes</a></li>
+</ul>
+</div>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ibm</span><span class="p">,</span><span class="n">opal</span> <span class="p">{</span>
+             <span class="c1">#address-cells = &lt;0x0&gt;;</span>
+             <span class="c1">#size-cells = &lt;0x0&gt;;</span>
+             <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;ibm,opal-v2&quot;</span><span class="p">,</span> <span class="s2">&quot;ibm,opal-v3&quot;</span><span class="p">;</span>
+
+<span class="p">;</span> <span class="n">v2</span> <span class="ow">is</span> <span class="n">maintained</span> <span class="k">for</span> <span class="n">possible</span> <span class="n">compatibility</span> <span class="k">with</span> <span class="n">very</span><span class="p">,</span> <span class="n">very</span> <span class="n">old</span> <span class="n">kernels</span>
+<span class="p">;</span> <span class="n">it</span> <span class="n">will</span> <span class="n">go</span> <span class="n">away</span> <span class="n">at</span> <span class="n">some</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">the</span> <span class="n">future</span><span class="o">.</span> <span class="n">Detect</span> <span class="ow">and</span> <span class="n">rely</span> <span class="n">on</span> <span class="n">ibm</span><span class="p">,</span><span class="n">opal</span><span class="o">-</span><span class="n">v3</span>
+<span class="p">;</span> <span class="n">ibm</span><span class="p">,</span><span class="n">opal</span><span class="o">-</span><span class="n">v2</span> <span class="ow">is</span> <span class="o">*</span><span class="n">NOT</span><span class="o">*</span> <span class="n">present</span> <span class="n">on</span> <span class="n">POWER9</span> <span class="ow">and</span> <span class="n">above</span><span class="o">.</span>
+
+             <span class="n">ibm</span><span class="p">,</span><span class="n">associativity</span><span class="o">-</span><span class="n">reference</span><span class="o">-</span><span class="n">points</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x4</span> <span class="mh">0x3</span><span class="o">&gt;</span><span class="p">;</span>
+             <span class="n">ibm</span><span class="p">,</span><span class="n">heartbeat</span><span class="o">-</span><span class="n">ms</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x7d0</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="p">;</span> <span class="n">how</span> <span class="n">often</span> <span class="nb">any</span> <span class="n">OPAL</span> <span class="n">call</span> <span class="n">needs</span> <span class="n">to</span> <span class="n">be</span> <span class="n">made</span> <span class="n">to</span> <span class="n">avoid</span> <span class="n">a</span> <span class="n">watchdog</span> <span class="n">timer</span> <span class="n">on</span> <span class="n">BMC</span>
+<span class="p">;</span> <span class="kn">from</span> <span class="nn">kicking</span> <span class="ow">in</span>
+
+             <span class="n">ibm</span><span class="p">,</span><span class="n">opal</span><span class="o">-</span><span class="n">memcons</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x0</span> <span class="mh">0x3007a000</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="p">;</span> <span class="n">location</span> <span class="n">of</span> <span class="ow">in</span> <span class="n">memory</span> <span class="n">OPAL</span> <span class="n">console</span> <span class="n">buffer</span><span class="o">.</span>
+
+             <span class="n">ibm</span><span class="p">,</span><span class="n">opal</span><span class="o">-</span><span class="n">trace</span><span class="o">-</span><span class="n">mask</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x0</span> <span class="mh">0x3008c3f0</span><span class="o">&gt;</span><span class="p">;</span>
+             <span class="n">ibm</span><span class="p">,</span><span class="n">opal</span><span class="o">-</span><span class="n">traces</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x0</span> <span class="mh">0x3007b010</span> <span class="mh">0x0</span> <span class="mh">0x10077</span> <span class="mh">0x0</span> <span class="mh">0x3b001010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x0</span> <span class="mh">0x3b103010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x0</span> <span class="mh">0x3b205010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x0</span> <span class="mh">0x3b307010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x0</span> <span class="mh">0x3b409010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x10</span> <span class="mh">0x1801010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x10</span> <span class="mh">0x1903010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x10</span> <span class="mh">0x1a05010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x10</span> <span class="mh">0x1b07010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x10</span> <span class="mh">0x1c09010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x10</span> <span class="mh">0x1d0b010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x10</span> <span class="mh">0x1e0d010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x10</span> <span class="mh">0x1f0f010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x10</span> <span class="mh">0x2011010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x10</span> <span class="mh">0x2113010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x10</span> <span class="mh">0x2215010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x10</span> <span class="mh">0x2317010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x10</span> <span class="mh">0x2419010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x10</span> <span class="mh">0x251b010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span> <span class="mh">0x10</span> <span class="mh">0x261d010</span> <span class="mh">0x0</span> <span class="mh">0x1000a7</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="p">;</span> <span class="n">see</span> <span class="n">docs</span> <span class="n">on</span> <span class="n">tracing</span>
+
+             <span class="n">linux</span><span class="p">,</span><span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x10000003</span><span class="o">&gt;</span><span class="p">;</span>
+             <span class="n">opal</span><span class="o">-</span><span class="n">base</span><span class="o">-</span><span class="n">address</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x0</span> <span class="mh">0x30000000</span><span class="o">&gt;</span><span class="p">;</span>
+             <span class="n">opal</span><span class="o">-</span><span class="n">entry</span><span class="o">-</span><span class="n">address</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x0</span> <span class="mh">0x300050c0</span><span class="o">&gt;</span><span class="p">;</span>
+             <span class="n">opal</span><span class="o">-</span><span class="n">interrupts</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x10</span> <span class="mh">0x11</span> <span class="mh">0x12</span> <span class="mh">0x13</span> <span class="mh">0x14</span> <span class="mh">0x20010</span> <span class="mh">0x20011</span> <span class="mh">0x20012</span> <span class="mh">0x20013</span> <span class="mh">0x20014</span> <span class="mh">0xffe</span> <span class="mh">0xfff</span> <span class="mh">0x17fe</span> <span class="mh">0x17ff</span> <span class="mh">0x2ffe</span> <span class="mh">0x2fff</span> <span class="mh">0x37fe</span> <span class="mh">0x37ff</span> <span class="mh">0x20ffe</span> <span class="mh">0x20fff</span> <span class="mh">0x22ffe</span> <span class="mh">0x22fff</span> <span class="mh">0x237fe</span> <span class="mh">0x237ff</span><span class="o">&gt;</span><span class="p">;</span>
+             <span class="n">opal</span><span class="o">-</span><span class="n">msg</span><span class="o">-</span><span class="k">async</span><span class="o">-</span><span class="n">num</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x8</span><span class="o">&gt;</span><span class="p">;</span>
+             <span class="n">opal</span><span class="o">-</span><span class="n">msg</span><span class="o">-</span><span class="n">size</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x48</span><span class="o">&gt;</span><span class="p">;</span>
+             <span class="n">opal</span><span class="o">-</span><span class="n">runtime</span><span class="o">-</span><span class="n">size</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x0</span> <span class="mh">0x9a00000</span><span class="o">&gt;</span><span class="p">;</span>
+             <span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x10000003</span><span class="o">&gt;</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Device Tree</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="ibm,opal/diagnostics.html"
+                        title="next chapter">ibm,opal/diagnostics device tree entries</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/device-tree/ibm,opal.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="ibm,opal/diagnostics.html" title="ibm,opal/diagnostics device tree entries"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Device Tree"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Device Tree</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

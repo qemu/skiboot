@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OPAL_TEST &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="OPAL API Documentation" href="index.html" />
+    <link rel="next" title="OPAL_UNREGISTER_DUMP_REGION" href="opal-unregister-dump-region-102.html" />
+    <link rel="prev" title="OPAL_SYNC_HOST_REBOOT" href="opal-sync-host-reboot-87.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="opal-unregister-dump-region-102.html" title="OPAL_UNREGISTER_DUMP_REGION"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="opal-sync-host-reboot-87.html" title="OPAL_SYNC_HOST_REBOOT"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="opal-test">
+<h1>OPAL_TEST<a class="headerlink" href="#opal-test" title="Permalink to this headline">¶</a></h1>
+<p>OPAL_TEST is a REQUIRED call for OPAL and conforming implementations MUST
+have it.</p>
+<p>It is designed to test basic OPAL call functionality.</p>
+<p>Token:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_TEST                             0</span>
+</pre></div>
+</div>
+<div class="section" id="arguments">
+<h2>Arguments<a class="headerlink" href="#arguments" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">uint64_t</span>     <span class="n">arg</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="returns">
+<h2>Returns<a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="mh">0xfeedf00d</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="function">
+<h2>Function<a class="headerlink" href="#function" title="Permalink to this headline">¶</a></h2>
+<p>OPAL_TEST MAY print a string to the OPAL log with the value of argument.</p>
+<p>For example, the reference implementation (skiboot) implements OPAL_TEST as:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">static</span> <span class="n">uint64_t</span> <span class="n">opal_test_func</span><span class="p">(</span><span class="n">uint64_t</span> <span class="n">arg</span><span class="p">)</span>
+<span class="p">{</span>
+      <span class="n">printf</span><span class="p">(</span><span class="s2">&quot;OPAL: Test function called with arg 0x%llx</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">arg</span><span class="p">);</span>
+
+      <span class="k">return</span> <span class="mh">0xfeedf00d</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">OPAL_TEST</a><ul>
+<li><a class="reference internal" href="#arguments">Arguments</a></li>
+<li><a class="reference internal" href="#returns">Returns</a></li>
+<li><a class="reference internal" href="#function">Function</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="opal-sync-host-reboot-87.html"
+                        title="previous chapter">OPAL_SYNC_HOST_REBOOT</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="opal-unregister-dump-region-102.html"
+                        title="next chapter">OPAL_UNREGISTER_DUMP_REGION</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/opal-api/opal-test-0.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="opal-unregister-dump-region-102.html" title="OPAL_UNREGISTER_DUMP_REGION"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="opal-sync-host-reboot-87.html" title="OPAL_SYNC_HOST_REBOOT"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

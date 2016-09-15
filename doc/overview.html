@@ -1,0 +1,281 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Skiboot overview &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="index.html" />
+    <link rel="next" title="OPAL Specification" href="opal-spec.html" />
+    <link rel="prev" title="Overview" href="index.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="opal-spec.html" title="OPAL Specification"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Overview"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="skiboot-overview">
+<h1>Skiboot overview<a class="headerlink" href="#skiboot-overview" title="Permalink to this headline">¶</a></h1>
+<p>Skiboot is firmware, loaded by the FSP. Along with loading the bootloader,
+it provides some runtime services to the OS (typically Linux).</p>
+<div class="section" id="source-layout">
+<h2>Source layout<a class="headerlink" href="#source-layout" title="Permalink to this headline">¶</a></h2>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Directory</th>
+<th class="head">Content</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>asm/</td>
+<td>small amount, mainly entry points</td>
+</tr>
+<tr class="row-odd"><td>ccan/</td>
+<td>bits from CCAN</td>
+</tr>
+<tr class="row-even"><td>core/</td>
+<td>common code among machines.</td>
+</tr>
+<tr class="row-odd"><td>doc/</td>
+<td>not enough here</td>
+</tr>
+<tr class="row-even"><td>external/</td>
+<td>tools to run external of sapphire.</td>
+</tr>
+<tr class="row-odd"><td>hdata/</td>
+<td>all stuff going to/from FSP</td>
+</tr>
+<tr class="row-even"><td>hw/</td>
+<td>drivers for things &amp; fsp things.</td>
+</tr>
+<tr class="row-odd"><td>include/</td>
+<td>headers!</td>
+</tr>
+<tr class="row-even"><td>libc/</td>
+<td>tiny libc, from SLOF</td>
+</tr>
+<tr class="row-odd"><td>libfdt/</td>
+<td>straight device tree lib</td>
+</tr>
+<tr class="row-even"><td>libpore/</td>
+<td>to manipulate PORE engine.</td>
+</tr>
+</tbody>
+</table>
+<p>We have a spinlock implementation in asm/lock.S
+Entry points are detailed in asm/head.S
+The main C entry point is in core/init.c: main_cpu_entry()</p>
+</div>
+<div class="section" id="binaries">
+<h2>Binaries<a class="headerlink" href="#binaries" title="Permalink to this headline">¶</a></h2>
+<p>The following binaries are built:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">File</th>
+<th class="head">Purpose</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>skiboot.lid</td>
+<td>is the actual lid. objdump out</td>
+</tr>
+<tr class="row-odd"><td>skiboot.elf</td>
+<td>is the elf binary of it, lid comes from this</td>
+</tr>
+<tr class="row-even"><td>skiboot.map</td>
+<td>plain map of symbols</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="booting">
+<h2>Booting<a class="headerlink" href="#booting" title="Permalink to this headline">¶</a></h2>
+<p>On boot, every thread of execution jumps to a single entry point in skiboot
+so we need to do some magic to ensure we init things properly and don&#8217;t stomp
+on each other. We choose a master thread, putting everybody else into a
+spinloop.</p>
+<p>Essentially, we do this by doing an atomic fetch and inc and whoever gets 0
+gets to be the master.</p>
+<p>When we enter skiboot we also get a memory location in a register which
+is the location of a device tree for the system. We flatten out the device
+tree, turning offsets into real pointers and manipulating it where needed.
+We re-flatten the device tree before booting the OS (Linux).</p>
+<p>The main entry point is main_cpu_entry() in core/init.c, this is a carefully
+ordered init of things. The sequence is relatively well documented there.</p>
+</div>
+<div class="section" id="os-interface">
+<h2>OS interface<a class="headerlink" href="#os-interface" title="Permalink to this headline">¶</a></h2>
+<p>Skiboot maintains its own stack for each CPU. We do not have an ABI like
+&#8220;may use X stack on OS stack&#8221;, we entirely keep to our own stack space.
+The OS (Linux) calling skiboot will never use any OS stack space and the OS
+does not need to call skiboot with a valid stack.</p>
+<p>We define an array of stacks, one for each CPU. On entry to skiboot,
+we can find out stack by multiplying our CPU number by the stack size and
+adding that to the address of the stack area.</p>
+<p>At the bottom of each stack area is a per CPU data structure, which we
+can get to by chopping off the LSBs of the stack pointer.</p>
+<p>The OPAL interface is a generic message queue. The Linux side of things
+can be found in linux/arch/powerpc/platform/powernv/</p>
+</div>
+<div class="section" id="interrupts">
+<h2>Interrupts<a class="headerlink" href="#interrupts" title="Permalink to this headline">¶</a></h2>
+<p>We don&#8217;t handle interrupts in skiboot.</p>
+<p>In the future we may have to change to process machine check interrupts
+during boot.</p>
+<p>We do not have timer interrupts.</p>
+</div>
+<div class="section" id="memory">
+<h2>Memory<a class="headerlink" href="#memory" title="Permalink to this headline">¶</a></h2>
+<p>We initially occupy a chunk of memory, &#8220;heap&#8221;. We pass to the OS (Linux)
+a reservation of what we occupy (including stacks).</p>
+<p>In the source file include/config.h we include a memory map. This is
+manually generated, not automatically generated.</p>
+<p>We use CCAN for a bunch of helper code, turning on things like DEBUG_LOCKS
+and DEBUG_MALLOC as these are not a performance issue for us, and we like
+to be careful.</p>
+<p>In include/config.h there are defines for turning on extra tracing.
+OPAL is what we name the interface from skiboot to OS (Linux).</p>
+<p>Each CPU gets a 16k stack, which is probably more than enough. Stack
+should be used sparingly though.</p>
+<p>Important memory locations:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="18%" />
+<col width="82%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Location</th>
+<th class="head">What&#8217;s there</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>SKIBOOT_BASE</td>
+<td>where skiboot lives, of SKIBOOT_SIZE</td>
+</tr>
+<tr class="row-odd"><td>HEAP_BASE</td>
+<td>Where skiboot heap starts, of HEAP_SIZE</td>
+</tr>
+</tbody>
+</table>
+<p>There is also SKIBOOT_SIZE (manually calculated) and DEVICE_TREE_MAX_SIZE,
+which is largely historical.</p>
+</div>
+<div class="section" id="skiboot-log">
+<h2>Skiboot log<a class="headerlink" href="#skiboot-log" title="Permalink to this headline">¶</a></h2>
+<p>There is a circular log buffer that skiboot maintains. This can be
+accessed either from the FSP or through /dev/mem or through a debugfs
+patch that&#8217;s currently floating around.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Skiboot overview</a><ul>
+<li><a class="reference internal" href="#source-layout">Source layout</a></li>
+<li><a class="reference internal" href="#binaries">Binaries</a></li>
+<li><a class="reference internal" href="#booting">Booting</a></li>
+<li><a class="reference internal" href="#os-interface">OS interface</a></li>
+<li><a class="reference internal" href="#interrupts">Interrupts</a></li>
+<li><a class="reference internal" href="#memory">Memory</a></li>
+<li><a class="reference internal" href="#skiboot-log">Skiboot log</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Overview</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="opal-spec.html"
+                        title="next chapter">OPAL Specification</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/overview.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="opal-spec.html" title="OPAL Specification"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Overview"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

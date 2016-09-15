@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OPAL_CEC_REBOOT and OPAL_CEC_REBOOT2 &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="OPAL API Documentation" href="index.html" />
+    <link rel="next" title="OPAL_CHECK_TOKEN" href="opal-check-token-80.html" />
+    <link rel="prev" title="OPAL_CEC_POWER_DOWN" href="opal-cec-power-down-5.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="opal-check-token-80.html" title="OPAL_CHECK_TOKEN"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="opal-cec-power-down-5.html" title="OPAL_CEC_POWER_DOWN"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="opal-cec-reboot-and-opal-cec-reboot2">
+<h1>OPAL_CEC_REBOOT and OPAL_CEC_REBOOT2<a class="headerlink" href="#opal-cec-reboot-and-opal-cec-reboot2" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_CEC_REBOOT              6</span>
+<span class="c1">#define OPAL_CEC_REBOOT2     116</span>
+</pre></div>
+</div>
+<p>There are two opal calls to invoke system reboot.</p>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">OPAL_CEC_REBOOT</span></code></dt>
+<dd>Used for normal reboot by Linux host.</dd>
+<dt><code class="docutils literal"><span class="pre">OPAL_CEC_REBOOT2</span></code></dt>
+<dd>Newly introduced to handle abnormal system reboots.
+The Linux kernel will make this OPAL call when it has to terminate
+abruptly due to an anomalous condition. The kernel will push some system
+state context to OPAL, which will in turn push it down to the BMC for
+further analysis.</dd>
+</dl>
+<div class="section" id="opal-cec-reboot">
+<h2>OPAL_CEC_REBOOT<a class="headerlink" href="#opal-cec-reboot" title="Permalink to this headline">¶</a></h2>
+<p>Syntax:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">int64_t</span> <span class="n">opal_cec_reboot</span><span class="p">(</span><span class="n">void</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>System reboots normally.</p>
+</div>
+<div class="section" id="opal-cec-reboot2">
+<h2>OPAL_CEC_REBOOT2<a class="headerlink" href="#opal-cec-reboot2" title="Permalink to this headline">¶</a></h2>
+<p>Syntax:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">int64_t</span> <span class="n">opal_cec_reboot2</span><span class="p">(</span><span class="n">uint32_t</span> <span class="n">reboot_type</span><span class="p">,</span> <span class="n">char</span> <span class="o">*</span><span class="n">diag</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="input-parameters">
+<h3>Input parameters<a class="headerlink" href="#input-parameters" title="Permalink to this headline">¶</a></h3>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">reboot_type</span></code></dt>
+<dd>Type of reboot. (see below)</dd>
+<dt><code class="docutils literal"><span class="pre">diag</span></code></dt>
+<dd>Null-terminated string.</dd>
+</dl>
+<p>Depending on reboot type, this call will carry out additional steps
+before triggering reboot.</p>
+</div>
+</div>
+<div class="section" id="supported-reboot-types">
+<h2>Supported reboot types:<a class="headerlink" href="#supported-reboot-types" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>OPAL_REBOOT_NORMAL = 0</dt>
+<dd>Behavior is as similar to that of opal_cec_reboot()</dd>
+<dt>OPAL_REBOOT_PLATFORM_ERROR = 1</dt>
+<dd><p class="first">Log an error to the BMC and then trigger a system checkstop, using
+the information provided by &#8216;ibm,sw-checkstop-fir&#8217; property in the
+device-tree. Post the checkstop trigger, OCC/BMC will collect
+relevant data for error analysis and trigger a reboot.</p>
+<p class="last">In absence of &#8216;ibm,sw-checkstop-fir&#8217; device property, this function
+will return with OPAL_UNSUPPORTED and no reboot will be triggered.</p>
+</dd>
+<dt>Unsupported Reboot type</dt>
+<dd>For unsupported reboot type, this function will return with
+OPAL_UNSUPPORTED and no reboot will be triggered.</dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">OPAL_CEC_REBOOT and OPAL_CEC_REBOOT2</a><ul>
+<li><a class="reference internal" href="#opal-cec-reboot">OPAL_CEC_REBOOT</a></li>
+<li><a class="reference internal" href="#opal-cec-reboot2">OPAL_CEC_REBOOT2</a><ul>
+<li><a class="reference internal" href="#input-parameters">Input parameters</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#supported-reboot-types">Supported reboot types:</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="opal-cec-power-down-5.html"
+                        title="previous chapter">OPAL_CEC_POWER_DOWN</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="opal-check-token-80.html"
+                        title="next chapter">OPAL_CHECK_TOKEN</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/opal-api/opal-cec-reboot-6-116.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="opal-check-token-80.html" title="OPAL_CHECK_TOKEN"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="opal-cec-power-down-5.html" title="OPAL_CEC_POWER_DOWN"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,169 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>PCI &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="index.html" />
+    <link rel="next" title="PCI Slots" href="pci-slot.html" />
+    <link rel="prev" title="Versioning Scheme of skiboot" href="versioning.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="pci-slot.html" title="PCI Slots"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="versioning.html" title="Versioning Scheme of skiboot"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="pci">
+<h1>PCI<a class="headerlink" href="#pci" title="Permalink to this headline">¶</a></h1>
+<p><strong>WARNING</strong>: This documentation <strong>urgently needs updating</strong> and is <em>woefully</em> incomplete.</p>
+<div class="section" id="ioda-pe-setup-sequences">
+<h2>IODA PE Setup Sequences<a class="headerlink" href="#ioda-pe-setup-sequences" title="Permalink to this headline">¶</a></h2>
+<p>(<strong>WARNING</strong>: this was rescued from old internal documentation. Needs verification)</p>
+<p>To setup basic PE mappings, the host performs this basic sequence:</p>
+<p>For ibm,opal-ioda2, prior to allocating PHB resources to PEs, the host must
+allocate memory for PE structures and then calls
+<code class="docutils literal"><span class="pre">opal_pci_set_phb_table_memory(</span> <span class="pre">phb_id,</span> <span class="pre">rtt_addr,</span> <span class="pre">ivt_addr,</span> <span class="pre">ivt_len,</span> <span class="pre">rrba_addr,</span> <span class="pre">peltv_addr)</span></code> to define them to the PHB. OPAL returns <code class="docutils literal"><span class="pre">OPAL_UNSUPPORTED</span></code> status for <code class="docutils literal"><span class="pre">ibm,opal-ioda</span></code> PHBs.</p>
+<p>The host calls <code class="docutils literal"><span class="pre">opal_pci_set_pe(</span> <span class="pre">phb_id,</span> <span class="pre">pe_number,</span> <span class="pre">bus,</span> <span class="pre">dev,</span> <span class="pre">func,</span> <span class="pre">validate_mask,</span> <span class="pre">bus_mask,</span> <span class="pre">dev_mask,</span> <span class="pre">func</span> <span class="pre">mask)</span></code> to map a PE to a PCI RID or range of RIDs in the same PE domain.</p>
+<p>The host calls <code class="docutils literal"><span class="pre">opal_pci_set_peltv(phb_id,</span> <span class="pre">parent_pe,</span> <span class="pre">child_pe,</span> <span class="pre">state)</span></code> to
+set a parent PELT vector bit for the child PE argument to 1 (a child of the
+parent) or 0 (not in the parent PE domain).</p>
+</div>
+<div class="section" id="ioda-mmio-setup-sequences">
+<h2>IODA MMIO Setup Sequences<a class="headerlink" href="#ioda-mmio-setup-sequences" title="Permalink to this headline">¶</a></h2>
+<p>(<strong>WARNING</strong>: this was rescued from old internal documentation. Needs verification)</p>
+<p>The host calls <code class="docutils literal"><span class="pre">opal_pci_phb_mmio_enable(</span> <span class="pre">phb_id,</span> <span class="pre">window_type,</span> <span class="pre">window_num,</span> <span class="pre">0x0)</span></code> to disable the MMIO window.</p>
+<p>The host calls <code class="docutils literal"><span class="pre">opal_pci_set_phb_mmio_window(</span> <span class="pre">phb_id,</span> <span class="pre">mmio_window,</span> <span class="pre">starting_real_address,</span> <span class="pre">starting_pci_address,</span> <span class="pre">segment_size)</span></code> to change the MMIO window location in PCI and/or processor real address space, or to change the size &#8211; and corresponding window size &#8211; of a particular MMIO window.</p>
+<p>The host calls <code class="docutils literal"><span class="pre">opal_pci_map_pe_mmio_window(</span> <span class="pre">pe_number,</span> <span class="pre">mmio_window,</span> <span class="pre">segment_number)</span></code> to map PEs to window segments, for each segment mapped to each PE.</p>
+<p>The host calls <code class="docutils literal"><span class="pre">opal_pci_phb_mmio_enable(</span> <span class="pre">phb_id,</span> <span class="pre">window_type,</span> <span class="pre">window_num,</span> <span class="pre">0x1)</span></code> to enable the MMIO window.</p>
+</div>
+<div class="section" id="ioda-msi-setup-sequences">
+<h2>IODA MSI Setup Sequences<a class="headerlink" href="#ioda-msi-setup-sequences" title="Permalink to this headline">¶</a></h2>
+<p>(<strong>WARNING</strong>: this was rescued from old internal documentation. Needs verification)</p>
+<p>To setup MSIs:</p>
+<ol class="arabic">
+<li><p class="first">For ibm,opal-ioda PHBs, the host chooses an MVE for a PE to use and calls <code class="docutils literal"><span class="pre">opal_pci_set_mve(</span> <span class="pre">phb_id,</span> <span class="pre">mve_number,</span> <span class="pre">pe_number,)</span></code> to setup the MVE for the PE number. HAL treats this call as a NOP and returns hal_success status for ibm,opal-ioda2 PHBs.</p>
+</li>
+<li><p class="first">The host chooses an XIVE to use with a PE and calls
+a. <code class="docutils literal"><span class="pre">opal_pci_set_xive_pe(</span> <span class="pre">phb_id,</span> <span class="pre">xive_number,</span> <span class="pre">pe_number)</span></code> to authorize that PE to signal that XIVE as an interrupt. The host must call this function for each XIVE assigned to a particular PE, but may use this call for all XIVEs prior to calling <code class="docutils literal"><span class="pre">opel_pci_set_mve()</span></code> to bind the PE XIVEs to an MVE. For MSI conventional, the host must bind a unique MVE for each sequential set of 32 XIVEs.
+b. The host forms the interrupt_source_number from the combination of the device tree MSI property base BUID and XIVE number, as an input to <code class="docutils literal"><span class="pre">opal_set_xive(interrupt_source_number,</span> <span class="pre">server_number,</span> <span class="pre">priority)</span></code> and <code class="docutils literal"><span class="pre">opal_get_xive(interrupt_source_number,</span> <span class="pre">server_number,</span> <span class="pre">priority)</span></code> to set or return the server and priority numbers within an XIVE.
+c. <code class="docutils literal"><span class="pre">opal_get_msi_64[32](phb_id,</span> <span class="pre">mve_number,</span> <span class="pre">xive_num,</span> <span class="pre">msi_range,</span> <span class="pre">msi_address,</span> <span class="pre">message_data)</span></code> to determine the MSI DMA address (32 or 64 bit) and message data value for that xive.</p>
+<blockquote>
+<div><p>For MSI conventional, the host uses this for each sequential power of 2 set of 1 to 32 MSIs, to determine the MSI DMA address and starting message data value for that MSI range. For MSI-X, the host calls this uniquely for each MSI interrupt with an msi_range input value of 1.</p>
+</div></blockquote>
+</li>
+<li><p class="first">For <code class="docutils literal"><span class="pre">ibm,opal-ioda</span></code> PHBs, once the MVE and XIVRs are setup for a PE, the host calls <code class="docutils literal"><span class="pre">opal_pci_set_mve_enable(</span> <span class="pre">phb_id,</span> <span class="pre">mve_number,</span> <span class="pre">state)</span></code> to enable that MVE to be a valid target of MSI DMAs. The host may also call this function to disable an MVE when changing PE domains or states.</p>
+</li>
+</ol>
+</div>
+<div class="section" id="ioda-dma-setup-sequences">
+<h2>IODA DMA Setup Sequences<a class="headerlink" href="#ioda-dma-setup-sequences" title="Permalink to this headline">¶</a></h2>
+<p>(<strong>WARNING</strong>: this was rescued from old internal documentation. Needs verification)</p>
+<p>To Manage DMA Windows :</p>
+<ol class="arabic simple">
+<li>The host calls <code class="docutils literal"><span class="pre">opal_pci_map_pe_dma_window(</span> <span class="pre">phb_id,</span> <span class="pre">dma_window_number,</span> <span class="pre">pe_number,</span> <span class="pre">tce_levels,</span> <span class="pre">tce_table_addr,</span> <span class="pre">tce_table_size,</span> <span class="pre">tce_page_size,</span> <span class="pre">utin64_t*</span> <span class="pre">pci_start_addr</span> <span class="pre">)</span></code> to setup a DMA window for a PE to translate through a TCE table structure in KVM memory.</li>
+<li>The host calls <code class="docutils literal"><span class="pre">opal_pci_map_pe_dma_window_real(</span> <span class="pre">phb_id,</span> <span class="pre">dma_window_number,</span> <span class="pre">pe_number,</span> <span class="pre">mem_low_addr,</span> <span class="pre">mem_high_addr)</span></code> to setup a DMA window for a PE that is translated (but validated by the PHB as an untranlsated address space authorized to this PE).</li>
+</ol>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">PCI</a><ul>
+<li><a class="reference internal" href="#ioda-pe-setup-sequences">IODA PE Setup Sequences</a></li>
+<li><a class="reference internal" href="#ioda-mmio-setup-sequences">IODA MMIO Setup Sequences</a></li>
+<li><a class="reference internal" href="#ioda-msi-setup-sequences">IODA MSI Setup Sequences</a></li>
+<li><a class="reference internal" href="#ioda-dma-setup-sequences">IODA DMA Setup Sequences</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="versioning.html"
+                        title="previous chapter">Versioning Scheme of skiboot</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pci-slot.html"
+                        title="next chapter">PCI Slots</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pci.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="pci-slot.html" title="PCI Slots"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="versioning.html" title="Versioning Scheme of skiboot"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

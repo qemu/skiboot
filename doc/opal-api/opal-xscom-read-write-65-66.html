@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OPAL_XSCOM_READ and OPAL_XSCOM_WRITE &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="OPAL API Documentation" href="index.html" />
+    <link rel="next" title="POWER9 Changes to OPAL API" href="power9-changes.html" />
+    <link rel="prev" title="OPAL_UNREGISTER_DUMP_REGION" href="opal-unregister-dump-region-102.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="power9-changes.html" title="POWER9 Changes to OPAL API"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="opal-unregister-dump-region-102.html" title="OPAL_UNREGISTER_DUMP_REGION"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="opal-xscom-read-and-opal-xscom-write">
+<h1>OPAL_XSCOM_READ and OPAL_XSCOM_WRITE<a class="headerlink" href="#opal-xscom-read-and-opal-xscom-write" title="Permalink to this headline">¶</a></h1>
+<p>These low level calls will read/write XSCOM values directly.</p>
+<p>They should only be used by low level manufacturing/debug tools.
+&#8220;Normal&#8221; host OS kernel code should not know about XSCOM.</p>
+<p>each takes three parameters:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="nb">int</span> <span class="n">xscom_read</span><span class="p">(</span><span class="n">uint32_t</span> <span class="n">partid</span><span class="p">,</span> <span class="n">uint64_t</span> <span class="n">pcb_addr</span><span class="p">,</span> <span class="n">uint64_t</span> <span class="o">*</span><span class="n">val</span><span class="p">)</span>
+<span class="nb">int</span> <span class="n">xscom_write</span><span class="p">(</span><span class="n">uint32_t</span> <span class="n">partid</span><span class="p">,</span> <span class="n">uint64_t</span> <span class="n">pcb_addr</span><span class="p">,</span> <span class="n">uint64_t</span> <span class="n">val</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="section" id="returns">
+<h2>Returns<a class="headerlink" href="#returns" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>OPAL_SUCCESS</dt>
+<dd>Success!</dd>
+<dt>OPAL_HARDWARE</dt>
+<dd>if operation failed</dd>
+<dt>OPAL_WRONG_STATE</dt>
+<dd>if CPU is asleep</dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">OPAL_XSCOM_READ and OPAL_XSCOM_WRITE</a><ul>
+<li><a class="reference internal" href="#returns">Returns</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="opal-unregister-dump-region-102.html"
+                        title="previous chapter">OPAL_UNREGISTER_DUMP_REGION</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="power9-changes.html"
+                        title="next chapter">POWER9 Changes to OPAL API</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/opal-api/opal-xscom-read-write-65-66.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="power9-changes.html" title="POWER9 Changes to OPAL API"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="opal-unregister-dump-region-102.html" title="OPAL_UNREGISTER_DUMP_REGION"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

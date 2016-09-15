@@ -1,0 +1,291 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OPAL API Return Codes &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="OPAL API Documentation" href="index.html" />
+    <link rel="next" title="Release Notes" href="../release-notes/index.html" />
+    <link rel="prev" title="POWER9 Changes to OPAL API" href="power9-changes.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../release-notes/index.html" title="Release Notes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="power9-changes.html" title="POWER9 Changes to OPAL API"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="opal-api-return-codes">
+<h1>OPAL API Return Codes<a class="headerlink" href="#opal-api-return-codes" title="Permalink to this headline">¶</a></h1>
+<p>All OPAL calls return an integer relaying the success/failure of the OPAL
+call.</p>
+<p>Success is typically indicated by OPAL_SUCCESS. Failure is always indicated
+by a negative return code.</p>
+<p>Conforming host Operating Systems MUST handle return codes other than those
+listed here. In future OPAL versions, additional return codes may be added.</p>
+<p>In the reference implementation (skiboot) these are all in include/opal.h.</p>
+<p>The core set of return codes are:</p>
+<div class="section" id="opal-success">
+<h2>OPAL_SUCCESS<a class="headerlink" href="#opal-success" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_SUCCESS           0</span>
+</pre></div>
+</div>
+<p>Success!</p>
+</div>
+<div class="section" id="opal-parameter">
+<h2>OPAL_PARAMETER<a class="headerlink" href="#opal-parameter" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_PARAMETER         -1</span>
+</pre></div>
+</div>
+<p>A parameter was invalid. This will also be returned if you call an
+invalid OPAL call. To determine if a specific OPAL call is supported
+or not, OPAL_CHECK_TOKEN should be called rather than relying on
+OPAL_PARAMETER being returned for an invalid token.</p>
+</div>
+<div class="section" id="opal-busy">
+<h2>OPAL_BUSY<a class="headerlink" href="#opal-busy" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_BUSY            -2</span>
+</pre></div>
+</div>
+<p>Try again later.</p>
+</div>
+<div class="section" id="opal-partial">
+<h2>OPAL_PARTIAL<a class="headerlink" href="#opal-partial" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_PARTIAL         -3</span>
+</pre></div>
+</div>
+<p>The operation partially succeeded.</p>
+</div>
+<div class="section" id="opal-constrained">
+<h2>OPAL_CONSTRAINED<a class="headerlink" href="#opal-constrained" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_CONSTRAINED     -4</span>
+</pre></div>
+</div>
+<p><strong>FIXME</strong></p>
+</div>
+<div class="section" id="opal-closed">
+<h2>OPAL_CLOSED<a class="headerlink" href="#opal-closed" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_CLOSED          -5</span>
+</pre></div>
+</div>
+<p><strong>FIXME</strong> document these</p>
+</div>
+<div class="section" id="opal-hardware">
+<h2>OPAL_HARDWARE<a class="headerlink" href="#opal-hardware" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_HARDWARE                -6</span>
+</pre></div>
+</div>
+<p><strong>FIXME</strong> document these</p>
+</div>
+<div class="section" id="opal-unsupported">
+<h2>OPAL_UNSUPPORTED<a class="headerlink" href="#opal-unsupported" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_UNSUPPORTED     -7</span>
+</pre></div>
+</div>
+<p>Unsupported operation. Non-fatal.</p>
+</div>
+<div class="section" id="opal-permission">
+<h2>OPAL_PERMISSION<a class="headerlink" href="#opal-permission" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_PERMISSION              -8</span>
+</pre></div>
+</div>
+<p>Inadequate permission to perform the operation.</p>
+</div>
+<div class="section" id="opal-no-mem">
+<h2>OPAL_NO_MEM<a class="headerlink" href="#opal-no-mem" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_NO_MEM          -9</span>
+</pre></div>
+</div>
+<p>Indicates a temporary or permanent lack of adequate memory to perform the
+operation. Ideally, this should never happen. Skiboot reserves a small amount
+of memory for its heap and some operations (such as I2C requests) are allocated
+from this heap.</p>
+<p>If this is ever hit, you should likely file a bug.</p>
+</div>
+<div class="section" id="opal-resource">
+<h2>OPAL_RESOURCE<a class="headerlink" href="#opal-resource" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_RESOURCE                -10</span>
+</pre></div>
+</div>
+<p><strong>FIXME</strong></p>
+</div>
+<div class="section" id="opal-internal-error">
+<h2>OPAL_INTERNAL_ERROR<a class="headerlink" href="#opal-internal-error" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_INTERNAL_ERROR  -11</span>
+</pre></div>
+</div>
+<p><strong>FIXME</strong></p>
+</div>
+<div class="section" id="opal-busy-event">
+<h2>OPAL_BUSY_EVENT<a class="headerlink" href="#opal-busy-event" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_BUSY_EVENT              -12</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="opal-hardware-frozen">
+<h2>OPAL_HARDWARE_FROZEN<a class="headerlink" href="#opal-hardware-frozen" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_HARDWARE_FROZEN -13</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="opal-wrong-state">
+<h2>OPAL_WRONG_STATE<a class="headerlink" href="#opal-wrong-state" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_WRONG_STATE     -14</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="opal-async-completion">
+<h2>OPAL_ASYNC_COMPLETION<a class="headerlink" href="#opal-async-completion" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_ASYNC_COMPLETION        -15</span>
+</pre></div>
+</div>
+<p>For asynchronous calls, successfully queueing/starting executing the
+command is indicated by the OPAL_ASYNC_COMPLETION return code.
+pseudo-code for an async call:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">token</span> <span class="o">=</span> <span class="n">opal_async_get_token</span><span class="p">();</span>
+<span class="n">rc</span> <span class="o">=</span> <span class="n">opal_async_example</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="n">token</span><span class="p">);</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">rc</span> <span class="o">!=</span> <span class="n">OPAL_ASYNC_COMPLETION</span><span class="p">)</span>
+    <span class="n">handle_error</span><span class="p">(</span><span class="n">rc</span><span class="p">);</span>
+<span class="n">rc</span> <span class="o">=</span> <span class="n">opal_async_wait</span><span class="p">(</span><span class="n">token</span><span class="p">);</span>
+<span class="o">//</span> <span class="n">handle</span> <span class="n">result</span> <span class="n">here</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="opal-empty">
+<h2>OPAL_EMPTY<a class="headerlink" href="#opal-empty" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_EMPTY           -16</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="i2c-calls">
+<h2>I2C Calls<a class="headerlink" href="#i2c-calls" title="Permalink to this headline">¶</a></h2>
+<p>Added for I2C, only applicable to I2C calls:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="c1">#define OPAL_I2C_TIMEOUT      -17</span>
+<span class="c1">#define OPAL_I2C_INVALID_CMD  -18</span>
+<span class="c1">#define OPAL_I2C_LBUS_PARITY  -19</span>
+<span class="c1">#define OPAL_I2C_BKEND_OVERRUN        -20</span>
+<span class="c1">#define OPAL_I2C_BKEND_ACCESS -21</span>
+<span class="c1">#define OPAL_I2C_ARBT_LOST    -22</span>
+<span class="c1">#define OPAL_I2C_NACK_RCVD    -23</span>
+<span class="c1">#define OPAL_I2C_STOP_ERR     -24</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">OPAL API Return Codes</a><ul>
+<li><a class="reference internal" href="#opal-success">OPAL_SUCCESS</a></li>
+<li><a class="reference internal" href="#opal-parameter">OPAL_PARAMETER</a></li>
+<li><a class="reference internal" href="#opal-busy">OPAL_BUSY</a></li>
+<li><a class="reference internal" href="#opal-partial">OPAL_PARTIAL</a></li>
+<li><a class="reference internal" href="#opal-constrained">OPAL_CONSTRAINED</a></li>
+<li><a class="reference internal" href="#opal-closed">OPAL_CLOSED</a></li>
+<li><a class="reference internal" href="#opal-hardware">OPAL_HARDWARE</a></li>
+<li><a class="reference internal" href="#opal-unsupported">OPAL_UNSUPPORTED</a></li>
+<li><a class="reference internal" href="#opal-permission">OPAL_PERMISSION</a></li>
+<li><a class="reference internal" href="#opal-no-mem">OPAL_NO_MEM</a></li>
+<li><a class="reference internal" href="#opal-resource">OPAL_RESOURCE</a></li>
+<li><a class="reference internal" href="#opal-internal-error">OPAL_INTERNAL_ERROR</a></li>
+<li><a class="reference internal" href="#opal-busy-event">OPAL_BUSY_EVENT</a></li>
+<li><a class="reference internal" href="#opal-hardware-frozen">OPAL_HARDWARE_FROZEN</a></li>
+<li><a class="reference internal" href="#opal-wrong-state">OPAL_WRONG_STATE</a></li>
+<li><a class="reference internal" href="#opal-async-completion">OPAL_ASYNC_COMPLETION</a></li>
+<li><a class="reference internal" href="#opal-empty">OPAL_EMPTY</a></li>
+<li><a class="reference internal" href="#i2c-calls">I2C Calls</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="power9-changes.html"
+                        title="previous chapter">POWER9 Changes to OPAL API</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../release-notes/index.html"
+                        title="next chapter">Release Notes</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/opal-api/return-codes.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../release-notes/index.html" title="Release Notes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="power9-changes.html" title="POWER9 Changes to OPAL API"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

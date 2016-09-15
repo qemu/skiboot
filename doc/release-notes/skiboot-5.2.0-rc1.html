@@ -1,0 +1,671 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>skiboot-5.2.0-rc1 &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="Release Notes" href="index.html" />
+    <link rel="next" title="skiboot-5.2.0-rc2" href="skiboot-5.2.0-rc2.html" />
+    <link rel="prev" title="skiboot-5.2.0" href="skiboot-5.2.0.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="skiboot-5.2.0-rc2.html" title="skiboot-5.2.0-rc2"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="skiboot-5.2.0.html" title="skiboot-5.2.0"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Release Notes</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="skiboot-5-2-0-rc1">
+<h1>skiboot-5.2.0-rc1<a class="headerlink" href="#skiboot-5-2-0-rc1" title="Permalink to this headline">¶</a></h1>
+<p>skiboot-5.2.0-rc1 was released on Friday Feb 26th, 2016.</p>
+<p>skiboot-5.2.0-rc1 is the first release candidate of skiboot 5.2, which will
+become the new stable release of skiboot following the 5.1 release, first
+released August 17th, 2015.</p>
+<p>skiboot-5.2.0-rc1 contains all bug fixes as of skiboot-5.1.13.</p>
+<p>This is the second release that will follow the (now documented) Skiboot
+stable rules - see doc/stable-skiboot-rules.txt.</p>
+<p>The current plan is to release skiboot-5.2.0 mid-March 2016, with a focus on
+bug fixing for future 5.2.0-rc releases.</p>
+<div class="section" id="new-features">
+<h2>New Features<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h2>
+<p>Over skiboot-5.1, the following features have been added:</p>
+<ul class="simple">
+<li>Naples (P8&#8217;, i.e. P8 with NVLINK) processor support, including NVLINK.</li>
+<li>Improvements in gard, libflash/pflash and opal-prd utilities<ul>
+<li>increased testing</li>
+<li>increased usability</li>
+<li>systemd scripts for opal-prd</li>
+<li>pflash can now use the /dev/mtd device to access BMC flash rather than
+accessing it directly. It is <em>important</em> that you use &#8211;mtd if your
+BMC may otherwise know how to interact with its own flash.</li>
+</ul>
+</li>
+<li>support for Micron N25Q256Ax and N25Qx256Ax NOR flash.</li>
+<li>support for Winbond W25Q256BV NOR flash</li>
+<li>support for an emulated (&#8220;fake&#8221;) RTC clock, useful in simulators
+and during bringup</li>
+<li>Explicit 1:1 mapping in ranges properties have been added to PCI
+bridges. This allows a neat trick with offb and VGA ports that should
+probably not be told to young children.</li>
+<li>Added support to read the V2 format of the OCC-OPAL memory region,
+which supports Workload Optimized Frequency (WOF)</li>
+</ul>
+</div>
+<div class="section" id="changes-in-behavior">
+<h2>Changes in behavior<a class="headerlink" href="#changes-in-behavior" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Assigning OPAL IDs to PHBs is now fixed and based on the chip id and PHB
+index on that chip. On POWER7, we continue to use allocated numbers.</li>
+<li>We now query the BMC for BT capabilities rather than making assumptions</li>
+</ul>
+</div>
+<div class="section" id="removed-support">
+<h2>Removed support<a class="headerlink" href="#removed-support" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>p5ioc2 is no longer supported.
+This affects a grand total of two POWER7 systems in the world.</li>
+</ul>
+<p><strong>NOTE</strong>: It is planned that skiboot-5.2 will be the last release supporting
+POWER7 machines.</p>
+</div>
+<div class="section" id="bugs-fixed">
+<h2>Bugs fixed<a class="headerlink" href="#bugs-fixed" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>PHB3: Fix unexpected ER (all) on errinjct by PCI config</li>
+<li>hw/bt: timeout messages when BT interface isn&#8217;t functional</li>
+<li>On Habanero, Slot3 should have been &#8220;Slot 3&#8221;.</li>
+<li>We now completely flush the console buffer before power down and reboot</li>
+<li>For chips with ibm,occ-functional-state set to false, we don&#8217;t wait
+for the OCC to start. This caused needless delay in booting on simulators
+which did not simulate OCCs.</li>
+<li>Change OCC reset order to always reset slave OCCs first.</li>
+<li>slw: Remove overwrites for EX_PM_CORE_ECO_VRET and EX_PM_CORE_PFET_VRET
+(these were already initialized in hostboot)</li>
+<li>p8-i2c: send stop bit on timeouts.
+Some devices can otherwise leave the bus in a held state.</li>
+</ul>
+</div>
+<div class="section" id="other-improvements">
+<h2>Other improvements<a class="headerlink" href="#other-improvements" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>many fixes of compiler and static analysis warnings</li>
+<li>increased unit test coverage</li>
+<li>Unit test of &#8220;boot debian jessie installer&#8221;</li>
+<li>ability to plug in other simulators to run existing tests (e.g. simulator for
+non pegasus p8)</li>
+<li>Support using (patched) Qemu with PowerNV platform support for running
+unit tests.</li>
+<li>increased support for running with sparse</li>
+<li>We now build with -fstack-protector-strong if supported by the compiler</li>
+<li>We now build with -Werror for -Wformat</li>
+<li>pflash is now built as part of travis-ci and for Coverity Scan.</li>
+<li>There is now a RPM SPEC file that can be used as the basis for packaging
+skiboot and associated utilities.</li>
+</ul>
+<div class="section" id="contributors">
+<h3>Contributors<a class="headerlink" href="#contributors" title="Permalink to this headline">¶</a></h3>
+<p>We have had a number of improvements in workflow over skiboot-5.1.0. Looking
+back, we have roughly the same number of changesets (372 for 5.1.0, 334 for
+5.2.0-rc1 - even closer for 5.1.0-beta1) which indicates a relatively stable
+rate of development.</p>
+<p>Complete statistics are included below (generated by gitdm), but I&#8217;d like to
+draw attention to a couple of stats:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="19%" />
+<col width="14%" />
+<col width="17%" />
+<col width="17%" />
+<col width="14%" />
+<col width="19%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Release</th>
+<th class="head">csets</th>
+<th class="head">Ack</th>
+<th class="head">Reviews</th>
+<th class="head">Tested</th>
+<th class="head">Reported</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>5.0</td>
+<td>329</td>
+<td>15</td>
+<td>20</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr class="row-odd"><td>5.1</td>
+<td>372</td>
+<td>13</td>
+<td>38</td>
+<td>1</td>
+<td>4</td>
+</tr>
+<tr class="row-even"><td>5.2-rc1</td>
+<td>334</td>
+<td>20</td>
+<td>34</td>
+<td>6</td>
+<td>11</td>
+</tr>
+</tbody>
+</table>
+<p>Overall, it looks like we&#8217;re on the right trajectory for increasing the number
+of eyeballs looking at code before it heads in tree, especially around testing.
+Largely, this increase in Tested-by can be attributed to encouraging the
+existing test teams to start commenting on the patches themselves.</p>
+<p>Anyway, here&#8217;s the full stats from skiboot 5.1.0 to 5.2.0-rc1:</p>
+<p>Processed 334 csets from 27 developers
+2 employers found
+A total of 46172 lines added, 23274 removed (delta 22898)</p>
+<p>Developers with the most changesets</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="70%" />
+<col width="30%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Stewart Smith</td>
+<td>146 (43.7%)</td>
+</tr>
+<tr class="row-odd"><td>Cyril Bur</td>
+<td>52 (15.6%)</td>
+</tr>
+<tr class="row-even"><td>Benjamin Herrenschmidt</td>
+<td>15 (4.5%)</td>
+</tr>
+<tr class="row-odd"><td>Joel Stanley</td>
+<td>12 (3.6%)</td>
+</tr>
+<tr class="row-even"><td>Gavin Shan</td>
+<td>12 (3.6%)</td>
+</tr>
+<tr class="row-odd"><td>Alistair Popple</td>
+<td>10 (3.0%)</td>
+</tr>
+<tr class="row-even"><td>Vasant Hegde</td>
+<td>10 (3.0%)</td>
+</tr>
+<tr class="row-odd"><td>Michael Neuling</td>
+<td>10 (3.0%)</td>
+</tr>
+<tr class="row-even"><td>Russell Currey</td>
+<td>9 (2.7%)</td>
+</tr>
+<tr class="row-odd"><td>Cédric Le Goater</td>
+<td>8 (2.4%)</td>
+</tr>
+<tr class="row-even"><td>Jeremy Kerr</td>
+<td>8 (2.4%)</td>
+</tr>
+<tr class="row-odd"><td>Samuel Mendoza-Jonas</td>
+<td>6 (1.8%)</td>
+</tr>
+<tr class="row-even"><td>Neelesh Gupta</td>
+<td>6 (1.8%)</td>
+</tr>
+<tr class="row-odd"><td>Shilpasri G Bhat</td>
+<td>4 (1.2%)</td>
+</tr>
+<tr class="row-even"><td>Oliver O&#8217;Halloran</td>
+<td>4 (1.2%)</td>
+</tr>
+<tr class="row-odd"><td>Mahesh Salgaonkar</td>
+<td>4 (1.2%)</td>
+</tr>
+<tr class="row-even"><td>Vipin K Parashar</td>
+<td>3 (0.9%)</td>
+</tr>
+<tr class="row-odd"><td>Daniel Axtens</td>
+<td>3 (0.9%)</td>
+</tr>
+<tr class="row-even"><td>Andrew Donnellan</td>
+<td>2 (0.6%)</td>
+</tr>
+<tr class="row-odd"><td>Philippe Bergheaud</td>
+<td>2 (0.6%)</td>
+</tr>
+<tr class="row-even"><td>Ananth N Mavinakayanahalli</td>
+<td>2 (0.6%)</td>
+</tr>
+<tr class="row-odd"><td>Vaibhav Jain</td>
+<td>1 (0.3%)</td>
+</tr>
+<tr class="row-even"><td>Sam Mendoza-Jonas</td>
+<td>1 (0.3%)</td>
+</tr>
+<tr class="row-odd"><td>Adriana Kobylak</td>
+<td>1 (0.3%)</td>
+</tr>
+<tr class="row-even"><td>Shreyas B. Prabhu</td>
+<td>1 (0.3%)</td>
+</tr>
+<tr class="row-odd"><td>Vaidyanathan Srinivasan</td>
+<td>1 (0.3%)</td>
+</tr>
+<tr class="row-even"><td>Ian Munsie</td>
+<td>1 (0.3%)</td>
+</tr>
+</tbody>
+</table>
+<p>Developers with the most changed lines</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="67%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Stewart Smith</td>
+<td>19533 (39.4%)</td>
+</tr>
+<tr class="row-odd"><td>Oliver O&#8217;Halloran</td>
+<td>17920 (36.1%)</td>
+</tr>
+<tr class="row-even"><td>Alistair Popple</td>
+<td>3285 (6.6%)</td>
+</tr>
+<tr class="row-odd"><td>Daniel Axtens</td>
+<td>2154 (4.3%)</td>
+</tr>
+<tr class="row-even"><td>Cyril Bur</td>
+<td>2028 (4.1%)</td>
+</tr>
+<tr class="row-odd"><td>Benjamin Herrenschmidt</td>
+<td>941 (1.9%)</td>
+</tr>
+<tr class="row-even"><td>Neelesh Gupta</td>
+<td>434 (0.9%)</td>
+</tr>
+<tr class="row-odd"><td>Gavin Shan</td>
+<td>294 (0.6%)</td>
+</tr>
+<tr class="row-even"><td>Russell Currey</td>
+<td>261 (0.5%)</td>
+</tr>
+<tr class="row-odd"><td>Vasant Hegde</td>
+<td>245 (0.5%)</td>
+</tr>
+<tr class="row-even"><td>Cédric Le Goater</td>
+<td>209 (0.4%)</td>
+</tr>
+<tr class="row-odd"><td>Vipin K Parashar</td>
+<td>155 (0.3%)</td>
+</tr>
+<tr class="row-even"><td>Shilpasri G Bhat</td>
+<td>153 (0.3%)</td>
+</tr>
+<tr class="row-odd"><td>Joel Stanley</td>
+<td>140 (0.3%)</td>
+</tr>
+<tr class="row-even"><td>Vaidyanathan Srinivasan</td>
+<td>135 (0.3%)</td>
+</tr>
+<tr class="row-odd"><td>Michael Neuling</td>
+<td>111 (0.2%)</td>
+</tr>
+<tr class="row-even"><td>Samuel Mendoza-Jonas</td>
+<td>81 (0.2%)</td>
+</tr>
+<tr class="row-odd"><td>Jeremy Kerr</td>
+<td>60 (0.1%)</td>
+</tr>
+<tr class="row-even"><td>Mahesh Salgaonkar</td>
+<td>58 (0.1%)</td>
+</tr>
+<tr class="row-odd"><td>Vaibhav Jain</td>
+<td>50 (0.1%)</td>
+</tr>
+<tr class="row-even"><td>Ananth N Mavinakayanahalli</td>
+<td>43 (0.1%)</td>
+</tr>
+<tr class="row-odd"><td>Shreyas B. Prabhu</td>
+<td>17 (0.0%)</td>
+</tr>
+<tr class="row-even"><td>Sam Mendoza-Jonas</td>
+<td>12 (0.0%)</td>
+</tr>
+<tr class="row-odd"><td>Andrew Donnellan</td>
+<td>10 (0.0%)</td>
+</tr>
+<tr class="row-even"><td>Ian Munsie</td>
+<td>8 (0.0%)</td>
+</tr>
+<tr class="row-odd"><td>Philippe Bergheaud</td>
+<td>6 (0.0%)</td>
+</tr>
+<tr class="row-even"><td>Adriana Kobylak</td>
+<td>6 (0.0%)</td>
+</tr>
+</tbody>
+</table>
+<p>Developers with the most lines removed</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="66%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Daniel Axtens</td>
+<td>2149 (9.2%)</td>
+</tr>
+<tr class="row-odd"><td>Shreyas B. Prabhu</td>
+<td>17 (0.1%)</td>
+</tr>
+<tr class="row-even"><td>Andrew Donnellan</td>
+<td>9 (0.0%)</td>
+</tr>
+<tr class="row-odd"><td>Vipin K Parashar</td>
+<td>2 (0.0%)</td>
+</tr>
+</tbody>
+</table>
+<p>Developers with the most signoffs (total 190)</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="66%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Stewart Smith</td>
+<td>188 (98.9%)</td>
+</tr>
+<tr class="row-odd"><td>Gavin Shan</td>
+<td>1 (0.5%)</td>
+</tr>
+<tr class="row-even"><td>Neelesh Gupta</td>
+<td>1 (0.5%)</td>
+</tr>
+</tbody>
+</table>
+<p>Developers with the most reviews (total 34)</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="66%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Patrick Williams</td>
+<td>5 (14.7%)</td>
+</tr>
+<tr class="row-odd"><td>Joel Stanley</td>
+<td>5 (14.7%)</td>
+</tr>
+<tr class="row-even"><td>Cédric Le Goater</td>
+<td>5 (14.7%)</td>
+</tr>
+<tr class="row-odd"><td>Vasant Hegde</td>
+<td>4 (11.8%)</td>
+</tr>
+<tr class="row-even"><td>Alistair Popple</td>
+<td>4 (11.8%)</td>
+</tr>
+<tr class="row-odd"><td>Sam Mendoza-Jonas</td>
+<td>3 (8.8%)</td>
+</tr>
+<tr class="row-even"><td>Samuel Mendoza-Jonas</td>
+<td>3 (8.8%)</td>
+</tr>
+<tr class="row-odd"><td>Andrew Donnellan</td>
+<td>2 (5.9%)</td>
+</tr>
+<tr class="row-even"><td>Cyril Bur</td>
+<td>2 (5.9%)</td>
+</tr>
+<tr class="row-odd"><td>Vaibhav Jain</td>
+<td>1 (2.9%)</td>
+</tr>
+</tbody>
+</table>
+<p>Developers with the most test credits (total 6)</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="66%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Vipin K Parashar</td>
+<td>3 (50.0%)</td>
+</tr>
+<tr class="row-odd"><td>Vaibhav Jain</td>
+<td>2 (33.3%)</td>
+</tr>
+<tr class="row-even"><td>Gajendra B Bandhu1</td>
+<td>1 (16.7%)</td>
+</tr>
+</tbody>
+</table>
+<p>Developers who gave the most tested-by credits (total 6)</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="68%" />
+<col width="33%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Gavin Shan</td>
+<td>2 (33.3%)</td>
+</tr>
+<tr class="row-odd"><td>Ananth N Mavinakayanahalli</td>
+<td>2 (33.3%)</td>
+</tr>
+<tr class="row-even"><td>Alistair Popple</td>
+<td>1 (16.7%)</td>
+</tr>
+<tr class="row-odd"><td>Stewart Smith</td>
+<td>1 (16.7%)</td>
+</tr>
+</tbody>
+</table>
+<p>Developers with the most report credits (total 11)</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="66%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Vaibhav Jain</td>
+<td>2 (18.2%)</td>
+</tr>
+<tr class="row-odd"><td>Paul Nguyen</td>
+<td>2 (18.2%)</td>
+</tr>
+<tr class="row-even"><td>Alistair Popple</td>
+<td>1 (9.1%)</td>
+</tr>
+<tr class="row-odd"><td>Cédric Le Goater</td>
+<td>1 (9.1%)</td>
+</tr>
+<tr class="row-even"><td>Aneesh Kumar K.V</td>
+<td>1 (9.1%)</td>
+</tr>
+<tr class="row-odd"><td>Dionysius d. Bell</td>
+<td>1 (9.1%)</td>
+</tr>
+<tr class="row-even"><td>Pradeep Ramanna</td>
+<td>1 (9.1%)</td>
+</tr>
+<tr class="row-odd"><td>John Walthour</td>
+<td>1 (9.1%)</td>
+</tr>
+<tr class="row-even"><td>Benjamin Herrenschmidt</td>
+<td>1 (9.1%)</td>
+</tr>
+</tbody>
+</table>
+<p>Developers who gave the most report credits (total 11)</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="66%" />
+<col width="34%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">&nbsp;</th>
+<th class="head">&nbsp;</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td>Gavin Shan</td>
+<td>6 (54.5%)</td>
+</tr>
+<tr class="row-odd"><td>Stewart Smith</td>
+<td>3 (27.3%)</td>
+</tr>
+<tr class="row-even"><td>Samuel Mendoza-Jonas</td>
+<td>1 (9.1%)</td>
+</tr>
+<tr class="row-odd"><td>Shilpasri G Bhat</td>
+<td>1 (9.1%)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">skiboot-5.2.0-rc1</a><ul>
+<li><a class="reference internal" href="#new-features">New Features</a></li>
+<li><a class="reference internal" href="#changes-in-behavior">Changes in behavior</a></li>
+<li><a class="reference internal" href="#removed-support">Removed support</a></li>
+<li><a class="reference internal" href="#bugs-fixed">Bugs fixed</a></li>
+<li><a class="reference internal" href="#other-improvements">Other improvements</a><ul>
+<li><a class="reference internal" href="#contributors">Contributors</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="skiboot-5.2.0.html"
+                        title="previous chapter">skiboot-5.2.0</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="skiboot-5.2.0-rc2.html"
+                        title="next chapter">skiboot-5.2.0-rc2</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/release-notes/skiboot-5.2.0-rc1.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="skiboot-5.2.0-rc2.html" title="skiboot-5.2.0-rc2"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="skiboot-5.2.0.html" title="skiboot-5.2.0"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Release Notes</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

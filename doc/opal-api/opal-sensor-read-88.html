@@ -1,0 +1,162 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OPAL_SENSOR_READ &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="OPAL API Documentation" href="index.html" />
+    <link rel="next" title="OPAL_SET_XIVE" href="opal-set-xive-19.html" />
+    <link rel="prev" title="OPAL_RTC_WRITE" href="opal-rtc-write-4.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="opal-set-xive-19.html" title="OPAL_SET_XIVE"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="opal-rtc-write-4.html" title="OPAL_RTC_WRITE"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="opal-sensor-read">
+<h1>OPAL_SENSOR_READ<a class="headerlink" href="#opal-sensor-read" title="Permalink to this headline">¶</a></h1>
+<p>The OPAL sensor call reads a sensor data using a unique handler to
+identity the targeted sensor.</p>
+<p>This call can be asynchronous, when a message needs to be sent to a
+service processor for example.  In this case, the call will return
+OPAL_ASYNC_COMPLETION and the token parameter will be used to wait for
+the completion of the request.</p>
+<div class="section" id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">uint32_t</span> <span class="n">sensor_handler</span>
+<span class="nb">int</span>      <span class="n">token</span>
+<span class="n">uint32_t</span> <span class="o">*</span><span class="n">sensor_data</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="return-values">
+<h2>Return values<a class="headerlink" href="#return-values" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>OPAL_SUCCESS</dt>
+<dd>Success!</dd>
+<dt>OPAL_PARAMETER</dt>
+<dd>invalid sensor handler</dd>
+<dt>OPAL_UNSUPPORTED</dt>
+<dd>platform does not support reading sensors.</dd>
+</dl>
+<p>In case of communication with the FSP on IBM systems:</p>
+<dl class="docutils">
+<dt>OPAL_ASYNC_COMPLETION</dt>
+<dd>a request was sent and an async completion will
+be triggered with the &#64;token argument</dd>
+<dt>OPAL_PARTIAL</dt>
+<dd>the request completed but the data returned is invalid</dd>
+<dt>OPAL_BUSY_EVENT</dt>
+<dd>a previous request is still pending</dd>
+<dt>OPAL_NO_MEM</dt>
+<dd>allocation failed</dd>
+<dt>OPAL_INTERNAL_ERROR</dt>
+<dd>communication failure with the FSP</dd>
+<dt>OPAL_HARDWARE</dt>
+<dd>FSP is not available</dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">OPAL_SENSOR_READ</a><ul>
+<li><a class="reference internal" href="#parameters">Parameters</a></li>
+<li><a class="reference internal" href="#return-values">Return values</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="opal-rtc-write-4.html"
+                        title="previous chapter">OPAL_RTC_WRITE</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="opal-set-xive-19.html"
+                        title="next chapter">OPAL_SET_XIVE</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/opal-api/opal-sensor-read-88.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="opal-set-xive-19.html" title="OPAL_SET_XIVE"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="opal-rtc-write-4.html" title="OPAL_RTC_WRITE"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

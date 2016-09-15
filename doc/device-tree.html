@@ -1,0 +1,607 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Device Tree &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="index.html" />
+    <link rel="next" title="Device Tree" href="device-tree/index.html" />
+    <link rel="prev" title="XSCOM Bindings" href="xscom-node-bindings.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="device-tree/index.html" title="Device Tree"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="xscom-node-bindings.html" title="XSCOM Bindings"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="device-tree">
+<h1>Device Tree<a class="headerlink" href="#device-tree" title="Permalink to this headline">¶</a></h1>
+<p>General notes on the Device Tree produced by skiboot. This chapter
+<strong>needs updating</strong>.</p>
+<div class="section" id="general-comments">
+<h2>General comments<a class="headerlink" href="#general-comments" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>skiboot does not require nodes to have phandle properties, but
+if you have them then <em>all</em> nodes must have them including the
+root of the device-tree (currently a HB bug !). It is recommended
+to have them since they are needed to represent the cache levels.</li>
+<li><strong>NOTE</strong>: The example tree below only has phandle properties for
+nodes that are referenced by other nodes. This is <em>not</em> correct
+and is purely done for keeping this document smaller, make sure
+to follow the rule above.</li>
+<li>Only the &#8220;phandle&#8221; property is required. Sapphire also generates
+a &#8220;linux,phandle&#8221; for backward compatibility but doesn&#8217;t require
+it as an input</li>
+<li>Any property not specifically documented must be put in &#8220;as is&#8221;</li>
+<li>All ibm,chip-id properties contain a HW chip ID which correspond
+on P8 to the PIR value shifted right by 7 bits, ie. it&#8217;s a 6-bit
+value made of a 3-bit node number and a 3-bit chip number.</li>
+<li>Unit addresses (&#64;xxxx part of node names) should if possible use
+lower case hexadecimal to be consistent with what skiboot does
+and to help some stupid parsers out there...</li>
+</ul>
+</div>
+<div class="section" id="reserve-map">
+<h2>Reserve Map<a class="headerlink" href="#reserve-map" title="Permalink to this headline">¶</a></h2>
+<p>Here are the reserve map entries. They should exactly match the
+reserved-ranges property of the root node (see documentation
+of that property):</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">memreserve</span><span class="o">/</span>  <span class="mh">0x00000007fe600000</span> <span class="mh">0x0000000000100000</span><span class="p">;</span>
+<span class="o">/</span><span class="n">memreserve</span><span class="o">/</span>  <span class="mh">0x00000007fe200000</span> <span class="mh">0x0000000000100000</span><span class="p">;</span>
+<span class="o">/</span><span class="n">memreserve</span><span class="o">/</span>  <span class="mh">0x0000000031e00000</span> <span class="mh">0x00000000003e0000</span><span class="p">;</span>
+<span class="o">/</span><span class="n">memreserve</span><span class="o">/</span>  <span class="mh">0x0000000031000000</span> <span class="mh">0x0000000000e00000</span><span class="p">;</span>
+<span class="o">/</span><span class="n">memreserve</span><span class="o">/</span>  <span class="mh">0x0000000030400000</span> <span class="mh">0x0000000000c00000</span><span class="p">;</span>
+<span class="o">/</span><span class="n">memreserve</span><span class="o">/</span>  <span class="mh">0x0000000030000000</span> <span class="mh">0x0000000000400000</span><span class="p">;</span>
+<span class="o">/</span><span class="n">memreserve</span><span class="o">/</span>  <span class="mh">0x0000000400000000</span> <span class="mh">0x0000000000600450</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="root-node">
+<h2>Root Node<a class="headerlink" href="#root-node" title="Permalink to this headline">¶</a></h2>
+<p>Root node of device tree:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span>/ {
+       /*
+        * &quot;compatible&quot; properties are string lists (ASCII strings separated by
+        * \0 characters) indicating the overall compatibility from the more
+        * specific to the least specific.
+        *
+        * The root node compatible property *must* contain &quot;ibm,powernv&quot; for
+        * Linux to have the powernv platform match the machine. It is recommended
+        * to add a slightly more precise property (first in order) indicating more
+        * precisely the board type. We don&#39;t currently do that in HDAT based
+        * setups but will.
+        *
+        * The standard naming is &quot;vendor,name&quot; so in your case, something like
+        *
+        * compatible = &quot;goog,rhesus&quot;,&quot;ibm,powernv&quot;;
+        *
+        * would work. Or even better:
+        *
+        * compatible = &quot;goog,rhesus-v1&quot;,&quot;goog,rhesus&quot;,&quot;ibm,powernv&quot;;
+        */
+       compatible = &quot;ibm,powernv&quot;;
+
+       /* mandatory */
+       #address-cells = &lt;0x2&gt;;
+       #size-cells = &lt;0x2&gt;;
+
+       /* User visible board name (will be shown in /proc/cpuinfo) */
+       model = &quot;Machine Name&quot;;
+
+       /*
+        * The reserved-names and reserve-names properties work hand in hand. The first one
+        * is a list of strings providing a &quot;name&quot; for each entry in the second one using
+        * the traditional &quot;vendor,name&quot; format.
+        *
+        * The reserved-ranges property contains a list of ranges, each in the form of 2 cells
+        * of address and 2 cells of size (64-bit x2 so each entry is 4 cells) indicating
+        * regions of memory that are reserved and must not be overwritten by skiboot or
+        * subsequently by the Linux Kernel.
+        *
+        * Corresponding entries must also be created in the &quot;reserved map&quot; part of the flat
+        * device-tree (which is a binary list in the header of the fdt).
+        *
+        * Unless a component (skiboot or Linux) specifically knows about a region (usually
+        * based on its name) and decides to change or remove it, all these regions are
+        * passed as-is to Linux and to subsequent kernels across kexec and are kept
+        * preserved.
+        *
+        * NOTE: Do *NOT* copy the entries below, they are just an example and are actually
+        * created by skiboot itself. They represent the SLW image as &quot;detected&quot; by reading
+        * the PBA BARs and skiboot own memory allocations.
+        *
+        * I would recommend that you put in there the SLW and OCC (or HOMER as one block
+        * if that&#39;s how you use it) and any additional memory you want to preserve such
+        * as FW log buffers etc...
+        */
+
+       reserved-names = &quot;ibm,slw-image&quot;, &quot;ibm,slw-image&quot;, &quot;ibm,firmware-stacks&quot;, &quot;ibm,firmware-data&quot;, &quot;ibm,firmware-heap&quot;, &quot;ibm,firmware-code&quot;, &quot;memory@400000000&quot;;
+       reserved-ranges = &lt;0x7 0xfe600000 0x0 0x100000 0x7 0xfe200000 0x0 0x100000 0x0 0x31e00000 0x0 0x3e0000 0x0 0x31000000 0x0 0xe00000 0x0 0x30400000 0x0 0xc00000 0x0 0x30000000 0x0 0x400000 0x4 0x0 0x0 0x600450&gt;;
+
+       /* Mandatory */
+       cpus {
+               #address-cells = &lt;0x1&gt;;
+               #size-cells = &lt;0x0&gt;;
+
+               /*
+                * The following node must exist for each *core* in the system. The unit
+                * address (number after the @) is the hexadecimal HW CPU number (PIR value)
+                * of thread 0 of that core.
+                */
+               PowerPC,POWER8@20 {
+                       /* mandatory/standard properties */
+                       device_type = &quot;cpu&quot;;
+                       64-bit;
+                       32-64-bridge;
+                       graphics;
+                       general-purpose;
+
+                       /*
+                        * The &quot;status&quot; property indicate whether the core is functional. It&#39;s
+                        * a string containing &quot;okay&quot; for a good core or &quot;bad&quot; for a non-functional
+                        * one. You can also just ommit the non-functional ones from the DT
+                        */
+                       status = &quot;okay&quot;;
+
+                       /*
+                        * This is the same value as the PIR of thread 0 of that core
+                        * (ie same as the @xx part of the node name)
+                        */
+                       reg = &lt;0x20&gt;;
+
+                       /* same as above */
+                       ibm,pir = &lt;0x20&gt;;
+
+                       /* chip ID of this core */
+                       ibm,chip-id = &lt;0x0&gt;;
+
+                       /*
+                        * interrupt server numbers (aka HW processor numbers) of all threads
+                        * on that core. This should have 8 numbers and the first one should
+                        * have the same value as the above ibm,pir and reg properties
+                        */
+                       ibm,ppc-interrupt-server#s = &lt;0x20 0x21 0x22 0x23 0x24 0x25 0x26 0x27&gt;;
+
+                       /*
+                        * This is the &quot;architected processor version&quot; as defined in PAPR. Just
+                        * stick to 0x0f000004 for P8 and things will be fine
+                        */
+                       cpu-version = &lt;0x0f000004&gt;;
+
+                       /*
+                        * These are various definitions of the page sizes and segment sizes
+                        * supported by the MMU, those values are fine for P8 for now
+                        */
+                       ibm,processor-segment-sizes = &lt;0x1c 0x28 0xffffffff 0xffffffff&gt;;
+                       ibm,processor-page-sizes = &lt;0xc 0x10 0x18 0x22&gt;;
+                       ibm,segment-page-sizes = &lt;0xc 0x0 0x3 0xc 0x0 0x10 0x7 0x18 0x38 0x10 0x110 0x2 0x10 0x1 0x18 0x8 0x18 0x100 0x1 0x18 0x0 0x22 0x120 0x1 0x22 0x3&gt;;
+
+                       /*
+                        * Similarly that might need to be reviewed later but will do for now...
+                        */
+                       ibm,pa-features = [0x6 0x0 0xf6 0x3f 0xc7 0x0 0x80 0xc0];
+
+                       /* SLB size, use as-is */
+                       ibm,slb-size = &lt;0x20&gt;;
+
+                       /* VSX support, use as-is */
+                       ibm,vmx = &lt;0x2&gt;;
+
+                       /* DFP support, use as-is */
+                       ibm,dfp = &lt;0x2&gt;;
+
+                       /* PURR/SPURR support, use as-is */
+                       ibm,purr = &lt;0x1&gt;;
+                       ibm,spurr = &lt;0x1&gt;;
+
+                       /*
+                        * Old-style core clock frequency. Only create this property if the frequency fits
+                        * in a 32-bit number. Do not create it if it doesn&#39;t
+                        */
+                       clock-frequency = &lt;0xf5552d00&gt;;
+
+                       /*
+                        * mandatory: 64-bit version of the core clock frequency, always create this
+                        * property.
+                        */
+                       ibm,extended-clock-frequency = &lt;0x0 0xf5552d00&gt;;
+
+                       /* Timebase freq has a fixed value, always use that */
+                       timebase-frequency = &lt;0x1e848000&gt;;
+
+                       /* Same */
+                       ibm,extended-timebase-frequency = &lt;0x0 0x1e848000&gt;;
+
+                       /* Use as-is, values might need to be adjusted but that will do for now */
+                       reservation-granule-size = &lt;0x80&gt;;
+                       d-tlb-size = &lt;0x800&gt;;
+                       i-tlb-size = &lt;0x0&gt;;
+                       tlb-size = &lt;0x800&gt;;
+                       d-tlb-sets = &lt;0x4&gt;;
+                       i-tlb-sets = &lt;0x0&gt;;
+                       tlb-sets = &lt;0x4&gt;;
+                       d-cache-block-size = &lt;0x80&gt;;
+                       i-cache-block-size = &lt;0x80&gt;;
+                       d-cache-size = &lt;0x10000&gt;;
+                       i-cache-size = &lt;0x8000&gt;;
+                       i-cache-sets = &lt;0x4&gt;;
+                       d-cache-sets = &lt;0x8&gt;;
+                       performance-monitor = &lt;0x0 0x1&gt;;
+
+                       /*
+                        * optional: phandle of the node representing the L2 cache for this core,
+                        * note: it can also be named &quot;next-level-cache&quot;, Linux will support both
+                        * and Sapphire doesn&#39;t currently use those properties, just passes them
+                        * along to Linux
+                        */
+                       l2-cache = &lt; 0x4 &gt;;
+               };
+
+               /*
+                * Cache nodes. Those are siblings of the processor nodes under /cpus and
+                * represent the various level of caches.
+                *
+                * The unit address (and reg property) is mostly free-for-all as long as
+                * there is no collisions. On HDAT machines we use the following encoding
+                * which I encourage you to also follow to limit surprises:
+                *
+                * L2   :  (0x20 &lt;&lt; 24) | PIR (PIR is PIR value of thread 0 of core)
+                * L3   :  (0x30 &lt;&lt; 24) | PIR
+                * L3.5 :  (0x35 &lt;&lt; 24) | PIR
+                *
+                * In addition, each cache points to the next level cache via its
+                * own &quot;l2-cache&quot; (or &quot;next-level-cache&quot;) property, so the core node
+                * points to the L2, the L2 points to the L3 etc...
+                */
+
+               l2-cache@20000020 {
+                       phandle = &lt;0x4&gt;;
+                       device_type = &quot;cache&quot;;
+                       reg = &lt;0x20000020&gt;;
+                       status = &quot;okay&quot;;
+                       cache-unified;
+                       d-cache-sets = &lt;0x8&gt;;
+                       i-cache-sets = &lt;0x8&gt;;
+                       d-cache-size = &lt;0x80000&gt;;
+                       i-cache-size = &lt;0x80000&gt;;
+                       l2-cache = &lt;0x5&gt;;
+               };
+
+               l3-cache@30000020 {
+                       phandle = &lt;0x5&gt;;
+                       device_type = &quot;cache&quot;;
+                       reg = &lt;0x30000020&gt;;
+                       status = &quot;bad&quot;;
+                       cache-unified;
+                       d-cache-sets = &lt;0x8&gt;;
+                       i-cache-sets = &lt;0x8&gt;;
+                       d-cache-size = &lt;0x800000&gt;;
+                       i-cache-size = &lt;0x800000&gt;;
+               };
+
+       };
+
+       /*
+        * Interrupt presentation controller (ICP) nodes
+        *
+        * There is some flexibility as to how many of these are presents since
+        * a given node can represent multiple ICPs. When generating from HDAT we
+        * chose to create one per core
+        */
+       interrupt-controller@3ffff80020000 {
+               /* Mandatory */
+               compatible = &quot;IBM,ppc-xicp&quot;, &quot;IBM,power8-icp&quot;;
+               interrupt-controller;
+               #address-cells = &lt;0x0&gt;;
+               device_type = &quot;PowerPC-External-Interrupt-Presentation&quot;;
+
+               /*
+                * Range of HW CPU IDs represented by that node. In this example
+                * the core starting at PIR 0x20 and 8 threads, which corresponds
+                * to the CPU node of the example above. The property in theory
+                * supports multiple ranges but Linux doesn&#39;t.
+                */
+               ibm,interrupt-server-ranges = &lt;0x20 0x8&gt;;
+
+               /*
+                * For each server in the above range, the physical address of the
+                * ICP register block and its size. Since the root node #address-cells
+                * and #size-cells properties are both &quot;2&quot;, each entry is thus
+                * 2 cells address and 2 cells size (64-bit each).
+                */
+               reg = &lt;0x3ffff 0x80020000 0x0 0x1000 0x3ffff 0x80021000 0x0 0x1000 0x3ffff 0x80022000 0x0 0x1000 0x3ffff 0x80023000 0x0 0x1000 0x3ffff 0x80024000 0x0 0x1000 0x3ffff 0x80025000 0x0 0x1000 0x3ffff 0x80026000 0x0 0x1000 0x3ffff 0x80027000 0x0 0x1000&gt;;
+       };
+
+       /*
+        * The &quot;memory&quot; nodes represent physical memory in the system. They
+        * do not represent DIMMs, memory controllers or Centaurs, thus will
+        * be expressed separately.
+        *
+        * In order to be able to handle affinity properly, we require that
+        * a memory node is created for each range of memory that has a different
+        * &quot;affinity&quot;, which in practice means for each chip since we don&#39;t
+        * support memory interleaved across multiple chips on P8.
+        *
+        * Additionally, it is *not* required that one chip = one memory node,
+        * it is perfectly acceptable to break down the memory of one chip into
+        * multiple memory nodes (typically skiboot does that if the two MCs
+        * are not interlaved).
+        */
+       memory@0 {
+               device_type = &quot;memory&quot;;
+
+               /*
+                * We support multiple entries in the ibm,chip-id property for
+                * memory nodes in case the memory is interleaved across multiple
+                * chips but that shouldn&#39;t happen on P8
+                */
+               ibm,chip-id = &lt;0x0&gt;;
+
+               /* The &quot;reg&quot; property is 4 cells, as usual for a child of
+                * the root node, 2 cells of address and 2 cells of size
+                */
+               reg = &lt;0x0 0x0 0x4 0x0&gt;;
+       };
+
+       /*
+        * The XSCOM node. This is the closest thing to a &quot;chip&quot; node we have.
+        * there must be one per chip in the system (thus a DCM has two) and
+        * while it represents the &quot;parent&quot; of various devices on the PIB/PCB
+        * that we want to expose, it is also used to store all sort of
+        * miscellaneous per-chip information on HDAT based systems (such
+        * as VPDs).
+        */
+       xscom@3fc0000000000 {
+               /* standard &amp; mandatory */
+               #address-cells = &lt;0x1&gt;;
+               #size-cells = &lt;0x1&gt;;
+               scom-controller;
+               compatible = &quot;ibm,xscom&quot;, &quot;ibm,power8-xscom&quot;;
+
+               /* The chip ID as usual ... */
+               ibm,chip-id = &lt;0x0&gt;;
+
+               /* The base address of xscom for that chip */
+               reg = &lt;0x3fc00 0x0 0x8 0x0&gt;;
+
+               /*
+                * This comes from HDAT and I *think* is the raw content of the
+                * module VPD eeprom (and thus doesn&#39;t have a standard ASCII keyword
+                * VPD format). We don&#39;t currently use it though ...
+                */
+               ibm,module-vpd = &lt; ... big pile of binary data ... &gt;;
+
+               /* PSI host bridge XSCOM register set */
+               psihb@2010900 {
+                       reg = &lt;0x2010900 0x20&gt;;
+                       compatible = &quot;ibm,power8-psihb-x&quot;, &quot;ibm,psihb-x&quot;;
+               };
+
+               /* Chip TOD XSCOM register set */
+               chiptod@40000 {
+                       reg = &lt;0x40000 0x34&gt;;
+                       compatible = &quot;ibm,power-chiptod&quot;, &quot;ibm,power8-chiptod&quot;;
+
+                       /*
+                        * Create that property with no value if this chip has
+                        * the Primary TOD in the topology. If it has the secondary
+                        * one (backup master ?) use &quot;secondary&quot;.
+                        */
+                       primary;
+               };
+
+               /* NX XSCOM register set */
+               nx@2010000 {
+                       reg = &lt;0x2010000 0x4000&gt;;
+                       compatible = &quot;ibm,power-nx&quot;, &quot;ibm,power8-nx&quot;;
+               };
+
+               /*
+                * PCI &quot;PE Master&quot; XSCOM register set for each active PHB
+                *
+                * For now, do *not* create these if the PHB isn&#39;t connected,
+                * clocked, or the PHY/HSS not configured.
+                */
+               pbcq@2012000 {
+                       reg = &lt;0x2012000 0x20 0x9012000 0x5 0x9013c00 0x15&gt;;
+                       compatible = &quot;ibm,power8-pbcq&quot;;
+
+                       /* Indicate the PHB index on the chip, ie, 0,1 or 2 */
+                       ibm,phb-index = &lt;0x0&gt;;
+
+                       /* Create that property to use the IBM-style &quot;A/B&quot; dual input
+                        * slot presence detect mechanism.
+                        */
+                       ibm,use-ab-detect;
+
+                       /*
+                        * TBD: Lane equalization values. Not currently used by
+                        * skiboot but will have to be sorted out
+                        */
+                       ibm,lane_eq = &lt;0x0&gt;;
+               };
+
+               pbcq@2012400 {
+                       reg = &lt;0x2012400 0x20 0x9012400 0x5 0x9013c40 0x15&gt;;
+                       compatible = &quot;ibm,power8-pbcq&quot;;
+                       ibm,phb-index = &lt;0x1&gt;;
+                       ibm,use-ab-detect;
+                       ibm,lane_eq = &lt;0x0&gt;;
+               };
+
+               /*
+                * Here&#39;s the LPC bus. Ideally each chip has one but in
+                * practice it&#39;s ok to only populate the ones actually
+                * used for something. This is not an exact representation
+                * of HW, in that case we would have eccb -&gt; opb -&gt; lpc,
+                * but instead we just have an lpc node and the address is
+                * the base of the ECCB register set for it
+                *
+                * Devices on the LPC are represented as children nodes,
+                * see example below for a standard UART.
+                */
+               lpc@b0020 {
+                       /*
+                        * Empty property indicating this is the primary
+                        * LPC bus. It will be used for the default UART
+                        * if any and this is the bus that will be used
+                        * by Linux as the virtual 64k of IO ports
+                        */
+                       primary;
+
+                       /*
+                        * 2 cells of address, the first one indicates the
+                        * address type, see below
+                        */
+                       #address-cells = &lt;0x2&gt;;
+                       #size-cells = &lt;0x1&gt;;
+                       reg = &lt;0xb0020 0x4&gt;;
+                       compatible = &quot;ibm,power8-lpc&quot;;
+
+                       /*
+                        * Example device: a UART on IO ports.
+                        *
+                        * LPC address have 2 cells. The first cell is the
+                        * address type as follow:
+                        *
+                        *   0 : LPC memory space
+                        *   1 : LPC IO space
+                        *   2:  LPC FW space
+                        *
+                        * (This corresponds to the OPAL_LPC_* arguments
+                        * passed to the opal_lpc_read/write functions)
+                        *
+                        * The unit address follows the old ISA convention
+                        * for open firmware which prefixes IO ports with &quot;i&quot;.
+                        *
+                        * (This is not critical and can be 1,3f8 if that&#39;s
+                        * problematic to generate)
+                        */
+                       serial@i3f8 {
+                               reg = &lt;0x1 0x3f8 8&gt;;
+                               compatible = &quot;ns16550&quot;, &quot;pnpPNP,501&quot;;
+
+                               /* Baud rate generator base frequency */
+                               clock-frequency = &lt; 1843200 &gt;;
+
+                               /* Default speed to use */
+                               current-speed = &lt; 115200 &gt;;
+
+                               /* Historical, helps Linux */
+                               device_type = &quot;serial&quot;;
+
+                               /*
+                                * Indicate which chip ID the interrupt
+                                * is routed to (we assume it will always
+                                * be the &quot;host error interrupt&quot; (aka
+                                * &quot;TPM interrupt&quot; of that chip).
+                                */
+                                ibm,irq-chip-id = &lt;0x0&gt;;
+                       }
+               };
+       };
+};
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Device Tree</a><ul>
+<li><a class="reference internal" href="#general-comments">General comments</a></li>
+<li><a class="reference internal" href="#reserve-map">Reserve Map</a></li>
+<li><a class="reference internal" href="#root-node">Root Node</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="xscom-node-bindings.html"
+                        title="previous chapter">XSCOM Bindings</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="device-tree/index.html"
+                        title="next chapter">Device Tree</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/device-tree.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="device-tree/index.html" title="Device Tree"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="xscom-node-bindings.html" title="XSCOM Bindings"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

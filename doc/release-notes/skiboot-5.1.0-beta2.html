@@ -1,0 +1,200 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>skiboot-5.1.0-beta2 &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="Release Notes" href="index.html" />
+    <link rel="next" title="skiboot-5.1.1" href="skiboot-5.1.1.html" />
+    <link rel="prev" title="skiboot-5.1.0-beta1" href="skiboot-5.1.0-beta1.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="skiboot-5.1.1.html" title="skiboot-5.1.1"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="skiboot-5.1.0-beta1.html" title="skiboot-5.1.0-beta1"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Release Notes</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="skiboot-5-1-0-beta2">
+<h1>skiboot-5.1.0-beta2<a class="headerlink" href="#skiboot-5-1-0-beta2" title="Permalink to this headline">¶</a></h1>
+<p>skiboot-5.1.0-beta2 was released on August 14th, 2015.</p>
+<p>skiboot-5.1.0-beta2 is the second beta release of skiboot 5.1, which will
+become a new stable release, replacing skiboot-5.0 (released April 14th 2015)</p>
+<p>Skiboot 5.1.0-beta2 contains all fixes from skiboot-5.0 stable branch up to
+skiboot-5.0.5 and everything from 5.1.0-beta1.</p>
+<div class="section" id="new-features">
+<h2>New Features<a class="headerlink" href="#new-features" title="Permalink to this headline">¶</a></h2>
+<p>Over skiboot-5.1.0-beta1, the following features have been added:</p>
+<ul>
+<li><dl class="first docutils">
+<dt>opal-api: Add OPAL call to handle abnormal reboots.</dt>
+<dd><p class="first">OPAL_CEC_REBOOT2
+Currently it will support two reboot types (0). normal reboot, that
+will behave similar to that of opal_cec_reboot() call, and
+(1). platform error reboot.</p>
+<p class="last">Long term, this is designed to replace OPAL_CEC_REBOOT.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="bug-fixes">
+<h2>Bug fixes<a class="headerlink" href="#bug-fixes" title="Permalink to this headline">¶</a></h2>
+<p>Over skiboot-5.1.0-beta1, the following bugs have been fixed:</p>
+<ul class="simple">
+<li>external/opal-prd: Only map each PRD range once<ul>
+<li>could eventually lead to failing to map PRD ranges</li>
+</ul>
+</li>
+<li>On skiboot crash, don&#8217;t try to print symbol when we didn&#8217;t find one<ul>
+<li>makes backtrace prettier</li>
+</ul>
+</li>
+<li>On skiboot crash, dump hssr0 and hsrr1 registers correctly.</li>
+<li>Better support old and biarch compilers<ul>
+<li>test &#8220;new&#8221; compiler flags before using them</li>
+<li>Specify -mabi=elfv1 if supported (which means it&#8217;s needed)</li>
+</ul>
+</li>
+<li>fix boot-coverage-report makefile target</li>
+<li>ipmi: Fix the opal_ipmi_recv() call to handle the error path<ul>
+<li>Could make kernel a sad panda when in continues with other IPMI commands</li>
+</ul>
+</li>
+<li>IPMI: truncate SELs at 2kb<ul>
+<li>it&#8217;s the limit of the astbmc. We think.</li>
+</ul>
+</li>
+<li>IPMI/SEL/PEL:<ul>
+<li>As per PEL spec, we should log events with severity &gt;= 0x22 and &#8220;service
+action flag&#8221; is &#8220;on&#8221;. But in our case, all logs OPAL originagted logs
+are makred as report externally.
+We now only report logs with severity &gt;= 0x22</li>
+</ul>
+</li>
+<li>IPMI: fixes to eSEL logging</li>
+<li>hw/phb3: Change reserved PE to 255<ul>
+<li>Currently, we have reserved PE#0 to which all RIDs are mapped prior
+to PE assignment request from kernel. The last M64 BAR is configured
+to have shared mode. So we have to cut off the first M64 segment,
+which corresponds to reserved PE#0 in kernel. If the first BAR
+(for example PF&#8217;s IOV BAR) requires huge alignment in kernel, we
+have to waste huge M64 space to accommodate the alignment. If we
+have reserved PE#256, the waste of M64 space will be avoided.</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="other-changes">
+<h2>Other changes<a class="headerlink" href="#other-changes" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>unified version numbers for bundled utilities</li>
+<li>external/boot_test/boot_test.sh<ul>
+<li>better usable for automated boot testing</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">skiboot-5.1.0-beta2</a><ul>
+<li><a class="reference internal" href="#new-features">New Features</a></li>
+<li><a class="reference internal" href="#bug-fixes">Bug fixes</a></li>
+<li><a class="reference internal" href="#other-changes">Other changes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="skiboot-5.1.0-beta1.html"
+                        title="previous chapter">skiboot-5.1.0-beta1</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="skiboot-5.1.1.html"
+                        title="next chapter">skiboot-5.1.1</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/release-notes/skiboot-5.1.0-beta2.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="skiboot-5.1.1.html" title="skiboot-5.1.1"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="skiboot-5.1.0-beta1.html" title="skiboot-5.1.0-beta1"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Release Notes</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

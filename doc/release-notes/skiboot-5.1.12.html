@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>skiboot-5.1.12 &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="Release Notes" href="index.html" />
+    <link rel="next" title="skiboot-5.1.13" href="skiboot-5.1.13.html" />
+    <link rel="prev" title="skiboot-5.1.11" href="skiboot-5.1.11.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="skiboot-5.1.13.html" title="skiboot-5.1.13"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="skiboot-5.1.11.html" title="skiboot-5.1.11"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Release Notes</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="skiboot-5-1-12">
+<h1>skiboot-5.1.12<a class="headerlink" href="#skiboot-5-1-12" title="Permalink to this headline">¶</a></h1>
+<p>skiboot-5.1.12 was released on Friday December 4th, 2015.</p>
+<p>skiboot-5.1.12 is the 13th stable release of 5.1, it follows skiboot-5.1.11
+(which was released November 13th, 2015).</p>
+<p>Skiboot 5.1.12 contains bug fixes and a performance improvement.</p>
+<div class="section" id="opal-prd">
+<h2>opal-prd<a class="headerlink" href="#opal-prd" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Display an explict and obvious message if running on a system that does
+not support opal-prd, such as an IBM FSP based POWER system, where the
+FSP takes on the role of opal-prd.</li>
+</ul>
+</div>
+<div class="section" id="pflash">
+<h2>pflash<a class="headerlink" href="#pflash" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Fix a missing (C) header
+- cherry-picked from master.</li>
+</ul>
+</div>
+<div class="section" id="general">
+<h2>General<a class="headerlink" href="#general" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Don&#8217;t link with libgcc
+- On some toolchains, we don&#8217;t have libgcc available.</li>
+</ul>
+</div>
+<div class="section" id="power8-phb-pcie-specific">
+<h2>POWER8 PHB (PCIe) specific<a class="headerlink" href="#power8-phb-pcie-specific" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><dl class="first docutils">
+<dt>hw/phb3: Flush cache line after updating P/Q bits</dt>
+<dd><p class="first">When doing an MSI EOI, we update the P and Q bits in the IVE. That causes
+the corresponding cache line to be dirty in the L3 which will cause a
+subsequent update by the PHB (upon receiving the next MSI) to get a few
+retries until it gets flushed.</p>
+<p>We improve the situation (and thus performance) by doing a dcbf
+instruction to force a flush of the update we do in SW.</p>
+<p class="last">This improves interrupt performance, reducing latency per interrupt.
+The improvement will vary by workload.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+<div class="section" id="ibm-fsp-based-machines">
+<h2>IBM FSP based machines<a class="headerlink" href="#ibm-fsp-based-machines" title="Permalink to this headline">¶</a></h2>
+<ul>
+<li><p class="first">FSP: Give up PSI link on shutdown
+This clears up some erroneous SRCs (error logs) in some situations.</p>
+</li>
+<li><dl class="first docutils">
+<dt>Correctly report back Real Time Clock errors to host</dt>
+<dd><p class="first last">Under certain rare error conditions, we could return an error code
+to the host OS that would cause current Linux kernels to get stuck
+in an infinite loop during boot.
+This was introduced in skiboot-5.0-rc1.</p>
+</dd>
+</dl>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">skiboot-5.1.12</a><ul>
+<li><a class="reference internal" href="#opal-prd">opal-prd</a></li>
+<li><a class="reference internal" href="#pflash">pflash</a></li>
+<li><a class="reference internal" href="#general">General</a></li>
+<li><a class="reference internal" href="#power8-phb-pcie-specific">POWER8 PHB (PCIe) specific</a></li>
+<li><a class="reference internal" href="#ibm-fsp-based-machines">IBM FSP based machines</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="skiboot-5.1.11.html"
+                        title="previous chapter">skiboot-5.1.11</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="skiboot-5.1.13.html"
+                        title="next chapter">skiboot-5.1.13</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/release-notes/skiboot-5.1.12.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="skiboot-5.1.13.html" title="skiboot-5.1.13"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="skiboot-5.1.11.html" title="skiboot-5.1.11"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Release Notes</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

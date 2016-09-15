@@ -1,0 +1,138 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OPAL_GET_DEVICE_TREE &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="OPAL API Documentation" href="index.html" />
+    <link rel="next" title="OPAL_GET_MSG" href="opal-get-msg-85.html" />
+    <link rel="prev" title="OPAL Flash calls" href="opal-flash-110-111-112.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="opal-get-msg-85.html" title="OPAL_GET_MSG"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="opal-flash-110-111-112.html" title="OPAL Flash calls"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="opal-get-device-tree">
+<h1>OPAL_GET_DEVICE_TREE<a class="headerlink" href="#opal-get-device-tree" title="Permalink to this headline">¶</a></h1>
+<p>Get device sub-tree.</p>
+<p>Parameters:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">uint32_t</span> <span class="n">phandle</span><span class="p">:</span> <span class="n">root</span> <span class="n">device</span> <span class="n">node</span> <span class="n">phandle</span> <span class="n">of</span> <span class="n">the</span> <span class="n">device</span> <span class="n">sub</span><span class="o">-</span><span class="n">tree</span>
+<span class="n">uint64_t</span> <span class="n">buf</span><span class="p">:</span> <span class="n">FDT</span> <span class="n">blob</span> <span class="n">buffer</span> <span class="ow">or</span> <span class="n">NULL</span>
+<span class="n">uint64_t</span> <span class="nb">len</span><span class="p">:</span> <span class="n">length</span> <span class="n">of</span> <span class="n">the</span> <span class="n">FDT</span> <span class="n">blob</span> <span class="n">buffer</span>
+</pre></div>
+</div>
+<p>Calling:</p>
+<p>Retrieve device sub-tree. The root node&#8217;s phandle is identified by &#64;phandle.
+The typical use is for the kernel to update its device tree following a change
+in hardware (e.g. PCI hotplug).</p>
+<p>Return Codes:</p>
+<dl class="docutils">
+<dt>FDT blob size</dt>
+<dd>returned FDT blob buffer size when <code class="docutils literal"><span class="pre">buf</span></code> is NULL</dd>
+<dt>OPAL_SUCCESS</dt>
+<dd>FDT blob is created successfully</dd>
+<dt>OPAL_PARAMETER</dt>
+<dd>invalid argument &#64;phandle or &#64;len</dd>
+<dt>OPAL_INTERNAL_ERROR</dt>
+<dd>failure creating FDT blob when calculating its size</dd>
+<dt>OPAL_NO_MEM</dt>
+<dd>not enough room in buffer for device sub-tree</dd>
+<dt>OPAL_EMPTY</dt>
+<dd>failure creating FDT blob</dd>
+</dl>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="opal-flash-110-111-112.html"
+                        title="previous chapter">OPAL Flash calls</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="opal-get-msg-85.html"
+                        title="next chapter">OPAL_GET_MSG</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/opal-api/opal-get-device-tree-118.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="opal-get-msg-85.html" title="OPAL_GET_MSG"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="opal-flash-110-111-112.html" title="OPAL Flash calls"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >OPAL API Documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Nest (NX) Accelerator Coprocessor &mdash; skiboot 5.3.0-rc1 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.3.0-rc1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="skiboot 5.3.0-rc1 documentation" href="../index.html" />
+    <link rel="up" title="Device Tree" href="index.html" />
+    <link rel="next" title="reserved-memory device tree nodes" href="reserved-memory.html" />
+    <link rel="prev" title="Nvlink Device Tree Bindings" href="nvlink.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="reserved-memory.html" title="reserved-memory device tree nodes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="nvlink.html" title="Nvlink Device Tree Bindings"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Device Tree</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="nest-nx-accelerator-coprocessor">
+<h1>Nest (NX) Accelerator Coprocessor<a class="headerlink" href="#nest-nx-accelerator-coprocessor" title="Permalink to this headline">¶</a></h1>
+<p>The NX coprocessor is present in P7+ or later processors.  Each NX node
+represents a unique NX coprocessor.  The nodes are located under an
+xscom node, as:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">xscom</span><span class="o">@&lt;</span><span class="n">xscom_addr</span><span class="o">&gt;/</span><span class="n">nx</span><span class="o">@&lt;</span><span class="n">nx_addr</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>With unique xscom and nx addresses.  Their compatible node contains
+&#8220;ibm,power-nx&#8221;.</p>
+<div class="section" id="nx-842-coprocessor">
+<h2>NX 842 Coprocessor<a class="headerlink" href="#nx-842-coprocessor" title="Permalink to this headline">¶</a></h2>
+<p>This is the memory compression coprocessor, which uses the IBM proprietary
+842 compression algorithm and format.  Each nx node contains an 842 engine.</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ibm</span><span class="p">,</span><span class="mi">842</span><span class="o">-</span><span class="n">coprocessor</span><span class="o">-</span><span class="nb">type</span>     <span class="p">:</span> <span class="n">CT</span> <span class="n">value</span> <span class="n">common</span> <span class="n">to</span> <span class="nb">all</span> <span class="mi">842</span> <span class="n">coprocessors</span>
+<span class="n">ibm</span><span class="p">,</span><span class="mi">842</span><span class="o">-</span><span class="n">coprocessor</span><span class="o">-</span><span class="n">instance</span> <span class="p">:</span> <span class="n">CI</span> <span class="n">value</span> <span class="n">unique</span> <span class="n">to</span> <span class="nb">all</span> <span class="mi">842</span> <span class="n">coprocessors</span>
+</pre></div>
+</div>
+<p>Access to the coprocessor requires using the ICSWX instruction, which uses
+a specific format including a Coprocessor Type (CT) and Coprocessor Instance
+(CI) value to address each request to the right coprocessor.  The driver should
+use the CT and CI values for a particular node to communicate with it.  For
+all 842 coprocessors in the system, the CT value will (should) be the same,
+while each will have a different CI value.  The driver can use CI 0 to allow
+the hardware to automatically select which coprocessor instance to use.</p>
+</div>
+<div class="section" id="nx-rng-coprocessor">
+<h2>NX RNG Coprocessor<a class="headerlink" href="#nx-rng-coprocessor" title="Permalink to this headline">¶</a></h2>
+<p>This is the Random Number Generator (RNG) coprocessor, which is a part
+of each NX coprocessor.  Each node represents a unique RNG coprocessor.
+Its nodes are not under the main nx node, they are located at:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">hwrng</span><span class="o">@&lt;</span><span class="n">addr</span><span class="o">&gt;</span>         <span class="p">:</span> <span class="n">RNG</span> <span class="n">at</span> <span class="n">address</span> <span class="o">&lt;</span><span class="n">addr</span><span class="o">&gt;</span>
+<span class="n">ibm</span><span class="p">,</span><span class="n">chip</span><span class="o">-</span><span class="nb">id</span>           <span class="p">:</span> <span class="n">chip</span> <span class="nb">id</span> <span class="n">where</span> <span class="n">the</span> <span class="n">RNG</span> <span class="ow">is</span>
+<span class="n">reg</span>                   <span class="p">:</span> <span class="n">address</span> <span class="n">of</span> <span class="n">the</span> <span class="n">register</span> <span class="n">to</span> <span class="n">read</span> <span class="kn">from</span>
+</pre></div>
+</div>
+<p>Each read from the RNG register will provide a new random number.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Nest (NX) Accelerator Coprocessor</a><ul>
+<li><a class="reference internal" href="#nx-842-coprocessor">NX 842 Coprocessor</a></li>
+<li><a class="reference internal" href="#nx-rng-coprocessor">NX RNG Coprocessor</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="nvlink.html"
+                        title="previous chapter">Nvlink Device Tree Bindings</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="reserved-memory.html"
+                        title="next chapter">reserved-memory device tree nodes</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/device-tree/nx.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="reserved-memory.html" title="reserved-memory device tree nodes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="nvlink.html" title="Nvlink Device Tree Bindings"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.3.0-rc1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >Device Tree</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+    </div>
+  </body>
+</html>
