@@ -1,5 +1,8 @@
-Stable Skiboot tree/releases
-============================
+.. _stable-rules:
+
+======================================
+Skiboot stable tree rules and releases
+======================================
 
 If you're at all familiar with the Linux kernel stable trees, this should
 seem fairly familiar.
@@ -68,7 +71,7 @@ Two ways:
 Trees
 -----
 
-* https://github.com/open-power/skiboot/tree/stable (or via ssh at ``git@github.com:open-power/skiboot.git`` )
+* https://github.com/open-power/skiboot/ (or via ssh at ``git@github.com:open-power/skiboot.git`` )
 
   * (branches are skiboot-X.Y.x - e.g. skiboot-5.1.x)
 

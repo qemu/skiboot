@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Overview &mdash; skiboot 5.4.0-prerelease-development-snapshot documentation</title>
+    <title>Overview &#8212; skiboot 5.4.0-rc2 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.4.0-prerelease-development-snapshot',
+        VERSION:     '5.4.0-rc2',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,9 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="skiboot 5.4.0-prerelease-development-snapshot documentation" href="#" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="skiboot 5.4.0-rc2 documentation" href="#" />
     <link rel="next" title="Skiboot overview" href="overview.html" /> 
   </head>
   <body role="document">
@@ -36,7 +38,7 @@
         <li class="right" >
           <a href="overview.html" title="Skiboot overview"
              accesskey="N">next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">skiboot 5.4.0-prerelease-development-snapshot documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">skiboot 5.4.0-rc2 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -114,7 +116,7 @@
 <li class="toctree-l2"><a class="reference internal" href="nvlink.html#device-tree-bindings">Device Tree Bindings</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="stable-skiboot-rules.html">Stable Skiboot tree/releases</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="stable-skiboot-rules.html">Skiboot stable tree rules and releases</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="stable-skiboot-rules.html#what-patches-are-accepted">What patches are accepted?</a></li>
 <li class="toctree-l2"><a class="reference internal" href="stable-skiboot-rules.html#howto-submit-to-stable">HOWTO submit to stable</a></li>
 <li class="toctree-l2"><a class="reference internal" href="stable-skiboot-rules.html#trees">Trees</a></li>
@@ -154,6 +156,10 @@
 <h1>OPAL ABI<a class="headerlink" href="#opal-abi" title="Permalink to this headline">¶</a></h1>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="stb.html">Secure and Truted Boot Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="stb.html#implementation-in-skiboot">Implementation in skiboot</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="device-tree.html">Device Tree</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="device-tree.html#general-comments">General comments</a></li>
 <li class="toctree-l2"><a class="reference internal" href="device-tree.html#reserve-map">Reserve Map</a></li>
@@ -162,9 +168,11 @@
 </li>
 <li class="toctree-l1"><a class="reference internal" href="device-tree/index.html">Device Tree</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="device-tree/ibm,opal.html">ibm,opal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="device-tree/ibm,secureboot.html">ibm,secureboot</a></li>
 <li class="toctree-l2"><a class="reference internal" href="device-tree/nvlink.html">Nvlink Device Tree Bindings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="device-tree/nx.html">Nest (NX) Accelerator Coprocessor</a></li>
 <li class="toctree-l2"><a class="reference internal" href="device-tree/reserved-memory.html">reserved-memory device tree nodes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="device-tree/tpm.html">Trusted Platform Module (TPM)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="device-tree/vpd.html">VPD (Vital Product Data)</a></li>
 </ul>
 </li>
@@ -272,6 +280,10 @@
 <li class="toctree-l2"><a class="reference internal" href="release-notes/skiboot-5.3.3.html">skiboot-5.3.3</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release-notes/skiboot-5.3.4.html">skiboot-5.3.4</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release-notes/skiboot-5.3.5.html">skiboot-5.3.5</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release-notes/skiboot-5.3.6.html">skiboot-5.3.6</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release-notes/skiboot-5.3.7.html">skiboot-5.3.7</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release-notes/skiboot-5.4.0-rc1.html">skiboot-5.4.0-rc1</a></li>
+<li class="toctree-l2"><a class="reference internal" href="release-notes/skiboot-5.4.0-rc2.html">skiboot-5.4.0-rc2</a></li>
 </ul>
 </li>
 </ul>
@@ -334,12 +346,12 @@
         <li class="right" >
           <a href="overview.html" title="Skiboot overview"
              >next</a> |</li>
-        <li class="nav-item nav-item-0"><a href="#">skiboot 5.4.0-prerelease-development-snapshot documentation</a> &raquo;</li> 
+        <li class="nav-item nav-item-0"><a href="#">skiboot 5.4.0-rc2 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">
-        &copy; Copyright 2016, Stewart Smith, IBM, others.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
+        &#169; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
     </div>
   </body>
 </html>
