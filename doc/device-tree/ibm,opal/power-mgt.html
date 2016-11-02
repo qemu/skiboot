@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ibm,opal/power-mgt device tree entries &#8212; skiboot 5.4.0-rc2 documentation</title>
+    <title>ibm,opal/power-mgt device tree entries &#8212; skiboot 5.4.0-rc3 documentation</title>
     
     <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '5.4.0-rc2',
+        VERSION:     '5.4.0-rc3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="top" title="skiboot 5.4.0-rc2 documentation" href="../../index.html" />
+    <link rel="top" title="skiboot 5.4.0-rc3 documentation" href="../../index.html" />
     <link rel="up" title="ibm,opal" href="../ibm,opal.html" />
     <link rel="next" title="ibm,opal/sensors/ device tree nodes" href="sensors.html" />
     <link rel="prev" title="Operator Panel (oppanel)" href="oppanel.html" /> 
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="oppanel.html" title="Operator Panel (oppanel)"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">skiboot 5.4.0-rc2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Device Tree</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../ibm,opal.html" accesskey="U">ibm,opal</a> &#187;</li> 
       </ul>
@@ -58,7 +58,11 @@
 <h1>ibm,opal/power-mgt device tree entries<a class="headerlink" href="#ibm-opal-power-mgt-device-tree-entries" title="Permalink to this headline">¶</a></h1>
 <p>All available CPU idle states are listed in ibm,cpu-idle-state-names</p>
 <p>For example:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ibm</span><span class="p">,</span><span class="n">cpu</span><span class="o">-</span><span class="n">idle</span><span class="o">-</span><span class="n">state</span><span class="o">-</span><span class="n">names</span> <span class="o">=</span> <span class="s2">&quot;nap&quot;</span><span class="p">,</span> <span class="s2">&quot;fastsleep_&quot;</span><span class="p">,</span> <span class="s2">&quot;winkle&quot;</span><span class="p">;</span>
+<div class="highlight-dts"><div class="highlight"><pre><span></span><span class="nc">power-mgt</span> <span class="p">{</span>
+  <span class="nf">ibm,cpu-idle-state-names</span> <span class="o">=</span> <span class="s">&quot;nap&quot;, &quot;fastsleep_&quot;, &quot;winkle&quot;</span><span class="p">;</span>
+  <span class="nf">ibm,cpu-idle-state-residency-ns</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x1</span> <span class="mh">0x2</span> <span class="mh">0x3</span><span class="p">&gt;;</span>
+  <span class="nf">ibm,cpu-idle-state-latencies-ns</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x1</span> <span class="mh">0x2</span> <span class="mh">0x3</span><span class="p">&gt;;</span>
+<span class="p">};</span>
 </pre></div>
 </div>
 <p>The idle states are characterized by latency and residency
@@ -75,8 +79,27 @@ been arrived at experimentally after ensuring that the performance of latency
 sensitive workloads do not regress while allowing deeper idle states to be
 entered into during low load situations. The kernel is expected to use these
 values for optimal power efficiency.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ibm</span><span class="p">,</span><span class="n">cpu</span><span class="o">-</span><span class="n">idle</span><span class="o">-</span><span class="n">state</span><span class="o">-</span><span class="n">residency</span><span class="o">-</span><span class="n">ns</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1</span> <span class="mh">0x2</span> <span class="mh">0x3</span><span class="o">&gt;</span>
-<span class="n">ibm</span><span class="p">,</span><span class="n">cpu</span><span class="o">-</span><span class="n">idle</span><span class="o">-</span><span class="n">state</span><span class="o">-</span><span class="n">latencies</span><span class="o">-</span><span class="n">ns</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1</span> <span class="mh">0x2</span> <span class="mh">0x3</span><span class="o">&gt;</span>
+<p>Example:</p>
+<div class="highlight-dts"><div class="highlight"><pre><span></span><span class="k">/</span> <span class="p">{</span>
+  <span class="nc">ibm,opal</span> <span class="p">{</span>
+    <span class="nc">power-mgt</span> <span class="p">{</span>
+             <span class="nf">ibm,pstate-frequencies-mhz</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0xda3</span> <span class="mh">0xd82</span> <span class="mh">0xd60</span> <span class="mh">0xd3f</span> <span class="mh">0xd1e</span> <span class="mh">0xcfd</span> <span class="mh">0xcdb</span> <span class="mh">0xcba</span> <span class="mh">0xc99</span> <span class="mh">0xc78</span> <span class="mh">0xc56</span> <span class="mh">0xc35</span> <span class="mh">0xc14</span> <span class="mh">0xbf3</span> <span class="mh">0xbd1</span> <span class="mh">0xbb0</span> <span class="mh">0xb8f</span> <span class="mh">0xb6e</span> <span class="mh">0xb4c</span> <span class="mh">0xb2b</span> <span class="mh">0xb0a</span> <span class="mh">0xae9</span> <span class="mh">0xac7</span> <span class="mh">0xaa6</span> <span class="mh">0xa85</span> <span class="mh">0xa64</span> <span class="mh">0xa42</span> <span class="mh">0xa21</span> <span class="mh">0xa00</span> <span class="mh">0x9df</span> <span class="mh">0x9bd</span> <span class="mh">0x99c</span> <span class="mh">0x97b</span> <span class="mh">0x95a</span> <span class="mh">0x938</span> <span class="mh">0x917</span> <span class="mh">0x8f6</span> <span class="mh">0x8d5</span> <span class="mh">0x8b3</span> <span class="mh">0x892</span> <span class="mh">0x871</span> <span class="mh">0x850</span> <span class="mh">0x82e</span> <span class="mh">0x80d</span><span class="p">&gt;;</span>
+             <span class="nf">ibm,cpu-idle-state-latencies-ns</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0xfa0</span> <span class="mh">0x9c40</span> <span class="mh">0x989680</span><span class="p">&gt;;</span>
+             <span class="nf">ibm,cpu-idle-state-flags</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x11000</span> <span class="mh">0x81003</span> <span class="mh">0x47003</span><span class="p">&gt;;</span>
+             <span class="nf">ibm,cpu-idle-state-names</span> <span class="o">=</span> <span class="s">&quot;nap&quot;, &quot;fastsleep_&quot;, &quot;winkle&quot;</span><span class="p">;</span>
+             <span class="nf">ibm,cpu-idle-state-pmicr</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x0</span> <span class="mh">0x0</span> <span class="mh">0x20</span> <span class="mh">0x0</span> <span class="mh">0x0</span> <span class="mh">0x0</span><span class="p">&gt;;</span>
+             <span class="nf">ibm,pstate-vdds</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x5758595a</span> <span class="mh">0x5a5b5c5d</span> <span class="mh">0x5e5e5f60</span> <span class="mh">0x61626263</span> <span class="mh">0x64656566</span> <span class="mh">0x66676768</span> <span class="mh">0x6869696a</span> <span class="mh">0x6a6b6b6c</span> <span class="mh">0x6c6d6d6e</span> <span class="mh">0x6e6f6f70</span> <span class="mh">0x70717272</span><span class="p">&gt;;</span>
+             <span class="nf">ibm,pstate-vcss</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x4d4e4f4f</span> <span class="mh">0x50505152</span> <span class="mh">0x52535354</span> <span class="mh">0x55555657</span> <span class="mh">0x57585859</span> <span class="mh">0x59595a5a</span> <span class="mh">0x5a5b5b5c</span> <span class="mh">0x5c5c5d5d</span> <span class="mh">0x5d5e5e5f</span> <span class="mh">0x5f5f6060</span> <span class="mh">0x60616162</span><span class="p">&gt;;</span>
+             <span class="nf">ibm,pstate-nominal</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0xffffffef</span><span class="p">&gt;;</span>
+             <span class="nf">ibm,cpu-idle-state-residency-ns</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x186a0</span> <span class="mh">0x11e1a300</span> <span class="mh">0x3b9aca00</span><span class="p">&gt;;</span>
+             <span class="nf">ibm,cpu-idle-state-pmicr-mask</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x0</span> <span class="mh">0x0</span> <span class="mh">0x30</span> <span class="mh">0x0</span> <span class="mh">0x0</span> <span class="mh">0x0</span><span class="p">&gt;;</span>
+             <span class="nf">phandle</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x100002a0</span><span class="p">&gt;;</span>
+             <span class="nf">ibm,pstate-ids</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x0</span> <span class="mh">0xffffffff</span> <span class="mh">0xfffffffe</span> <span class="mh">0xfffffffd</span> <span class="mh">0xfffffffc</span> <span class="mh">0xfffffffb</span> <span class="mh">0xfffffffa</span> <span class="mh">0xfffffff9</span> <span class="mh">0xfffffff8</span> <span class="mh">0xfffffff7</span> <span class="mh">0xfffffff6</span> <span class="mh">0xfffffff5</span> <span class="mh">0xfffffff4</span> <span class="mh">0xfffffff3</span> <span class="mh">0xfffffff2</span> <span class="mh">0xfffffff1</span> <span class="mh">0xfffffff0</span> <span class="mh">0xffffffef</span> <span class="mh">0xffffffee</span> <span class="mh">0xffffffed</span> <span class="mh">0xffffffec</span> <span class="mh">0xffffffeb</span> <span class="mh">0xffffffea</span> <span class="mh">0xffffffe9</span> <span class="mh">0xffffffe8</span> <span class="mh">0xffffffe7</span> <span class="mh">0xffffffe6</span> <span class="mh">0xffffffe5</span> <span class="mh">0xffffffe4</span> <span class="mh">0xffffffe3</span> <span class="mh">0xffffffe2</span> <span class="mh">0xffffffe1</span> <span class="mh">0xffffffe0</span> <span class="mh">0xffffffdf</span> <span class="mh">0xffffffde</span> <span class="mh">0xffffffdd</span> <span class="mh">0xffffffdc</span> <span class="mh">0xffffffdb</span> <span class="mh">0xffffffda</span> <span class="mh">0xffffffd9</span> <span class="mh">0xffffffd8</span> <span class="mh">0xffffffd7</span> <span class="mh">0xffffffd6</span> <span class="mh">0xffffffd5</span><span class="p">&gt;;</span>
+             <span class="nf">ibm,pstate-max</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x0</span><span class="p">&gt;;</span>
+             <span class="nf">ibm,pstate-min</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0xffffffd5</span><span class="p">&gt;;</span>
+    <span class="p">};</span>
+  <span class="p">};</span>
+<span class="p">};</span>
 </pre></div>
 </div>
 <div class="section" id="ibm-cpu-idle-state-pmicr-ibm-cpu-idle-state-pmicr-mask">
@@ -198,7 +221,7 @@ the list of max pstate for each &#8216;n&#8217; number of active cores in the ch
         <li class="right" >
           <a href="oppanel.html" title="Operator Panel (oppanel)"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">skiboot 5.4.0-rc2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Device Tree</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../ibm,opal.html" >ibm,opal</a> &#187;</li> 
       </ul>

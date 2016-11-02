@@ -1,8 +1,12 @@
+.. _device-tree/ibm,opal/leds:
+
 Service Indicators (LEDS)
 =========================
 
 The 'leds' node under 'ibm,opal' lists service indicators available in the
-system and their capabilities. ::
+system and their capabilities.
+
+.. code-block:: dts
 
   leds {
 	compatible = "ibm,opal-v3-led";
@@ -15,8 +19,7 @@ system and their capabilities. ::
 		phandle = <0x1000006f>;
 		linux,phandle = <0x1000006f>;
 	};
-	...
-	...
+	/* Other LED nodes like the above one */
   };
 
 compatible
@@ -33,4 +36,4 @@ led-types
   Supported indicators (attention/identify/fault).
 
 These LEDs can be accessed through OPAL_LEDS_{GET/SET}_INDICATOR interfaces.
-Refer to doc/opal-api/opal-led-get-set-114-115.rst for interface details.
+Refer to :ref:`opal-api-LEDs` for interface details.

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ibm,secureboot &#8212; skiboot 5.4.0-rc2 documentation</title>
+    <title>ibm,secureboot &#8212; skiboot 5.4.0-rc3 documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '5.4.0-rc2',
+        VERSION:     '5.4.0-rc3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="skiboot 5.4.0-rc2 documentation" href="../index.html" />
+    <link rel="top" title="skiboot 5.4.0-rc3 documentation" href="../index.html" />
     <link rel="up" title="Device Tree" href="index.html" />
     <link rel="next" title="Nvlink Device Tree Bindings" href="nvlink.html" />
     <link rel="prev" title="ibm,opal/sensors/ device tree nodes" href="ibm,opal/sensors.html" /> 
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="ibm,opal/sensors.html" title="ibm,opal/sensors/ device tree nodes"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Device Tree</a> &#187;</li> 
       </ul>
     </div>  
@@ -54,7 +54,7 @@
           <div class="body" role="main">
             
   <div class="section" id="ibm-secureboot">
-<h1>ibm,secureboot<a class="headerlink" href="#ibm-secureboot" title="Permalink to this headline">¶</a></h1>
+<span id="device-tree-ibm-secureboot"></span><h1>ibm,secureboot<a class="headerlink" href="#ibm-secureboot" title="Permalink to this headline">¶</a></h1>
 <p>Secure boot and trusted boot relies on a code stored in the secure ROM at
 manufacture time to verify and measure other codes before they are executed.
 This ROM code is also referred to as ROM verification code.</p>
@@ -66,20 +66,20 @@ boot to verify the integrity and authenticity of an image before it is executed.
 boot to calculate the SHA512 hash of an image only if the image is not a secure boot
 container or the system is not booting up in secure mode.</p>
 <p>For further information about secure boot and trusted boot please refer to
-<code class="docutils literal"><span class="pre">doc/stb.rst</span></code>.</p>
+<a class="reference internal" href="../stb.html#stb-overview"><span class="std std-ref">Secure and Truted Boot Overview</span></a>.</p>
 <div class="section" id="required-properties">
 <h2>Required properties<a class="headerlink" href="#required-properties" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">compatible</span><span class="p">:</span>         <span class="n">ibm</span><span class="p">,</span><span class="n">secureboot</span> <span class="n">version</span><span class="o">.</span> <span class="n">It</span> <span class="ow">is</span> <span class="n">related</span> <span class="n">to</span> <span class="n">the</span> <span class="n">ROM</span> <span class="n">code</span> <span class="n">version</span><span class="o">.</span>
+<div class="highlight-none"><div class="highlight"><pre><span></span>compatible:         ibm,secureboot version. It is related to the ROM code version.
 
-<span class="nb">hash</span><span class="o">-</span><span class="n">algo</span><span class="p">:</span>          <span class="nb">hash</span> <span class="n">algorithm</span> <span class="n">used</span> <span class="k">for</span> <span class="n">the</span> <span class="n">hw</span><span class="o">-</span><span class="n">key</span><span class="o">-</span><span class="nb">hash</span><span class="o">.</span> <span class="n">Aspects</span> <span class="n">such</span> <span class="k">as</span> <span class="n">the</span> <span class="n">size</span>
-                    <span class="n">of</span> <span class="n">the</span> <span class="n">hw</span><span class="o">-</span><span class="n">key</span><span class="o">-</span><span class="nb">hash</span> <span class="n">can</span> <span class="n">be</span> <span class="n">infered</span> <span class="kn">from</span> <span class="nn">this</span> <span class="nb">property</span><span class="o">.</span>
+hash-algo:          hash algorithm used for the hw-key-hash. Aspects such as the size
+                    of the hw-key-hash can be infered from this property.
 
-<span class="n">secure</span><span class="o">-</span><span class="n">enabled</span><span class="p">:</span>     <span class="n">this</span> <span class="nb">property</span> <span class="n">exists</span> <span class="k">if</span> <span class="n">the</span> <span class="n">system</span> <span class="ow">is</span> <span class="n">booting</span> <span class="ow">in</span> <span class="n">secure</span> <span class="n">mode</span><span class="o">.</span>
+secure-enabled:     this property exists if the system is booting in secure mode.
 
-<span class="n">trusted</span><span class="o">-</span><span class="n">enabled</span><span class="p">:</span>    <span class="n">this</span> <span class="nb">property</span> <span class="n">exists</span> <span class="k">if</span> <span class="n">the</span> <span class="n">system</span> <span class="ow">is</span> <span class="n">booting</span> <span class="ow">in</span> <span class="n">trusted</span> <span class="n">mode</span><span class="o">.</span>
+trusted-enabled:    this property exists if the system is booting in trusted mode.
 
-<span class="n">hw</span><span class="o">-</span><span class="n">key</span><span class="o">-</span><span class="nb">hash</span><span class="p">:</span>        <span class="nb">hash</span> <span class="n">of</span> <span class="n">three</span> <span class="n">concatenated</span> <span class="n">hardware</span> <span class="n">public</span> <span class="n">key</span><span class="o">.</span> <span class="n">This</span> <span class="ow">is</span> <span class="n">required</span>
-                    <span class="n">by</span> <span class="n">the</span> <span class="n">ROM</span> <span class="n">code</span> <span class="n">to</span> <span class="n">verify</span> <span class="n">images</span><span class="o">.</span>
+hw-key-hash:        hash of three concatenated hardware public key. This is required
+                    by the ROM code to verify images.
 </pre></div>
 </div>
 </div>
@@ -87,17 +87,17 @@ container or the system is not booting up in secure mode.</p>
 <h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
 <p>For the first version <code class="docutils literal"><span class="pre">ibm,secureboot-v1</span></code>, the ROM code expects the <em>hw-key-hash</em>
 to be a SHA512 hash.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ibm</span><span class="p">,</span><span class="n">secureboot</span> <span class="p">{</span>
-    <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;ibm,secureboot-v1&quot;</span><span class="p">;</span>
-    <span class="nb">hash</span><span class="o">-</span><span class="n">algo</span> <span class="o">=</span> <span class="s2">&quot;sha512&quot;</span><span class="p">;</span>
-    <span class="n">secure</span><span class="o">-</span><span class="n">enabled</span><span class="p">;</span>
-    <span class="n">trusted</span><span class="o">-</span><span class="n">enabled</span><span class="p">;</span>
-    <span class="n">hw</span><span class="o">-</span><span class="n">key</span><span class="o">-</span><span class="nb">hash</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x40d487ff</span> <span class="mh">0x7380ed6a</span> <span class="mh">0xd54775d5</span> <span class="mh">0x795fea0d</span> <span class="mh">0xe2f541fe</span>
+<div class="highlight-dts"><div class="highlight"><pre><span></span><span class="nc">ibm,secureboot</span> <span class="p">{</span>
+    <span class="nf">compatible</span> <span class="o">=</span> <span class="s">&quot;ibm,secureboot-v1&quot;</span><span class="p">;</span>
+    <span class="nf">hash-algo</span> <span class="o">=</span> <span class="s">&quot;sha512&quot;</span><span class="p">;</span>
+    <span class="nf">secure-enabled</span><span class="p">;</span>
+    <span class="nf">trusted-enabled</span><span class="p">;</span>
+    <span class="nf">hw-key-hash</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x40d487ff</span> <span class="mh">0x7380ed6a</span> <span class="mh">0xd54775d5</span> <span class="mh">0x795fea0d</span> <span class="mh">0xe2f541fe</span>
                    <span class="mh">0xa9db06b8</span> <span class="mh">0x466a42a3</span> <span class="mh">0x20e65f75</span> <span class="mh">0xb4866546</span> <span class="mh">0x17d907</span>
                    <span class="mh">0x515dc2a5</span> <span class="mh">0xf9fc5095</span> <span class="mh">0x4d6ee0c9</span> <span class="mh">0xb67d219d</span> <span class="mh">0xfb708535</span>
-                   <span class="mh">0x1d01d6d1</span><span class="o">&gt;</span><span class="p">;</span>
-    <span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100000fd</span><span class="o">&gt;</span><span class="p">;</span>
-    <span class="n">linux</span><span class="p">,</span><span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x100000fd</span><span class="o">&gt;</span><span class="p">;</span>
+                   <span class="mh">0x1d01d6d1</span><span class="p">&gt;;</span>
+    <span class="nf">phandle</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x100000fd</span><span class="p">&gt;;</span>
+    <span class="nf">linux,phandle</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x100000fd</span><span class="p">&gt;;</span>
 <span class="p">};</span>
 </pre></div>
 </div>
@@ -158,7 +158,7 @@ to be a SHA512 hash.</p>
         <li class="right" >
           <a href="ibm,opal/sensors.html" title="ibm,opal/sensors/ device tree nodes"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Device Tree</a> &#187;</li> 
       </ul>
     </div>

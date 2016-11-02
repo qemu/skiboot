@@ -1,3 +1,5 @@
+.. _device-tree/tpm:
+
 Trusted Platform Module (TPM)
 =============================
 
@@ -31,7 +33,7 @@ Optional properties
 Example
 -------
 
-::
+.. code-block:: dts
 
     tpm@57 {
     	reg = <0x57>;

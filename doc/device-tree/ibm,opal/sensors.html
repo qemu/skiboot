@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>ibm,opal/sensors/ device tree nodes &#8212; skiboot 5.4.0-rc2 documentation</title>
+    <title>ibm,opal/sensors/ device tree nodes &#8212; skiboot 5.4.0-rc3 documentation</title>
     
     <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '5.4.0-rc2',
+        VERSION:     '5.4.0-rc3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="top" title="skiboot 5.4.0-rc2 documentation" href="../../index.html" />
+    <link rel="top" title="skiboot 5.4.0-rc3 documentation" href="../../index.html" />
     <link rel="up" title="ibm,opal" href="../ibm,opal.html" />
     <link rel="next" title="ibm,secureboot" href="../ibm,secureboot.html" />
     <link rel="prev" title="ibm,opal/power-mgt device tree entries" href="power-mgt.html" /> 
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="power-mgt.html" title="ibm,opal/power-mgt device tree entries"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">skiboot 5.4.0-rc2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Device Tree</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../ibm,opal.html" accesskey="U">ibm,opal</a> &#187;</li> 
       </ul>
@@ -93,58 +93,59 @@ type but testing against 0x6 should raise an alarm.</p>
 </ul>
 <p>Each node can have some extra properties depending on the resource
 they represent. See the tree below for more information.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ibm</span><span class="p">,</span><span class="n">opal</span><span class="o">/</span><span class="n">sensors</span><span class="o">/</span> <span class="p">{</span>
+<div class="highlight-dts"><div class="highlight"><pre><span></span><span class="nc">ibm,opal</span> <span class="p">{</span>
+  <span class="nc">sensors</span> <span class="p">{</span>
 
-      <span class="o">/*</span>
-       <span class="o">*</span> <span class="n">Core</span> <span class="n">temperatures</span> <span class="p">(</span><span class="n">DTS</span><span class="p">)</span> <span class="n">nodes</span><span class="o">.</span>
-       <span class="o">*</span>
-       <span class="o">*</span> <span class="n">We</span> <span class="n">use</span> <span class="n">the</span> <span class="n">PIR</span> <span class="n">of</span> <span class="n">the</span> <span class="n">core</span> <span class="k">as</span> <span class="n">a</span> <span class="n">resource</span> <span class="n">identifier</span><span class="o">.</span>
-       <span class="o">*/</span>
-      <span class="n">core</span><span class="o">-</span><span class="n">temp</span><span class="nd">@20</span> <span class="p">{</span>
-              <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;ibm,opal-sensor&quot;</span><span class="p">;</span>
-              <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;core-temp&quot;</span><span class="p">;</span>
-              <span class="n">sensor</span><span class="o">-</span><span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;temp&quot;</span><span class="p">;</span>
+      <span class="cm">/*</span>
+<span class="cm">       * Core temperatures (DTS) nodes.</span>
+<span class="cm">       *</span>
+<span class="cm">       * We use the PIR of the core as a resource identifier.</span>
+<span class="cm">       */</span>
+      <span class="nc">core-temp</span><span class="nf">@20</span> <span class="p">{</span>
+              <span class="nf">compatible</span> <span class="o">=</span> <span class="s">&quot;ibm,opal-sensor&quot;</span><span class="p">;</span>
+              <span class="nf">name</span> <span class="o">=</span> <span class="s">&quot;core-temp&quot;</span><span class="p">;</span>
+              <span class="nf">sensor-type</span> <span class="o">=</span> <span class="s">&quot;temp&quot;</span><span class="p">;</span>
 
-              <span class="o">/*</span> <span class="n">Status</span> <span class="n">bits</span> <span class="p">:</span>
-               <span class="o">*</span>
-               <span class="o">*</span> <span class="mh">0x0003</span>       <span class="n">FATAL</span>
-               <span class="o">*</span> <span class="mh">0x0002</span>       <span class="n">CRITICAL</span>
-               <span class="o">*</span> <span class="mh">0x0001</span>       <span class="n">WARNING</span>
-               <span class="o">*/</span>
-              <span class="n">sensor</span><span class="o">-</span><span class="n">data</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x00800020</span><span class="o">&gt;</span><span class="p">;</span>
+              <span class="cm">/* Status bits :</span>
+<span class="cm">               *</span>
+<span class="cm">               * 0x0003       FATAL</span>
+<span class="cm">               * 0x0002       CRITICAL</span>
+<span class="cm">               * 0x0001       WARNING</span>
+<span class="cm">               */</span>
+              <span class="nf">sensor-data</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x00800020</span><span class="p">&gt;;</span>
 
-              <span class="o">/*</span>
-               <span class="o">*</span> <span class="n">These</span> <span class="n">are</span> <span class="n">extra</span> <span class="n">properties</span> <span class="n">to</span> <span class="n">help</span> <span class="n">Linux</span> <span class="n">output</span><span class="o">.</span>
-               <span class="o">*/</span>
-              <span class="n">ibm</span><span class="p">,</span><span class="n">pir</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x20</span><span class="o">&gt;</span><span class="p">;</span>
-              <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Core&quot;</span><span class="p">;</span>
+              <span class="cm">/*</span>
+<span class="cm">               * These are extra properties to help Linux output.</span>
+<span class="cm">               */</span>
+              <span class="nf">ibm,pir</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x20</span><span class="p">&gt;;</span>
+              <span class="nf">label</span> <span class="o">=</span> <span class="s">&quot;Core&quot;</span><span class="p">;</span>
       <span class="p">};</span>
 
-      <span class="o">/*</span>
-       <span class="o">*</span> <span class="n">Centaur</span> <span class="n">temperatures</span> <span class="p">(</span><span class="n">DTS</span><span class="p">)</span> <span class="n">nodes</span><span class="o">.</span> <span class="n">Open</span> <span class="n">Power</span> <span class="n">only</span><span class="o">.</span>
-       <span class="o">*</span>
-       <span class="o">*</span> <span class="n">We</span> <span class="n">use</span> <span class="n">the</span> <span class="n">PIR</span> <span class="n">of</span> <span class="n">the</span> <span class="n">core</span> <span class="k">as</span> <span class="n">a</span> <span class="n">resource</span> <span class="n">identifier</span><span class="o">.</span>
-       <span class="o">*/</span>
-      <span class="n">mem</span><span class="o">-</span><span class="n">temp</span><span class="nd">@1</span> <span class="p">{</span>
-              <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;ibm,opal-sensor&quot;</span><span class="p">;</span>
-              <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;mem-temp&quot;</span><span class="p">;</span>
-              <span class="n">sensor</span><span class="o">-</span><span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;temp&quot;</span><span class="p">;</span>
+      <span class="cm">/*</span>
+<span class="cm">       * Centaur temperatures (DTS) nodes. Open Power only.</span>
+<span class="cm">       *</span>
+<span class="cm">       * We use the PIR of the core as a resource identifier.</span>
+<span class="cm">       */</span>
+      <span class="nc">mem-temp</span><span class="nf">@1</span> <span class="p">{</span>
+              <span class="nf">compatible</span> <span class="o">=</span> <span class="s">&quot;ibm,opal-sensor&quot;</span><span class="p">;</span>
+              <span class="nf">name</span> <span class="o">=</span> <span class="s">&quot;mem-temp&quot;</span><span class="p">;</span>
+              <span class="nf">sensor-type</span> <span class="o">=</span> <span class="s">&quot;temp&quot;</span><span class="p">;</span>
 
-              <span class="o">/*</span> <span class="n">Status</span> <span class="n">bits</span> <span class="p">:</span>
-               <span class="o">*</span>
-               <span class="o">*</span> <span class="mh">0x0003</span>       <span class="n">FATAL</span>
-               <span class="o">*</span> <span class="mh">0x0002</span>       <span class="n">CRITICAL</span>
-               <span class="o">*</span> <span class="mh">0x0001</span>       <span class="n">WARNING</span>
-               <span class="o">*/</span>
-              <span class="n">sensor</span><span class="o">-</span><span class="n">data</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x00810001</span><span class="o">&gt;</span><span class="p">;</span>
+              <span class="cm">/* Status bits :</span>
+<span class="cm">               *</span>
+<span class="cm">               * 0x0003       FATAL</span>
+<span class="cm">               * 0x0002       CRITICAL</span>
+<span class="cm">               * 0x0001       WARNING</span>
+<span class="cm">               */</span>
+              <span class="nf">sensor-data</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x00810001</span><span class="p">&gt;;</span>
 
-              <span class="o">/*</span>
-               <span class="o">*</span> <span class="n">These</span> <span class="n">are</span> <span class="n">extra</span> <span class="n">properties</span> <span class="n">to</span> <span class="n">help</span> <span class="n">Linux</span> <span class="n">output</span><span class="o">.</span>
-               <span class="o">*/</span>
-              <span class="n">ibm</span><span class="p">,</span><span class="n">chip</span><span class="o">-</span><span class="nb">id</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x80000001</span><span class="o">&gt;</span><span class="p">;</span>
-              <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Centaur&quot;</span><span class="p">;</span>
+              <span class="cm">/*</span>
+<span class="cm">               * These are extra properties to help Linux output.</span>
+<span class="cm">               */</span>
+              <span class="nf">ibm,chip-id</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x80000001</span><span class="p">&gt;;</span>
+              <span class="nf">label</span> <span class="o">=</span> <span class="s">&quot;Centaur&quot;</span><span class="p">;</span>
       <span class="p">};</span>
-
+  <span class="p">};</span>
 <span class="p">};</span>
 </pre></div>
 </div>
@@ -195,7 +196,7 @@ they represent. See the tree below for more information.</p>
         <li class="right" >
           <a href="power-mgt.html" title="ibm,opal/power-mgt device tree entries"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">skiboot 5.4.0-rc2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Device Tree</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../ibm,opal.html" >ibm,opal</a> &#187;</li> 
       </ul>

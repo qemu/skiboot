@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Service Indicators (LEDS) &#8212; skiboot 5.4.0-rc2 documentation</title>
+    <title>Service Indicators (LEDS) &#8212; skiboot 5.4.0-rc3 documentation</title>
     
     <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../../',
-        VERSION:     '5.4.0-rc2',
+        VERSION:     '5.4.0-rc3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="top" title="skiboot 5.4.0-rc2 documentation" href="../../index.html" />
+    <link rel="top" title="skiboot 5.4.0-rc3 documentation" href="../../index.html" />
     <link rel="up" title="ibm,opal" href="../ibm,opal.html" />
     <link rel="next" title="Operator Panel (oppanel)" href="oppanel.html" />
     <link rel="prev" title="ibm,opal/flash device tree entries" href="flash.html" /> 
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="flash.html" title="ibm,opal/flash device tree entries"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">skiboot 5.4.0-rc2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Device Tree</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../ibm,opal.html" accesskey="U">ibm,opal</a> &#187;</li> 
       </ul>
@@ -55,22 +55,21 @@
           <div class="body" role="main">
             
   <div class="section" id="service-indicators-leds">
-<h1>Service Indicators (LEDS)<a class="headerlink" href="#service-indicators-leds" title="Permalink to this headline">¶</a></h1>
+<span id="device-tree-ibm-opal-leds"></span><h1>Service Indicators (LEDS)<a class="headerlink" href="#service-indicators-leds" title="Permalink to this headline">¶</a></h1>
 <p>The &#8216;leds&#8217; node under &#8216;ibm,opal&#8217; lists service indicators available in the
 system and their capabilities.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">leds</span> <span class="p">{</span>
-      <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;ibm,opal-v3-led&quot;</span><span class="p">;</span>
-      <span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1000006b</span><span class="o">&gt;</span><span class="p">;</span>
-      <span class="n">linux</span><span class="p">,</span><span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1000006b</span><span class="o">&gt;</span><span class="p">;</span>
-      <span class="n">led</span><span class="o">-</span><span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;lightpath&quot;</span><span class="p">;</span>
+<div class="highlight-dts"><div class="highlight"><pre><span></span><span class="nc">leds</span> <span class="p">{</span>
+      <span class="nf">compatible</span> <span class="o">=</span> <span class="s">&quot;ibm,opal-v3-led&quot;</span><span class="p">;</span>
+      <span class="nf">phandle</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x1000006b</span><span class="p">&gt;;</span>
+      <span class="nf">linux,phandle</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x1000006b</span><span class="p">&gt;;</span>
+      <span class="nf">led-mode</span> <span class="o">=</span> <span class="s">&quot;lightpath&quot;</span><span class="p">;</span>
 
-      <span class="n">U78C9</span><span class="o">.</span><span class="mf">001.</span><span class="n">RST0027</span><span class="o">-</span><span class="n">P1</span><span class="o">-</span><span class="n">C1</span> <span class="p">{</span>
-              <span class="n">led</span><span class="o">-</span><span class="n">types</span> <span class="o">=</span> <span class="s2">&quot;identify&quot;</span><span class="p">,</span> <span class="s2">&quot;fault&quot;</span><span class="p">;</span>
-              <span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1000006f</span><span class="o">&gt;</span><span class="p">;</span>
-              <span class="n">linux</span><span class="p">,</span><span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x1000006f</span><span class="o">&gt;</span><span class="p">;</span>
+      <span class="nc">U78C9.001.RST0027-P1-C1</span> <span class="p">{</span>
+              <span class="nf">led-types</span> <span class="o">=</span> <span class="s">&quot;identify&quot;, &quot;fault&quot;</span><span class="p">;</span>
+              <span class="nf">phandle</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x1000006f</span><span class="p">&gt;;</span>
+              <span class="nf">linux,phandle</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x1000006f</span><span class="p">&gt;;</span>
       <span class="p">};</span>
-      <span class="o">...</span>
-      <span class="o">...</span>
+      <span class="cm">/* Other LED nodes like the above one */</span>
 <span class="p">};</span>
 </pre></div>
 </div>
@@ -87,7 +86,7 @@ system and their capabilities.</p>
 <dd>Supported indicators (attention/identify/fault).</dd>
 </dl>
 <p>These LEDs can be accessed through OPAL_LEDS_{GET/SET}_INDICATOR interfaces.
-Refer to doc/opal-api/opal-led-get-set-114-115.rst for interface details.</p>
+Refer to <a class="reference internal" href="../../opal-api/opal-led-get-set-114-115.html#opal-api-leds"><span class="std std-ref">Service Indicators (LEDS)</span></a> for interface details.</p>
 </div>
 
 
@@ -135,7 +134,7 @@ Refer to doc/opal-api/opal-led-get-set-114-115.rst for interface details.</p>
         <li class="right" >
           <a href="flash.html" title="ibm,opal/flash device tree entries"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../../index.html">skiboot 5.4.0-rc2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="../index.html" >Device Tree</a> &#187;</li>
           <li class="nav-item nav-item-2"><a href="../ibm,opal.html" >ibm,opal</a> &#187;</li> 
       </ul>

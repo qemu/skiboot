@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>OPAL Specification &#8212; skiboot 5.4.0-rc2 documentation</title>
+    <title>OPAL Specification &#8212; skiboot 5.4.0-rc3 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.4.0-rc2',
+        VERSION:     '5.4.0-rc3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="skiboot 5.4.0-rc2 documentation" href="index.html" />
+    <link rel="top" title="skiboot 5.4.0-rc3 documentation" href="index.html" />
     <link rel="next" title="SkiBoot Console Log" href="console-log.html" />
     <link rel="prev" title="Skiboot overview" href="overview.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="overview.html" title="Skiboot overview"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.4.0-rc2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -223,18 +223,17 @@ appropriately convert parameters before passing them to OPAL.</p>
 under other platforms. For example, a single Linux kernel can be built to boot
 under OPAL and under PowerVM or qemu pseries machine type.</p>
 <p>The root node of the device tree MUST have compatible = &#8220;ibm,powernv&#8221;.
-See doc/device-tree.rst for more details
-[TODO: make doc/device-tree.rst better]</p>
+See <a class="reference internal" href="device-tree.html#device-tree"><span class="std std-ref">Device Tree</span></a> for more details.</p>
 <p>The presence of the &#8220;/ibm,opal&#8221; entry in the device tree signifies running
 under OPAL. Additionally, the &#8220;/ibm,opal&#8221; node MUST have a compatibile property
 listing &#8220;ibm,opal-v3&#8221;.</p>
 <p>The &#8220;/ibm,opal&#8221; node MUST have the following properties:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ibm</span><span class="p">,</span><span class="n">opal</span> <span class="p">{</span>
-         <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;ibm,opal-v3&quot;</span><span class="p">;</span>
-         <span class="n">opal</span><span class="o">-</span><span class="n">base</span><span class="o">-</span><span class="n">address</span> <span class="o">=</span> <span class="o">&lt;&gt;</span><span class="p">;</span>
-         <span class="n">opal</span><span class="o">-</span><span class="n">entry</span><span class="o">-</span><span class="n">address</span> <span class="o">=</span> <span class="o">&lt;&gt;</span><span class="p">;</span>
-         <span class="n">opal</span><span class="o">-</span><span class="n">runtime</span><span class="o">-</span><span class="n">size</span> <span class="o">=</span> <span class="o">&lt;&gt;</span><span class="p">;</span>
-<span class="p">}</span>
+<div class="highlight-dts"><div class="highlight"><pre><span></span><span class="nc">ibm,opal</span> <span class="p">{</span>
+         <span class="nf">compatible</span> <span class="o">=</span> <span class="s">&quot;ibm,opal-v3&quot;</span><span class="p">;</span>
+         <span class="nf">opal-base-address</span> <span class="o">=</span> <span class="p">&lt;&gt;;</span>
+         <span class="nf">opal-entry-address</span> <span class="o">=</span> <span class="p">&lt;&gt;;</span>
+         <span class="nf">opal-runtime-size</span> <span class="o">=</span> <span class="p">&lt;&gt;;</span>
+<span class="p">};</span>
 </pre></div>
 </div>
 <p>The compatible property MAY have other strings, such as a future &#8220;ibm,opal-v4&#8221;.
@@ -244,9 +243,9 @@ contain &#8220;ibm,opal-v2&#8221; as well as &#8220;ibm,opal-v3&#8221;. Host ope
 NOT rely on &#8220;ibm,opal-v2&#8221;, this is a relic from early OPAL history.</p>
 <p>The &#8220;ibm,opal&#8221; node MUST have a child node named &#8220;firmware&#8221;. It MUST contain
 the following:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">firmware</span> <span class="p">{</span>
-        <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;ibm,opal-firmware&quot;</span><span class="p">;</span>
-<span class="p">}</span>
+<div class="highlight-dts"><div class="highlight"><pre><span></span><span class="nc">firmware</span> <span class="p">{</span>
+        <span class="nf">compatible</span> <span class="o">=</span> <span class="s">&quot;ibm,opal-firmware&quot;</span><span class="p">;</span>
+<span class="p">};</span>
 </pre></div>
 </div>
 <p>It MUST contain one of the following two properties: git-id, version.
@@ -255,7 +254,7 @@ are informative and MUST NOT be used by the host OS to determine anything
 about the firmware environment.</p>
 <p>The version property is a textual representation of the OPAL version.
 For example, it may be &#8220;skiboot-4.1&#8221; or other versioning described
-in more detail in doc/versioning.rst</p>
+in more detail in <a class="reference internal" href="versioning.html#versioning"><span class="std std-ref">Versioning Scheme of skiboot</span></a>.</p>
 </div>
 <div class="section" id="opal-log">
 <h2>OPAL log<a class="headerlink" href="#opal-log" title="Permalink to this headline">¶</a></h2>
@@ -332,7 +331,7 @@ while more messages go to the in memory buffer.</p>
         <li class="right" >
           <a href="overview.html" title="Skiboot overview"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.4.0-rc2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

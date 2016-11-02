@@ -1,0 +1,202 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>OPAL_LPC_READ &#8212; skiboot 5.4.0-rc3 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '5.4.0-rc3',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="top" title="skiboot 5.4.0-rc3 documentation" href="../index.html" />
+    <link rel="up" title="OPAL API Documentation" href="index.html" />
+    <link rel="next" title="OPAL_MESSAGE" href="opal-messages.html" />
+    <link rel="prev" title="Service Indicators (LEDS)" href="opal-led-get-set-114-115.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="opal-messages.html" title="OPAL_MESSAGE"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="opal-led-get-set-114-115.html" title="Service Indicators (LEDS)"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">OPAL API Documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="opal-lpc-read">
+<h1>OPAL_LPC_READ<a class="headerlink" href="#opal-lpc-read" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-default"><div class="highlight"><pre><span></span>This function related to Low Pin Count (LPC) bus. This function reads the
+data from IDSEL register for ``chip_id``, which has LPC information.
+From ``addr`` for ``addr_type`` with read size ``sz`` bytes in to a
+variable named ``data``.
+</pre></div>
+</div>
+<div class="section" id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">chip_id</span></code></dt>
+<dd>The <code class="docutils literal"><span class="pre">chip_id</span></code> parameter contains value of the chip number identified at
+boot time.</dd>
+<dt><code class="docutils literal"><span class="pre">addr_type</span></code></dt>
+<dd>The <code class="docutils literal"><span class="pre">addr_type</span></code> is one of the LPC supported address types.
+Supported address types are -
+LPC memory,
+LPC IO and
+LPC firmware.</dd>
+<dt><code class="docutils literal"><span class="pre">addr</span></code></dt>
+<dd>The <code class="docutils literal"><span class="pre">addr</span></code> from which the data has to be read.</dd>
+<dt><code class="docutils literal"><span class="pre">data</span></code></dt>
+<dd>The <code class="docutils literal"><span class="pre">data</span></code> will be used to store the read data.</dd>
+<dt><code class="docutils literal"><span class="pre">sz</span></code></dt>
+<dd>How many <code class="docutils literal"><span class="pre">sz</span></code> bytes to be read in to <code class="docutils literal"><span class="pre">data</span></code>.</dd>
+</dl>
+</div>
+<div class="section" id="return-codes">
+<h2>Return Codes<a class="headerlink" href="#return-codes" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">OPAL_PARAMETER</span></code></dt>
+<dd>Indicates either <code class="docutils literal"><span class="pre">chip_id</span></code> not found or <code class="docutils literal"><span class="pre">chip_id</span></code> doesn’t contain
+LPC information.</dd>
+<dt><code class="docutils literal"><span class="pre">OPAL_SUCCESS</span></code></dt>
+<dd>Indicates Success!</dd>
+</dl>
+</div>
+</div>
+<div class="section" id="opal-lpc-write">
+<h1>OPAL_LPC_WRITE<a class="headerlink" href="#opal-lpc-write" title="Permalink to this headline">¶</a></h1>
+<div class="highlight-default"><div class="highlight"><pre><span></span>This function related to Low Pin Count (LPC) bus. This function writes the
+``data`` in to  ECCB register for ``chip_id``, which has LPC information.
+From ``addr`` for ``addr_type`` with write size ``sz`` bytes.
+</pre></div>
+</div>
+<div class="section" id="id1">
+<h2>Parameters<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">chip_id</span></code></dt>
+<dd>The <code class="docutils literal"><span class="pre">chip_id</span></code> parameter contains value of the chip number identified at
+boot time.</dd>
+<dt><code class="docutils literal"><span class="pre">addr_type</span></code></dt>
+<dd>The <code class="docutils literal"><span class="pre">addr_type</span></code> is one of the address types LPC supported.
+Supported address types are -
+LPC memory,
+LPC IO and
+LPC firmware.</dd>
+<dt><code class="docutils literal"><span class="pre">addr</span></code></dt>
+<dd>The <code class="docutils literal"><span class="pre">addr</span></code> to where the <code class="docutils literal"><span class="pre">data</span></code> need to be written.</dd>
+<dt><code class="docutils literal"><span class="pre">data</span></code></dt>
+<dd>The <code class="docutils literal"><span class="pre">data</span></code> for writing.</dd>
+<dt><code class="docutils literal"><span class="pre">sz</span></code></dt>
+<dd>How many <code class="docutils literal"><span class="pre">sz</span></code> bytes to write.</dd>
+</dl>
+</div>
+<div class="section" id="id2">
+<h2>Return Codes<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt><code class="docutils literal"><span class="pre">OPAL_PARAMETER</span></code></dt>
+<dd>Indicates either <code class="docutils literal"><span class="pre">chip_id</span></code> not found or <code class="docutils literal"><span class="pre">chip_id</span></code> doesn’t contain LPC
+information.</dd>
+<dt><code class="docutils literal"><span class="pre">OPAL_SUCCESS</span></code></dt>
+<dd>Indicates Success!</dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">OPAL_LPC_READ</a><ul>
+<li><a class="reference internal" href="#parameters">Parameters</a></li>
+<li><a class="reference internal" href="#return-codes">Return Codes</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#opal-lpc-write">OPAL_LPC_WRITE</a><ul>
+<li><a class="reference internal" href="#id1">Parameters</a></li>
+<li><a class="reference internal" href="#id2">Return Codes</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="opal-led-get-set-114-115.html"
+                        title="previous chapter">Service Indicators (LEDS)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="opal-messages.html"
+                        title="next chapter">OPAL_MESSAGE</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="../_sources/opal-api/opal-lpc-read-write-67-68.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="opal-messages.html" title="OPAL_MESSAGE"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="opal-led-get-set-114-115.html" title="Service Indicators (LEDS)"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li>
+          <li class="nav-item nav-item-1"><a href="index.html" >OPAL API Documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2016, Stewart Smith, IBM, others.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+    </div>
+  </body>
+</html>

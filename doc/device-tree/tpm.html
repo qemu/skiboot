@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Trusted Platform Module (TPM) &#8212; skiboot 5.4.0-rc2 documentation</title>
+    <title>Trusted Platform Module (TPM) &#8212; skiboot 5.4.0-rc3 documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '5.4.0-rc2',
+        VERSION:     '5.4.0-rc3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="skiboot 5.4.0-rc2 documentation" href="../index.html" />
+    <link rel="top" title="skiboot 5.4.0-rc3 documentation" href="../index.html" />
     <link rel="up" title="Device Tree" href="index.html" />
     <link rel="next" title="VPD (Vital Product Data)" href="vpd.html" />
     <link rel="prev" title="reserved-memory device tree nodes" href="reserved-memory.html" /> 
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="reserved-memory.html" title="reserved-memory device tree nodes"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Device Tree</a> &#187;</li> 
       </ul>
     </div>  
@@ -54,7 +54,7 @@
           <div class="body" role="main">
             
   <div class="section" id="trusted-platform-module-tpm">
-<h1>Trusted Platform Module (TPM)<a class="headerlink" href="#trusted-platform-module-tpm" title="Permalink to this headline">¶</a></h1>
+<span id="device-tree-tpm"></span><h1>Trusted Platform Module (TPM)<a class="headerlink" href="#trusted-platform-module-tpm" title="Permalink to this headline">¶</a></h1>
 <p>The tpm node describes a TPM device present in the platform. It also includes
 event log information.</p>
 <div class="section" id="required-properties">
@@ -79,14 +79,14 @@ linux kernel (tpm and vtpm codes)</p>
 </div>
 <div class="section" id="example">
 <h2>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">tpm</span><span class="nd">@57</span> <span class="p">{</span>
-    <span class="n">reg</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x57</span><span class="o">&gt;</span><span class="p">;</span>
-    <span class="n">compatible</span> <span class="o">=</span> <span class="s2">&quot;nuvoton,npct650&quot;</span><span class="p">,</span> <span class="s2">&quot;nuvoton,npct601&quot;</span><span class="p">;</span>
-    <span class="n">linux</span><span class="p">,</span><span class="n">sml</span><span class="o">-</span><span class="n">base</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x7f</span> <span class="mh">0xfd450000</span><span class="o">&gt;</span><span class="p">;</span>
-    <span class="n">linux</span><span class="p">,</span><span class="n">sml</span><span class="o">-</span><span class="n">size</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x10000</span><span class="o">&gt;</span><span class="p">;</span>
-    <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;okay&quot;</span><span class="p">;</span>
-    <span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x10000017</span><span class="o">&gt;</span><span class="p">;</span>
-    <span class="n">linux</span><span class="p">,</span><span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x10000017</span><span class="o">&gt;</span><span class="p">;</span>
+<div class="highlight-dts"><div class="highlight"><pre><span></span><span class="nc">tpm</span><span class="nf">@57</span> <span class="p">{</span>
+    <span class="nf">reg</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x57</span><span class="p">&gt;;</span>
+    <span class="nf">compatible</span> <span class="o">=</span> <span class="s">&quot;nuvoton,npct650&quot;, &quot;nuvoton,npct601&quot;</span><span class="p">;</span>
+    <span class="nf">linux,sml-base</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x7f</span> <span class="mh">0xfd450000</span><span class="p">&gt;;</span>
+    <span class="nf">linux,sml-size</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x10000</span><span class="p">&gt;;</span>
+    <span class="nf">status</span> <span class="o">=</span> <span class="s">&quot;okay&quot;</span><span class="p">;</span>
+    <span class="nf">phandle</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x10000017</span><span class="p">&gt;;</span>
+    <span class="nf">linux,phandle</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x10000017</span><span class="p">&gt;;</span>
 <span class="p">};</span>
 </pre></div>
 </div>
@@ -148,7 +148,7 @@ linux kernel (tpm and vtpm codes)</p>
         <li class="right" >
           <a href="reserved-memory.html" title="reserved-memory device tree nodes"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Device Tree</a> &#187;</li> 
       </ul>
     </div>

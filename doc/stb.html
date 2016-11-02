@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Secure and Truted Boot Overview &#8212; skiboot 5.4.0-rc2 documentation</title>
+    <title>Secure and Truted Boot Overview &#8212; skiboot 5.4.0-rc3 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '5.4.0-rc2',
+        VERSION:     '5.4.0-rc3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="top" title="skiboot 5.4.0-rc2 documentation" href="index.html" />
+    <link rel="top" title="skiboot 5.4.0-rc3 documentation" href="index.html" />
     <link rel="next" title="Device Tree" href="device-tree.html" />
     <link rel="prev" title="XSCOM Bindings" href="xscom-node-bindings.html" /> 
   </head>
@@ -42,7 +42,7 @@
         <li class="right" >
           <a href="xscom-node-bindings.html" title="XSCOM Bindings"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.4.0-rc2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li> 
       </ul>
     </div>  
 
@@ -97,25 +97,25 @@ in <code class="docutils literal"><span class="pre">libstb/stb.h</span></code></
 boot support for a platform:</p>
 <div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">stb_init</span><span class="p">();</span>
     <span class="n">start_preload_resource</span><span class="p">(</span><span class="n">RESOURCE_ID_CAPP</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">capp_ucode_info</span><span class="o">.</span><span class="n">lid</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">capp_ucode_info</span><span class="o">.</span><span class="n">size</span><span class="p">);</span>
-        <span class="n">sb_verify</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">subid</span><span class="p">,</span> <span class="n">buf</span><span class="p">);</span>
-        <span class="n">tb_measure</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">subid</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="o">*</span><span class="nb">len</span><span class="p">);</span>
+        <span class="n">sb_verify</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="nb">len</span><span class="p">);</span>
+        <span class="n">tb_measure</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="nb">len</span><span class="p">);</span>
     <span class="n">start_preload_resource</span><span class="p">(</span><span class="n">RESOURCE_ID_KERNEL</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">KERNEL_LOAD_BASE</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">kernel_size</span><span class="p">);</span>
-        <span class="n">sb_verify</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">subid</span><span class="p">,</span> <span class="n">buf</span><span class="p">);</span>
-        <span class="n">tb_measure</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">subid</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="o">*</span><span class="nb">len</span><span class="p">);</span>
+        <span class="n">sb_verify</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="nb">len</span><span class="p">);</span>
+        <span class="n">tb_measure</span><span class="p">(</span><span class="nb">id</span><span class="p">,</span> <span class="n">buf</span><span class="p">,</span> <span class="nb">len</span><span class="p">);</span>
 <span class="n">stb_final</span><span class="p">();</span>
 </pre></div>
 </div>
 <p>First, <code class="docutils literal"><span class="pre">stb_init()</span></code> must be called to initialize libstb. Basically, it reads both
 secure mode and trusted mode flags and loads drivers accordingly. In P8, secure
-mode and trusted mode are read from the <em>ibm,secureboot</em> device tree node,
-which is documented in <code class="docutils literal"><span class="pre">doc/device-tree/ibm,secureboot.rst</span></code></p>
+mode and trusted mode are read from the <em>ibm,secureboot</em> device tree node (see
+<a class="reference internal" href="device-tree/ibm,secureboot.html#device-tree-ibm-secureboot"><span class="std std-ref">ibm,secureboot</span></a>).</p>
 <p>If either secure mode or trusted mode is on, <code class="docutils literal"><span class="pre">stb_init()</span></code> loads a driver (romcode
 driver) to access the verification and SHA512 functions provided by the code
 stored in the secure ROM at manufacture time. Both secure boot and trusted boot
 depends on the romcode driver to access the ROM code. If trusted mode is on,
 <code class="docutils literal"><span class="pre">stb_init()</span></code> loads a TPM device driver compatible with the tpm device tree node
-and also initializes the existing event log in skiboot. The tpm device tree
-node is documented in <code class="docutils literal"><span class="pre">doc/device-tree/tpm.rst</span></code>.</p>
+and also initializes the existing event log in skiboot. For device tree bindings
+for the TPM, see <a class="reference internal" href="device-tree/tpm.html#device-tree-tpm"><span class="std std-ref">Trusted Platform Module (TPM)</span></a>.</p>
 <p>Once libstb is initialized in the platform, <code class="docutils literal"><span class="pre">sb_verify()</span></code> and <code class="docutils literal"><span class="pre">tb_measure()</span></code> can
 used as shown in the example above to respectively verify and measure images
 retrieved from PNOR. If a platform claims secure and trusted boot support, then
@@ -246,7 +246,7 @@ are added to skiboot. The TSS and tpmLogMgr interfaces are defined in
         <li class="right" >
           <a href="xscom-node-bindings.html" title="XSCOM Bindings"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.4.0-rc2 documentation</a> &#187;</li> 
+        <li class="nav-item nav-item-0"><a href="index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li> 
       </ul>
     </div>
     <div class="footer" role="contentinfo">

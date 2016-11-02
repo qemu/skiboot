@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>skiboot-5.1.6 &#8212; skiboot 5.4.0-rc3 documentation</title>
+    <title>skiboot-5.4.0-rc3 &#8212; skiboot 5.4.0-rc3 documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -27,8 +27,7 @@
     <link rel="search" title="Search" href="../search.html" />
     <link rel="top" title="skiboot 5.4.0-rc3 documentation" href="../index.html" />
     <link rel="up" title="Release Notes" href="index.html" />
-    <link rel="next" title="skiboot-5.1.7" href="skiboot-5.1.7.html" />
-    <link rel="prev" title="skiboot-5.1.5" href="skiboot-5.1.5.html" /> 
+    <link rel="prev" title="skiboot-5.4.0-rc2" href="skiboot-5.4.0-rc2.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -38,10 +37,7 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="skiboot-5.1.7.html" title="skiboot-5.1.7"
-             accesskey="N">next</a> |</li>
-        <li class="right" >
-          <a href="skiboot-5.1.5.html" title="skiboot-5.1.5"
+          <a href="skiboot-5.4.0-rc2.html" title="skiboot-5.4.0-rc2"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Release Notes</a> &#187;</li> 
@@ -53,40 +49,39 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="skiboot-5-1-6">
-<h1>skiboot-5.1.6<a class="headerlink" href="#skiboot-5-1-6" title="Permalink to this headline">¶</a></h1>
-<p>skiboot-5.1.6 was released on October 8th, 2015.</p>
-<p>skiboot-5.1.6 is the 7th stable release of 5.1, it follows skiboot-5.1.5
-(which was released October 1st, 2015).</p>
-<p>Skiboot 5.1.6 contains all fixes from skiboot-5.1.5 and is a minor bug
-fix release.</p>
-<div class="section" id="changes">
-<h2>Changes<a class="headerlink" href="#changes" title="Permalink to this headline">¶</a></h2>
-<p>Over skiboot-5.1.5, we have the following changes:</p>
-<div class="section" id="generic">
-<h3>Generic:<a class="headerlink" href="#generic" title="Permalink to this headline">¶</a></h3>
-<ul>
-<li><p class="first">Ensure we run pollers in cpu_wait_job()</p>
-<p>In root causing a bug on AST BMC Alistair found that pollers weren&#8217;t
-being run for around 3800ms.</p>
-<p>This could show as not resetting the boot count sensor on successful
-boot.</p>
-</li>
+  <div class="section" id="skiboot-5-4-0-rc3">
+<span id="id1"></span><h1>skiboot-5.4.0-rc3<a class="headerlink" href="#skiboot-5-4-0-rc3" title="Permalink to this headline">¶</a></h1>
+<p>skiboot-5.4.0-rc3 was released on Wednesday November 2nd 2016. It is the
+third release candidate of skiboot 5.4, which will become the new stable
+release of skiboot following the 5.3 release, first released August 2nd 2016.</p>
+<p>skiboot-5.4.0-rc3 contains all bug fixes as of <a class="reference internal" href="skiboot-5.3.7.html#skiboot-5-3-7"><span class="std std-ref">skiboot-5.3.7</span></a>
+and <a class="reference internal" href="skiboot-5.1.18.html#skiboot-5-1-18"><span class="std std-ref">skiboot-5.1.18</span></a> (the currently maintained stable releases).</p>
+<p>For how the skiboot stable releases work, see <a class="reference internal" href="../stable-skiboot-rules.html#stable-rules"><span class="std std-ref">Skiboot stable tree rules and releases</span></a> for details.</p>
+<p>Since this is a release candidate, it should <em>NOT</em> be put into production.</p>
+<p>The current plan is to release a new release candidate every week until we
+feel good about it. The aim is for skiboot-5.4.x to be in op-build v1.13, which
+is due by November 23rd 2016.</p>
+<p>Over <a class="reference internal" href="skiboot-5.4.0-rc2.html#skiboot-5-4-0-rc2"><span class="std std-ref">skiboot-5.4.0-rc2</span></a>, we have a few changes:</p>
+<ul class="simple">
+<li>pflash: Fail when file is larger than partition
+You can still shoot yourself in the foot by passing &#8211;force.</li>
+<li>core/flash: Don&#8217;t do anything clever for OPAL_FLASH_{READ, WRITE, ERASE}
+This fixes a bug where opal-prd and opal-gard could fail.
+Fixes: <a class="reference external" href="https://github.com/open-power/skiboot/issues/44">https://github.com/open-power/skiboot/issues/44</a></li>
+<li>boot-tests: force BMC to boot from non-golden side</li>
+<li>fast-reset: Send special reset sequence to operational CPUs only.
+Fixes fast-reset for cases where there are garded CPUs</li>
+<li>Secure/Trusted boot: be much clearer about what is being measured where.</li>
+<li>Secure/Trusted boot: be more resilient to disabled TPM(s).</li>
+<li>Secure/Trusted boot: The <code class="docutils literal"><span class="pre">force-secure-mode</span></code> NVRAM setting introduced
+temporarily in <a class="reference internal" href="skiboot-5.4.0-rc2.html#skiboot-5-4-0-rc2"><span class="std std-ref">skiboot-5.4.0-rc2</span></a> has changed behaviour. Now, by
+default, the <code class="docutils literal"><span class="pre">secure-mode</span></code> flag in the device tree is obeyed. As always,
+any skiboot NVRAM options are in no way ABI, API or supported and may cause
+unfinished verbose analogies to appear in release notes relating to the
+dangers of using developer only options.</li>
+<li>gard: Fix compiler warning on modern GCC targetting ARM 32-bit</li>
+<li>opal-prd: systemd scripts improvements, only run on supported systems</li>
 </ul>
-</div>
-<div class="section" id="ast-bmc-machines">
-<h3>AST BMC Machines<a class="headerlink" href="#ast-bmc-machines" title="Permalink to this headline">¶</a></h3>
-<ul>
-<li><p class="first">hw/bt.c: Check for timeout after checking for message response</p>
-<p>When deciding if a BT message has timed out we should first check for
-a message response. This will ensure that messages will not time out
-if there was a delay calling the pollers.</p>
-<p>This could show as not resetting the boot count sensor on successful
-boot.</p>
-</li>
-</ul>
-</div>
-</div>
 </div>
 
 
@@ -95,28 +90,13 @@ boot.</p>
       </div>
       <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">skiboot-5.1.6</a><ul>
-<li><a class="reference internal" href="#changes">Changes</a><ul>
-<li><a class="reference internal" href="#generic">Generic:</a></li>
-<li><a class="reference internal" href="#ast-bmc-machines">AST BMC Machines</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
   <h4>Previous topic</h4>
-  <p class="topless"><a href="skiboot-5.1.5.html"
-                        title="previous chapter">skiboot-5.1.5</a></p>
-  <h4>Next topic</h4>
-  <p class="topless"><a href="skiboot-5.1.7.html"
-                        title="next chapter">skiboot-5.1.7</a></p>
+  <p class="topless"><a href="skiboot-5.4.0-rc2.html"
+                        title="previous chapter">skiboot-5.4.0-rc2</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="../_sources/release-notes/skiboot-5.1.6.txt"
+      <li><a href="../_sources/release-notes/skiboot-5.4.0-rc3.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -141,10 +121,7 @@ boot.</p>
           <a href="../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="skiboot-5.1.7.html" title="skiboot-5.1.7"
-             >next</a> |</li>
-        <li class="right" >
-          <a href="skiboot-5.1.5.html" title="skiboot-5.1.5"
+          <a href="skiboot-5.4.0-rc2.html" title="skiboot-5.4.0-rc2"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Release Notes</a> &#187;</li> 

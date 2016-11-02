@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>OPAL_HANDLE_INTERRUPT &#8212; skiboot 5.4.0-rc2 documentation</title>
+    <title>OPAL_HANDLE_INTERRUPT &#8212; skiboot 5.4.0-rc3 documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '5.4.0-rc2',
+        VERSION:     '5.4.0-rc3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="skiboot 5.4.0-rc2 documentation" href="../index.html" />
+    <link rel="top" title="skiboot 5.4.0-rc3 documentation" href="../index.html" />
     <link rel="up" title="OPAL API Documentation" href="index.html" />
     <link rel="next" title="OPAL_INT_EOI" href="opal-int-eoi-124.html" />
     <link rel="prev" title="OPAL_GET_XIVE_SOURCE" href="opal-get-xive-source-38.html" /> 
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="opal-get-xive-source-38.html" title="OPAL_GET_XIVE_SOURCE"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">OPAL API Documentation</a> &#187;</li> 
       </ul>
     </div>  
@@ -55,13 +55,11 @@
             
   <div class="section" id="opal-handle-interrupt">
 <h1>OPAL_HANDLE_INTERRUPT<a class="headerlink" href="#opal-handle-interrupt" title="Permalink to this headline">¶</a></h1>
-<p>The host OS must pass all interrupts in <code class="docutils literal"><span class="pre">ibm,opal/opal-interrupts</span></code> in the
-device tree to OPAL.</p>
+<p>The host OS must pass all interrupts in the <cite>opal-interrupts</cite> property of <a class="reference internal" href="../device-tree/ibm,opal.html#device-tree-ibm-opal"><span class="std std-ref">ibm,opal</span></a> in the device tree to OPAL.</p>
 <p>An example dt snippet is:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">ibm</span><span class="p">,</span><span class="n">opal</span> <span class="p">{</span>
-          <span class="o">...</span>
-          <span class="n">opal</span><span class="o">-</span><span class="n">interrupts</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x10</span> <span class="mh">0x11</span> <span class="mh">0x12</span> <span class="mh">0x13</span> <span class="mh">0x14</span> <span class="mh">0x20010</span> <span class="mh">0x20011</span> <span class="mh">0x20012</span> <span class="mh">0x20013</span> <span class="mh">0x20014</span> <span class="mh">0xffe</span> <span class="mh">0xfff</span> <span class="mh">0x17fe</span> <span class="mh">0x17ff</span> <span class="mh">0x2ffe</span> <span class="mh">0x2fff</span> <span class="mh">0x37fe</span> <span class="mh">0x37ff</span> <span class="mh">0x20ffe</span> <span class="mh">0x20fff</span> <span class="mh">0x217fe</span> <span class="mh">0x217ff</span> <span class="mh">0x22ffe</span> <span class="mh">0x22fff</span> <span class="mh">0x237fe</span> <span class="mh">0x237ff</span><span class="o">&gt;</span><span class="p">;</span>
-<span class="p">}</span>
+<div class="highlight-dts"><div class="highlight"><pre><span></span><span class="nc">ibm,opal</span> <span class="p">{</span>
+          <span class="nf">opal-interrupts</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x10</span> <span class="mh">0x11</span> <span class="mh">0x12</span> <span class="mh">0x13</span> <span class="mh">0x14</span> <span class="mh">0x20010</span> <span class="mh">0x20011</span> <span class="mh">0x20012</span> <span class="mh">0x20013</span> <span class="mh">0x20014</span> <span class="mh">0xffe</span> <span class="mh">0xfff</span> <span class="mh">0x17fe</span> <span class="mh">0x17ff</span> <span class="mh">0x2ffe</span> <span class="mh">0x2fff</span> <span class="mh">0x37fe</span> <span class="mh">0x37ff</span> <span class="mh">0x20ffe</span> <span class="mh">0x20fff</span> <span class="mh">0x217fe</span> <span class="mh">0x217ff</span> <span class="mh">0x22ffe</span> <span class="mh">0x22fff</span> <span class="mh">0x237fe</span> <span class="mh">0x237ff</span><span class="p">&gt;;</span>
+<span class="p">};</span>
 </pre></div>
 </div>
 <p>When the host OS gets any of these interrupts, it must call
@@ -74,7 +72,7 @@ device tree to OPAL.</p>
 <dd>returns outstanding events for host OS to handle</dd>
 </dl>
 <p>The host OS should then handle any outstanding events.</p>
-<p>See doc/opal-api/opal-poll-events.rst for documentation on events.</p>
+<p>See <a class="reference internal" href="opal-poll-events.html#opal-poll-events"><span class="std std-ref">OPAL_POLL_EVENTS</span></a> for documentation on events.</p>
 </div>
 
 
@@ -122,7 +120,7 @@ device tree to OPAL.</p>
         <li class="right" >
           <a href="opal-get-xive-source-38.html" title="OPAL_GET_XIVE_SOURCE"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >OPAL API Documentation</a> &#187;</li> 
       </ul>
     </div>

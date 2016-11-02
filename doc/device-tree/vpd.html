@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>VPD (Vital Product Data) &#8212; skiboot 5.4.0-rc2 documentation</title>
+    <title>VPD (Vital Product Data) &#8212; skiboot 5.4.0-rc3 documentation</title>
     
     <link rel="stylesheet" href="../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '../',
-        VERSION:     '5.4.0-rc2',
+        VERSION:     '5.4.0-rc3',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="top" title="skiboot 5.4.0-rc2 documentation" href="../index.html" />
+    <link rel="top" title="skiboot 5.4.0-rc3 documentation" href="../index.html" />
     <link rel="up" title="Device Tree" href="index.html" />
     <link rel="next" title="OPAL API Documentation" href="../opal-api/index.html" />
     <link rel="prev" title="Trusted Platform Module (TPM)" href="tpm.html" /> 
@@ -43,7 +43,7 @@
         <li class="right" >
           <a href="tpm.html" title="Trusted Platform Module (TPM)"
              accesskey="P">previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" accesskey="U">Device Tree</a> &#187;</li> 
       </ul>
     </div>  
@@ -60,18 +60,20 @@ the system and each vpd node in the device tree represents a FRU. These node and
 their properties are specific to the FSP-based systems, passed to the skiboot in
 the form of FSP-defined HDAT structures. skiboot parses these structures and
 add respective nodes in the device tree.</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="o">/</span><span class="n">vpd</span>                   <span class="p">:</span> <span class="n">VPD</span> <span class="n">root</span> <span class="n">node</span>
-<span class="o">&lt;</span><span class="n">fru</span><span class="o">-</span><span class="n">name</span><span class="o">&gt;@&lt;</span><span class="n">rsrc</span><span class="o">-</span><span class="nb">id</span><span class="o">&gt;</span>   <span class="p">:</span> <span class="n">Node</span> <span class="n">name</span>
-<span class="n">ibm</span><span class="p">,</span><span class="n">vpd</span>                        <span class="p">:</span> <span class="n">VPD</span> <span class="n">data</span> <span class="n">binary</span> <span class="n">blob</span>
-<span class="n">ccin</span>                   <span class="p">:</span> <span class="n">Customer</span> <span class="n">Card</span> <span class="n">Identification</span> <span class="n">Number</span>
-<span class="n">fru</span><span class="o">-</span><span class="nb">type</span>               <span class="p">:</span> <span class="n">FRU</span> <span class="nb">type</span> <span class="n">label</span> <span class="p">(</span><span class="mi">2</span> <span class="nb">bytes</span> <span class="n">ASCII</span> <span class="n">character</span><span class="p">)</span>
-<span class="n">fru</span><span class="o">-</span><span class="n">number</span>             <span class="p">:</span> <span class="n">FRU</span> <span class="n">stocking</span> <span class="n">part</span> <span class="n">number</span>
-<span class="n">ibm</span><span class="p">,</span><span class="n">loc</span><span class="o">-</span><span class="n">code</span>           <span class="p">:</span> <span class="n">Location</span> <span class="n">code</span>
-<span class="n">part</span><span class="o">-</span><span class="n">number</span>            <span class="p">:</span> <span class="n">Part</span> <span class="n">number</span>
-<span class="n">serial</span><span class="o">-</span><span class="n">number</span>          <span class="p">:</span> <span class="n">Serial</span> <span class="n">number</span>
-<span class="n">ibm</span><span class="p">,</span><span class="n">chip</span><span class="o">-</span><span class="nb">id</span>            <span class="p">:</span> <span class="n">Processor</span> <span class="n">Id</span>
-<span class="n">size</span>                   <span class="p">:</span> <span class="n">DIMM</span> <span class="n">size</span> <span class="p">(</span><span class="n">applicable</span> <span class="k">for</span> <span class="n">DIMM</span> <span class="n">VPD</span> <span class="n">only</span><span class="p">)</span>
-<span class="n">ibm</span><span class="p">,</span><span class="n">memory</span><span class="o">-</span><span class="n">bus</span><span class="o">-</span><span class="n">frequency</span><span class="p">:</span> <span class="n">DIMM</span> <span class="n">frequency</span> <span class="p">(</span><span class="n">applicable</span> <span class="k">for</span> <span class="n">DIMM</span> <span class="n">VPD</span> <span class="n">only</span><span class="p">)</span>
+<div class="highlight-dts"><div class="highlight"><pre><span></span><span class="nc">vpd</span> <span class="p">{</span>                     <span class="cm">/* VPD root node */</span>
+  <span class="nc">fru-name</span><span class="nf">@rsrc-id</span> <span class="p">{</span>      <span class="cm">/* Node name formatted as such */</span>
+  <span class="nf">ibm,vpd</span> <span class="o">=</span> <span class="p">&lt;</span>             <span class="cm">/* VPD data binary blob */</span> <span class="p">&gt;;</span>
+    <span class="nf">ccin</span> <span class="o">=</span> <span class="s">&quot;524D&quot;</span><span class="p">;</span>        <span class="cm">/* Customer Card Identification Number */</span>
+    <span class="nf">fru-type</span> <span class="o">=</span> <span class="p">[</span> <span class="mi">41</span> <span class="mi">56</span> <span class="p">];</span> <span class="cm">/* FRU type label (2 bytes ASCII character) */</span>
+    <span class="nf">fru-number</span>    <span class="o">=</span>       <span class="s">&quot;FRU stocking part number&quot;</span><span class="p">;</span>
+    <span class="nf">ibm,loc-code</span>  <span class="o">=</span>       <span class="s">&quot;Location code&quot;</span><span class="p">;</span>
+    <span class="nf">part-number</span>   <span class="o">=</span>       <span class="s">&quot;ABC123456&quot;</span><span class="p">;</span>
+    <span class="nf">serial-number</span> <span class="o">=</span>       <span class="s">&quot;ABC123456&quot;</span><span class="p">;</span>
+    <span class="nf">ibm,chip-id</span>   <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x0</span><span class="p">&gt;;</span> <span class="cm">/* If part is a chip, Processor Id */</span>
+    <span class="nf">size</span> <span class="o">=</span> <span class="s">&quot;0032768&quot;</span><span class="p">;</span>      <span class="cm">/* DIMM size (applicable for DIMM VPD only) */</span>
+    <span class="nf">ibm,memory-bus-frequency</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x0</span> <span class="mh">0x0</span><span class="p">&gt;;</span> <span class="cm">/* DIMM frequency (applicable for DIMM VPD only) */</span>
+  <span class="p">};</span>
+<span class="p">};</span>
 </pre></div>
 </div>
 <p>The VPD tree in the device tree depicts the hierarchial structure of the
@@ -107,17 +109,17 @@ FRUs having parent-child relationship.</p>
 </pre></div>
 </div>
 <p>Example vpd node:</p>
-<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">anchor</span><span class="o">-</span><span class="n">card</span><span class="nd">@500</span> <span class="p">{</span>
-       <span class="n">ccin</span> <span class="o">=</span> <span class="s2">&quot;52FE&quot;</span><span class="p">;</span>
-       <span class="n">fru</span><span class="o">-</span><span class="n">number</span> <span class="o">=</span> <span class="s2">&quot;00E2147&quot;</span><span class="p">;</span>
-       <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;System Anchor Card - IBM Power 824&quot;</span><span class="p">;</span>
-       <span class="n">ibm</span><span class="p">,</span><span class="n">loc</span><span class="o">-</span><span class="n">code</span> <span class="o">=</span> <span class="s2">&quot;U78C9.001.WZS007X-P1-C13&quot;</span><span class="p">;</span>
-       <span class="n">serial</span><span class="o">-</span><span class="n">number</span> <span class="o">=</span> <span class="s2">&quot;YL10113BJ001&quot;</span><span class="p">;</span>
-       <span class="n">ibm</span><span class="p">,</span><span class="n">vpd</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x84cc0052</span> <span class="mh">0x54045649</span> <span class="mh">0x4e494452</span> <span class="mh">0x10414e43</span> <span class="mh">0x484f5220</span> <span class="mh">0x20202020</span> <span class="mh">0x20202020</span> <span class="mh">0x20434501</span> <span class="mh">0x31565a02</span> <span class="mh">0x3031464e</span> <span class="mh">0x7303045</span> <span class="mh">0x32313437</span> <span class="mh">0x504e0730</span> <span class="mh">0x30453231</span> <span class="mh">0x3438534e</span> <span class="mh">0xc594c31</span> <span class="mh">0x30313133</span> <span class="mh">0x424a3030</span> <span class="mh">0x31434304</span> <span class="mh">0x35324645</span> <span class="mh">0x50520881</span> <span class="mh">0x300000</span> <span class="mh">0x48</span> <span class="mh">0x45043030</span> <span class="mh">0x31304354</span> <span class="mh">0x440b400</span> <span class="mh">0x485702</span> <span class="mh">0x14233</span> <span class="mh">0x6000000</span> <span class="mh">0x142</span> <span class="mh">0x34010042</span> <span class="mh">0x370c0000</span> <span class="mh">0x0</span> <span class="mh">0x0</span> <span class="mh">0x4239</span> <span class="mh">0x3c435333</span> <span class="mh">0x22071917</span> <span class="mh">0xd1569c53</span> <span class="mh">0x50973c87</span> <span class="mh">0x71f9c40</span> <span class="mh">0x1d4d3142</span> <span class="mh">0x985e80f1</span> <span class="mh">0x5cb3614d</span> <span class="mh">0x32a902cb</span> <span class="mh">0xd9d714ab</span> <span class="mh">0x164d3322</span> <span class="mh">0xdda4f986</span> <span class="mh">0x5a618f4d</span> <span class="mh">0x340b157c</span> <span class="mh">0x2cac0a94</span> <span class="mh">0x6504603</span> <span class="mh">0x78</span> <span class="mh">0x0</span><span class="o">&gt;</span><span class="p">;</span>
-       <span class="n">fru</span><span class="o">-</span><span class="nb">type</span> <span class="o">=</span> <span class="p">[</span><span class="mi">41</span> <span class="mi">56</span><span class="p">];</span>
-       <span class="n">part</span><span class="o">-</span><span class="n">number</span> <span class="o">=</span> <span class="s2">&quot;00E2148&quot;</span><span class="p">;</span>
-       <span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x8d</span><span class="o">&gt;</span><span class="p">;</span>
-       <span class="n">linux</span><span class="p">,</span><span class="n">phandle</span> <span class="o">=</span> <span class="o">&lt;</span><span class="mh">0x8d</span><span class="o">&gt;</span><span class="p">;</span>
+<div class="highlight-dts"><div class="highlight"><pre><span></span><span class="nc">anchor-card</span><span class="nf">@500</span> <span class="p">{</span>
+       <span class="nf">ccin</span> <span class="o">=</span> <span class="s">&quot;52FE&quot;</span><span class="p">;</span>
+       <span class="nf">fru-number</span> <span class="o">=</span> <span class="s">&quot;00E2147&quot;</span><span class="p">;</span>
+       <span class="nf">description</span> <span class="o">=</span> <span class="s">&quot;System Anchor Card - IBM Power 824&quot;</span><span class="p">;</span>
+       <span class="nf">ibm,loc-code</span> <span class="o">=</span> <span class="s">&quot;U78C9.001.WZS007X-P1-C13&quot;</span><span class="p">;</span>
+       <span class="nf">serial-number</span> <span class="o">=</span> <span class="s">&quot;YL10113BJ001&quot;</span><span class="p">;</span>
+       <span class="nf">ibm,vpd</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x84cc0052</span> <span class="mh">0x54045649</span> <span class="mh">0x4e494452</span> <span class="mh">0x10414e43</span> <span class="mh">0x484f5220</span> <span class="mh">0x20202020</span> <span class="mh">0x20202020</span> <span class="mh">0x20434501</span> <span class="mh">0x31565a02</span> <span class="mh">0x3031464e</span> <span class="mh">0x7303045</span> <span class="mh">0x32313437</span> <span class="mh">0x504e0730</span> <span class="mh">0x30453231</span> <span class="mh">0x3438534e</span> <span class="mh">0xc594c31</span> <span class="mh">0x30313133</span> <span class="mh">0x424a3030</span> <span class="mh">0x31434304</span> <span class="mh">0x35324645</span> <span class="mh">0x50520881</span> <span class="mh">0x300000</span> <span class="mh">0x48</span> <span class="mh">0x45043030</span> <span class="mh">0x31304354</span> <span class="mh">0x440b400</span> <span class="mh">0x485702</span> <span class="mh">0x14233</span> <span class="mh">0x6000000</span> <span class="mh">0x142</span> <span class="mh">0x34010042</span> <span class="mh">0x370c0000</span> <span class="mh">0x0</span> <span class="mh">0x0</span> <span class="mh">0x4239</span> <span class="mh">0x3c435333</span> <span class="mh">0x22071917</span> <span class="mh">0xd1569c53</span> <span class="mh">0x50973c87</span> <span class="mh">0x71f9c40</span> <span class="mh">0x1d4d3142</span> <span class="mh">0x985e80f1</span> <span class="mh">0x5cb3614d</span> <span class="mh">0x32a902cb</span> <span class="mh">0xd9d714ab</span> <span class="mh">0x164d3322</span> <span class="mh">0xdda4f986</span> <span class="mh">0x5a618f4d</span> <span class="mh">0x340b157c</span> <span class="mh">0x2cac0a94</span> <span class="mh">0x6504603</span> <span class="mh">0x78</span> <span class="mh">0x0</span><span class="p">&gt;;</span>
+       <span class="nf">fru-type</span> <span class="o">=</span> <span class="p">[</span><span class="mi">41</span> <span class="mi">56</span><span class="p">];</span>
+       <span class="nf">part-number</span> <span class="o">=</span> <span class="s">&quot;00E2148&quot;</span><span class="p">;</span>
+       <span class="nf">phandle</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x8d</span><span class="p">&gt;;</span>
+       <span class="nf">linux,phandle</span> <span class="o">=</span> <span class="p">&lt;</span><span class="mh">0x8d</span><span class="p">&gt;;</span>
 <span class="p">};</span>
 </pre></div>
 </div>
@@ -168,7 +170,7 @@ FRUs having parent-child relationship.</p>
         <li class="right" >
           <a href="tpm.html" title="Trusted Platform Module (TPM)"
              >previous</a> |</li>
-        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc2 documentation</a> &#187;</li>
+        <li class="nav-item nav-item-0"><a href="../index.html">skiboot 5.4.0-rc3 documentation</a> &#187;</li>
           <li class="nav-item nav-item-1"><a href="index.html" >Device Tree</a> &#187;</li> 
       </ul>
     </div>
