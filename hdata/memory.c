@@ -10,6 +10,7 @@
 #include <types.h>
 #include <inttypes.h>
 #include <processor.h>
+#include <ultravisor.h>
 
 #include "spira.h"
 #include "hdata.h"
@@ -58,6 +59,8 @@ struct HDIF_ms_area_address_range {
 #define MS_CONTROLLER_MCBIST_ID(id)	GETFIELD(PPC_BITMASK32(0, 1), id)
 #define MS_CONTROLLER_MCS_ID(id)	GETFIELD(PPC_BITMASK32(4, 7), id)
 #define MS_CONTROLLER_MCA_ID(id)	GETFIELD(PPC_BITMASK32(8, 15), id)
+
+#define MS_ATTR_SMF			(PPC_BIT32(23))
 
 struct HDIF_ms_area_id {
 	__be16 id;
@@ -161,6 +164,16 @@ static bool add_address_range(struct dt_node *root,
 	 */
 	default:
 		return false;
+	}
+
+	if (arange->mirror_attr & MS_ATTR_SMF) {
+		prlog(PR_DEBUG, "HDAT: Found secure memory\n");
+		if (!uv_add_mem_range(reg[0], cleanup_addr(be64_to_cpu(arange->end)))) {
+			prerror("Failed to add secure memory range to DT\n");
+			mem_reserve_fw(name, reg[0], reg[1]);
+			return false;
+		}
+		return true;
 	}
 
 	if (be16_to_cpu(id->flags) & MS_AREA_SHARED) {
@@ -676,9 +689,9 @@ static void get_hb_reserved_mem(struct HDIF_common_hdr *ms_vpd)
 
 		/*
 		 * Workaround broken HDAT reserve regions which are
-		 * bigger than 512MB
+		 * bigger than 512MB and not secure memory
 		 */
-		if ((end_addr - start_addr) > 0x20000000) {
+		if (((end_addr - start_addr) > 0x20000000) && !(start_addr & UV_SECURE_MEM_BIT)) {
 			prlog(PR_ERR, "MEM: Ignoring Bad HDAT reserve: too big\n");
 			continue;
 		}

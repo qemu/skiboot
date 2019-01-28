@@ -11,6 +11,7 @@
 #define MSR_HV		PPC_BIT(3)	/* Hypervisor mode */
 #define MSR_VEC		PPC_BIT(38)	/* VMX enable */
 #define MSR_VSX		PPC_BIT(40)	/* VSX enable */
+#define MSR_S		PPC_BIT(41)	/* Secure Mode enable */
 #define MSR_EE		PPC_BIT(48)	/* External Int. Enable */
 #define MSR_PR		PPC_BIT(49)       	/* Problem state */
 #define MSR_FP		PPC_BIT(50)	/* Floating Point Enable */
@@ -366,6 +367,17 @@ static inline void st_le16(uint16_t *addr, uint16_t val)
 static inline void st_le32(uint32_t *addr, uint32_t val)
 {
 	asm volatile("stwbrx %0,0,%1" : : "r"(val), "r"(addr), "m"(*addr));
+}
+
+/*
+ * MSR bit check
+ */
+static inline bool is_msr_bit_set(uint64_t bit)
+{
+	if (mfmsr() & bit)
+		return true;
+
+	return false;
 }
 
 #endif /* __TEST__ */

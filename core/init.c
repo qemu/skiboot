@@ -45,6 +45,7 @@
 #include <debug_descriptor.h>
 #include <occ.h>
 #include <opal-dump.h>
+#include <ultravisor.h>
 
 enum proc_gen proc_gen;
 unsigned int pcie_max_link_speed;
@@ -543,6 +544,8 @@ void __noreturn load_and_boot_kernel(bool is_reboot)
 	load_initramfs();
 
 	trustedboot_exit_boot_services();
+
+	start_ultravisor();
 
 	ipmi_set_fw_progress_sensor(IPMI_FW_OS_BOOT);
 
@@ -1204,6 +1207,11 @@ void __noreturn __nomcount main_cpu_entry(const void *fdt)
 	pci_nvram_init();
 
 	preload_capp_ucode();
+
+	/* preload and decompress ultravisor image */
+	uv_preload_image();
+	uv_decompress_image();
+
 	start_preload_kernel();
 
 	/* Catalog decompression routine */
@@ -1261,6 +1269,9 @@ void __noreturn __nomcount main_cpu_entry(const void *fdt)
 
 	/* Add the list of interrupts going to OPAL */
 	add_opal_interrupts();
+
+	/* Init uiltravisor software */
+	init_uv();
 
 	/* Now release parts of memory nodes we haven't used ourselves... */
 	mem_region_release_unused();

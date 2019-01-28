@@ -1065,3 +1065,25 @@ start_kernel_secondary:
 	mtctr	%r3
 	mfspr	%r3,SPR_PIR
 	bctr
+
+.global start_uv
+start_uv:
+	mflr    %r0
+	std     %r0,16(%r1)
+	sync
+	icbi    0,%r3
+	sync
+	isync
+	mtctr   %r3
+	mr      %r3,%r4
+	LOAD_IMM64(%r8,SKIBOOT_BASE);
+	LOAD_IMM32(%r10, opal_entry - __head)
+	add     %r9,%r8,%r10
+	LOAD_IMM32(%r6, EPAPR_MAGIC)
+	addi    %r7,%r5,1
+	li      %r4,0
+	li      %r5,0
+	bctrl
+	ld      %r0,16(%r1)
+	mtlr    %r0
+	blr

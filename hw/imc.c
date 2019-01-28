@@ -604,6 +604,17 @@ imc_mambo:
 		goto err;
 
 	/*
+	 * If MSR(S) bit is set, disable IMC nodes.
+	 * IMC nodes need access to specific scom and HOMER region
+	 * which are not accessible from hypervisor.
+	 *
+	 * At this point is_uv_present() cant be used since uv_init()
+	 * is called much later. Hencing checking for the MSR bit here.
+	 */
+	if (is_msr_bit_set(MSR_S))
+		goto err;
+
+	/*
 	 * If the dt_attach_root() fails, "imc-counters" node will not be
 	 * seen in the device-tree and hence OS should not make any
 	 * OPAL_IMC_* calls.
