@@ -355,6 +355,7 @@ clean:
 	$(RM) include/asm-offsets.h version.c .version
 	$(RM) skiboot.info external/gard/gard.info external/pflash/pflash.info
 	$(RM) extract-gcov $(TARGET).lid.stb $(TARGET).lid.xz.stb
+	$(MAKE) -C libstb/crypto/mbedtls/library clean
 
 distclean: clean
 	$(RM) *~ $(SUBDIRS:%=%/*~) include/*~
