@@ -45,6 +45,7 @@ static struct {
 	{ RESOURCE_ID_KERNEL,		PCR_4},
 	{ RESOURCE_ID_CAPP,		PCR_4},
 	{ RESOURCE_ID_VERSION,		PCR_4}, /* Also data for Hostboot */
+	{ RESOURCE_ID_UV_IMAGE,		PCR_4},
 };
 
 /*
