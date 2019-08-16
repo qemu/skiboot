@@ -872,6 +872,11 @@ static void occ_throttle_poll(void *data __unused)
 	struct opal_occ_msg occ_msg;
 	int rc;
 
+	if (is_uv_present()) {
+		prlog_once(PR_DEBUG, "OCC: %s currently unsupported on ultravisor\n", __func__);
+		return;
+	}
+
 	if (!try_lock(&occ_lock))
 		return;
 	if (occ_reset) {
@@ -1184,6 +1189,11 @@ static void handle_occ_rsp(uint32_t chip_id)
 	struct cmd_interface *chip;
 	struct opal_command_buffer *cmd;
 	struct occ_response_buffer *rsp;
+
+	if (is_uv_present()) {
+		prlog_once(PR_DEBUG, "OCC: %s currently unsupported on ultravisor\n", __func__);
+		return;
+	}
 
 	chip = get_chip_cmd_interface(chip_id);
 	if (!chip)
@@ -1810,9 +1820,17 @@ void occ_pstates_init(void)
 	/* Add opal_poller to poll OCC throttle status of each chip */
 	for_each_chip(chip)
 		chip->throttle = 0;
-	opal_add_poller(occ_throttle_poll, NULL);
 	occ_pstates_initialized = true;
 
+	/*
+	 * On Ultravisor systems, we don't yet support
+	 * OCC Poller and OPAL-OCC command-response interface.
+	 */
+	if (is_uv_present()) {
+		prlog(PR_DEBUG, "OCC: Skipping throttle-poll,CMD-RSP interface on UV\n");
+		return;
+	}
+	opal_add_poller(occ_throttle_poll, NULL);
 	/* Init OPAL-OCC command-response interface */
 	occ_cmd_interface_init();
 

@@ -1375,6 +1375,10 @@ static void add_stop_levels(void)
 	if (proc_gen < proc_gen_p9)
 		return;
 
+	if (is_msr_bit_set(MSR_S)) {
+		prlog(PR_INFO, "SPIRA: Skipping stop levels because S BIT set\n");
+	}
+
 	/*
 	 * OPAL only exports a single set of flags to indicate the supported
 	 * STOP modes while the HDAT descibes the support top levels *per chip*

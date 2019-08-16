@@ -12,6 +12,7 @@
 #include <device.h>
 #include <cpu.h>
 #include <occ.h>
+#include <ultravisor.h>
 
 enum sensor_attr {
 	SENSOR_SAMPLE,
@@ -491,6 +492,11 @@ bool occ_sensors_init(void)
 	struct dt_node *sg, *exports;
 	int occ_num = 0, i;
 	bool has_gpu = false;
+
+	if (is_uv_present()) {
+		prlog(PR_DEBUG, "UV HACK: Skipping %s because MSR_S set\n", __func__);
+		return false;
+	}
 
 	/* OCC inband sensors is only supported in P9 */
 	if (proc_gen != proc_gen_p9)
