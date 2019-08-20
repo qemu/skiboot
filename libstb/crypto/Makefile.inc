@@ -17,8 +17,10 @@ MBEDTLS_CFLAGS += $(CPPFLAGS)
 $(MBEDTLS):
 	@$(MAKE) -C $(SRC)/$(LIBSTB_DIR)/crypto/mbedtls/library/ CFLAGS="$(MBEDTLS_CFLAGS)" CC=$(CC) AR=$(AR) libmbedcrypto.a libmbedx509.a
 
-include $(CRYPTO_DIR)/pkcs7/Makefile.inc
-
+CRYPTO_SRCS = uv-crypto.c
+CRYPTO_OBJS = $(CRYPTO_SRCS:%.c=%.o)
 CRYPTO = $(CRYPTO_DIR)/built-in.a
 
-$(CRYPTO): $(MBEDTLS) $(PKCS7)
+include $(CRYPTO_DIR)/pkcs7/Makefile.inc
+
+$(CRYPTO): $(MBEDTLS) $(PKCS7) $(CRYPTO_OBJS:%=$(CRYPTO_DIR)/%)

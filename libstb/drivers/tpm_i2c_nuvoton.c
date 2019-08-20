@@ -11,6 +11,8 @@
 #include "tpm_i2c_nuvoton.h"
 #include <opal-api.h>
 
+#include <libstb/tpm2.h>
+
 //#define DBG(fmt, ...) prlog(PR_DEBUG, fmt, ##__VA_ARGS__)
 #define DBG(fmt, ...)
 
@@ -418,6 +420,92 @@ error:
 	return rc;
 }
 
+static int tpm_send(struct tpm_dev *dev, const uint8_t *buf, uint32_t len)
+{
+	int rc = 0;
+	if (!dev || !buf) {
+		/**
+		 * @fwts-label TPMDeviceNotInitialized
+		 * @fwts-advice TPM device is not initialized. This indicates a
+		 * bug in the tpm_transmit() caller
+		 */
+		prlog(PR_ERR, "TPM: tpm device or buf not initialized\n");
+		return STB_ARG_ERROR;
+	}
+	tpm_device = dev;
+	DBG("**** %s: dev %#x/%#x buf %016llx len %zu ****\n",
+	    __func__, dev->bus_id, dev->i2c_addr, *(uint64_t *) buf, len);
+
+	DBG("step 1/5: set command ready\n");
+	rc = tpm_set_command_ready();
+	if (rc < 0)
+		goto out;
+
+	DBG("step 2/5: write FIFO\n");
+	rc = tpm_write_fifo((uint8_t*) buf, len);
+	if (rc < 0)
+		goto out;
+
+	DBG("step 3/5: write sts.go\n");
+	rc = tpm_status_write_byte(TPM_STS_GO);
+	if (rc < 0) {
+		/**
+		 * @fwts-label TPMWriteGo
+		 * @fwts-advice Either the tpm device or the tpm-i2c interface
+		 * doesn't seem to be working properly. Check the return code
+		 * (rc) for further details.
+		 */
+		prlog(PR_ERR, "NUVOTON: fail to write sts.go, rc=%d\n", rc);
+		rc = STB_DRIVER_ERROR;
+		goto out;
+	}
+out:
+	DBG("**** tpm_send %s, rc=%d ****\n",
+	    (rc) ? "ERROR" : "SUCCESS", rc);
+	return rc;
+}
+
+static int tpm_receive(struct tpm_dev *dev, uint8_t *buf, uint32_t *len)
+{
+	int rc = 0;
+	if (!dev || !buf) {
+		/**
+		 * @fwts-label TPMDeviceNotInitialized
+		 * @fwts-advice TPM device is not initialized. This indicates a
+		 * bug in the tpm_transmit() caller
+		 */
+		prlog(PR_ERR, "TPM: tpm device or buf not initialized\n");
+		return STB_ARG_ERROR;
+	}
+	tpm_device = dev;
+	DBG("**** %s: dev %#x/%#x len %zu ****\n",
+	    __func__, dev->bus_id, dev->i2c_addr, len);
+
+	DBG("step 4/5: read FIFO\n");
+	rc = tpm_read_fifo(buf, (size_t*) len);
+	if (rc < 0)
+		goto out;
+
+	DBG("step 5/5: release tpm\n");
+	rc = tpm_status_write_byte(TPM_STS_COMMAND_READY);
+	if (rc < 0) {
+		/**
+		 * @fwts-label TPMReleaseTpm
+		 * @fwts-advice Either the tpm device or the tpm-i2c interface
+		 * doesn't seem to be working properly. Check the return code
+		 * (rc) for further details.
+		 */
+		prlog(PR_ERR, "NUVOTON: fail to release tpm, rc=%d\n", rc);
+		rc = STB_DRIVER_ERROR;
+	}
+
+out:
+	DBG("**** tpm_receive %s, rc=%d ****\n",
+	    (rc) ? "ERROR" : "SUCCESS", rc);
+	return rc;
+}
+
+
 static int tpm_transmit(struct tpm_dev *dev, uint8_t* buf, size_t cmdlen,
 			size_t* buflen)
 {
@@ -432,7 +520,7 @@ static int tpm_transmit(struct tpm_dev *dev, uint8_t* buf, size_t cmdlen,
 		return STB_ARG_ERROR;
 	}
 	tpm_device = dev;
-	DBG("**** %s: dev %#x/%#x buf %016llx cmdlen %zu"
+	printf("**** %s: dev %#x/%#x buf %016llx cmdlen %zu"
 	    " buflen %zu ****\n",
 	    __func__, dev->bus_id, dev->i2c_addr, *(uint64_t *) buf,
 	    cmdlen, *buflen);
@@ -488,6 +576,8 @@ out:
 static struct tpm_driver tpm_i2c_nuvoton_driver = {
 	.name     = DRIVER_NAME,
 	.transmit = tpm_transmit,
+	.send = tpm_send,
+	.receive = tpm_receive,
 };
 
 static int nuvoton_tpm_quirk(void *data, struct i2c_request *req, int *rc)
@@ -558,6 +648,8 @@ void tpm_i2c_nuvoton_probe(void)
 			free(tpm_device);
 			continue;
 		}
+
+		tpm2_register(tpm_device, &tpm_i2c_nuvoton_driver);
 		bus = i2c_find_bus_by_id(tpm_device->bus_id);
 		assert(bus->check_quirk == NULL);
 		bus->check_quirk = nuvoton_tpm_quirk;
