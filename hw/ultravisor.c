@@ -16,6 +16,7 @@
 #include <ultravisor-api.h>
 #include <libfdt/libfdt.h>
 
+bool uv_present = false;
 static char *uv_image = NULL;
 static size_t uv_image_size;
 struct xz_decompress *uv_xz = NULL;
@@ -168,6 +169,7 @@ static void cpu_start_ultravisor(void *data)
 
 int start_ultravisor(void)
 {
+	struct proc_chip *chip = get_chip(this_cpu()->chip_id);
 	struct cpu_thread *cpu;
 	struct cpu_job **jobs;
 	int i=0;
@@ -189,6 +191,12 @@ int start_ultravisor(void)
 	}
 
 	cpu_start_ultravisor((void *)uv_opal);
+
+	/*
+	 * From now on XSCOM must go through Ultravisor via ucall, indicate that
+	 */
+	if (chip->xscom_base & UV_ACCESS_BIT)
+		uv_present = true;
 
 	/* wait for everyone to sync back */
 	while (i > 0) {

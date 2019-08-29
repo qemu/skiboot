@@ -7,6 +7,7 @@
 #include <stdint.h>
 #include <processor.h>
 #include <cpu.h>
+#include <ultravisor.h>
 
 /*
  * SCOM "partID" definitions:
@@ -174,10 +175,16 @@ extern void _xscom_unlock(void);
 /* Targeted SCOM access */
 static inline int xscom_read(uint32_t partid, uint64_t pcb_addr, uint64_t *val)
 {
-	return _xscom_read(partid, pcb_addr, val, true);
+	if (can_access_xscom())
+		return _xscom_read(partid, pcb_addr, val, true);
+
+	return uv_xscom_read(partid, pcb_addr, val);
 }
 static inline int xscom_write(uint32_t partid, uint64_t pcb_addr, uint64_t val) {
-	return _xscom_write(partid, pcb_addr, val, true);
+	if (can_access_xscom())
+		return _xscom_write(partid, pcb_addr, val, true);
+
+	return uv_xscom_write(partid, pcb_addr, val);
 }
 extern int xscom_write_mask(uint32_t partid, uint64_t pcb_addr, uint64_t val, uint64_t mask);
 
