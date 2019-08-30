@@ -25,5 +25,6 @@ extern void uv_preload_image(void);
 extern void uv_decompress_image(void);
 extern void init_uv(void);
 extern int start_ultravisor(void);
+extern long ucall(unsigned long opcode, unsigned long *retbuf, ...);
 
 #endif /* __ULTRAVISOR_H */
