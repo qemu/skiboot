@@ -11,6 +11,8 @@
 #include <inttypes.h>
 #include <ultravisor.h>
 #include <mem_region.h>
+#include <debug_descriptor.h>
+#include <console.h>
 #include <ultravisor-api.h>
 #include <libfdt/libfdt.h>
 
@@ -18,6 +20,14 @@ static char *uv_image = NULL;
 static size_t uv_image_size;
 struct xz_decompress *uv_xz = NULL;
 static struct uv_opal *uv_opal;
+
+struct memcons uv_memcons __section(".data.memcons") = {
+	.magic		= MEMCONS_MAGIC,
+	.obuf_phys	= INMEM_UV_CON_START,
+	.ibuf_phys	= INMEM_UV_CON_START + INMEM_UV_CON_OUT_LEN,
+	.obuf_size	= INMEM_UV_CON_OUT_LEN,
+	.ibuf_size	= INMEM_UV_CON_IN_LEN,
+};
 
 static struct dt_node *add_uv_dt_node(void)
 {
@@ -324,6 +334,10 @@ void init_uv()
 
 start:
 	uv_opal->uv_base_addr = uv_pef_reg;
+	uv_opal->uv_mem = (__be64)&uv_memcons;
+
+	dt_add_property_u64(node, "memcons", (u64)&uv_memcons);
+	debug_descriptor.uv_memcons_phys = (u64)&uv_memcons;
 
 	uv_opal->sys_fdt = (__be64)create_dtb(dt_root, false);
 	if (!uv_opal->sys_fdt) {

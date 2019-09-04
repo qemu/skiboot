@@ -89,16 +89,20 @@
 #define INMEM_CON_START		(SKIBOOT_BASE + 0x01000000)
 #define INMEM_CON_LEN  		0x100000
 
-/* This is the location of HBRT console buffer at base + 17M */
-#define HBRT_CON_START		(SKIBOOT_BASE + 0x01100000)
+/* This is the location of our ultravisor console buffer at base + 17M */
+#define INMEM_UV_CON_START	(SKIBOOT_BASE + 0x01100000)
+#define INMEM_UV_CON_LEN	0x100000
+
+/* This is the location of HBRT console buffer at base + 18M */
+#define HBRT_CON_START		(SKIBOOT_BASE + 0x01200000)
 #define HBRT_CON_LEN  		0x100000
 
-/* Tell FSP to put the init data at base + 20M, allocate 8M */
-#define SPIRA_HEAP_BASE		(SKIBOOT_BASE + 0x01200000)
+/* Tell FSP to put the init data at base + 19M, allocate 8M */
+#define SPIRA_HEAP_BASE		(SKIBOOT_BASE + 0x01300000)
 #define SPIRA_HEAP_SIZE		0x00800000
 
 /* This is our PSI TCE table. It's 256K entries on P8 */
-#define PSI_TCE_TABLE_BASE	(SKIBOOT_BASE + 0x01a00000)
+#define PSI_TCE_TABLE_BASE	(SKIBOOT_BASE + 0x01c00000)
 #define PSI_TCE_TABLE_SIZE_P8	0x00200000UL
 
 /* This is our dump result table after MPIPL. Hostboot will write to this
@@ -117,7 +121,7 @@
  *
  * (Ensure this has at least a 64k alignment)
  */
-#define SKIBOOT_SIZE		0x01c10000
+#define SKIBOOT_SIZE		0x01e00000
 
 /* We start laying out the CPU stacks from here, indexed by PIR
  * each stack is STACK_SIZE in size (naturally aligned power of

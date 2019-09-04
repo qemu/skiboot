@@ -28,9 +28,12 @@ struct memcons {
 };
 
 extern struct memcons memcons;
+extern struct memcons uv_memcons;
 
 #define INMEM_CON_IN_LEN	16
 #define INMEM_CON_OUT_LEN	(INMEM_CON_LEN - INMEM_CON_IN_LEN)
+#define INMEM_UV_CON_IN_LEN	16
+#define INMEM_UV_CON_OUT_LEN	(INMEM_UV_CON_LEN - INMEM_UV_CON_IN_LEN)
 
 /* Console driver */
 struct con_ops {

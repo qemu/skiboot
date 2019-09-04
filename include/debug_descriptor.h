@@ -20,6 +20,7 @@ struct debug_descriptor {
 
 	/* Memory console */
 	u64	memcons_phys;
+	u64	uv_memcons_phys;
 	u32	memcons_tce;
 	u32	memcons_obuf_tce;
 	u32	memcons_ibuf_tce;
