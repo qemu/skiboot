@@ -164,6 +164,28 @@ static void reserve_uv_memory(struct uv_opal *uv_opal)
 	}
 }
 
+static int create_dtb_uv(void *uv_fdt)
+{
+	if (fdt_create(uv_fdt, UV_FDT_MAX_SIZE)) {
+		prerror("UV: Failed to create uv_fdt\n");
+		return 1;
+	}
+
+	fdt_finish_reservemap(uv_fdt);
+	fdt_begin_node(uv_fdt, "");
+	fdt_property_string(uv_fdt, "description", "Ultravisor fdt");
+	fdt_begin_node(uv_fdt, "ibm,uv-fdt");
+	fdt_property_string(uv_fdt, "compatible", "ibm,uv-fdt");
+	if (fdt_add_wrapping_key(uv_fdt))
+		prlog(PR_ERR, "Failed to add the wrapping key to dt\n");
+	fdt_end_node(uv_fdt);
+	fdt_end_node(uv_fdt);
+	fdt_finish(uv_fdt);
+
+	return OPAL_SUCCESS;
+}
+
+
 static void cpu_start_ultravisor(void *data)
 {
 	struct uv_opal *ptr = (struct uv_opal *)data;
@@ -176,6 +198,16 @@ int start_ultravisor(void)
 	struct cpu_thread *cpu;
 	struct cpu_job **jobs;
 	int i=0;
+
+	/* init_uv should have made the ibm,ultravisor node by now so don't
+	 * start if something went wrong */
+	if (!dt_find_compatible_node(dt_root, NULL, "ibm,ultravisor")) {
+		prlog(PR_NOTICE, "UV: No ibm,ultravisor found, won't start ultravisor\n");
+		return OPAL_HARDWARE;
+	}
+
+	if (create_dtb_uv((void *)uv_opal->uv_fdt))
+		return OPAL_NO_MEM;
 
 	prlog(PR_NOTICE, "UV: Starting Ultravisor at 0x%llx sys_fdt 0x%llx uv_fdt 0x%0llx\n",
 				uv_opal->uv_base_addr, uv_opal->sys_fdt, uv_opal->uv_fdt);
@@ -217,26 +249,6 @@ int start_ultravisor(void)
 	return OPAL_SUCCESS;
 }
 
-static int create_dtb_uv(void *uv_fdt)
-{
-	if (fdt_create(uv_fdt, UV_FDT_MAX_SIZE)) {
-		prerror("UV: Failed to create uv_fdt\n");
-		return 1;
-	}
-
-	fdt_finish_reservemap(uv_fdt);
-	fdt_begin_node(uv_fdt, "");
-	fdt_property_string(uv_fdt, "description", "Ultravisor fdt");
-	fdt_begin_node(uv_fdt, "ibm,uv-fdt");
-	fdt_property_string(uv_fdt, "compatible", "ibm,uv-fdt");
-	fdt_add_wrapping_key(uv_fdt);
-	fdt_end_node(uv_fdt);
-	fdt_end_node(uv_fdt);
-	fdt_finish(uv_fdt);
-
-	return OPAL_SUCCESS;
-}
-
 static void free_uv(void)
 {
 	struct mem_region *region = find_mem_region("ibm,firmware-allocs-memory@0");
@@ -273,7 +285,6 @@ void init_uv()
 	struct dt_node *node;
 	const struct dt_property *base;
 	uint64_t uv_src_addr, uv_pef_reg, uv_pef_size;
-	void *uv_fdt;
 
 	prlog(PR_DEBUG, "UV: Init starting\n");
 
@@ -349,6 +360,13 @@ void init_uv()
 start:
 	uv_opal->uv_base_addr = uv_pef_reg;
 	uv_opal->uv_mem = (__be64)&uv_memcons;
+	/*
+	 * Place the uv_fdt 128MB below the top of secure memory.
+	 * UV should/will copy this information out early during
+	 * start up and clear it out. So this information needs
+	 * to be preserved until then.
+	 */
+	uv_opal->uv_fdt = uv_pef_reg + uv_pef_size - (128<<20);
 
 	dt_add_property_u64(node, "memcons", (u64)&uv_memcons);
 	debug_descriptor.uv_memcons_phys = (u64)&uv_memcons;
@@ -358,13 +376,6 @@ start:
 		prerror("UV: Failed to create system fdt\n");
 		goto load_error;
 	}
-
-	uv_fdt = (void *)(uv_pef_reg + UV_LOAD_MAX_SIZE);
-	if (create_dtb_uv(uv_fdt)) {
-		prerror("UV: Failed to create uv fdt\n");
-		goto load_error;
-	}
-	uv_opal->uv_fdt = (__be64)uv_fdt;
 
 	reserve_uv_memory(uv_opal);
 
