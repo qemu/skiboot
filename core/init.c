@@ -47,7 +47,6 @@
 #include <opal-dump.h>
 #include <ultravisor.h>
 #include <libstb/crypto/include/uv-crypto.h>
-#include <libstb/tss2/tpm_nv.h>
 
 enum proc_gen proc_gen;
 unsigned int pcie_max_link_speed;
@@ -545,7 +544,7 @@ void __noreturn load_and_boot_kernel(bool is_reboot)
 
 	load_initramfs();
 
-	tpm_nv_init();
+	wrapping_key_init();
 	trustedboot_exit_boot_services();
 
 	start_ultravisor();

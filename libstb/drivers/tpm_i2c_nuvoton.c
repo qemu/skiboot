@@ -23,7 +23,7 @@
  * as defined in the TCG PC Client Platform TPM Profile specification, Revision
  * 00.43.
  */
-#define TPM_TIMEOUT_A	750
+#define TPM_TIMEOUT_A	200000000
 #define TPM_TIMEOUT_B	2000
 #define TPM_TIMEOUT_D	30
 

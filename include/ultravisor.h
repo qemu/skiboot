@@ -32,6 +32,8 @@ extern void uv_decompress_image(void);
 extern void init_uv(void);
 extern int start_ultravisor(void);
 extern long ucall(unsigned long opcode, unsigned long *retbuf, ...);
+int fdt_add_wrapping_key(void *fdt);
+int wrapping_key_init(void);
 
 static inline bool can_access_xscom(void)
 {

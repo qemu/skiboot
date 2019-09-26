@@ -16,6 +16,8 @@
 #include <ultravisor-api.h>
 #include <libfdt/libfdt.h>
 #include <libstb/container.h>
+#include <libstb/cvc.h>
+#include <libstb/tss2/tpm_nv.h>
 
 bool uv_present = false;
 static char *uv_image = NULL;
@@ -227,6 +229,7 @@ static int create_dtb_uv(void *uv_fdt)
 	fdt_property_string(uv_fdt, "description", "Ultravisor fdt");
 	fdt_begin_node(uv_fdt, "ibm,uv-fdt");
 	fdt_property_string(uv_fdt, "compatible", "ibm,uv-fdt");
+	fdt_add_wrapping_key(uv_fdt);
 	fdt_end_node(uv_fdt);
 	fdt_end_node(uv_fdt);
 	fdt_finish(uv_fdt);
@@ -301,7 +304,9 @@ void init_uv()
 		goto start;
 	}
 
-	/* This would be null in case we are on Cronus */
+	tpm_nv_init();
+
+	/* This would be null in case we are on Mambo or Cronus */
 	if (!uv_xz) {
 
 		prlog(PR_INFO, "UV: Platform load failed, detecting UV image via device tree\n");
