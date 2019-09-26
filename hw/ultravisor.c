@@ -15,6 +15,7 @@
 #include <console.h>
 #include <ultravisor-api.h>
 #include <libfdt/libfdt.h>
+#include <libstb/container.h>
 
 bool uv_present = false;
 static char *uv_image = NULL;

@@ -11,7 +11,7 @@ TSS2_SRCS += tsscryptoh.c tsscryptombed.c tsscryptouv.c tssdevuv.c
 TSS2_SRCS += tssmarshal.c tssprint.c tssprintcmd.c tssproperties.c
 TSS2_SRCS += tssresponsecode.c tsstransmit.c tssutils.c tssntc.c
 TSS2_SRCS += tssuv.c Commands.c CommandAttributeData.c Unmarshal.c
-TSS2_SRCS += tssdevskiboot.c tssskiboot.c tpm_nv.c
+TSS2_SRCS += tssdevskiboot.c tssskiboot.c tpm_nv.c opalcreate.c
 
 TSS2_OBJS = $(TSS2_SRCS:%.c=%.o)
 
