@@ -713,6 +713,7 @@ static const struct cpu_feature cpu_features_table[] = {
 	-1, -1, -1,
 	NULL, },
 
+#if 0
 	/*
 	 * Due to hardware bugs in POWER9, the hypervisor needs to assist
 	 * guests.
@@ -728,6 +729,7 @@ static const struct cpu_feature cpu_features_table[] = {
 	HV_CUSTOM, OS_NONE,
 	-1, -1, -1,
 	NULL, },
+#endif
 
 	/*
 	 * Due to hardware bugs in POWER9, the hypervisor can hit
