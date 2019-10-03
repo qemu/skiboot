@@ -224,15 +224,17 @@ static int flash_nvram_probe(struct flash *flash, struct ffs_handle *ffs)
 
 static struct dt_node *flash_add_dt_node(struct flash *flash, int id)
 {
+#if 0
 	int i;
 	int rc;
 	const char *name;
 	bool ecc;
 	struct ffs_handle *ffs;
 	int ffs_part_num, ffs_part_start, ffs_part_size;
-	struct dt_node *flash_node;
 	struct dt_node *partition_container_node;
 	struct dt_node *partition_node;
+#endif
+	struct dt_node *flash_node;
 
 	flash_node = dt_new_addr(opal_node, "flash", id);
 	dt_add_property_strings(flash_node, "compatible", "ibm,opal-flash");
@@ -247,6 +249,7 @@ static struct dt_node *flash_add_dt_node(struct flash *flash, int id)
 	dt_add_property_cells(flash_node, "#address-cells", 1);
 	dt_add_property_cells(flash_node, "#size-cells", 1);
 
+#if 0
 	/* Add partition container node */
 	partition_container_node = dt_new(flash_node, "partitions");
 	dt_add_property_strings(partition_container_node, "compatible", "fixed-partitions");
@@ -295,6 +298,7 @@ static struct dt_node *flash_add_dt_node(struct flash *flash, int id)
 	partition_node = dt_new_addr(partition_container_node, "partition", 0);
 	dt_add_property_strings(partition_node, "label", "PNOR");
 	dt_add_property_cells(partition_node, "reg", 0, flash->size);
+#endif
 
 	return flash_node;
 }
