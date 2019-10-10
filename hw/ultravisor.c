@@ -511,6 +511,9 @@ void uv_decompress_image(void)
 	uv_xz->src = uv_image;
 	uv_xz->src_size = uv_image_size;
 
+	if (stb_is_container((void*)uv_xz->src, uv_xz->src_size))
+		uv_xz->src = uv_xz->src + SECURE_BOOT_HEADERS_SIZE;
+
 	/* TODO security and integrity checks? */
 	xz_start_decompress(uv_xz);
 	if ((uv_xz->status != OPAL_PARTIAL) && (uv_xz->status != OPAL_SUCCESS))
