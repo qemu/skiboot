@@ -24,6 +24,7 @@ static char *uv_image = NULL;
 static size_t uv_image_size;
 struct xz_decompress *uv_xz = NULL;
 static struct uv_opal *uv_opal;
+static int num_secure_ranges = 0;
 
 struct memcons uv_memcons __section(".data.memcons") = {
 	.magic		= MEMCONS_MAGIC,
@@ -109,59 +110,6 @@ static uint64_t find_uv_fw_base_addr(struct dt_node *uv_node)
 		base_addr = dt_prop_get_u64(uv_node, "reg");
 
 	return base_addr;
-}
-
-static void reserve_secure_memory_region(void)
-{
-	struct dt_node *uv_node = find_uv_node();
-	struct dt_node *hb_node;
-	const struct dt_property *ranges;
-	uint64_t *range, *rangesp, sm_size, addr;
-	char buf[128];
-	int i=0;
-
-	ranges = dt_find_property(uv_node, "secure-memory-ranges");
-	if (!ranges)
-		return;
-
-	hb_node = dt_find_by_path(dt_root, "/ibm,hostboot");
-	if (hb_node)
-		prlog(PR_INFO, "Hostboot detected\n");
-
-	for (rangesp = (uint64_t *)(ranges->prop + ranges->len),
-			range = (uint64_t *)ranges->prop;
-			range < rangesp;
-			range += 2) {
-		addr = dt_get_number(range, 2);
-		if (!addr)
-			break;
-
-		sm_size = dt_get_number(range + 1, 2);
-		if (!sm_size)
-			break;
-
-		/* Remove Hostboot regions from secure memory 0 so we don't abort
-		 * on overlapping regions */
-		if (hb_node) {
-			prlog(PR_INFO, "Secure region %d, removing HB region\n", i);
-			/* TODO: Check with Hostboot for memory map */
-			sm_size = sm_size - UV_HB_RESERVE_SIZE;
-		}
-
-		snprintf(buf, 128, "ibm,secure-region-%d",i++);
-		mem_reserve_fw(strdup(buf), addr, sm_size);
-	}
-
-	return;
-}
-
-static void reserve_uv_memory(struct uv_opal *uv_opal)
-{
-	if (uv_opal->uv_base_addr == UV_LOAD_BASE) {
-		mem_reserve_fw("ibm,uv-code", UV_LOAD_BASE, UV_LOAD_MAX_SIZE);
-	} else {
-		reserve_secure_memory_region();
-	}
 }
 
 static int create_dtb_uv(void *uv_fdt)
@@ -377,8 +325,6 @@ start:
 		goto load_error;
 	}
 
-	reserve_uv_memory(uv_opal);
-
 load_error:
 	free_uv();
 	free(uv_xz);
@@ -433,6 +379,7 @@ bool uv_add_mem_range(__be64 start, __be64 end)
 {
 	struct dt_node *uv_node;
 	bool ret = false;
+	char buff[128];
 
 	if (!is_msr_bit_set(MSR_S))
 		return ret;
@@ -449,10 +396,13 @@ bool uv_add_mem_range(__be64 start, __be64 end)
 		return false;
 	}
 
-	ret = dt_append_memory_range(uv_node, start, end - start + 1);
+	ret = dt_append_memory_range(uv_node, start, end - start);
 
 	if (ret)
-		prlog(PR_NOTICE, "Secure memory range added [0x%016llx..0x%015llx]\n", start, end);
+		prlog(PR_NOTICE, "UV: Secure memory range added to DT [0x%016llx..0x%015llx]\n", start, end);
+
+	snprintf(buff, 128, "ibm,secure-mem%d", num_secure_ranges++);
+	mem_reserve_fw(strdup(buff), start, end - start);
 
 	return ret;
 }
