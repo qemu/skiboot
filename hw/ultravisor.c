@@ -34,6 +34,14 @@ struct memcons uv_memcons __section(".data.memcons") = {
 	.ibuf_size	= INMEM_UV_CON_IN_LEN,
 };
 
+const char * wrap_key_prop_str[] = {
+	"wrapping-key-passwd",
+	"wrapping-key-publicname",
+	"wrapping-key-policy-a",
+	"wrapping-key-policy-b",
+	NULL
+};
+
 static struct dt_node *add_uv_dt_node(void)
 {
 	struct dt_node *dev, *uv;
@@ -51,6 +59,19 @@ static struct dt_node *add_uv_dt_node(void)
 
 	dt_add_property_string(uv, "compatible", "ibm,uv-firmware");
 	return dev;
+}
+
+static struct dt_node *find_tpm_sim_node(void)
+{
+	struct dt_node *tpm_sim_node;
+
+	tpm_sim_node = dt_find_compatible_node(dt_root, NULL, "uv,tpm_sim");
+	if (!tpm_sim_node) {
+		prlog(PR_INFO, "uv,tpm_sim compatible node not found\n");
+		return NULL;
+	}
+
+	return tpm_sim_node;
 }
 
 static struct dt_node *find_uv_node(void)
@@ -112,6 +133,33 @@ static uint64_t find_uv_fw_base_addr(struct dt_node *uv_node)
 	return base_addr;
 }
 
+static int add_wrapping_key_mambo(void *fdt)
+{
+	struct dt_node *tpm_sim_node;
+	const struct dt_property *property = NULL;
+
+	if ((tpm_sim_node = find_tpm_sim_node())) {
+		int i;
+
+		fdt_begin_node(fdt, "ibm,uv-tpm");
+		fdt_property_string(fdt, "compatible", "ibm,uv-tpm");
+
+		for (i = 0; wrap_key_prop_str[i] != NULL; i++) {
+			property = dt_find_property(tpm_sim_node,
+					wrap_key_prop_str[i]);
+			if (property) {
+				fdt_property(fdt, wrap_key_prop_str[i],
+					property->prop,
+					property->len);
+			}
+		}
+
+		fdt_end_node(fdt);
+	}
+
+	return 0;
+}
+
 static int create_dtb_uv(void *uv_fdt)
 {
 	if (fdt_create(uv_fdt, UV_FDT_MAX_SIZE)) {
@@ -124,8 +172,14 @@ static int create_dtb_uv(void *uv_fdt)
 	fdt_property_string(uv_fdt, "description", "Ultravisor fdt");
 	fdt_begin_node(uv_fdt, "ibm,uv-fdt");
 	fdt_property_string(uv_fdt, "compatible", "ibm,uv-fdt");
-	if (fdt_add_wrapping_key(uv_fdt))
-		prlog(PR_ERR, "Failed to add the wrapping key to dt\n");
+	if (proc_chip_quirks & QUIRK_MAMBO_CALLOUTS) {
+		if (add_wrapping_key_mambo(uv_fdt))
+			prlog(PR_ERR, "Failed to add the mambo wrapping key"
+					" to dt\n");
+	} else
+		if (fdt_add_wrapping_key(uv_fdt))
+			prlog(PR_ERR, "Failed to add the wrapping key"
+					" to dt\n");
 	fdt_end_node(uv_fdt);
 	fdt_end_node(uv_fdt);
 	fdt_finish(uv_fdt);
