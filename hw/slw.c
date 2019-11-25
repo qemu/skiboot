@@ -975,6 +975,30 @@ void add_cpu_self_save_properties()
 		0x357 // PSCCR
 	};
 
+	uint64_t *ucall_location_100 = (uint64_t *)0x20ffffe00100;
+	uint64_t *ucall_location_110 = (uint64_t *)0x20FFFFE00110;
+	uint64_t *ucall_location_120 = (uint64_t *)0x20FFFFE00120;
+	const int arr_100 [] = {
+		0x48000020,
+		0xa64a397c,
+		0xa600a07e,
+		0xa407b57a
+	};
+
+	const int arr_110 [] = {
+		0xa603bb7e,
+		0x20012138,
+		0xa6033a7c,
+		0x2400004c
+	};
+
+	const int arr_120 [] = {
+		0x44000042,
+		0x00000200,
+		0x00000200,
+		0x00000200
+	};
+
 	self_save_map = zalloc(BITMAP_BYTES(SPR_BITMAP_LENGTH));
 	self_restore_map = zalloc(BITMAP_BYTES(SPR_BITMAP_LENGTH));
 
@@ -1038,6 +1062,12 @@ void add_cpu_self_save_properties()
 	} else {
 		dt_add_property_string(self_save, "status", "disabled");
 	}
+
+	/* Patching code in the HCODE that solves the BE_LE switch for SC2
+	 * instruction */
+	memcpy(ucall_location_100, arr_100, sizeof(arr_100));
+	memcpy(ucall_location_110, arr_110, sizeof(arr_110));
+	memcpy(ucall_location_120, arr_120, sizeof(arr_120));
 bail:
 	free(self_save_map);
 	free(self_restore_map);
