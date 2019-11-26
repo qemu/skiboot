@@ -25,6 +25,8 @@
 extern bool uv_present;
 #define is_uv_present() uv_present
 
+extern uint64_t uv_base_addr;
+
 extern int start_uv(uint64_t entry, struct uv_opal *uv_opal);
 extern bool uv_add_mem_range(__be64 start, __be64 end);
 extern void uv_preload_image(void);

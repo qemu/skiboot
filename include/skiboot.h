@@ -207,6 +207,7 @@ extern void early_uart_init(void);
 extern void homer_init(void);
 extern void slw_init(void);
 extern void add_cpu_idle_state_properties(void);
+extern void add_cpu_self_save_properties(void);
 extern void lpc_rtc_init(void);
 
 /* flash support */
@@ -304,6 +305,9 @@ extern void xive_late_init(void);
 
 /* SLW reinit function for switching core settings */
 extern int64_t slw_reinit(uint64_t flags);
+
+/* Self save SPR before entering the stop state */
+extern int64_t opal_slw_self_save_reg(uint64_t cpu_pir, uint64_t sprn);
 
 /* Patch SPR in SLW image */
 extern int64_t opal_slw_set_reg(uint64_t cpu_pir, uint64_t sprn, uint64_t val);

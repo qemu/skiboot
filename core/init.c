@@ -1194,9 +1194,6 @@ void __noreturn __nomcount main_cpu_entry(const void *fdt)
 	if (platform.seeprom_update)
 		platform.seeprom_update();
 
-	/* Init SLW related stuff, including fastsleep */
-	slw_init();
-
 	op_display(OP_LOG, OP_MOD_INIT, 0x0002);
 
 	/*
@@ -1276,6 +1273,9 @@ void __noreturn __nomcount main_cpu_entry(const void *fdt)
 
 	/* Init uiltravisor software */
 	init_uv();
+
+	/* Init SLW related stuff, including fastsleep */
+	slw_init();
 
 	/* Now release parts of memory nodes we haven't used ourselves... */
 	mem_region_release_unused();

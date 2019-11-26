@@ -25,6 +25,7 @@ static size_t uv_image_size;
 struct xz_decompress *uv_xz = NULL;
 static struct uv_opal *uv_opal;
 static int num_secure_ranges = 0;
+uint64_t uv_base_addr = 0;
 
 struct memcons uv_memcons __section(".data.memcons") = {
 	.magic		= MEMCONS_MAGIC,
@@ -361,6 +362,7 @@ void init_uv()
 
 start:
 	uv_opal->uv_base_addr = uv_pef_reg;
+	uv_base_addr = uv_opal->uv_base_addr;
 	uv_opal->uv_mem = (__be64)&uv_memcons;
 	/*
 	 * Place the uv_fdt 128MB below the top of secure memory.

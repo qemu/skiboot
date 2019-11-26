@@ -22,12 +22,16 @@
 #include <opal-api.h>
 #include <nvram.h>
 #include <sbe-p8.h>
+#include <bitmap.h>
 
 #include <p9_stop_api.H>
 #include <p8_pore_table_gen_api.H>
 #include <sbe_xip_image.h>
 
 #define MAX_RESET_PATCH_SIZE	64
+/* The POWER ISA mf/mtspr allows atmost 2048 SPRs. */
+#define SPR_BITMAP_LENGTH		2048
+#define DEFAULT_CPMMR_VALUE 0x2022000000000000
 
 static uint32_t slw_saved_reset[MAX_RESET_PATCH_SIZE];
 
@@ -35,6 +39,53 @@ static bool slw_current_le = false;
 
 enum wakeup_engine_states wakeup_engine_state = WAKEUP_ENGINE_NOT_PRESENT;
 bool has_deep_states = false;
+
+#define HILE_BIT	PPC_BIT(4)
+#define RADIX_BIT	PPC_BIT(8)
+#define default_hid0_val (HILE_BIT | RADIX_BIT)
+/**
+ * The struct and SPR list is a subset of the libpore/p9_stop_api.c counterpart
+ */
+/**
+ * @brief summarizes attributes associated with a SPR register.
+ */
+typedef struct
+{
+    uint32_t iv_sprId;
+    bool     iv_isThreadScope;
+    uint32_t iv_saveMaskPos;
+
+} StopSprReg_t;
+
+/**
+ * @brief a true in the table below means register is of scope thread
+ * whereas a false meanse register is of scope core.
+ * The number is the bit position on a uint32_t mask
+ */
+
+static const StopSprReg_t g_sprRegister[] =
+{
+	{ P9_STOP_SPR_DAWR,      true,  1   },
+	{ P9_STOP_SPR_HSPRG0,    true,  3   },
+	{ P9_STOP_SPR_LDBAR,     true,  4,  },
+	{ P9_STOP_SPR_LPCR,      true,  5   },
+	{ P9_STOP_SPR_PSSCR,     true,  6   },
+	{ P9_STOP_SPR_MSR,       true,  7   },
+	{ P9_STOP_SPR_HRMOR,     false, 255 },
+	{ P9_STOP_SPR_HID,       false, 21  },
+	{ P9_STOP_SPR_HMEER,     false, 22  },
+	{ P9_STOP_SPR_PMCR,      false, 23  },
+	{ P9_STOP_SPR_PTCR,      false, 24  },
+	{ P9_STOP_SPR_URMOR,     false, 255 },
+	{ P9_STOP_SPR_SMFCTRL,   true,  28  },
+	{ P9_STOP_SPR_USPRG0,    true,  29  },
+	{ P9_STOP_SPR_USPRG1,    true,  30  },
+};
+
+static const uint32_t MAX_SPR_SUPPORTED	= ARRAY_SIZE(g_sprRegister);
+uint32_t find_mask_self_save(const uint64_t sprn);
+bool self_restore_cpu_iterator(uint64_t sprn, uint64_t val);
+bool self_save_cpu_iterator(const uint64_t self_save_reg);
 
 DEFINE_LOG_ENTRY(OPAL_RC_SLW_INIT, OPAL_PLATFORM_ERR_EVT, OPAL_SLW,
 		 OPAL_PLATFORM_FIRMWARE, OPAL_PREDICTIVE_ERR_GENERAL,
@@ -587,6 +638,116 @@ static struct cpu_idle_states power9_cpu_idle_states[] = {
 };
 
 /*
+ * Latency for Stop4 and 5 are bumped up so that cpuidle path is not exercised
+ * in the PEF environment, but the states are available to be exercised during a
+ * hotplug
+ */
+static struct cpu_idle_states power9_pef_cpu_idle_states[] = {
+	{
+		.name = "stop0_lite", /* Enter stop0 with no state loss */
+		.latency_ns = 1000,
+		.residency_ns = 10000,
+		.flags = 0*OPAL_PM_DEC_STOP \
+		       | 0*OPAL_PM_TIMEBASE_STOP  \
+		       | 0*OPAL_PM_LOSE_USER_CONTEXT \
+		       | 0*OPAL_PM_LOSE_HYP_CONTEXT \
+		       | 0*OPAL_PM_LOSE_FULL_CONTEXT \
+		       | 1*OPAL_PM_STOP_INST_FAST,
+		.pm_ctrl_reg_val = OPAL_PM_PSSCR_RL(0) \
+				 | OPAL_PM_PSSCR_MTL(3) \
+				 | OPAL_PM_PSSCR_TR(3),
+		.pm_ctrl_reg_mask = OPAL_PM_PSSCR_MASK },
+	{
+		.name = "stop0",
+		.latency_ns = 2000,
+		.residency_ns = 20000,
+		.flags = 0*OPAL_PM_DEC_STOP \
+		       | 0*OPAL_PM_TIMEBASE_STOP  \
+		       | 1*OPAL_PM_LOSE_USER_CONTEXT \
+		       | 0*OPAL_PM_LOSE_HYP_CONTEXT \
+		       | 0*OPAL_PM_LOSE_FULL_CONTEXT \
+		       | 1*OPAL_PM_STOP_INST_FAST,
+		.pm_ctrl_reg_val = OPAL_PM_PSSCR_RL(0) \
+				 | OPAL_PM_PSSCR_MTL(3) \
+				 | OPAL_PM_PSSCR_TR(3) \
+				 | OPAL_PM_PSSCR_ESL \
+				 | OPAL_PM_PSSCR_EC,
+		.pm_ctrl_reg_mask = OPAL_PM_PSSCR_MASK },
+
+	/* stop1_lite has been removed since it adds no additional benefit over stop0_lite */
+
+	{
+		.name = "stop1",
+		.latency_ns = 5000,
+		.residency_ns = 50000,
+		.flags = 0*OPAL_PM_DEC_STOP \
+		       | 0*OPAL_PM_TIMEBASE_STOP  \
+		       | 1*OPAL_PM_LOSE_USER_CONTEXT \
+		       | 0*OPAL_PM_LOSE_HYP_CONTEXT \
+		       | 0*OPAL_PM_LOSE_FULL_CONTEXT \
+		       | 1*OPAL_PM_STOP_INST_FAST,
+		.pm_ctrl_reg_val = OPAL_PM_PSSCR_RL(1) \
+				 | OPAL_PM_PSSCR_MTL(3) \
+				 | OPAL_PM_PSSCR_TR(3) \
+				 | OPAL_PM_PSSCR_ESL \
+				 | OPAL_PM_PSSCR_EC,
+		.pm_ctrl_reg_mask = OPAL_PM_PSSCR_MASK },
+	/*
+	 * stop2_lite has been removed since currently it adds minimal benefit over stop2.
+	 * However, the benefit is eclipsed by the time required to ungate the clocks
+	 */
+
+	{
+		.name = "stop2",
+		.latency_ns = 10000,
+		.residency_ns = 100000,
+		.flags = 0*OPAL_PM_DEC_STOP \
+		       | 0*OPAL_PM_TIMEBASE_STOP  \
+		       | 1*OPAL_PM_LOSE_USER_CONTEXT \
+		       | 0*OPAL_PM_LOSE_HYP_CONTEXT \
+		       | 0*OPAL_PM_LOSE_FULL_CONTEXT \
+		       | 1*OPAL_PM_STOP_INST_FAST,
+		.pm_ctrl_reg_val = OPAL_PM_PSSCR_RL(2) \
+				 | OPAL_PM_PSSCR_MTL(3) \
+				 | OPAL_PM_PSSCR_TR(3) \
+				 | OPAL_PM_PSSCR_ESL \
+				 | OPAL_PM_PSSCR_EC,
+		.pm_ctrl_reg_mask = OPAL_PM_PSSCR_MASK },
+	{
+		.name = "stop4",
+		.latency_ns = 10000000,
+		.residency_ns = 100000000,
+		.flags = 0*OPAL_PM_DEC_STOP \
+		       | 0*OPAL_PM_TIMEBASE_STOP  \
+		       | 1*OPAL_PM_LOSE_USER_CONTEXT \
+		       | 1*OPAL_PM_LOSE_HYP_CONTEXT \
+		       | 1*OPAL_PM_LOSE_FULL_CONTEXT \
+		       | 1*OPAL_PM_STOP_INST_DEEP,
+		.pm_ctrl_reg_val = OPAL_PM_PSSCR_RL(4) \
+				 | OPAL_PM_PSSCR_MTL(7) \
+				 | OPAL_PM_PSSCR_TR(3) \
+				 | OPAL_PM_PSSCR_ESL \
+				 | OPAL_PM_PSSCR_EC,
+		.pm_ctrl_reg_mask = OPAL_PM_PSSCR_MASK },
+	{
+		.name = "stop5",
+		.latency_ns = 10000000,
+		.residency_ns = 100000000,
+		.flags = 0*OPAL_PM_DEC_STOP \
+		       | 0*OPAL_PM_TIMEBASE_STOP  \
+		       | 1*OPAL_PM_LOSE_USER_CONTEXT \
+		       | 1*OPAL_PM_LOSE_HYP_CONTEXT \
+		       | 1*OPAL_PM_LOSE_FULL_CONTEXT \
+		       | 1*OPAL_PM_STOP_INST_DEEP,
+		.pm_ctrl_reg_val = OPAL_PM_PSSCR_RL(5) \
+				 | OPAL_PM_PSSCR_MTL(7) \
+				 | OPAL_PM_PSSCR_TR(3) \
+				 | OPAL_PM_PSSCR_ESL \
+				 | OPAL_PM_PSSCR_EC,
+		.pm_ctrl_reg_mask = OPAL_PM_PSSCR_MASK },
+};
+
+/*
  * Prior to Mambo.7.8.21, mambo did set the MSR correctly for lite stop
  * states, so disable them for now.
  */
@@ -717,6 +878,171 @@ static void slw_late_init_p9(struct proc_chip *chip)
 	}
 }
 
+uint32_t __attribute__((const))
+find_mask_self_save(const uint64_t sprn)
+{
+	uint32_t save_reg_vector = -1;
+	int index;
+	for (index = 0; index < MAX_SPR_SUPPORTED; ++index) {
+		if (sprn == (CpuReg_t) g_sprRegister[index].iv_sprId) {
+			save_reg_vector = PPC_BIT32(
+					g_sprRegister[index].iv_saveMaskPos);
+			break;
+		}
+	}
+	return save_reg_vector;
+}
+
+bool __attribute__((const))
+self_restore_cpu_iterator(uint64_t sprn, uint64_t val)
+{
+	struct cpu_thread *cpu;
+	struct proc_chip *chip;
+	int rc;
+
+	for_each_available_cpu(cpu) {
+		chip = get_chip(cpu->chip_id);
+		rc = p9_stop_save_cpureg((void *)chip->homer_base,
+					 sprn,
+					 val,
+					 cpu->pir);
+		if (rc) {
+			prlog(PR_ERR,
+			      "SLW: Failed to set spr %llx for CPU %x, RC=0x%x\n",
+			      sprn, cpu->pir, rc);
+			return rc;
+		}
+	}
+	return rc;
+}
+
+bool __attribute__((const))
+self_save_cpu_iterator(const uint64_t self_save_reg)
+{
+	struct cpu_thread *cpu;
+	struct proc_chip *chip;
+	int rc;
+	uint32_t save_reg_vector;
+
+	for_each_available_cpu(cpu) {
+		chip = get_chip(cpu->chip_id);
+		save_reg_vector =
+			find_mask_self_save(self_save_reg);
+		if (save_reg_vector == -1)
+			return true;
+		rc = p9_stop_save_cpureg_control((void *) chip->homer_base,
+						 cpu->pir,
+						 save_reg_vector);
+		if (rc) {
+			prlog(PR_ERR,
+			      "SLW: Failed to set spr %llx for CPU %x, RC=0x%x\n",
+			      self_save_reg, cpu->pir, rc);
+			return rc;
+		}
+		prlog(PR_NOTICE, "SLW: Self save reg: 0x%llx\n",
+		      self_save_reg);
+	}
+	return rc;
+}
+/* Add device tree properties to determine self-save | restore */
+void add_cpu_self_save_properties()
+{
+	int i, rc;
+	struct dt_node *self_restore, *self_save, *power_mgt;
+	bitmap_t *self_restore_map, *self_save_map;
+
+	const uint64_t self_restore_regs[] = {
+		0x130, // HSPRG0
+		0x13E, // LPCR
+		0x151, // HMEER
+		0x3F0, // HID0
+		0x3F1, // HID1
+		0x3F4, // HID4
+		0x3F6, // HID5
+		0x7D0, // MSR
+		0x357 // PSCCR
+	};
+
+	const uint64_t self_save_regs[] = {
+		0x130, // HSPRG0
+		0x13E, // LPCR
+		0x151, // HMEER
+		0x7D0, // MSR
+		0x1D0, //PTCR
+		0x1F0, // USPRG0
+		0x1F1, //USPRG1
+		0x1FF, //SMFCTRL
+		0x357 // PSCCR
+	};
+
+	self_save_map = zalloc(BITMAP_BYTES(SPR_BITMAP_LENGTH));
+	self_restore_map = zalloc(BITMAP_BYTES(SPR_BITMAP_LENGTH));
+
+	for (i = 0; i < ARRAY_SIZE(self_restore_regs); i++) {
+		if (is_msr_bit_set(MSR_S) && self_restore_regs[i] != P9_STOP_SPR_HID)
+			continue;
+		bitmap_set_bit(*self_restore_map, self_restore_regs[i]);
+	}
+
+	if (is_msr_bit_set(MSR_S)) {
+		rc = self_restore_cpu_iterator(P9_STOP_SPR_HID,
+					       default_hid0_val);
+		if (rc)
+			goto bail;
+		if (uv_base_addr) {
+			rc = self_restore_cpu_iterator(P9_STOP_SPR_URMOR,
+						       uv_base_addr);
+			if (rc)
+				goto bail;
+		} else {
+			prlog(PR_ERR,
+			      "SLW: uv_base_addr is NULL\n");
+			goto bail;
+		}
+	}
+	for (i = 0; i < ARRAY_SIZE(self_save_regs); i++) {
+		bitmap_set_bit(*self_save_map, self_save_regs[i]);
+		if (!is_msr_bit_set(MSR_S))
+			continue;
+		rc = self_save_cpu_iterator(self_save_regs[i]);
+		if (rc)
+			goto bail;
+	}
+
+	power_mgt = dt_find_by_path(dt_root, "/ibm,opal/power-mgt");
+	if (!power_mgt) {
+		prerror("OCC: dt node /ibm,opal/power-mgt not found\n");
+		goto bail;
+	}
+
+	self_restore = dt_new(power_mgt, "self-restore");
+	if (!self_restore) {
+		prerror("OCC: Failed to create self restore node");
+		goto bail;
+	}
+	dt_add_property_string(self_restore, "status", "enabled");
+
+	dt_add_property(self_restore, "sprn-bitmask", *self_restore_map,
+			SPR_BITMAP_LENGTH / 8);
+
+	self_save = dt_new(power_mgt, "self-save");
+	if (!self_save) {
+		prerror("OCC: Failed to create self save node");
+		goto bail;
+	}
+	if (proc_gen == proc_gen_p9) {
+		dt_add_property_string(self_save, "status", "enabled");
+
+		dt_add_property(self_save, "sprn-bitmask", *self_save_map,
+				SPR_BITMAP_LENGTH / 8);
+	} else {
+		dt_add_property_string(self_save, "status", "disabled");
+	}
+bail:
+	free(self_save_map);
+	free(self_restore_map);
+}
+
 /* Add device tree properties to describe idle states */
 void add_cpu_idle_state_properties(void)
 {
@@ -775,6 +1101,10 @@ void add_cpu_idle_state_properties(void)
 		if (proc_chip_quirks & QUIRK_MAMBO_CALLOUTS) {
 			states = power9_mambo_cpu_idle_states;
 			nr_states = ARRAY_SIZE(power9_mambo_cpu_idle_states);
+		} else if (is_msr_bit_set(MSR_S)) {
+			prlog(PR_EMERG, "pef state table is enabled\n");
+			states = power9_pef_cpu_idle_states;
+			nr_states = ARRAY_SIZE(power9_pef_cpu_idle_states);
 		} else {
 			states = power9_cpu_idle_states;
 			nr_states = ARRAY_SIZE(power9_cpu_idle_states);
@@ -783,6 +1113,10 @@ void add_cpu_idle_state_properties(void)
 		has_stop_inst = true;
 		stop_levels = dt_prop_get_u32_def(power_mgt,
 			"ibm,enabled-stop-levels", 0);
+		if (stop_levels != 0) {
+			prerror("HACK: stop levels enabled, forcing stop0 and stop1\n");
+			stop_levels = 0xc0000000;
+		}
 		if (!stop_levels) {
 			prerror("SLW: No stop levels available. Power saving is disabled!\n");
 			has_deep_states = false;
@@ -1393,6 +1727,19 @@ int64_t opal_slw_set_reg(uint64_t cpu_pir, uint64_t sprn, uint64_t val)
 		return OPAL_PARAMETER;
 	}
 
+	/*
+	 * Return OPAL SUCCESS if we are in a PEF environment
+	 * Self save does not currently work for HID0, hence we self
+	 * restore and check against the default value as only LE Radix
+	 * hypervisors can currently exist.
+	 * Until there is a version that supports self save for HID,
+	 * only Little Endian Radix can be supported
+	*/
+	if (is_uv_present()) {
+		if (sprn == P9_STOP_SPR_HID && val != default_hid0_val)
+			return OPAL_UNSUPPORTED;
+		return OPAL_SUCCESS;
+	}
 	if (proc_gen == proc_gen_p9) {
 		if (!has_deep_states) {
 			prlog(PR_INFO, "SLW: Deep states not enabled\n");
@@ -1452,9 +1799,69 @@ int64_t opal_slw_set_reg(uint64_t cpu_pir, uint64_t sprn, uint64_t val)
 
 opal_call(OPAL_SLW_SET_REG, opal_slw_set_reg, 3);
 
+int64_t opal_slw_self_save_reg(uint64_t cpu_pir, uint64_t sprn)
+{
+	struct cpu_thread * c = find_cpu_by_pir(cpu_pir);
+	struct proc_chip * chip;
+	int rc;
+	int index;
+	uint32_t save_reg_vector = 0;
+
+	if (!c) {
+		prlog(PR_DEBUG, "SLW: Unknown thread with pir %x\n",
+		      (u32) cpu_pir);
+		return OPAL_PARAMETER;
+	}
+
+	chip = get_chip(c->chip_id);
+	if (!chip) {
+		prlog(PR_DEBUG, "SLW: Unknown chip for thread with pir %x\n",
+		      (u32) cpu_pir);
+		return OPAL_PARAMETER;
+	}
+	if (proc_gen != proc_gen_p9 || !has_deep_states) {
+		prlog(PR_DEBUG, "SLW: Does not support deep states\n");
+		return OPAL_UNSUPPORTED;
+	}
+	if (wakeup_engine_state != WAKEUP_ENGINE_PRESENT) {
+		log_simple_error(&e_info(OPAL_RC_SLW_REG),
+			"SLW: wakeup_engine in bad state=%d chip=%x\n",
+			wakeup_engine_state, chip->id);
+		return OPAL_INTERNAL_ERROR;
+	}
+	for (index = 0; index < MAX_SPR_SUPPORTED; ++index) {
+		if (sprn == (CpuReg_t) g_sprRegister[index].iv_sprId) {
+			save_reg_vector = PPC_BIT32(
+				g_sprRegister[index].iv_saveMaskPos);
+			break;
+		}
+	}
+	if (save_reg_vector == 0)
+		return OPAL_INTERNAL_ERROR;
+	/*
+	 * In a PEF environment, the values are saved prior to entering the
+	 * secure environment, hence this can return a sucess
+	 */
+	if (is_uv_present())
+		return OPAL_SUCCESS;
+	rc = p9_stop_save_cpureg_control((void *) chip->homer_base,
+						cpu_pir, save_reg_vector);
+
+	if (rc) {
+		log_simple_error(&e_info(OPAL_RC_SLW_REG),
+			"SLW: Failed to save vector %x for CPU %x\n",
+			save_reg_vector, c->pir);
+		return OPAL_INTERNAL_ERROR;
+	}
+	return OPAL_SUCCESS;
+}
+opal_call(OPAL_SLW_SELF_SAVE_REG, opal_slw_self_save_reg, 2);
+
 void slw_init(void)
 {
 	struct proc_chip *chip;
+	int i, rc;
+	u64 cpmmr_xscom_addr;
 
 	if (proc_chip_quirks & QUIRK_MAMBO_CALLOUTS) {
 		wakeup_engine_state = WAKEUP_ENGINE_NOT_PRESENT;
@@ -1479,5 +1886,23 @@ void slw_init(void)
 				slw_late_init_p9(chip);
 		}
 	}
+	/* Setting up CPPMR bits which allow the transition to HV from UV */
+	for_each_chip(chip) {
+		u8 nr_cores = get_available_nr_cores_in_chip(chip->id);
+
+		cpmmr_xscom_addr = 0x200f0106;
+		for (i = 0; i < nr_cores; i++) {
+			rc = xscom_write(chip->id, cpmmr_xscom_addr,
+					 DEFAULT_CPMMR_VALUE | PPC_BIT(3));
+			if (rc) {
+				log_simple_error(&e_info(OPAL_RC_SLW_INIT),
+						 "SLW: Failed to write to CPMMR\n");
+			}
+			/* Each core xscom address is offsetted */
+			cpmmr_xscom_addr += 0x1000000;
+		}
+	}
 	add_cpu_idle_state_properties();
+	if (has_deep_states)
+		add_cpu_self_save_properties();
 }

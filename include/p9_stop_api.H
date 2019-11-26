@@ -34,6 +34,8 @@
 ///
 /// @file   p9_stop_api.H
 /// @brief  describes STOP API which  create/manipulate STOP image.
+///         This header need not be consistent, however is a subset of the
+///         libpore/p9_stop_api.H counterpart
 ///
 // *HWP HW Owner    :  Greg Still <stillgs@us.ibm.com>
 // *HWP FW Owner    :  Prem Shanker Jha <premjha2@in.ibm.com>
@@ -63,6 +65,11 @@ typedef enum
     P9_STOP_SPR_PMCR    =    884,   // core register
     P9_STOP_SPR_HID     =   1008,   // core register
     P9_STOP_SPR_MSR     =   2000,   // thread register
+    P9_STOP_SPR_PTCR    =    464,   // core register
+    P9_STOP_SPR_URMOR   =    505,   // core register
+    P9_STOP_SPR_USPRG0  =    496,   // thread register
+    P9_STOP_SPR_USPRG1  =    497,   // thread register
+    P9_STOP_SPR_SMFCTRL =    511,   // thread register
 } CpuReg_t;
 
 /**
@@ -155,6 +162,20 @@ StopReturnCode_t p9_stop_save_scom( void* const   i_pImage,
                                     const ScomOperation_t i_operation,
                                     const ScomSection_t i_section );
 
+/**
+ * @brief       Facilitates self save and restore of a list of SPRs of a thread.
+ * @param[in]   i_pImage        points to the start of HOMER image of P9 chip.
+ * @param[in]   i_pir           PIR associated with thread
+ * @param[in]   i_saveRegVector bit vector representing SPRs that needs to be restored.
+ * @return      STOP_SAVE_SUCCESS if API succeeds, error code otherwise.
+ * @note        SPR save vector is a bit vector. For each SPR supported,
+ *              there is an associated bit position in the bit vector.Refer
+ *              to definition of SprBitPositionList_t to determine bit position
+ *              associated with a particular SPR.
+ */
+StopReturnCode_t
+p9_stop_save_cpureg_control( void* i_pImage, const uint64_t i_pir,
+                             const uint32_t  i_saveRegVector );
 #ifdef __cplusplus
 } // extern "C"
 };  // namespace stopImageSection ends
