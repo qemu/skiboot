@@ -166,14 +166,16 @@ static bool add_address_range(struct dt_node *root,
 		return false;
 	}
 
-	if (arange->mirror_attr & MS_ATTR_SMF) {
+	if (be32_to_cpu(arange->mirror_attr) & MS_ATTR_SMF) {
 		prlog(PR_DEBUG, "HDAT: Found secure memory\n");
 		if (!uv_add_mem_range(reg[0], cleanup_addr(be64_to_cpu(arange->end)))) {
 			prerror("Failed to add secure memory range to DT\n");
 			mem_reserve_fw(name, reg[0], reg[1]);
 			return false;
 		}
-		return true;
+		name = "secure-memory";
+		dev_type = "secure-memory";
+		compat = "ibm,secure-memory";
 	}
 
 	if (be16_to_cpu(id->flags) & MS_AREA_SHARED) {
