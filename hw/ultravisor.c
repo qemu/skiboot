@@ -36,6 +36,7 @@ struct memcons uv_memcons __section(".data.memcons") = {
 };
 
 const char * wrap_key_prop_str[] = {
+	"wrapping-key-handle",
 	"wrapping-key-passwd",
 	"wrapping-key-publicname",
 	"wrapping-key-policy-a",

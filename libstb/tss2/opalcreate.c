@@ -849,6 +849,7 @@ int fdt_add_wrapping_key(void *fdt)
 	fdt_begin_node(fdt, "ibm,uv-tpm");
 	fdt_property_string(fdt, "compatible", "ibm,uv-tpm");
 
+	fdt_property_u32(fdt, "wrapping-key-handle", WRAPPING_KEY_HANDLE);
 	fdt_property(fdt, "wrapping-key-passwd", key_passwd,
 		     WRAPPING_KEY_PASSWD_LEN+1); /* Include null */
 	fdt_property(fdt, "wrapping-key-publicname",
