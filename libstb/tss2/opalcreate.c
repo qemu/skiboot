@@ -929,6 +929,28 @@ out_err:
 	return 0;
 }
 
+static int send_selftest(TSS_CONTEXT *ctx)
+{
+	SelfTest_In in;
+	TPM_RC rc;
+
+	in.fullTest = 1;
+
+	rc = TSS_Execute(ctx,
+			NULL,
+			(COMMAND_PARAMETERS *)&in,
+			NULL,
+			TPM_CC_SelfTest,
+			TPM_RH_NULL, NULL, 0);
+	if (rc) {
+	    traceError("selftest", rc);
+	    prlog(PR_ERR,"selftest failed\n");
+	    return -1;
+	}
+
+	return 0;
+}
+
 int wrapping_key_init(void)
 {
 	TPMS_CAPABILITY_DATA capabilityData;
@@ -1053,6 +1075,11 @@ out_publicname:
 		free(key_publicname);
 		goto out_err_free;
 	}
+
+	/* Mitigate RSA key errata by sending selftest */
+	rc = send_selftest(ctx);
+	if (rc)
+		prlog(PR_ERR,"Mitigate RSA key errata selftest failed\n");
 
 	rc = TSS_Delete(ctx);
 	if (rc)
