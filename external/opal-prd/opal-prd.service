@@ -2,6 +2,7 @@
 Description=OPAL PRD daemon
 ConditionVirtualization=false
 ConditionPathExists=/sys/firmware/devicetree/base/ibm,opal/diagnostics
+After=systemd-modules-load.service
 
 [Service]
 ExecStart=/usr/sbin/opal-prd

@@ -1,5 +1,5 @@
 Name:		opal-prd
-Version:	5.10
+Version:	6.7
 Release:	1%{?dist}
 Summary:	OPAL Processor Recovery Diagnostics Daemon
 
@@ -11,6 +11,7 @@ ExclusiveArch:	ppc64le
 BuildRequires:	systemd
 
 Requires:	systemd
+Requires:	systemd-udev
 
 Source0:	https://github.com/open-power/skiboot/archive/v%{version}.tar.gz
 
@@ -62,6 +63,10 @@ make -C external/pflash install DESTDIR=%{buildroot} prefix=/usr
 mkdir -p %{buildroot}%{_unitdir}
 install -m 644 -p external/opal-prd/opal-prd.service %{buildroot}%{_unitdir}/opal-prd.service
 
+# Auto-load kernel module after boot/reboot
+mkdir -p %{buildroot}/%{_sysconfdir}/modules-load.d
+echo 'opal-prd' > %{buildroot}/%{_sysconfdir}/modules-load.d/%{name}.conf
+
 mkdir -p %{buildroot}%{_datadir}/qemu
 install -m 644 -p skiboot.lid %{buildroot}%{_datadir}/qemu/skiboot.lid
 
@@ -91,6 +96,7 @@ fi
 %{_sbindir}/opal-prd
 %{_unitdir}/opal-prd.service
 %{_mandir}/man8/*
+%config(noreplace) %{_sysconfdir}/modules-load.d/%{name}.conf
 
 %files -n opal-utils
 %doc README.md
@@ -108,6 +114,10 @@ fi
 %{_datadir}/qemu/
 
 %changelog
+* Tue Mar 9 2021 Vasant Hegde <hegdevasant@linux.vnet.ibm.com> - 6.7
+- Update to v6.7 release
+- Create conf file to load opal-prd module at boot
+
 * Thu Mar 01 2018 Murilo Opsfelder Araujo <muriloo@linux.vnet.ibm.com> - 5.10-1
 - Update to v5.10 release
 
