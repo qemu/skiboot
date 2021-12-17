@@ -340,6 +340,9 @@ struct phb_ops {
 	/* Get/set PBCQ Tunnel BAR register */
 	void (*get_tunnel_bar)(struct phb *phb, uint64_t *addr);
 	int64_t (*set_tunnel_bar)(struct phb *phb, uint64_t addr);
+
+	/* Currently only used by NPU HMI code */
+	void (*set_fence_state)(struct phb *phb, bool fence);
 };
 
 enum phb_type {

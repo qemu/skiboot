@@ -925,7 +925,9 @@ static int64_t npu_eeh_next_error(struct phb *phb,
 }
 
 /* For use in error injection and handling. */
-void npu_set_fence_state(struct npu *p, bool fence) {
+static void npu_set_fence_state(struct phb *phb, bool fence) {
+	struct npu *p = phb_to_npu(phb);
+
 	p->fenced = fence;
 
 	if (fence)
@@ -968,7 +970,7 @@ static int64_t npu_err_inject(struct phb *phb, uint64_t pe_number,
 		return OPAL_PARAMETER;
 	} else if (type == 1) {
 		/* Emulate fence mode. */
-		npu_set_fence_state(p, true);
+		npu_set_fence_state(phb, true);
 	} else {
 		/* Cause a freeze with an invalid MMIO read.  If the BAR is not
 		 * enabled, this will checkstop the machine.
@@ -1012,6 +1014,7 @@ static const struct phb_ops npu_ops = {
 	.get_diag_data2		= NULL,
 	.set_capi_mode		= NULL,
 	.set_capp_recovery	= NULL,
+	.set_fence_state	= npu_set_fence_state,
 };
 
 static void assign_mmio_bars(uint32_t gcid, uint32_t xscom,

@@ -908,7 +908,7 @@ static void find_npu_checkstop_reason(int flat_chip_id,
 
 		if (phb->phb_type == phb_type_pcie_v3) {
 			/* Set the NPU to fenced since it can't recover. */
-			npu_set_fence_state(phb_to_npu(phb), true);
+			phb->ops->set_fence_state(phb, true);
 		}
 
 		/* Set up the HMI event */
