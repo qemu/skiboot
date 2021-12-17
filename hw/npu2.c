@@ -1316,6 +1316,7 @@ static const struct phb_ops npu_ops = {
 	.set_capi_mode		= NULL,
 	.set_capp_recovery	= NULL,
 	.tce_kill		= npu2_tce_kill,
+	.dump_debug_data	= npu2_dump_scoms,
 };
 
 static void assign_mmio_bars(uint64_t gcid, uint32_t scom, uint64_t reg[2], uint64_t mm_win[2])

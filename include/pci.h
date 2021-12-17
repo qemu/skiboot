@@ -343,6 +343,9 @@ struct phb_ops {
 
 	/* Currently only used by NPU HMI code */
 	void (*set_fence_state)(struct phb *phb, bool fence);
+
+	/* The most terrible of situtions, dump debug data to console. */
+	void (*dump_debug_data)(struct phb *phb, int flat_chip_id);
 };
 
 enum phb_type {

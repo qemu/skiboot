@@ -296,8 +296,9 @@ static void show_all_regs(struct npu2 *npu, int brick_index)
 	}
 }
 
-void npu2_dump_scoms(struct npu2 *npu, int chip_id)
+void npu2_dump_scoms(struct phb *phb, int chip_id)
 {
+	struct npu2 *npu = phb_to_npu2_nvlink(phb);
 	if (npu && npu->chip_id == chip_id)
 		show_all_regs(npu, -1 /* all bricks */);
 }

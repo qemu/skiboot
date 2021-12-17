@@ -212,7 +212,13 @@ static inline struct phb *npu2_dev_to_phb(struct npu2_dev *ndev)
 	}
 }
 
+#ifdef CONFIG_NPU
 void npu2_i2c_presence_detect(struct npu2 *npu);
+#else
+static inline void npu2_i2c_presence_detect(struct npu2 *npu __unused)
+{
+}
+#endif
 int npu2_opencapi_init_npu(struct npu2 *npu);
 int npu2_nvlink_init_npu(struct npu2 *npu);
 void npu2_nvlink_create_phb(struct npu2 *npu, struct dt_node *dn);
@@ -241,7 +247,7 @@ int64_t npu2_freeze_status(struct phb *phb __unused,
 			   uint8_t *freeze_state,
 			   uint16_t *pci_error_type __unused,
 			   uint16_t *severity __unused);
-void npu2_dump_scoms(struct npu2 *npu, int chip_id);
+void npu2_dump_scoms(struct phb *phb, int chip_id);
 
 int64_t npu2_init_context(struct phb *phb, uint64_t msr, uint64_t bdf);
 int64_t npu2_destroy_context(struct phb *phb, uint64_t bdf);

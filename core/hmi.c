@@ -719,6 +719,7 @@ static void find_nx_checkstop_reason(int flat_chip_id,
 	queue_hmi_event(hmi_evt, 0, out_flags);
 }
 
+#ifdef CONFIG_NPU
 static void add_npu_xstop_reason(uint32_t *xstop_reason, uint8_t reason)
 {
 	int i, reason_count;
@@ -854,7 +855,7 @@ static bool npu_fir_errors(struct phb *phb, int flat_chip_id,
 		switch (phb->phb_type) {
 		case phb_type_npu_v2:
 		case phb_type_npu_v2_opencapi:
-			npu2_dump_scoms(npu2, flat_chip_id);
+			phb->ops->dump_debug_data(phb, flat_chip_id);
 		break;
 		case phb_type_pau_opencapi:
 			pau_opencapi_dump_scoms(pau);
@@ -922,6 +923,13 @@ static void find_npu_checkstop_reason(int flat_chip_id,
 		queue_hmi_event(hmi_evt, 1, out_flags);
 	}
 }
+#else
+static void find_npu_checkstop_reason(int flat_chip_id __unused,
+				      struct OpalHMIEvent *hmi_evt __unused,
+				      uint64_t *out_flags __unused)
+{
+}
+#endif
 
 static void decode_malfunction(struct OpalHMIEvent *hmi_evt, uint64_t *out_flags)
 {

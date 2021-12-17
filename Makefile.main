@@ -165,6 +165,10 @@ ifeq ($(CONFIG_P8),1)
 CFLAGS += -DCONFIG_P8=1
 endif
 
+ifeq ($(CONFIG_NPU),1)
+CFLAGS += -DCONFIG_NPU=1
+endif
+
 CFLAGS += $(call try-cflag,$(CC),-Wjump-misses-init) \
 	  $(call try-cflag,$(CC),-Wsuggest-attribute=const) \
 	  $(call try-cflag,$(CC),-Wsuggest-attribute=noreturn) \
