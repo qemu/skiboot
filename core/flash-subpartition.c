@@ -59,6 +59,14 @@ int flash_subpart_info(void *part_header, uint32_t header_len,
 	prlog(PR_DEBUG, "FLASH: flash subpartition eyecatcher %s\n",
 	      eyecatcher);
 
+	/*
+	 * P11 IMA Catalog partition require subid 0x800200.
+	 * Override the subid when we detect an IMCC partition.
+	 */
+	if (strcmp(eyecatcher, "IMCC") == 0 && subid == 0x820200) {
+		subid = 0x800200;
+	}
+
 	subpart_found = false;
 	part_actual = 0;
 	for (i = 0; i < FLASH_HOSTBOOT_TOC_MAX_ENTRIES; i++) {
